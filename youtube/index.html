@@ -167,6 +167,7 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
  }
  const priorLoad=loadState;
  loadState=function(){priorLoad();state.disliked=Array.isArray(state.disliked)?state.disliked:[];state.comments=state.comments&&typeof state.comments==="object"?state.comments:{};state.aiAccounts=Array.isArray(state.aiAccounts)?state.aiAccounts:[];state.aiEvents=Array.isArray(state.aiEvents)?state.aiEvents:[];if(!state.aiAccounts.length){state.aiAccounts=[{name:"ゲーム好きのユウ",handle:"@yu_gamer",avatar:"🎮"},{name:"音楽のある暮らし",handle:"@music_days",avatar:"🎧"},{name:"ねこ動画研究所",handle:"@cat_lab",avatar:"🐱"},{name:"テック観察日記",handle:"@tech_watch",avatar:"🤖"},{name:"毎日ショート",handle:"@daily_short",avatar:"✨"},{name:"のんびり視聴者",handle:"@slow_viewer",avatar:"🌱"}];saveState()}};
+ loadState();
  const priorRender=render;
  render=function(){if(currentPage==="analytics"){renderAnalytics();return}priorRender()};
  function toggleEngagement(key,vid){state[key]=Array.isArray(state[key])?state[key]:[];const i=state[key].indexOf(vid);if(i>=0)state[key].splice(i,1);else{state[key]=state[key].filter(x=>x!==vid);state[key].unshift(vid)}saveState();toast(i>=0?"評価を取り消しました":key==="disliked"?"低く評価しました":"高く評価しました")}
