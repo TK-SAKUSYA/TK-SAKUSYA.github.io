@@ -16,9 +16,10 @@
 .brand{min-width:auto;gap:6px;flex:0 0 auto}.brandtext{display:inline;font-size:17px}.ytlogo{width:27px;height:20px}
 .search{flex:1;min-width:35px;max-width:none;margin:0}.search input{width:0;min-width:0;padding:0 10px;height:36px}.search button{width:38px;flex:0 0 38px;height:36px}
 .topright{gap:4px;flex:0 0 auto}.topright .pill{padding:8px 10px;font-size:12px;white-space:nowrap}.topright #notificationsBtn,.topright #profileBtn{display:none}.avatar{width:32px;height:32px;flex:0 0 32px}
-.sidebar{position:fixed;top:auto;left:0;right:0;bottom:0;width:100%;height:62px;display:flex;flex-direction:row;align-items:stretch;gap:0;overflow-x:auto;overflow-y:hidden;padding:4px 5px max(4px,env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line);z-index:20}
-.sidebar .nav{display:flex;flex:1 0 58px;min-width:58px;max-width:100px;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:4px 2px;margin:0;border-radius:8px;font-size:10px;line-height:1.15;white-space:nowrap}
-.sidebar .nav .navicon{display:block;width:auto;font-size:20px;line-height:1.1}.sidebar .nav span:last-child{display:block;font-size:10px}.sidebar .navheading,.sidebar .sep{display:none}
+.sidebar{position:fixed;top:56px;left:0;right:auto;bottom:0;width:min(280px,82vw);height:auto;display:none;flex-direction:column;align-items:stretch;gap:0;overflow-x:hidden;overflow-y:auto;padding:12px 10px max(20px,env(safe-area-inset-bottom));background:var(--bg);border-right:1px solid var(--line);box-shadow:8px 0 24px #0003;z-index:30}
+.sidebar.is-open{display:flex}
+.sidebar .nav{display:flex;flex:0 0 auto;min-width:0;max-width:none;flex-direction:row;justify-content:flex-start;align-items:center;gap:18px;padding:12px 14px;margin:0 0 3px;border-radius:10px;font-size:14px;line-height:1.3;white-space:normal}
+.sidebar .nav .navicon{display:block;width:22px;flex:0 0 22px;font-size:20px;line-height:1.1}.sidebar .nav span:last-child{display:block;font-size:14px}.sidebar .navheading{display:block}.sidebar .sep{display:block}
 .main{margin:0;width:100%;padding:14px 12px calc(78px + env(safe-area-inset-bottom))}.grid{grid-template-columns:1fr;gap:24px 0}.card{width:100%}.thumb{border-radius:10px}.meta{gap:10px;padding-top:9px}.vtitle{font-size:15px}.profilehero{align-items:flex-start}.profilebig{width:76px;height:76px;font-size:30px}.profilehero h1{font-size:22px}.pagehead{gap:10px;flex-wrap:wrap}.pagehead h1{font-size:22px}.playerbg{padding:8px}.watchvideo{margin-top:20px}.watchtitle{font-size:19px}
 }
 @media(max-width:390px){.top{gap:6px;padding:0 7px}.brandtext{font-size:15px}.ytlogo{width:24px;height:18px}.topright .pill{font-size:11px;padding:7px 8px}.search input{padding:0 6px}.search button{width:32px;flex-basis:32px}}
@@ -121,7 +122,7 @@ $("searchForm").onsubmit=e=>{e.preventDefault();query=$("searchInput").value;set
 $("createBtn").onclick=openUpload;$("profileBtn").onclick=editChannel;$("avatarBtn").onclick=()=>setPage("channel");
 $("sidebar").addEventListener("click",e=>{const n=e.target.closest("[data-page]");if(n){e.preventDefault();setPage(n.dataset.page)}});
 $("homeBrand").onclick=()=>setPage("home");$("homeBrand").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setPage("home")}};
-$("menuBtn").onclick=()=>{$("sidebar").style.display=$("sidebar").style.display==="none"?"":"none";if(innerWidth<650)$("sidebar").style.display=$("sidebar").style.display==="none"?"":"flex"};
+$("menuBtn").onclick=()=>{const sidebar=$("sidebar");if(innerWidth<=650){const opened=sidebar.classList.toggle("is-open");$("menuBtn").setAttribute("aria-expanded",String(opened));}else{sidebar.style.display=sidebar.style.display==="none"?"":"none";$("menuBtn").setAttribute("aria-expanded",String(sidebar.style.display!=="none"));}};
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){modalClose();if($("playerBg").classList.contains("show"))closeWatch()}});
 (async()=>{loadState();try{await openDB()}catch(e){toast("このブラウザでは動画のローカル保存が利用できない可能性があります")}if(state.channel.avatar)$("avatarBtn").innerHTML=`<img src="${state.channel.avatar}" alt="">`;else $("avatarBtn").textContent=state.channel.name.trim().charAt(0)||"T";render()})();
 
