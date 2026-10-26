@@ -167,7 +167,28 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
 
  const sidebar=$("sidebar");
  if(sidebar&&!sidebar.querySelector('[data-page="analytics"]')){const a=document.createElement("a");a.className="nav";a.dataset.page="analytics";a.innerHTML='<span class="navicon">📊</span><span>チャンネル分析</span>';sidebar.appendChild(a)}
- const watch=$("watchDescription");
+ // 設定ページとテーマ切り替え
+  const themeStyle=document.createElement("style");
+  themeStyle.textContent=`
+  body.light-mode{color-scheme:light;--bg:#f9f9f9;--surface:#fff;--surface2:#e9e9e9;--text:#181818;--muted:#606060;--line:#d8d8d8}
+  body.light-mode .top,body.light-mode .sidebar{background:var(--bg)}
+  body.light-mode .search input,body.light-mode .field input,body.light-mode .field textarea,body.light-mode .field select{background:#fff;color:#181818;border-color:#ccc}
+  body.light-mode .search button,body.light-mode .chip,body.light-mode .secondary,body.light-mode .pill{background:#e9e9e9;color:#181818;border-color:#ddd}
+  body.light-mode .chip.active,body.light-mode .primary{background:#181818;color:#fff}
+  body.light-mode .thumb,body.light-mode .description,body.light-mode .metric,body.light-mode .chartbox,body.light-mode .modal{background:#fff;color:#181818;border:1px solid #e0e0e0}
+  body.light-mode .nav.active,body.light-mode .nav:hover,body.light-mode .round:hover{background:#e9e9e9}
+  body.light-mode .playerbg{background:#fffd}
+  body.light-mode .toast{background:#222;color:#fff}
+  body.light-mode .bar{background:#ddd}
+  `;
+  document.head.appendChild(themeStyle);
+  function applyTheme(theme){document.body.classList.toggle("light-mode",theme==="light");localStorage.setItem("yt_theme",theme);const label=$("themeToggle");if(label)label.textContent=theme==="light"?"🌙 ダークモードにする":"☀️ ライトモードにする"}
+  const side=$("sidebar");
+  if(side&&!side.querySelector('[data-page="settings"]')){const sep=document.createElement("hr");sep.className="sep";side.appendChild(sep);const a=document.createElement("a");a.className="nav";a.dataset.page="settings";a.innerHTML='<span class="navicon">⚙️</span><span>設定</span>';side.appendChild(a)}
+  const baseRender=render;
+  render=function(){if(currentPage==="settings"){const main=$("main");main.innerHTML='<div class="pagehead"><h1>⚙️ 設定</h1></div><section class="description" style="max-width:680px"><h2>🎨 デザイン</h2><p>表示モードを選択できます。</p><button class="secondary" id="themeToggle"></button><p class="muted">選んだテーマはこのブラウザに保存され、次回も適用されます。</p></section>';document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page==="settings"));const b=$("themeToggle");b.onclick=()=>{applyTheme(document.body.classList.contains("light-mode")?"dark":"light");toast(document.body.classList.contains("light-mode")?"ライトモードにしました":"ダークモードにしました")};applyTheme(localStorage.getItem("yt_theme")||"dark");return}baseRender();document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page===currentPage))};
+  applyTheme(localStorage.getItem("yt_theme")||"dark");
+  const watch=$("watchDescription");
  if(watch&&!$("watchActionsExtra")){const box=document.createElement("div");box.id="watchActionsExtra";box.className="watchactions";box.innerHTML='<button class="secondary" id="dislikeBtn">👎 低評価</button><button class="secondary" id="shareBtn">🔗 共有</button><button class="secondary" id="loopBtn">🔁 ループ OFF</button><button class="secondary" id="saveBtn">📥 保存</button>';const actionRow=document.querySelector(".watchmeta .actions");if(actionRow)actionRow.appendChild(box);else watch.after(box);
   const comments=document.createElement("section");comments.id="commentsPanel";comments.className="commentpanel";comments.innerHTML='<h2 id="commentCount">💬 コメント</h2><form class="commentform" id="commentForm"><input id="commentInput" maxlength="1000" placeholder="コメントを追加..." aria-label="コメント"><button class="primary">コメント</button></form><div id="commentsList"></div>';watch.after(comments);
   $("dislikeBtn").onclick=()=>{if(!currentVideoId)return;toggleEngagement("disliked",currentVideoId);renderComments();syncExtraButtons()};
