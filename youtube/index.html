@@ -189,6 +189,8 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
   function settingChecked(key){return localStorage.getItem(key)==="true"}
   function renderSettings(){
     const main=$("main");
+    main.style.paddingLeft="clamp(28px, 5vw, 72px)";
+    main.style.paddingRight="clamp(20px, 3vw, 48px)";
     main.innerHTML='<div class="pagehead"><h1>⚙️ 設定</h1></div><div style="max-width:760px;display:grid;gap:14px">'+
       '<section class="description" style="padding:20px"><h2>📊 YouTube上でのデータ</h2><p>このYouTube風シミュレーションの動画・履歴・設定は、このブラウザ内に保存されます。</p><p class="muted">実際のYouTubeアカウントやGoogleアカウントには接続していません。</p></section>'+
       '<section class="description" style="padding:20px"><h2>🎨 デザイン</h2><p>表示モードを選択できます。</p><button class="secondary" id="themeToggle"></button><p class="muted">選んだテーマはこのブラウザに保存され、次回も適用されます。</p></section>'+
@@ -210,7 +212,7 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
     $("locationSetting").onchange=e=>{localStorage.setItem("yt_location",e.target.value);toast("地域設定を保存しました")};
     applyTheme(localStorage.getItem("yt_theme")||"dark");
   }
-  render=function(){if(currentPage==="settings"){renderSettings();return}baseRender();document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page===currentPage))};
+  render=function(){if(currentPage==="settings"){renderSettings();return}const main=$("main");if(main){main.style.paddingLeft="";main.style.paddingRight=""}baseRender();document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page===currentPage))};
   applyTheme(localStorage.getItem("yt_theme")||"dark");
   const watch=$("watchDescription");
  if(watch&&!$("watchActionsExtra")){const box=document.createElement("div");box.id="watchActionsExtra";box.className="watchactions";box.innerHTML='<button class="secondary" id="dislikeBtn">👎 低評価</button><button class="secondary" id="shareBtn">🔗 共有</button><button class="secondary" id="loopBtn">🔁 ループ OFF</button><button class="secondary" id="saveBtn">📥 保存</button>';const actionRow=document.querySelector(".watchmeta .actions");if(actionRow)actionRow.appendChild(box);else watch.after(box);
