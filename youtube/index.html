@@ -38,7 +38,7 @@
 <main class="main" id="main"></main>
 </div>
 <div class="modalbg" id="modalBg"><section class="modal" role="dialog" aria-modal="true"><div class="modalhead"><h2 id="modalTitle">作成</h2><button class="close" id="modalClose">×</button></div><div id="modalBody"></div><div class="modalbuttons" id="modalButtons"></div></section></div>
-<div class="playerbg" id="playerBg"><div class="watch"><div class="watchtop"><button class="round" id="watchClose">✕</button></div><video class="watchvideo" id="watchVideo" controls playsinline></video><h1 class="watchtitle" id="watchTitle"></h1><div class="watchmeta"><div class="watchchannel" id="watchChannel"></div><div class="actions"><button class="secondary" id="likeBtn">♡ 高く評価</button><button class="secondary" id="laterBtn">◷ 後で見る</button></div></div><div class="description" id="watchDescription"></div></div></div>
+<div class="playerbg" id="playerBg"><div class="watch"><div class="watchtop"><button class="round" id="watchClose">✕</button></div><video class="watchvideo" id="watchVideo" controls playsinline></video><h1 class="watchtitle" id="watchTitle"></h1><div class="watchmeta"><div class="watchchannel" id="watchChannel"></div><div class="actions"><button class="secondary" id="likeBtn">❤️ 高評価</button><button class="secondary" id="laterBtn">⏰ 後で見る</button></div></div><div class="description" id="watchDescription"></div></div></div>
 <div class="toast" id="toast"></div>
 <script>
 const DB_NAME="youtube_local_app",DB_VERSION=1,STORE="videos";
@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
 (()=>{
  const style=document.createElement("style");
  style.textContent=`
- #modeToggle{white-space:nowrap}.watchactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+ #modeToggle{white-space:nowrap}.watchmeta{align-items:center;gap:12px;flex-wrap:wrap}.watchmeta .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.watchactions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0}.watchmeta .actions button,.watchactions button{height:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;padding:0 14px;border-radius:22px;font-size:14px;line-height:1}.watchactions button{margin:0}
  .commentpanel{background:#181818;border-radius:14px;padding:18px;margin-top:18px}
  .commentpanel h2{font-size:20px;margin:0 0 14px}.commentform{display:flex;gap:10px;margin:12px 0 20px}
  .commentform input{flex:1;min-width:0;background:#121212;border:1px solid #444;color:#fff;border-radius:22px;padding:12px 15px}
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
  const sidebar=$("sidebar");
  if(sidebar&&!sidebar.querySelector('[data-page="analytics"]')){const a=document.createElement("a");a.className="nav";a.dataset.page="analytics";a.innerHTML='<span class="navicon">📊</span><span>チャンネル分析</span>';sidebar.appendChild(a)}
  const watch=$("watchDescription");
- if(watch&&!$("watchActionsExtra")){const box=document.createElement("div");box.id="watchActionsExtra";box.className="watchactions";box.innerHTML='<button class="secondary" id="dislikeBtn">👎 低く評価</button><button class="secondary" id="shareBtn">🔗 共有</button><button class="secondary" id="loopBtn">🔁 ループ OFF</button><button class="secondary" id="saveBtn">📥 保存</button>';watch.after(box);
+ if(watch&&!$("watchActionsExtra")){const box=document.createElement("div");box.id="watchActionsExtra";box.className="watchactions";box.innerHTML='<button class="secondary" id="dislikeBtn">👎 低評価</button><button class="secondary" id="shareBtn">🔗 共有</button><button class="secondary" id="loopBtn">🔁 ループ OFF</button><button class="secondary" id="saveBtn">📥 保存</button>';const actionRow=document.querySelector(".watchmeta .actions");if(actionRow)actionRow.appendChild(box);else watch.after(box);
   const comments=document.createElement("section");comments.id="commentsPanel";comments.className="commentpanel";comments.innerHTML='<h2 id="commentCount">💬 コメント</h2><form class="commentform" id="commentForm"><input id="commentInput" maxlength="1000" placeholder="コメントを追加..." aria-label="コメント"><button class="primary">コメント</button></form><div id="commentsList"></div>';box.after(comments);
   $("dislikeBtn").onclick=()=>{if(!currentVideoId)return;toggleEngagement("disliked",currentVideoId);renderComments();syncExtraButtons()};
   $("shareBtn").onclick=async()=>{if(!currentVideoId)return;const url=location.href.split("#")[0]+"#video="+encodeURIComponent(currentVideoId);try{if(navigator.share)await navigator.share({title:getVideo(currentVideoId)?.title||"YouTube",url});else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);toast("共有リンクをコピーしました")}else{prompt("共有リンクをコピーしてください",url)}}catch(e){}};
