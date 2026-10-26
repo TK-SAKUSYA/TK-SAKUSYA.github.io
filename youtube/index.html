@@ -141,6 +141,15 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
 
 /* 第三回アップデート：モード切替、評価・共有、コメント、AIアカウント、分析 */
 (()=>{
+ const notifStyle=document.createElement("style");
+ notifStyle.textContent='#notificationsBtn{position:relative}#notificationsBtn.has-unread::after{content:"";position:absolute;right:5px;top:5px;width:10px;height:10px;border-radius:50%;background:#f03;border:2px solid var(--bg);box-sizing:content-box}';
+ document.head.appendChild(notifStyle);
+ function updateNotificationBadge(){const b=$("notificationsBtn");if(b)b.classList.toggle("has-unread",Array.isArray(state.notifications)&&state.notifications.some(n=>!n.read))}
+ const oldSaveState=saveState;
+ saveState=function(){oldSaveState();updateNotificationBadge()};
+ const oldShowNotifications=showNotifications;
+ showNotifications=function(){state.notifications=Array.isArray(state.notifications)?state.notifications:[];state.notifications.forEach(n=>{n.read=true});saveState();updateNotificationBadge();oldShowNotifications()};
+ updateNotificationBadge();
  const style=document.createElement("style");
  style.textContent=`
  #modeToggle{white-space:nowrap}.watchmeta{align-items:center;gap:12px;flex-wrap:wrap}.watchmeta .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.watchactions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0}.watchmeta .actions button,.watchactions button{height:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;padding:0 14px;border-radius:22px;font-size:14px;line-height:1}.watchactions button{margin:0}
