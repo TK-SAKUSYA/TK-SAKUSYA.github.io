@@ -186,7 +186,31 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
   const side=$("sidebar");
   if(side&&!side.querySelector('[data-page="settings"]')){const sep=document.createElement("hr");sep.className="sep";side.appendChild(sep);const a=document.createElement("a");a.className="nav";a.dataset.page="settings";a.innerHTML='<span class="navicon">⚙️</span><span>設定</span>';side.appendChild(a)}
   const baseRender=render;
-  render=function(){if(currentPage==="settings"){const main=$("main");main.innerHTML='<div class="pagehead"><h1>⚙️ 設定</h1></div><section class="description" style="max-width:680px"><h2>🎨 デザイン</h2><p>表示モードを選択できます。</p><button class="secondary" id="themeToggle"></button><p class="muted">選んだテーマはこのブラウザに保存され、次回も適用されます。</p></section>';document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page==="settings"));const b=$("themeToggle");b.onclick=()=>{applyTheme(document.body.classList.contains("light-mode")?"dark":"light");toast(document.body.classList.contains("light-mode")?"ライトモードにしました":"ダークモードにしました")};applyTheme(localStorage.getItem("yt_theme")||"dark");return}baseRender();document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page===currentPage))};
+  function settingChecked(key){return localStorage.getItem(key)==="true"}
+  function renderSettings(){
+    const main=$("main");
+    main.innerHTML='<div class="pagehead"><h1>⚙️ 設定</h1></div><div style="max-width:760px;display:grid;gap:14px">'+
+      '<section class="description" style="padding:20px"><h2>📊 YouTube上でのデータ</h2><p>このYouTube風シミュレーションの動画・履歴・設定は、このブラウザ内に保存されます。</p><p class="muted">実際のYouTubeアカウントやGoogleアカウントには接続していません。</p></section>'+
+      '<section class="description" style="padding:20px"><h2>🎨 デザイン</h2><p>表示モードを選択できます。</p><button class="secondary" id="themeToggle"></button><p class="muted">選んだテーマはこのブラウザに保存され、次回も適用されます。</p></section>'+
+      '<section class="description" style="padding:20px"><h2>🌐 言語</h2><label for="languageSetting">表示言語の設定</label><select id="languageSetting" class="secondary" style="display:block;margin-top:8px;padding:10px;max-width:260px"><option value="ja">日本語</option><option value="en">English（表示設定のみ）</option></select><p class="muted">※現在、画面全体の翻訳には対応していません。</p></section>'+
+      '<section class="description" style="padding:20px"><label style="display:flex;gap:12px;align-items:center;font-size:16px;font-weight:700"><input id="restrictedModeSetting" type="checkbox" style="width:19px;height:19px"> 🛡️ 制限付きモード</label><p class="muted">設定はこのブラウザに保存されます。現在のシミュレーションには年齢制限コンテンツの判定機能はありません。</p></section>'+
+      '<section class="description" style="padding:20px"><h2>📍 場所</h2><label for="locationSetting">地域の設定</label><select id="locationSetting" class="secondary" style="display:block;margin-top:8px;padding:10px;max-width:260px"><option value="JP">日本</option><option value="US">アメリカ</option><option value="GB">イギリス</option><option value="other">その他</option></select><p class="muted">この設定はシミュレーション内に保存され、実際の位置情報は取得しません。</p></section>'+
+      '<section class="description" style="padding:20px"><h2>⌨️ キーボードショートカット</h2><p>検索欄以外で使えます。</p><p><kbd> / </kbd>　検索欄に移動</p><p><kbd>Esc</kbd>　入力欄からフォーカスを外す</p><p><kbd>Space</kbd>　動画再生／一時停止（動画ページを開いているとき）</p></section>'+
+      '<section class="description" style="padding:20px"><label style="display:flex;gap:12px;align-items:center;font-size:16px;font-weight:700"><input id="stopAISetting" type="checkbox" style="width:19px;height:19px"> 🤖 AI行動停止</label><p>AIの行動を全て停止します</p><p class="muted">オンにするとAIアカウントの新規作成、視聴・評価・コメントなどの自動行動を停止します。オフにすると再開します。</p></section>'+
+      '</div>';
+    document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page==="settings"));
+    $("themeToggle").onclick=()=>{applyTheme(document.body.classList.contains("light-mode")?"dark":"light");toast(document.body.classList.contains("light-mode")?"ライトモードにしました":"ダークモードにしました")};
+    $("restrictedModeSetting").checked=settingChecked("yt_restricted_mode");
+    $("restrictedModeSetting").onchange=e=>{localStorage.setItem("yt_restricted_mode",String(e.target.checked));toast(e.target.checked?"制限付きモードをオンにしました":"制限付きモードをオフにしました")};
+    $("stopAISetting").checked=settingChecked("yt_stop_ai");
+    $("stopAISetting").onchange=e=>{localStorage.setItem("yt_stop_ai",String(e.target.checked));syncAIIntervals();toast(e.target.checked?"🤖 AIの自動行動を停止しました":"🤖 AIの自動行動を再開しました")};
+    $("languageSetting").value=localStorage.getItem("yt_language")||"ja";
+    $("languageSetting").onchange=e=>{localStorage.setItem("yt_language",e.target.value);toast("言語設定を保存しました")};
+    $("locationSetting").value=localStorage.getItem("yt_location")||"JP";
+    $("locationSetting").onchange=e=>{localStorage.setItem("yt_location",e.target.value);toast("地域設定を保存しました")};
+    applyTheme(localStorage.getItem("yt_theme")||"dark");
+  }
+  render=function(){if(currentPage==="settings"){renderSettings();return}baseRender();document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page===currentPage))};
   applyTheme(localStorage.getItem("yt_theme")||"dark");
   const watch=$("watchDescription");
  if(watch&&!$("watchActionsExtra")){const box=document.createElement("div");box.id="watchActionsExtra";box.className="watchactions";box.innerHTML='<button class="secondary" id="dislikeBtn">👎 低評価</button><button class="secondary" id="shareBtn">🔗 共有</button><button class="secondary" id="loopBtn">🔁 ループ OFF</button><button class="secondary" id="saveBtn">📥 保存</button>';const actionRow=document.querySelector(".watchmeta .actions");if(actionRow)actionRow.appendChild(box);else watch.after(box);
@@ -214,9 +238,24 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
  function aiActivity(){if(!state.videos.length)return;const v=state.videos[Math.floor(Math.random()*state.videos.length)];const ai=state.aiAccounts[Math.floor(Math.random()*state.aiAccounts.length)];if(!v||!ai)return;const action=Math.random();if(action<.40){v.views=(v.views||0)+1;logAI("👀 "+ai.name+" が「"+v.title+"」を視聴")}else if(action<.60){v.aiLikes=(v.aiLikes||0)+1;logAI("❤️ "+ai.name+" が「"+v.title+"」を高評価")}else if(action<.75){v.aiDislikes=(v.aiDislikes||0)+1;logAI("👎 "+ai.name+" が「"+v.title+"」を低評価")}else{const texts=["この動画おもしろい！","次の動画も楽しみにしています！","編集がいいですね👏","これは知らなかった！","最後まで見ちゃった！","おすすめに出てきたので見ました！","いい情報ありがとう！","このチャンネル応援してます！","わかりやすい解説！","次は別のテーマも見たい！","このチャンネル登録しました！","これは友だちにもおすすめしたい"];state.comments[v.id]=state.comments[v.id]||[];if(!state.comments[v.id].some(c=>c.ai&&c.author===ai.name)){state.comments[v.id].unshift({id:id(),author:ai.name,handle:ai.handle,avatar:ai.avatar,text:texts[Math.floor(Math.random()*texts.length)],likes:Math.floor(Math.random()*4),dislikes:0,replies:[],ai:true,date:new Date().toLocaleString("ja-JP")});logAI("💬 "+ai.name+" が「"+v.title+"」にコメント")}else{v.views=(v.views||0)+1;logAI("👀 "+ai.name+" が「"+v.title+"」を視聴")}}saveState();if(currentPage==="analytics")renderAnalytics();if(currentVideoId===v.id)renderComments();const cardEl=document.querySelector('[data-video="'+CSS.escape(v.id)+'"] .stats');if(cardEl)cardEl.textContent=Number(v.views||0).toLocaleString()+" 回視聴 ・ "+(v.date||"たった今")}
  function logAI(text){const now=new Date();const date=now.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"});state.aiEvents=Array.isArray(state.aiEvents)?state.aiEvents:[];state.aiEvents.unshift({text,date});state.aiEvents=state.aiEvents.slice(0,100);state.notifications=Array.isArray(state.notifications)?state.notifications:[];state.notifications.unshift({id:id(),title:"🤖 AIアカウントの行動",text,date:now.toLocaleString("ja-JP")});state.notifications=state.notifications.slice(0,100);saveState();toast("🤖 "+text)}
  const nav=sidebar; if(nav)nav.addEventListener("click",e=>{const a=e.target.closest('[data-page="analytics"]');if(a){e.preventDefault();setPage("analytics")}});
- // AIは動画が投稿されていれば3秒ごとに活動。動画がない間も新規AIアカウントは参加し、🔔通知に記録される。
- setInterval(aiActivity,3000);
- setInterval(()=>{if(Math.random()<0.9)createAIAccount()},15000);
+ // AI行動停止設定。停止中はタイマーを解除し、再開時も重複タイマーを作らない。
+ let aiActivityTimer=null,aiAccountTimer=null;
+ function syncAIIntervals(){
+   const stopped=localStorage.getItem("yt_stop_ai")==="true";
+   if(stopped){
+     if(aiActivityTimer!==null){clearInterval(aiActivityTimer);aiActivityTimer=null}
+     if(aiAccountTimer!==null){clearInterval(aiAccountTimer);aiAccountTimer=null}
+     return;
+   }
+   if(aiActivityTimer===null)aiActivityTimer=setInterval(()=>{if(localStorage.getItem("yt_stop_ai")!=="true")aiActivity()},3000);
+   if(aiAccountTimer===null)aiAccountTimer=setInterval(()=>{if(localStorage.getItem("yt_stop_ai")!=="true"&&Math.random()<0.9)createAIAccount()},15000);
+ }
+ // AIは動画が投稿されていれば3秒ごとに活動。新規AIアカウントの参加も設定で停止できます。
+ const originalCreateAIAccount=createAIAccount;
+ createAIAccount=function(){if(localStorage.getItem("yt_stop_ai")==="true")return null;return originalCreateAIAccount()};
+ const originalAIActivity=aiActivity;
+ aiActivity=function(){if(localStorage.getItem("yt_stop_ai")==="true")return;return originalAIActivity()};
+ syncAIIntervals();
  window.addEventListener("hashchange",()=>{const m=location.hash.match(/video=([^&]+)/);if(m)watch(decodeURIComponent(m[1]))});
  if(location.hash.includes("video=")){const m=location.hash.match(/video=([^&]+)/);if(m)setTimeout(()=>watch(decodeURIComponent(m[1])),700)}
 })();
