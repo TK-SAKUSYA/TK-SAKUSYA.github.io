@@ -256,6 +256,13 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
  const originalAIActivity=aiActivity;
  aiActivity=function(){if(localStorage.getItem("yt_stop_ai")==="true")return;return originalAIActivity()};
  syncAIIntervals();
+ document.addEventListener("keydown",e=>{
+   const target=e.target;
+   const typing=target&&(target.matches("input,textarea,select")||target.isContentEditable);
+   if(e.key==="/"&&!typing){e.preventDefault();const search=$("searchInput")||document.querySelector(".search input");if(search)search.focus()}
+   if(e.key==="Escape"&&typing&&target!==document.body){target.blur()}
+   if(e.code==="Space"&&!typing&&currentVideoId&&$("watchVideo")&&$("watchVideo").offsetParent!==null){e.preventDefault();const video=$("watchVideo");if(video.paused)video.play().catch(()=>{});else video.pause()}
+ });
  window.addEventListener("hashchange",()=>{const m=location.hash.match(/video=([^&]+)/);if(m)watch(decodeURIComponent(m[1]))});
  if(location.hash.includes("video=")){const m=location.hash.match(/video=([^&]+)/);if(m)setTimeout(()=>watch(decodeURIComponent(m[1])),700)}
 })();
