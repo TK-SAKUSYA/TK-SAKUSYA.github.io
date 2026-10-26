@@ -189,9 +189,9 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
   function settingChecked(key){return localStorage.getItem(key)==="true"}
   function renderSettings(){
     const main=$("main");
-    main.style.paddingLeft="clamp(28px, 5vw, 72px)";
-    main.style.paddingRight="clamp(20px, 3vw, 48px)";
-    main.innerHTML='<div class="pagehead"><h1>⚙️ 設定</h1></div><div style="max-width:760px;display:grid;gap:14px">'+
+    main.style.paddingLeft="clamp(18px, 3vw, 42px)";
+    main.style.paddingRight="clamp(18px, 3vw, 42px)";
+    main.innerHTML='<div style="max-width:1000px;margin:0 auto"><div class="pagehead"><h1>⚙️ 設定</h1></div><div style="width:100%;display:grid;gap:14px">'+
       '<section class="description" style="padding:20px"><h2>📊 YouTube上でのデータ</h2><p>このYouTube風シミュレーションの動画・履歴・設定は、このブラウザ内に保存されます。</p><p class="muted">実際のYouTubeアカウントやGoogleアカウントには接続していません。</p></section>'+
       '<section class="description" style="padding:20px"><h2>🎨 デザイン</h2><p>表示モードを選択できます。</p><button class="secondary" id="themeToggle"></button><p class="muted">選んだテーマはこのブラウザに保存され、次回も適用されます。</p></section>'+
       '<section class="description" style="padding:20px"><h2>🌐 言語</h2><label for="languageSetting">表示言語の設定</label><select id="languageSetting" class="secondary" style="display:block;margin-top:8px;padding:10px;max-width:260px"><option value="ja">日本語</option><option value="en">English（表示設定のみ）</option></select><p class="muted">※現在、画面全体の翻訳には対応していません。</p></section>'+
@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
       '<section class="description" style="padding:20px"><h2>📍 場所</h2><label for="locationSetting">地域の設定</label><select id="locationSetting" class="secondary" style="display:block;margin-top:8px;padding:10px;max-width:260px"><option value="JP">日本</option><option value="US">アメリカ</option><option value="GB">イギリス</option><option value="other">その他</option></select><p class="muted">この設定はシミュレーション内に保存され、実際の位置情報は取得しません。</p></section>'+
       '<section class="description" style="padding:20px"><h2>⌨️ キーボードショートカット</h2><p>検索欄以外で使えます。</p><p><kbd> / </kbd>　検索欄に移動</p><p><kbd>Esc</kbd>　入力欄からフォーカスを外す</p><p><kbd>Space</kbd>　動画再生／一時停止（動画ページを開いているとき）</p></section>'+
       '<section class="description" style="padding:20px"><label style="display:flex;gap:12px;align-items:center;font-size:16px;font-weight:700"><input id="stopAISetting" type="checkbox" style="width:19px;height:19px"> 🤖 AI行動停止</label><p>AIの行動を全て停止します</p><p class="muted">オンにするとAIアカウントの新規作成、視聴・評価・コメントなどの自動行動を停止します。オフにすると再開します。</p></section>'+
-      '</div>';
+      '</div></div>';
     document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page==="settings"));
     $("themeToggle").onclick=()=>{applyTheme(document.body.classList.contains("light-mode")?"dark":"light");toast(document.body.classList.contains("light-mode")?"ライトモードにしました":"ダークモードにしました")};
     $("restrictedModeSetting").checked=settingChecked("yt_restricted_mode");
