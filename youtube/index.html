@@ -372,7 +372,7 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
  const baseMenu=showVideoMenu;
  showVideoMenu=function(vid){baseMenu(vid);if(!$("menuQueue")){const b=document.createElement("button");b.id="menuQueue";b.className="secondary";b.type="button";b.style.margin="6px 6px 0 0";b.textContent="▶ キューに追加";$("modalBody").appendChild(b);b.onclick=()=>{addQueue(vid);modalClose()}}};
  const video=$("watchVideo");
- if(video)video.addEventListener("ended",()=>{if(!state.queue.length)return;const next=state.queue.shift();saveQueue();watch(next)});
+ if(video)video.addEventListener("ended",()=>{if(!state.queue.length)return;window.__ytQueueHandledAt=Date.now();const next=state.queue.shift();saveQueue();watch(next)});
  const watchTop=document.querySelector(".watchtop");
  if(watchTop&&!$("playerExtraControls")){
   const controls=document.createElement("div");controls.id="playerExtraControls";controls.style.marginRight="auto";
@@ -387,6 +387,109 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
  renderQueue();
  const oldSave=saveState;
  saveState=function(){oldSave();renderQueue()};
+})();
+
+
+/* Fifth update: responsive repair and ten YouTube-style features */
+(()=>{
+ const css=document.createElement("style");
+ css.textContent=`
+ html,body{width:100%;min-width:0;max-width:100%;overflow-x:hidden}
+ *,*::before,*::after{min-width:0}
+ img,video,canvas,iframe{max-width:100%}
+ .top{width:100%;min-width:0;gap:clamp(6px,1.2vw,18px);padding-inline:clamp(8px,1.4vw,20px)}
+ .brand{flex:0 1 auto;min-width:0}.search{min-width:0}
+ .topright{display:flex;align-items:center;gap:clamp(3px,.6vw,10px);min-width:0;flex:0 1 auto}
+ .topright button{max-width:100%}.sidebar{box-sizing:border-box}
+ .main{box-sizing:border-box;width:calc(100% - 240px);max-width:calc(100% - 240px);min-width:0;margin-left:240px;padding:clamp(12px,2vw,28px)}
+ .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,1.5vw,22px)}
+ .card{min-width:0;width:100%;overflow:hidden}.thumb{width:100%;min-width:0;overflow:hidden;aspect-ratio:16/9}
+ .thumb img{display:block;width:100%;height:100%;object-fit:cover}.meta{min-width:0;gap:10px}
+ .details{min-width:0;overflow-wrap:anywhere}.vtitle,.channelname,.stats{overflow-wrap:anywhere}
+ .chips{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+ .pagehead,.watchmeta,.actions,.watchchannel{min-width:0;flex-wrap:wrap}
+ .description{overflow-wrap:anywhere;word-break:break-word}
+ .watch{width:min(100%,1100px);max-width:100%;box-sizing:border-box}
+ .watchvideo{display:block;width:100%;max-width:100%;height:auto;max-height:76vh;object-fit:contain}
+ .watchtop{display:flex;flex-wrap:wrap;gap:4px}
+ .feature-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:8px 0 16px}
+ .feature-toolbar select,.feature-toolbar button{background:var(--surface2);color:var(--text);border:1px solid var(--line);border-radius:20px;padding:8px 12px;max-width:100%}
+ .main.compact-grid .grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+ .main.compact-grid .card .meta{gap:7px}.main.compact-grid .chavatar{display:none}.main.compact-grid .vtitle{font-size:13px}
+ .subscribe-btn{border:0;border-radius:22px;background:#f1f1f1;color:#0f0f0f;padding:10px 16px;font-weight:700}
+ .subscribe-btn.subscribed{background:#303030;color:#f1f1f1}
+ .watch-feature-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+ .watch-feature-actions button{border:0;border-radius:22px;padding:10px 14px;background:var(--surface2);color:var(--text)}
+ .watch-feature-actions button:hover{background:#3a3a3a}
+ @media(max-width:1600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.main.compact-grid .grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+ @media(max-width:1150px){.main{width:calc(100% - 78px);max-width:calc(100% - 78px);margin-left:78px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.main.compact-grid .grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+ @media(max-width:800px){.top{gap:6px}.brandtext{display:none}.topright .pill{padding:8px;font-size:12px}.main{padding:12px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.main.compact-grid .grid{grid-template-columns:repeat(2,minmax(0,1fr))}.watch{padding:10px}.watchvideo{max-height:60vh}}
+ @media(max-width:650px){
+ .top{height:56px;padding:0 8px;gap:7px}.brand{flex:0 0 auto}.brandtext{display:none}
+ .search{flex:1 1 60px;width:auto}.topright{flex:0 1 auto;gap:3px}
+ .topright .pill{padding:7px 8px;font-size:11px;max-width:94px;overflow:hidden;text-overflow:ellipsis}#queueBtn{max-width:70px}
+ .main{margin-left:0!important;width:100%!important;max-width:100%!important;padding:12px 10px}
+ .sidebar{width:min(280px,85vw);max-width:85vw}
+ .grid,.main.compact-grid .grid{grid-template-columns:minmax(0,1fr);gap:22px}
+ .thumb{border-radius:12px}.meta{gap:10px}.vtitle{font-size:14px}
+ .pagehead{align-items:flex-start;gap:10px}.pagehead h1{font-size:22px}
+ .watch{padding:8px!important}.watchvideo{width:100%;height:auto;max-height:55vh}
+ .watchmeta .actions{width:100%}.watch-feature-actions button{flex:1 1 auto}.feature-toolbar{justify-content:flex-start}
+ .analyticsgrid{grid-template-columns:1fr}
+ }
+ @media(max-width:380px){.top{gap:4px;padding:0 5px}.ytlogo{width:23px}.topright .pill{max-width:62px;padding:6px;font-size:10px}.search button{width:32px;flex-basis:32px}.main{padding:10px 7px}}
+ @media(min-width:651px) and (max-width:900px){.topright #queueBtn{font-size:11px;padding:7px}.brand{min-width:90px}}
+ `;
+ document.head.appendChild(css);
+ const sortKey="yt_ui_sort",compactKey="yt_ui_compact",autoplayKey="yt_ui_autoplay";
+ let sortMode=localStorage.getItem(sortKey)||"newest",compact=localStorage.getItem(compactKey)==="true",autoplay=localStorage.getItem(autoplayKey)!=="false";
+ state.subscriptions=Array.isArray(state.subscriptions)?state.subscriptions:[];
+ const baseRender=render;
+ render=function(){
+  baseRender();const main=$("main");if(!main)return;main.classList.toggle("compact-grid",compact);
+  const old=$("featureToolbar");if(old)old.remove();
+  if(currentPage==="home"){
+   const grid=main.querySelector(".grid");if(grid){
+    const bar=document.createElement("div");bar.id="featureToolbar";bar.className="feature-toolbar";
+    bar.innerHTML='<label for="videoSort" class="muted">並べ替え</label><select id="videoSort" aria-label="動画の並べ替え"><option value="newest">新しい順</option><option value="views">再生回数順</option><option value="title">タイトル順</option></select><button type="button" id="compactToggle">'+(compact?"▦ 標準表示":"▤ コンパクト表示")+'</button>';
+    grid.before(bar);$("videoSort").value=sortMode;
+    const sortCards=()=>{[...grid.querySelectorAll("[data-video]")].sort((a,b)=>{const va=getVideo(a.dataset.video)||{},vb=getVideo(b.dataset.video)||{};if(sortMode==="views")return Number(vb.views||0)-Number(va.views||0);if(sortMode==="title")return String(va.title||"").localeCompare(String(vb.title||""),"ja");return Number(vb.createdAt||0)-Number(va.createdAt||0)}).forEach(el=>grid.appendChild(el))};
+    $("videoSort").onchange=e=>{sortMode=e.target.value;localStorage.setItem(sortKey,sortMode);sortCards()};
+    $("compactToggle").onclick=()=>{compact=!compact;localStorage.setItem(compactKey,String(compact));render()};sortCards();
+   }
+  }
+  if(currentPage==="subscriptions"){
+   const grid=main.querySelector(".grid");if(grid){const subscribed=state.videos.filter(v=>state.subscriptions.includes(v.channelName));grid.innerHTML=subscribed.map(card).join("");if(!subscribed.length)grid.innerHTML='<div class="empty"><div class="big">🔔</div><h2>登録チャンネルの動画はありません</h2><p>動画の視聴画面でチャンネル登録すると、ここに表示されます。</p></div>';bindMain()}
+  }
+ };
+ const baseWatch=watch;
+ watch=async function(vid){
+  await baseWatch(vid);if(!currentVideoId)return;const v=getVideo(currentVideoId);if(!v)return;const channelName=v.channelName||state.channel.name;
+  let actions=$("watchFeatureActions");if(!actions){actions=document.createElement("div");actions.id="watchFeatureActions";actions.className="watch-feature-actions";$("watchDescription").after(actions)}
+  const subscribed=state.subscriptions.includes(channelName);
+  actions.innerHTML='<button type="button" id="subscribeToggle" class="subscribe-btn '+(subscribed?"subscribed":"")+'">'+(subscribed?"✓ 登録済み":"🔔 チャンネル登録")+'</button><button type="button" id="shareVideoBtn">↗ 共有</button><button type="button" id="loopToggle">🔁 '+($("watchVideo").loop?"ループ ON":"ループ OFF")+'</button><button type="button" id="autoplayToggle">⏭️ 自動再生 '+(autoplay?"ON":"OFF")+'</button><button type="button" id="fullscreenToggle">⛶ 全画面</button>';
+  $("subscribeToggle").onclick=()=>{const i=state.subscriptions.indexOf(channelName);if(i>=0)state.subscriptions.splice(i,1);else state.subscriptions.push(channelName);saveState();toast(i>=0?"チャンネル登録を解除しました":"チャンネル登録しました");watch(currentVideoId)};
+  $("shareVideoBtn").onclick=async()=>{const url=location.href.split("#")[0]+"#video="+encodeURIComponent(currentVideoId);try{await navigator.clipboard.writeText(url);toast("動画リンクをコピーしました")}catch(e){prompt("このリンクをコピーしてください",url)}};
+  $("loopToggle").onclick=()=>{const el=$("watchVideo");el.loop=!el.loop;$("loopToggle").textContent="🔁 ループ "+(el.loop?"ON":"OFF");toast(el.loop?"ループ再生を有効にしました":"ループ再生を解除しました")};
+  $("autoplayToggle").onclick=()=>{autoplay=!autoplay;localStorage.setItem(autoplayKey,String(autoplay));$("autoplayToggle").textContent="⏭️ 自動再生 "+(autoplay?"ON":"OFF");toast("自動再生を"+(autoplay?"有効":"無効")+"にしました")};
+  $("fullscreenToggle").onclick=()=>{const el=$("watchVideo");if(document.fullscreenElement)document.exitFullscreen?.();else el.requestFullscreen?.().catch(()=>toast("全画面表示を開始できませんでした"))};
+  const el=$("watchVideo"),progressKey="yt_watch_progress_"+currentVideoId;
+  if(!el.dataset.progressBound){
+   el.dataset.progressBound="1";
+   el.addEventListener("timeupdate",()=>{if(currentVideoId&&Number.isFinite(el.currentTime)&&el.currentTime>2)localStorage.setItem("yt_watch_progress_"+currentVideoId,String(el.currentTime))});
+   el.addEventListener("ended",()=>{if(Date.now()-(window.__ytQueueHandledAt||0)<1200)return;if(autoplay&&(!Array.isArray(state.queue)||!state.queue.length)){const next=state.videos.filter(x=>x.id!==currentVideoId).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0))[0];if(next)setTimeout(()=>watch(next.id),300)}});
+  }
+  const restore=Number(localStorage.getItem(progressKey)||0);
+  if(restore>5&&!el.dataset.restoringProgress){
+   el.dataset.restoringProgress="1";
+   const offer=()=>{if(!el.dataset.restoringProgress)return;delete el.dataset.restoringProgress;if(restore<el.duration-3&&confirm("前回の続き（"+Math.floor(restore)+"秒）から再生しますか？"))el.currentTime=restore;else localStorage.removeItem(progressKey)};
+   if(el.readyState>=1)setTimeout(offer,0);else el.addEventListener("loadedmetadata",offer,{once:true});
+  }
+ };
+ document.addEventListener("keydown",e=>{const el=$("watchVideo"),t=e.target,typing=t&&(t.matches("input,textarea,select")||t.isContentEditable);if(typing||!currentVideoId||!el)return;if(e.key==="ArrowRight"||e.key==="l"){el.currentTime=Math.min(el.duration||Infinity,el.currentTime+10);e.preventDefault()}else if(e.key==="ArrowLeft"||e.key==="j"){el.currentTime=Math.max(0,el.currentTime-10);e.preventDefault()}else if(e.key==="m"){el.muted=!el.muted;toast(el.muted?"ミュート":"音声オン")}else if(e.key==="f"){if(document.fullscreenElement)document.exitFullscreen?.();else el.requestFullscreen?.().catch(()=>{})}});
+ const originalSetPage=setPage;setPage=function(page){originalSetPage(page);if(page==="subscriptions")render()};
+ const oldSave=saveState;saveState=function(){oldSave();state.subscriptions=Array.isArray(state.subscriptions)?state.subscriptions:[]};
+ render();
 })();
 
 })();
