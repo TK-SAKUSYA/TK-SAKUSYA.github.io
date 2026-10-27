@@ -201,6 +201,7 @@ body.pc-forced .avatar{width:35px;height:35px;flex:0 0 35px}
  localStorage.setItem("yt_display_mode",mode);
  const selector=$("displayModeSetting");if(selector&&selector.value!==mode)selector.value=mode;
 }
+if(localStorage.getItem("yt_display_mode_v2")!=="1"){localStorage.setItem("yt_display_mode","auto");localStorage.setItem("yt_display_mode_v2","1")}
 applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
  const sidebar=$("sidebar");
  if(sidebar&&!sidebar.querySelector('[data-page="analytics"]')){const a=document.createElement("a");a.className="nav";a.dataset.page="analytics";a.innerHTML='<span class="navicon">📊</span><span>チャンネル分析</span>';sidebar.appendChild(a)}
