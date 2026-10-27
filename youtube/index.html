@@ -54,7 +54,7 @@ body{font-family:Roboto,"Arial","Noto Sans JP",sans-serif;font-size:14px;letter-
 </head>
 <body>
 <header class="top">
- <button class="compass-btn header-menu" id="menuBtn" type="button" aria-label="ナビゲーションを開く" aria-expanded="false" title="ナビゲーション">🧭</button>
+
  <div class="brand" id="homeBrand" role="button" tabindex="0" aria-label="ホームへ戻る" title="ホームへ"><span class="ytlogo">▶</span><span class="brandtext">YouTube</span></div>
  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="検索" aria-label="検索" autocomplete="off"><button aria-label="検索">⌕</button><div class="search-history" id="searchHistory" role="listbox" aria-label="検索履歴"></div></form>
  <div class="topright"><button class="pill" id="createBtn">＋ 作成</button><button class="round" id="notificationsBtn" aria-label="通知">🔔</button><button class="round" id="profileBtn" aria-label="プロフィール">👤</button><button class="avatar" id="avatarBtn" aria-label="チャンネルプロフィール">T</button></div>
@@ -615,11 +615,87 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
    sidebar.style.display=hidden?"":"none";button.setAttribute("aria-expanded",String(hidden));
   }
  }
- document.addEventListener("click",function(e){const button=e.target.closest("#compassBtn, #menuBtn");if(!button)return;e.preventDefault();e.stopPropagation();toggleMenu(button);document.querySelectorAll("#compassBtn, #menuBtn").forEach(b=>b.setAttribute("aria-expanded",String(sidebar.classList.contains("is-open"))))},true);
+ // Mobile compass click is handled by the later reliability patch to avoid double-toggle.
  backdrop.addEventListener("click",closeMenu);
  sidebar.addEventListener("click",e=>{if(e.target.closest("[data-page],[data-explore]")&&window.matchMedia("(max-width:650px)").matches)closeMenu()});
  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMenu()});
  window.addEventListener("resize",()=>{if(!window.matchMedia("(max-width:650px)").matches){closeMenu();sidebar.style.display=""}});
+})();
+
+
+/* Mobile reliability patch: single compass handler, clean header, home-only bottom bar. */
+(()=>{
+ const css=document.createElement("style");
+ css.id="mobileReliabilityPatch";
+ css.textContent=`
+ @media(max-width:650px){
+  header.top{border:0!important;outline:0!important;box-shadow:none!important}
+  header.top::before,header.top::after{content:none!important;display:none!important}
+  header.top #menuBtn{display:none!important}
+  #searchHistory{position:fixed!important;top:56px!important;left:8px!important;right:8px!important;width:auto!important;max-width:none!important}
+  #menuBackdrop{position:fixed!important;inset:0!important;z-index:1001!important;background:rgba(0,0,0,.5)!important}
+  #sidebar{position:fixed!important;top:0!important;left:0!important;bottom:0!important;width:min(300px,84vw)!important;max-width:84vw!important;height:100dvh!important;box-sizing:border-box!important;overflow-y:auto!important;z-index:1002!important;background:#0f0f0f!important;display:none!important;visibility:hidden!important;pointer-events:none!important;box-shadow:8px 0 28px #0009!important}
+  #sidebar.is-open{display:flex!important;flex-direction:column!important;visibility:visible!important;pointer-events:auto!important;transform:none!important}
+  #compassBtn.category-compass{display:inline-grid!important;position:relative!important;z-index:1003!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;flex:0 0 40px!important;width:40px!important;height:36px!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:50%!important;background:#272727!important;color:#f1f1f1!important}
+  #mobileBottomNav{display:none!important}
+  body.mobile-home-nav #mobileBottomNav{display:grid!important}
+  body.mobile-video-open #mobileBottomNav{display:none!important}
+ }
+ `;
+ document.head.appendChild(css);
+ const sidebar=document.getElementById("sidebar");
+ const backdrop=document.getElementById("menuBackdrop");
+ const nav=document.getElementById("mobileBottomNav");
+ if(!sidebar||!backdrop)return;
+ const mobile=()=>window.matchMedia("(max-width:650px)").matches;
+ function closeMenu(){
+  sidebar.classList.remove("is-open");
+  sidebar.style.removeProperty("display");
+  sidebar.style.removeProperty("visibility");
+  sidebar.style.removeProperty("pointer-events");
+  backdrop.classList.remove("is-open");
+  backdrop.style.setProperty("display","none","important");
+  document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded","false"));
+ }
+ function openMenu(){
+  if(!mobile())return;
+  sidebar.style.setProperty("display","flex","important");
+  sidebar.style.setProperty("visibility","visible","important");
+  sidebar.style.setProperty("pointer-events","auto","important");
+  sidebar.classList.add("is-open");
+  backdrop.style.setProperty("display","block","important");
+  backdrop.classList.add("is-open");
+  document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded","true"));
+ }
+ function syncNav(){
+  const player=document.getElementById("playerBg");
+  const playing=!!(player&&player.classList.contains("show")&&!player.classList.contains("mini"));
+  const home=(typeof currentPage==="undefined"||currentPage==="home");
+  const show=mobile()&&home&&!playing;
+  document.body.classList.toggle("mobile-home-nav",show);
+  document.body.classList.toggle("mobile-video-open",mobile()&&playing);
+  if(nav)nav.style.setProperty("display",show?"grid":"none","important");
+ }
+ document.addEventListener("click",e=>{
+  const compass=e.target.closest("#compassBtn");
+  if(!compass)return;
+  e.preventDefault();e.stopPropagation();
+  if(sidebar.classList.contains("is-open"))closeMenu();else openMenu();
+ },true);
+ backdrop.addEventListener("click",closeMenu);
+ sidebar.addEventListener("click",e=>{if(e.target.closest("[data-page],[data-explore]"))closeMenu()});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMenu()});
+ const originalSetPage=setPage;
+ const wrappedSetPage=function(page){closeMenu();const out=originalSetPage.apply(this,arguments);syncNav();return out};
+ setPage=wrappedSetPage;
+ const player=document.getElementById("playerBg");
+ if(player)new MutationObserver(syncNav).observe(player,{attributes:true,attributeFilter:["class"]});
+ const main=document.getElementById("main");
+ if(main)new MutationObserver(syncNav).observe(main,{childList:true,subtree:false});
+ document.addEventListener("click",e=>{if(e.target.closest("[data-video]"))setTimeout(syncNav,100);if(e.target.closest("#watchClose"))setTimeout(syncNav,60)},true);
+ window.addEventListener("resize",()=>{if(!mobile())closeMenu();syncNav()});
+ if(nav)nav.addEventListener("click",()=>setTimeout(syncNav,80));
+ syncNav();
 })();
 
 /* Mobile app layout refresh: app bar, horizontal topics, feed, and bottom navigation. */
