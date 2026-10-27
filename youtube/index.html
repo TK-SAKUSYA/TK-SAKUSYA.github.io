@@ -167,18 +167,41 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
  updateNotificationBadge();
  const style=document.createElement("style");
  style.textContent=`
- #modeToggle{white-space:nowrap}.watchmeta{align-items:center;gap:12px;flex-wrap:wrap}.watchmeta .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.watchactions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0}.watchmeta .actions button,.watchactions button{height:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;padding:0 14px;border-radius:22px;font-size:14px;line-height:1}.watchactions button{margin:0}
+ .watchmeta{align-items:center;gap:12px;flex-wrap:wrap}.watchmeta .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.watchactions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0}.watchmeta .actions button,.watchactions button{height:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;padding:0 14px;border-radius:22px;font-size:14px;line-height:1}.watchactions button{margin:0}
  .commentpanel{background:#181818;border-radius:14px;padding:18px;margin-top:18px}
  .commentpanel h2{font-size:20px;margin:0 0 14px}.commentform{display:flex;gap:10px;margin:12px 0 20px}
  .commentform input{flex:1;min-width:0;background:#121212;border:1px solid #444;color:#fff;border-radius:22px;padding:12px 15px}
  .comment{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #303030}.commentbody{min-width:0;flex:1}.commentbody p{white-space:pre-wrap;overflow-wrap:anywhere;margin:7px 0}.commenttools{display:flex;gap:8px;flex-wrap:wrap}.commenttools button{border:0;background:transparent;border-radius:18px;padding:5px 9px}.commenttools button:hover{background:#303030}
  .ai-badge{font-size:11px;color:#8ab4f8;margin-left:6px}.analyticsgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}.metric{background:#222;border-radius:14px;padding:18px}.metric strong{display:block;font-size:27px;margin-top:8px}.chartbox{background:#1b1b1b;padding:18px;border-radius:14px;margin:16px 0}.barrow{display:grid;grid-template-columns:minmax(70px,1fr) 3fr auto;gap:12px;align-items:center;margin:12px 0}.bar{height:10px;background:#393939;border-radius:10px;overflow:hidden}.bar span{display:block;height:100%;background:#f03}.mobile-forced .sidebar{width:100%;height:65px;bottom:auto;top:56px;display:flex;overflow-x:auto;padding:4px 7px;z-index:5}.mobile-forced .nav{flex:0 0 63px;padding:4px 2px;margin:0;font-size:10px;flex-direction:column;gap:3px}.mobile-forced .nav span:last-child,.mobile-forced .navheading,.mobile-forced .sep{display:none}.mobile-forced .main{margin:121px 0 0;width:100%;padding:13px 12px 30px}.mobile-forced .grid{grid-template-columns:1fr}.mobile-forced .top{height:56px;padding:0 9px;gap:9px}.mobile-forced .brand{min-width:auto}.mobile-forced .brandtext{display:inline;font-size:17px}.mobile-forced .search{margin:0}.mobile-forced .topright{gap:4px}.mobile-forced .topright .pill{padding:8px;font-size:12px}
- @media(max-width:650px){.analyticsgrid{grid-template-columns:1fr}.commentform{flex-direction:column}}
+ body.pc-forced .sidebar{width:230px;height:auto;top:60px;bottom:0;display:block;flex-direction:column;align-items:stretch;overflow-x:hidden;overflow-y:auto;padding:12px 12px 24px;background:var(--bg);border-right:0;box-shadow:none;z-index:5}
+body.pc-forced .sidebar .nav{display:flex;flex:initial;min-width:0;max-width:none;flex-direction:row;justify-content:flex-start;align-items:center;gap:22px;padding:11px 14px;margin-bottom:3px;border-radius:10px;font-size:14px;white-space:normal}
+body.pc-forced .sidebar .nav .navicon{width:22px;flex:0 0 22px;font-size:20px;line-height:1.1}
+body.pc-forced .sidebar .nav span:last-child,body.pc-forced .sidebar .navheading,body.pc-forced .sidebar .sep{display:block}
+body.pc-forced .sidebar .navheading{font-weight:700;padding:9px 14px}
+body.pc-forced .sidebar .sep{border:0;border-top:1px solid var(--line);margin:13px 4px}
+body.pc-forced .main{margin:0 0 0 230px;width:calc(100% - 230px);padding:18px 24px 45px}
+body.pc-forced .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+body.pc-forced .top{height:60px;padding:0 20px;gap:20px}
+body.pc-forced .brand{min-width:200px;gap:8px}
+body.pc-forced .brandtext{display:inline;font-size:20px}
+body.pc-forced .ytlogo{width:31px;height:22px}
+body.pc-forced .search{flex:1;min-width:0;max-width:650px;margin:auto}
+body.pc-forced .search input{width:auto;min-width:0;height:40px;padding:0 18px}
+body.pc-forced .search button{width:65px;flex:0 0 65px;height:40px}
+body.pc-forced .topright{gap:10px}
+body.pc-forced .topright .pill{padding:10px 15px;font-size:14px}
+body.pc-forced .topright #notificationsBtn,body.pc-forced .topright #profileBtn{display:block}
+body.pc-forced .avatar{width:35px;height:35px;flex:0 0 35px}
+@media(max-width:650px){.analyticsgrid{grid-template-columns:1fr}.commentform{flex-direction:column}}
  `;
  document.head.appendChild(style);
- const topRight=$("createBtn")?.parentElement;
- if(topRight&&!$("modeToggle")){const b=document.createElement("button");b.className="pill";b.id="modeToggle";b.textContent="📱 モバイル";topRight.insertBefore(b,$("createBtn"));b.onclick=()=>{const mobile=!document.body.classList.contains("mobile-forced");document.body.classList.toggle("mobile-forced",mobile);b.textContent=mobile?"🖥️ PCモード":"📱 モバイル";localStorage.setItem("yt_display_mode",mobile?"mobile":"pc");toast(mobile?"モバイル表示に切り替えました":"PC表示に切り替えました")};if(localStorage.getItem("yt_display_mode")==="mobile"){document.body.classList.add("mobile-forced");b.textContent="🖥️ PCモード"}}
-
+ function applyDisplayMode(mode){
+ document.body.classList.toggle("mobile-forced",mode==="mobile");
+ document.body.classList.toggle("pc-forced",mode==="pc");
+ localStorage.setItem("yt_display_mode",mode);
+ const selector=$("displayModeSetting");if(selector&&selector.value!==mode)selector.value=mode;
+}
+applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
  const sidebar=$("sidebar");
  if(sidebar&&!sidebar.querySelector('[data-page="analytics"]')){const a=document.createElement("a");a.className="nav";a.dataset.page="analytics";a.innerHTML='<span class="navicon">📊</span><span>チャンネル分析</span>';sidebar.appendChild(a)}
  // 設定ページとテーマ切り替え
@@ -207,7 +230,7 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
     main.style.paddingRight="clamp(18px, 3vw, 42px)";
     main.innerHTML='<div style="max-width:1000px;margin:0 auto"><div class="pagehead"><h1>⚙️ 設定</h1></div><div style="width:100%;display:grid;gap:14px">'+
       '<section class="description" style="padding:20px"><h2>📊 YouTube上でのデータ</h2><p>このYouTube風シミュレーションの動画・履歴・設定は、このブラウザ内に保存されます。</p><p class="muted">実際のYouTubeアカウントやGoogleアカウントには接続していません。</p></section>'+
-      '<section class="description" style="padding:20px"><h2>🎨 デザイン</h2><p>表示モードを選択できます。</p><button class="secondary" id="themeToggle"></button><p class="muted">選んだテーマはこのブラウザに保存され、次回も適用されます。</p></section>'+
+      '<section class="description" style="padding:20px"><h2>📱 PCモード／モバイルモード</h2><label for="displayModeSetting">画面レイアウト</label><select id="displayModeSetting" class="secondary" style="display:block;margin-top:8px;padding:10px;max-width:320px"><option value="auto">自動（画面サイズに合わせる）</option><option value="pc">PCモード</option><option value="mobile">モバイルモード</option></select><p class="muted">自動では、画面サイズに合わせてレイアウトを切り替えます。手動設定はこのブラウザに保存されます。</p></section><section class="description" style="padding:20px"><h2>🎨 デザイン</h2><p>表示テーマを選択できます。</p><button class="secondary" id="themeToggle"></button><p class="muted">選んだテーマはこのブラウザに保存され、次回も適用されます。</p></section>'+
       '<section class="description" style="padding:20px"><h2>🌐 言語</h2><label for="languageSetting">表示言語の設定</label><select id="languageSetting" class="secondary" style="display:block;margin-top:8px;padding:10px;max-width:260px"><option value="ja">日本語</option><option value="en">English（表示設定のみ）</option></select><p class="muted">※現在、画面全体の翻訳には対応していません。</p></section>'+
       '<section class="description" style="padding:20px"><label style="display:flex;gap:12px;align-items:center;font-size:16px;font-weight:700"><input id="restrictedModeSetting" type="checkbox" style="width:19px;height:19px"> 🛡️ 制限付きモード</label><p class="muted">設定はこのブラウザに保存されます。現在のシミュレーションには年齢制限コンテンツの判定機能はありません。</p></section>'+
       '<section class="description" style="padding:20px"><h2>📍 場所</h2><label for="locationSetting">地域の設定</label><select id="locationSetting" class="secondary" style="display:block;margin-top:8px;padding:10px;max-width:260px"><option value="JP">日本</option><option value="US">アメリカ</option><option value="GB">イギリス</option><option value="other">その他</option></select><p class="muted">この設定はシミュレーション内に保存され、実際の位置情報は取得しません。</p></section>'+
@@ -215,6 +238,8 @@ document.addEventListener("DOMContentLoaded",()=>{const n=$("notificationsBtn");
       '<section class="description" style="padding:20px"><label style="display:flex;gap:12px;align-items:center;font-size:16px;font-weight:700"><input id="stopAISetting" type="checkbox" style="width:19px;height:19px"> 🤖 AI行動停止</label><p>AIの行動を全て停止します</p><p class="muted">オンにするとAIアカウントの新規作成、視聴・評価・コメントなどの自動行動を停止します。オフにすると再開します。</p></section>'+
       '</div></div>';
     document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page==="settings"));
+    $("displayModeSetting").value=localStorage.getItem("yt_display_mode")||"auto";
+    $("displayModeSetting").onchange=e=>{applyDisplayMode(e.target.value);toast(e.target.value==="auto"?"画面サイズに合わせる設定にしました":e.target.value==="mobile"?"モバイルモードに切り替えました":"PCモードに切り替えました")};
     $("themeToggle").onclick=()=>{applyTheme(document.body.classList.contains("light-mode")?"dark":"light");toast(document.body.classList.contains("light-mode")?"ライトモードにしました":"ダークモードにしました")};
     $("restrictedModeSetting").checked=settingChecked("yt_restricted_mode");
     $("restrictedModeSetting").onchange=e=>{localStorage.setItem("yt_restricted_mode",String(e.target.checked));toast(e.target.checked?"制限付きモードをオンにしました":"制限付きモードをオフにしました")};
