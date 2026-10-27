@@ -529,7 +529,7 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
  }
  `;
  document.head.appendChild(css);
- let extraBound=false, commentSort="newest", descExpanded=false;
+ let extraBound=false, commentSort="newest", descExpanded=false, commentObserver=null;
  function formatTime(n){if(!Number.isFinite(n)||n<0)return "0:00";n=Math.floor(n);return Math.floor(n/60)+":"+String(n%60).padStart(2,"0")}
  function setupExtras(){
   const video=$("watchVideo"), top=document.querySelector(".watchtop");
@@ -545,7 +545,7 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
    $("ytVolume").oninput=e=>{video.volume=Number(e.target.value);video.muted=video.volume===0;$("ytMute").textContent=video.muted?"🔇 ミュート中":"🔊 音声"};
    $("ytPip").onclick=async()=>{try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(document.pictureInPictureEnabled&&video.requestPictureInPicture)await video.requestPictureInPicture();else toast("このブラウザではミニ画面に対応していません")}catch(e){toast("ミニ画面を開始できませんでした")}};
    $("ytTimestamp").onclick=async()=>{const url=location.href.split("#")[0]+"#video="+encodeURIComponent(currentVideoId)+"&t="+Math.floor(video.currentTime);try{await navigator.clipboard.writeText(url);toast("再生位置付きリンクをコピーしました")}catch(e){prompt("再生位置付きリンクをコピーしてください",url)}};
-   $("ytDownload").onclick=async()=>{try{const item=await dbGet(currentVideoId);if(!item||!item.blob){toast("保存できる動画ファイルがありません");return}const url=URL.createObjectURL(item.blob),a=document.createElement("a");a.href=url;a.download=(getVideo(currentVideoId)?.title||"video").replace(/[\\/:*?"<>|]/g,"_")+".mp4";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast("元動画の保存を開始しました")}catch(e){toast("動画を保存できませんでした")}};
+   $("ytDownload").onclick=async()=>{try{const item=await dbGet(currentVideoId);if(!item||!item.blob){toast("保存できる動画ファイルがありません");return}const url=URL.createObjectURL(item.blob),a=document.createElement("a");a.href=url;const data=getVideo(currentVideoId)||{};a.download=data.fileName||((data.title||"video").replace(/[\\/:*?"<>|]/g,"_")+".mp4");document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);toast("元動画の保存を開始しました")}catch(e){toast("動画を保存できませんでした")}};
    $("ytProgress").oninput=e=>{if(Number.isFinite(video.duration)&&video.duration>0)video.currentTime=video.duration*Number(e.target.value)/1000};
    const updateProgress=()=>{if(!$("ytProgress"))return;const d=Number.isFinite(video.duration)?video.duration:0;$("ytElapsed").textContent=formatTime(video.currentTime);$("ytDuration").textContent=formatTime(d);if(d>0&&document.activeElement!==$("ytProgress"))$("ytProgress").value=String(Math.round(video.currentTime/d*1000))};
    video.addEventListener("timeupdate",updateProgress);video.addEventListener("loadedmetadata",updateProgress);video.addEventListener("durationchange",updateProgress);
@@ -554,10 +554,10 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
   $("ytMute").textContent=video.muted?"🔇 ミュート中":"🔊 音声";
   let descToggle=$("ytDescriptionToggle");
   if(!descToggle&&$("watchDescription")){descToggle=document.createElement("button");descToggle.id="ytDescriptionToggle";descToggle.className="secondary";descToggle.type="button";descToggle.textContent=descExpanded?"説明を閉じる":"説明をもっと見る";$("watchDescription").after(descToggle);descToggle.onclick=()=>{descExpanded=!descExpanded;$("watchDescription").style.maxHeight=descExpanded?"none":"6em";$("watchDescription").style.overflow="hidden";descToggle.textContent=descExpanded?"説明を閉じる":"説明をもっと見る"};$("watchDescription").style.maxHeight=descExpanded?"none":"6em";$("watchDescription").style.overflow="hidden"}
-  if($("commentsPanel")&&!$("ytCommentSort")){const sel=document.createElement("select");sel.id="ytCommentSort";sel.setAttribute("aria-label","コメントの並べ替え");sel.innerHTML='<option value="newest">新しい順</option><option value="oldest">古い順</option>';$("commentCount").after(sel);sel.value=commentSort;sel.onchange=()=>{commentSort=sel.value;sortComments()}}
+  if($("commentsPanel")&&!$("ytCommentSort")){const sel=document.createElement("select");sel.id="ytCommentSort";sel.setAttribute("aria-label","コメントの並べ替え");sel.innerHTML='<option value="newest">新しい順</option><option value="oldest">古い順</option>';$("commentCount").after(sel);sel.value=commentSort;sel.onchange=()=>{commentSort=sel.value;sortComments()};const list=$("commentsList");if(list){if(commentObserver)commentObserver.disconnect();commentObserver=new MutationObserver(()=>{list.dataset.sort="newest";sortComments()});commentObserver.observe(list,{childList:true})}}
   sortComments();
  }
- function sortComments(){const list=$("commentsList");if(!list||commentSort!=="oldest")return;[...list.children].reverse().forEach(el=>list.appendChild(el))}
+ function sortComments(){const list=$("commentsList");if(!list)return;if(commentObserver)commentObserver.disconnect();if(list.dataset.sort!==commentSort){const nodes=[...list.children];if(commentSort==="oldest")nodes.reverse();nodes.forEach(el=>list.appendChild(el));list.dataset.sort=commentSort}if(commentObserver)commentObserver.observe(list,{childList:true})}
  const priorWatch=watch;
  watch=async function(vid){await priorWatch(vid);descExpanded=false;setupExtras()};
  const priorClose=closeWatch;
