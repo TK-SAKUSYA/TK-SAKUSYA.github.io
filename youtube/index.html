@@ -25,6 +25,8 @@
 @media(min-width:651px) and (max-width:850px){.top{gap:12px;padding:0 14px}.brand{min-width:auto}.brandtext{display:none}.topright{gap:4px}.topright .pill{padding:9px 11px}.main{padding-left:18px;padding-right:18px}.grid{gap:28px 14px}}
 /* Compass navigation control beside 「すべて」 */
 .compass-btn{display:inline-grid;place-items:center;flex:0 0 40px;width:40px;height:36px;border:0;border-radius:18px;background:var(--surface2);font-size:21px;line-height:1;vertical-align:middle}
+.header-compass{flex:0 0 40px;width:40px;height:40px;border-radius:50%;padding:0}
+@media(max-width:650px){.top .header-compass{order:-1;flex:0 0 36px;width:36px;height:36px;margin:0 2px 0 0}.top{gap:6px;padding-left:6px}}
 .compass-btn:hover{filter:brightness(1.15)}
 .compass-btn:focus-visible{outline:2px solid #8ab4f8;outline-offset:2px}
 /* YouTube-inspired full interface refresh */
@@ -51,13 +53,14 @@ body{font-family:Roboto,"Arial","Noto Sans JP",sans-serif;font-size:14px;letter-
 </head>
 <body>
 <header class="top">
+ <button class="compass-btn header-compass" id="compassBtn" type="button" aria-label="ナビゲーションを開く" aria-expanded="false" title="ナビゲーション">🧭</button>
  <div class="brand" id="homeBrand" role="button" tabindex="0" aria-label="ホームへ戻る" title="ホームへ"><span class="ytlogo">▶</span><span class="brandtext">YouTube</span></div>
  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="検索" aria-label="検索" autocomplete="off"><button aria-label="検索">⌕</button><div class="search-history" id="searchHistory" role="listbox" aria-label="検索履歴"></div></form>
  <div class="topright"><button class="pill" id="createBtn">＋ 作成</button><button class="round" id="notificationsBtn" aria-label="通知">🔔</button><button class="round" id="profileBtn" aria-label="プロフィール">👤</button><button class="avatar" id="avatarBtn" aria-label="チャンネルプロフィール">T</button></div>
 </header>
 <div class="shell">
 <aside class="sidebar" id="sidebar">
- <a class="nav active" data-page="home"><span class="navicon">🏠</span><span>ホーム</span></a>
+ <a class="nav active" data-page="home"><span>ホーム</span></a>
  <a class="nav" data-page="shorts"><span class="navicon">🎬</span><span>ショート</span></a>
  <a class="nav" data-page="subscriptions"><span class="navicon">📺</span><span>登録チャンネル</span></a>
  <hr class="sep">
@@ -107,7 +110,7 @@ function render(){
  else if(currentPage==="playlists"){main.innerHTML=`<div class="pagehead"><h1>再生リスト</h1><button class="secondary" id="newPlaylist">＋ 新しい再生リスト</button></div>${state.playlists.length?state.playlists.map(p=>`<div class="pagehead"><div><h2>${esc(p.name)}</h2><div class="muted">${p.ids.length} 本の動画</div></div><button class="secondary" data-playlist="${esc(p.id)}">開く</button></div>`).join(""):empty("再生リストはありません","動画をまとめる再生リストを作成できます。","再生リストを作成")}`;bindMain();return}
  else if(currentPage==="channel"){renderChannel(main);bindMain();return}
  else if(currentPage==="library"){main.innerHTML=`<div class="pagehead"><h1>ライブラリ</h1></div><div class="librarytabs"><button class="secondary" data-goto="history">🕒 履歴 (${state.history.length})</button><button class="secondary" data-goto="watchlater">後で見る (${state.watchlater.length})</button><button class="secondary" data-goto="liked">高く評価 (${state.liked.length})</button><button class="secondary" data-goto="playlists">再生リスト (${state.playlists.length})</button></div><p class="muted">この端末に保存された履歴・リストを管理できます。</p>`;bindMain();return}
- if(currentPage==="home"){main.innerHTML=`<div class="chips">${["すべて","音楽","ゲーム","ライブ","ニュース","スポーツ","学習","テクノロジー","料理","旅行","コメディ","映画とアニメ","科学と技術","ペット","美容","ファッション","自動車","ビジネス","健康","自然","キッズ"].map(c=>`<button class="chip ${category===c?"active":""}" data-category="${c}">${c}</button>${c==="すべて"?`<button class="compass-btn" id="compassBtn" type="button" aria-label="ナビゲーションを開く" aria-expanded="false" title="ナビゲーション">🧭</button>`:""}`).join("")}</div><section class="grid">${list.filter(v=>category==="すべて"||v.category===category).map(card).join("")}</section>${list.filter(v=>category==="すべて"||v.category===category).length?"":empty("動画はまだありません","動画をアップロードすると、ここに表示されます。","動画をアップロード")}`}
+ if(currentPage==="home"){main.innerHTML=`<div class="chips">${["すべて","音楽","ゲーム","ライブ","ニュース","スポーツ","学習","テクノロジー","料理","旅行","コメディ","映画とアニメ","科学と技術","ペット","美容","ファッション","自動車","ビジネス","健康","自然","キッズ"].map(c=>`<button class="chip ${category===c?"active":""}" data-category="${c}">${c}</button>`).join("")}</div><section class="grid">${list.filter(v=>category==="すべて"||v.category===category).map(card).join("")}</section>${list.filter(v=>category==="すべて"||v.category===category).length?"":empty("動画はまだありません","動画をアップロードすると、ここに表示されます。","動画をアップロード")}`}
  else {main.innerHTML=`<div class="pagehead"><h1>${navTitle(currentPage)}</h1>${currentPage==="history"?`<button class="secondary" id="clearHistory">履歴を削除</button>`:""}</div><section class="grid">${list.map(card).join("")}</section>${list.length?"":empty(currentPage==="watchlater"?"後で見る動画はありません":currentPage==="liked"?"高く評価した動画はありません":currentPage==="subscriptions"?"登録チャンネルの動画はありません":currentPage==="shorts"?"ショート動画はありません":"履歴はありません","動画を視聴したり、保存したりすると、ここに表示されます。",currentPage==="subscriptions"?"チャンネルを開く": "")}`}
  bindMain()
 }
