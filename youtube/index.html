@@ -12,7 +12,6 @@
 @media(max-width:1150px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sidebar{width:78px}.nav{justify-content:center;padding:13px 4px;flex-direction:column;gap:3px;font-size:10px}.nav span:last-child,.navheading,.sep{display:none}.main{margin-left:78px;width:calc(100% - 78px)}.brand{min-width:auto}.brandtext{display:none}}
 @media(max-width:650px){
 .top{height:56px;padding:0 10px;gap:10px;position:sticky;top:0;z-index:20}
-.top #menuBtn{display:grid;flex:0 0 34px;width:34px;height:38px;font-size:21px}
 .brand{min-width:auto;gap:6px;flex:0 0 auto}.brandtext{display:inline;font-size:17px}.ytlogo{width:27px;height:20px}
 .search{flex:1;min-width:35px;max-width:none;margin:0}.search input{width:0;min-width:0;padding:0 10px;height:36px}.search button{width:38px;flex:0 0 38px;height:36px}
 .topright{gap:4px;flex:0 0 auto}.topright .pill{padding:8px 10px;font-size:12px;white-space:nowrap}.topright #notificationsBtn,.topright #profileBtn{display:none}.avatar{width:32px;height:32px;flex:0 0 32px}
@@ -24,13 +23,17 @@
 }
 @media(max-width:390px){.top{gap:6px;padding:0 7px}.brandtext{font-size:15px}.ytlogo{width:24px;height:18px}.topright .pill{font-size:11px;padding:7px 8px}.search input{padding:0 6px}.search button{width:32px;flex-basis:32px}}
 @media(min-width:651px) and (max-width:850px){.top{gap:12px;padding:0 14px}.brand{min-width:auto}.brandtext{display:none}.topright{gap:4px}.topright .pill{padding:9px 11px}.main{padding-left:18px;padding-right:18px}.grid{gap:28px 14px}}
+/* Compass navigation control beside 「すべて」 */
+.compass-btn{display:inline-grid;place-items:center;flex:0 0 40px;width:40px;height:36px;border:0;border-radius:18px;background:var(--surface2);font-size:21px;line-height:1;vertical-align:middle}
+.compass-btn:hover{filter:brightness(1.15)}
+.compass-btn:focus-visible{outline:2px solid #8ab4f8;outline-offset:2px}
 /* YouTube-inspired full interface refresh */
 
 /* YouTube-inspired full interface refresh */
 :root{color-scheme:dark;--bg:#0f0f0f;--surface:#0f0f0f;--surface2:#272727;--text:#f1f1f1;--muted:#aaa;--line:#303030;--red:#ff0033}
 body{font-family:Roboto,"Arial","Noto Sans JP",sans-serif;font-size:14px;letter-spacing:.01px;background:var(--bg)}
 .top{height:56px;padding:0 24px 0 16px;gap:24px;background:var(--bg)}
-#menuBtn{flex:0 0 40px}.brand{min-width:190px;gap:7px;font-size:20px;letter-spacing:-1.1px}.ytlogo{width:32px;height:22px;border-radius:7px;background:#ff0033;font-size:13px}.brandtext{font-weight:800;letter-spacing:-1.1px}
+#brand-placeholder{min-width:190px;gap:7px;font-size:20px;letter-spacing:-1.1px}.ytlogo{width:32px;height:22px;border-radius:7px;background:#ff0033;font-size:13px}.brandtext{font-weight:800;letter-spacing:-1.1px}
 .search{max-width:728px;height:40px;gap:0}.search input{height:40px;border:1px solid #303030;background:#121212;border-radius:40px 0 0 40px;padding:0 20px;font-size:16px;box-shadow:inset 0 1px 2px #0005}.search input:focus{border-color:#1c62b9;outline:1px solid #1c62b9}.search button{height:40px;width:64px;background:#222;border:1px solid #303030;border-radius:0 40px 40px 0;font-size:23px}.search button:hover{background:#383838}
 .topright{gap:12px}.round{width:40px;height:40px;display:grid;place-items:center}.round:hover{background:#272727}.pill{background:#272727;border-radius:22px;padding:9px 15px;font-size:14px}.pill:hover,.secondary:hover{background:#3f3f3f}.avatar{background:#065fd4}
 .sidebar{top:56px;width:240px;padding:12px 12px 30px;scrollbar-width:thin;background:var(--bg)}.nav{min-height:40px;padding:0 12px;gap:24px;border-radius:10px;margin:0 0 4px;font-size:14px;font-weight:400}.nav:hover{background:#272727}.nav.active{background:#272727;font-weight:700}.navicon{font-size:21px;width:24px;flex:0 0 24px}.navheading{padding:13px 12px 8px;font-size:16px}.sep{border-color:#303030;margin:12px 0}
@@ -48,7 +51,6 @@ body{font-family:Roboto,"Arial","Noto Sans JP",sans-serif;font-size:14px;letter-
 </head>
 <body>
 <header class="top">
- <button class="round" id="menuBtn" aria-label="メニュー">☰</button>
  <div class="brand" id="homeBrand" role="button" tabindex="0" aria-label="ホームへ戻る" title="ホームへ"><span class="ytlogo">▶</span><span class="brandtext">YouTube</span></div>
  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="検索" aria-label="検索" autocomplete="off"><button aria-label="検索">⌕</button><div class="search-history" id="searchHistory" role="listbox" aria-label="検索履歴"></div></form>
  <div class="topright"><button class="pill" id="createBtn">＋ 作成</button><button class="round" id="notificationsBtn" aria-label="通知">🔔</button><button class="round" id="profileBtn" aria-label="プロフィール">👤</button><button class="avatar" id="avatarBtn" aria-label="チャンネルプロフィール">T</button></div>
@@ -105,7 +107,7 @@ function render(){
  else if(currentPage==="playlists"){main.innerHTML=`<div class="pagehead"><h1>再生リスト</h1><button class="secondary" id="newPlaylist">＋ 新しい再生リスト</button></div>${state.playlists.length?state.playlists.map(p=>`<div class="pagehead"><div><h2>${esc(p.name)}</h2><div class="muted">${p.ids.length} 本の動画</div></div><button class="secondary" data-playlist="${esc(p.id)}">開く</button></div>`).join(""):empty("再生リストはありません","動画をまとめる再生リストを作成できます。","再生リストを作成")}`;bindMain();return}
  else if(currentPage==="channel"){renderChannel(main);bindMain();return}
  else if(currentPage==="library"){main.innerHTML=`<div class="pagehead"><h1>ライブラリ</h1></div><div class="librarytabs"><button class="secondary" data-goto="history">🕒 履歴 (${state.history.length})</button><button class="secondary" data-goto="watchlater">後で見る (${state.watchlater.length})</button><button class="secondary" data-goto="liked">高く評価 (${state.liked.length})</button><button class="secondary" data-goto="playlists">再生リスト (${state.playlists.length})</button></div><p class="muted">この端末に保存された履歴・リストを管理できます。</p>`;bindMain();return}
- if(currentPage==="home"){main.innerHTML=`<div class="chips">${["すべて","音楽","ゲーム","ライブ","ニュース","スポーツ","学習","テクノロジー","料理","旅行","コメディ","映画とアニメ","科学と技術","ペット","美容","ファッション","自動車","ビジネス","健康","自然","キッズ"].map(c=>`<button class="chip ${category===c?"active":""}" data-category="${c}">${c}</button>`).join("")}</div><section class="grid">${list.filter(v=>category==="すべて"||v.category===category).map(card).join("")}</section>${list.filter(v=>category==="すべて"||v.category===category).length?"":empty("動画はまだありません","動画をアップロードすると、ここに表示されます。","動画をアップロード")}`}
+ if(currentPage==="home"){main.innerHTML=`<div class="chips">${["すべて","音楽","ゲーム","ライブ","ニュース","スポーツ","学習","テクノロジー","料理","旅行","コメディ","映画とアニメ","科学と技術","ペット","美容","ファッション","自動車","ビジネス","健康","自然","キッズ"].map(c=>`<button class="chip ${category===c?"active":""}" data-category="${c}">${c}</button>${c==="すべて"?`<button class="compass-btn" id="compassBtn" type="button" aria-label="ナビゲーションを開く" aria-expanded="false" title="ナビゲーション">🧭</button>`:""}`).join("")}</div><section class="grid">${list.filter(v=>category==="すべて"||v.category===category).map(card).join("")}</section>${list.filter(v=>category==="すべて"||v.category===category).length?"":empty("動画はまだありません","動画をアップロードすると、ここに表示されます。","動画をアップロード")}`}
  else {main.innerHTML=`<div class="pagehead"><h1>${navTitle(currentPage)}</h1>${currentPage==="history"?`<button class="secondary" id="clearHistory">履歴を削除</button>`:""}</div><section class="grid">${list.map(card).join("")}</section>${list.length?"":empty(currentPage==="watchlater"?"後で見る動画はありません":currentPage==="liked"?"高く評価した動画はありません":currentPage==="subscriptions"?"登録チャンネルの動画はありません":currentPage==="shorts"?"ショート動画はありません":"履歴はありません","動画を視聴したり、保存したりすると、ここに表示されます。",currentPage==="subscriptions"?"チャンネルを開く": "")}`}
  bindMain()
 }
@@ -148,9 +150,8 @@ function showSearchHistory(){const box=$("searchHistory"),input=$("searchInput")
 window.addEventListener("resize",()=>{if($("searchHistory")?.classList.contains("show"))positionSearchHistory()});window.addEventListener("scroll",()=>{if($("searchHistory")?.classList.contains("show"))positionSearchHistory()},true);
 document.addEventListener("click",e=>{if(!e.target.closest("#searchForm")&&!e.target.closest("#searchHistory"))hideSearchHistory()});
 $("createBtn").onclick=openUpload;$("profileBtn").onclick=editChannel;$("avatarBtn").onclick=()=>setPage("channel");
-$("sidebar").addEventListener("click",e=>{const explore=e.target.closest("[data-explore]");if(explore){e.preventDefault();category=explore.dataset.explore;setPage("explore");if(innerWidth<=650){$("sidebar").classList.remove("is-open");$("menuBtn").setAttribute("aria-expanded","false");}return}const n=e.target.closest("[data-page]");if(n){e.preventDefault();setPage(n.dataset.page);if(innerWidth<=650){$("sidebar").classList.remove("is-open");$("menuBtn").setAttribute("aria-expanded","false");}}});
+$("sidebar").addEventListener("click",e=>{const explore=e.target.closest("[data-explore]");if(explore){e.preventDefault();category=explore.dataset.explore;setPage("explore");if(innerWidth<=650){$("sidebar").classList.remove("is-open");$("compassBtn")?.setAttribute("aria-expanded","false");}return}const n=e.target.closest("[data-page]");if(n){e.preventDefault();setPage(n.dataset.page);if(innerWidth<=650){$("sidebar").classList.remove("is-open");$("menuBtn").setAttribute("aria-expanded","false");}}});
 $("homeBrand").onclick=()=>setPage("home");$("homeBrand").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setPage("home")}};
-$("menuBtn").onclick=()=>{const sidebar=$("sidebar");if(innerWidth<=650){const opened=sidebar.classList.toggle("is-open");$("menuBtn").setAttribute("aria-expanded",String(opened));}else{sidebar.style.display=sidebar.style.display==="none"?"":"none";$("menuBtn").setAttribute("aria-expanded",String(sidebar.style.display!=="none"));}};
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){modalClose();if($("playerBg").classList.contains("show"))closeWatch()}});
 (async()=>{loadState();try{await openDB()}catch(e){toast("このブラウザでは動画のローカル保存が利用できない可能性があります")}if(state.channel.avatar)$("avatarBtn").innerHTML=`<img src="${state.channel.avatar}" alt="">`;else $("avatarBtn").textContent=state.channel.name.trim().charAt(0)||"T";render()})();
 
@@ -170,7 +171,7 @@ function render(){
  else if(currentPage==="channel"){renderChannel(main);bindMain();return}
  else if(currentPage==="library"){main.innerHTML=`<div class="pagehead"><h1>ライブラリ</h1></div><div class="librarytabs"><button class="secondary" data-goto="history">🕒 履歴 (${state.history.length})</button><button class="secondary" data-goto="watchlater">後で見る (${state.watchlater.length})</button><button class="secondary" data-goto="liked">高く評価 (${state.liked.length})</button><button class="secondary" data-goto="playlists">再生リスト (${state.playlists.length})</button><button class="secondary" data-goto="posts">投稿</button></div><p class="muted">履歴・リスト・投稿をこの端末で管理できます。</p>`;bindMain();return}
  else if(currentPage==="posts"){main.innerHTML=`<div class="pagehead"><h1>投稿</h1><button class="primary" id="newPostBtn">＋ 投稿を作成</button></div>${state.posts.map(p=>`<article class="description"><strong>${esc(state.channel.name)}</strong><p>${esc(p.text)}</p>${p.image?`<img src="${esc(p.image)}" style="max-width:100%;max-height:360px;border-radius:12px" alt="">`:""}<div class="muted">${esc(p.date)}</div></article>`).join("")}${state.posts.length?"":empty("投稿はまだありません","テキストや画像で近況を伝えましょう。","投稿を作成")}`;bindMain();const b=$("newPostBtn");if(b)b.onclick=openPost;return}
- if(currentPage==="home"||currentPage==="explore"){const cats=["すべて","音楽","ゲーム","ライブ","ニュース","スポーツ","学習","テクノロジー","料理","旅行","コメディ","映画とアニメ","科学と技術","ペット","美容","ファッション","自動車","ビジネス","健康","自然","キッズ","その他"];main.innerHTML=`<div class="chips">${cats.map(c=>`<button class="chip ${category===c?"active":""}" data-category="${esc(c)}">${esc(c)}</button>`).join("")}</div><section class="grid">${list.filter(v=>category==="すべて"||v.category===category||currentPage==="explore"&&category==="人気").map(card).join("")}</section>${list.length?"":empty("動画はまだありません","動画を投稿すると、ここに表示されます。","動画をアップロード")}`}
+ if(currentPage==="home"||currentPage==="explore"){const cats=["すべて","音楽","ゲーム","ライブ","ニュース","スポーツ","学習","テクノロジー","料理","旅行","コメディ","映画とアニメ","科学と技術","ペット","美容","ファッション","自動車","ビジネス","健康","自然","キッズ","その他"];main.innerHTML=`<div class="chips">${cats.map(c=>`<button class="chip ${category===c?"active":""}" data-category="${esc(c)}">${esc(c)}</button>${c==="すべて"?`<button class="compass-btn" id="compassBtn" type="button" aria-label="ナビゲーションを開く" aria-expanded="false" title="ナビゲーション">🧭</button>`:""}`).join("")}</div><section class="grid">${list.filter(v=>category==="すべて"||v.category===category||currentPage==="explore"&&category==="人気").map(card).join("")}</section>${list.length?"":empty("動画はまだありません","動画を投稿すると、ここに表示されます。","動画をアップロード")}`}
  else {main.innerHTML=`<div class="pagehead"><h1>${navTitle(currentPage)}</h1>${currentPage==="history"?`<button class="secondary" id="clearHistory">履歴を削除</button>`:""}</div><section class="grid">${list.map(card).join("")}</section>${list.length?"":empty("動画はありません","視聴した動画や保存した動画がここに表示されます。",currentPage==="subscriptions"?"チャンネルを開く":"")}`}
  bindMain()
 }
@@ -229,8 +230,18 @@ body.pc-forced .avatar{width:35px;height:35px;flex:0 0 35px}
  localStorage.setItem("yt_display_mode",mode);
  const selector=$("displayModeSetting");if(selector&&selector.value!==mode)selector.value=mode;
 }
-if(localStorage.getItem("yt_display_mode_v2")!=="1"){localStorage.setItem("yt_display_mode","auto");localStorage.setItem("yt_display_mode_v2","1")}
-applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
+function detectDeviceMode(){
+ const ua=navigator.userAgent||"";
+ const mobileUA=/Android|iPhone|iPod|Mobile|IEMobile|Windows Phone/i.test(ua);
+ const tabletUA=/iPad|Tablet/i.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+ return mobileUA||tabletUA?"mobile":"pc";
+}
+if(localStorage.getItem("yt_display_mode_v3")!=="1"){
+ const saved=localStorage.getItem("yt_display_mode");
+ if(saved!=="pc"&&saved!=="mobile")localStorage.setItem("yt_display_mode",detectDeviceMode());
+ localStorage.setItem("yt_display_mode_v3","1");
+}
+applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
  const sidebar=$("sidebar");
  if(sidebar&&!sidebar.querySelector('[data-page="analytics"]')){const a=document.createElement("a");a.className="nav";a.dataset.page="analytics";a.innerHTML='<span class="navicon">📊</span><span>チャンネル分析</span>';sidebar.appendChild(a)}
  // 設定ページとテーマ切り替え
@@ -278,7 +289,7 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
     $("languageSetting").onchange=e=>{localStorage.setItem("yt_language",e.target.value);toast("言語設定を保存しました")};
     $("locationSetting").value=localStorage.getItem("yt_location")||"JP";
     $("locationSetting").onchange=e=>{localStorage.setItem("yt_location",e.target.value);toast("地域設定を保存しました")};
-    applyTheme(localStorage.getItem("yt_theme")||"dark");
+    applyTheme(localStorage.getItem("yt_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"));
   }
   render=function(){if(currentPage==="settings"){renderSettings();return}const main=$("main");if(main){main.style.paddingLeft="";main.style.paddingRight=""}baseRender();document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page===currentPage))};
   applyTheme(localStorage.getItem("yt_theme")||"dark");
@@ -569,8 +580,8 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
 })();
 
 
-/* Seventh update: restore reliable mobile hamburger menu behavior */
-(()=> {
+/* Compass navigation: replaces the old hamburger and works after home rerenders. */
+(()=>{
  const css=document.createElement("style");
  css.textContent=`
  @media(max-width:650px){
@@ -578,23 +589,30 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||"auto");
   #sidebar.is-open{display:flex!important;visibility:visible!important;pointer-events:auto!important}
   #menuBackdrop{display:none;position:fixed;inset:56px 0 0;background:rgba(0,0,0,.42);z-index:1001}
   #menuBackdrop.is-open{display:block}
-  #menuBtn{position:relative;z-index:1003!important;touch-action:manipulation;pointer-events:auto!important}
  }
  `;
  document.head.appendChild(css);
- const sidebar=$("sidebar"),button=$("menuBtn");
- if(!sidebar||!button)return;
+ const sidebar=$("sidebar");
+ if(!sidebar)return;
  let backdrop=$("menuBackdrop");
  if(!backdrop){backdrop=document.createElement("div");backdrop.id="menuBackdrop";backdrop.setAttribute("aria-hidden","true");document.body.appendChild(backdrop)}
- function closeMenu(){sidebar.classList.remove("is-open");backdrop.classList.remove("is-open");button.setAttribute("aria-expanded","false")}
- function toggleMenu(){if(window.matchMedia("(max-width: 650px)").matches){const opened=!sidebar.classList.contains("is-open");sidebar.classList.toggle("is-open",opened);backdrop.classList.toggle("is-open",opened);button.setAttribute("aria-expanded",String(opened))}else{const hidden=getComputedStyle(sidebar).display==="none";sidebar.style.display=hidden?"":"none";button.setAttribute("aria-expanded",String(hidden))}}
- button.addEventListener("click",function(e){if(window.matchMedia("(max-width: 650px)").matches){e.preventDefault();e.stopImmediatePropagation();toggleMenu()}},true);
+ function closeMenu(){sidebar.classList.remove("is-open");backdrop.classList.remove("is-open");document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded","false"))}
+ function toggleMenu(button){
+  if(window.matchMedia("(max-width: 650px)").matches){
+   const opened=!sidebar.classList.contains("is-open");
+   sidebar.classList.toggle("is-open",opened);backdrop.classList.toggle("is-open",opened);
+   button.setAttribute("aria-expanded",String(opened));
+  }else{
+   const hidden=getComputedStyle(sidebar).display==="none";
+   sidebar.style.display=hidden?"":"none";button.setAttribute("aria-expanded",String(hidden));
+  }
+ }
+ document.addEventListener("click",function(e){const button=e.target.closest("#compassBtn");if(!button)return;e.preventDefault();e.stopPropagation();toggleMenu(button)},true);
  backdrop.addEventListener("click",closeMenu);
- sidebar.addEventListener("click",e=>{if(e.target.closest("[data-page],[data-explore]")&&window.matchMedia("(max-width: 650px)").matches)closeMenu()});
+ sidebar.addEventListener("click",e=>{if(e.target.closest("[data-page],[data-explore]")&&window.matchMedia("(max-width:650px)").matches)closeMenu()});
  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMenu()});
- window.addEventListener("resize",()=>{if(!window.matchMedia("(max-width: 650px)").matches){closeMenu();sidebar.style.display=""}});
+ window.addEventListener("resize",()=>{if(!window.matchMedia("(max-width:650px)").matches){closeMenu();sidebar.style.display=""}});
 })();
-
 </script>
 </body>
 </html>
