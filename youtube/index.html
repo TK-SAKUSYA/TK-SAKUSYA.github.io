@@ -259,6 +259,10 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
   body.light-mode .bar{background:#ddd}
   `;
   document.head.appendChild(themeStyle);
+  if(localStorage.getItem("yt_theme_v2")!=="1"){
+    localStorage.setItem("yt_theme",window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");
+    localStorage.setItem("yt_theme_v2","1");
+  }
   function applyTheme(theme){document.body.classList.toggle("light-mode",theme==="light");localStorage.setItem("yt_theme",theme);const label=$("themeToggle");if(label)label.textContent=theme==="light"?"🌙 ダークモードにする":"☀️ ライトモードにする"}
   const side=$("sidebar");
   if(side&&!side.querySelector('[data-page="settings"]')){const sep=document.createElement("hr");sep.className="sep";side.appendChild(sep);const a=document.createElement("a");a.className="nav";a.dataset.page="settings";a.innerHTML='<span class="navicon">⚙️</span><span>設定</span>';side.appendChild(a)}
