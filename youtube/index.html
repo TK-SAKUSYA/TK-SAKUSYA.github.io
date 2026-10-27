@@ -54,7 +54,7 @@ body{font-family:Roboto,"Arial","Noto Sans JP",sans-serif;font-size:14px;letter-
 </head>
 <body>
 <header class="top">
- <button class="compass-btn header-menu" id="menuBtn" type="button" aria-label="ナビゲーションを開く" aria-expanded="false" title="ナビゲーション">☰</button>
+ <button class="compass-btn header-menu" id="menuBtn" type="button" aria-label="ナビゲーションを開く" aria-expanded="false" title="ナビゲーション">🧭</button>
  <div class="brand" id="homeBrand" role="button" tabindex="0" aria-label="ホームへ戻る" title="ホームへ"><span class="ytlogo">▶</span><span class="brandtext">YouTube</span></div>
  <form class="search" id="searchForm"><input id="searchInput" type="search" placeholder="検索" aria-label="検索" autocomplete="off"><button aria-label="検索">⌕</button><div class="search-history" id="searchHistory" role="listbox" aria-label="検索履歴"></div></form>
  <div class="topright"><button class="pill" id="createBtn">＋ 作成</button><button class="round" id="notificationsBtn" aria-label="通知">🔔</button><button class="round" id="profileBtn" aria-label="プロフィール">👤</button><button class="avatar" id="avatarBtn" aria-label="チャンネルプロフィール">T</button></div>
@@ -615,7 +615,7 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
    sidebar.style.display=hidden?"":"none";button.setAttribute("aria-expanded",String(hidden));
   }
  }
- document.addEventListener("click",function(e){const button=e.target.closest("#compassBtn, #menuBtn");if(!button)return;e.preventDefault();e.stopPropagation();toggleMenu(button)},true);
+ document.addEventListener("click",function(e){const button=e.target.closest("#compassBtn, #menuBtn");if(!button)return;e.preventDefault();e.stopPropagation();toggleMenu(button);document.querySelectorAll("#compassBtn, #menuBtn").forEach(b=>b.setAttribute("aria-expanded",String(sidebar.classList.contains("is-open"))))},true);
  backdrop.addEventListener("click",closeMenu);
  sidebar.addEventListener("click",e=>{if(e.target.closest("[data-page],[data-explore]")&&window.matchMedia("(max-width:650px)").matches)closeMenu()});
  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMenu()});
@@ -633,6 +633,12 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
   body{padding-bottom:calc(var(--mobile-bottom) + env(safe-area-inset-bottom));background:#0f0f0f}
   .top{position:sticky!important;top:0!important;height:var(--mobile-bar)!important;min-height:var(--mobile-bar)!important;padding:0 12px!important;gap:12px!important;z-index:120!important;background:#0f0f0f!important;border:0!important}
   .top .header-menu,.top #menuBtn,.top .header-compass{display:none!important}
+  /* Mobile uses the compass in the category row as the sole menu control. */
+  .top{box-shadow:none!important;outline:0!important;border-bottom:0!important}
+  .top .search{border:0!important;outline:0!important;box-shadow:none!important}
+  .top .search input{border:1px solid #303030!important;box-shadow:none!important}
+  .chips{box-shadow:none!important;outline:0!important}
+  #compassBtn{position:relative!important;z-index:91!important;display:inline-grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;cursor:pointer!important}
   .top .brand{min-width:0!important;flex:0 0 auto!important;gap:5px!important}
   .top .brandtext{display:inline!important;font-size:18px!important;letter-spacing:-.8px!important}
   .top .ytlogo{width:28px!important;height:20px!important;border-radius:6px!important}
