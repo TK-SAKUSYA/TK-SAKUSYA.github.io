@@ -175,7 +175,7 @@ function render(){
  else if(currentPage==="channel"){renderChannel(main);bindMain();return}
  else if(currentPage==="library"){main.innerHTML=`<div class="pagehead"><h1>ライブラリ</h1></div><div class="librarytabs"><button class="secondary" data-goto="history">🕒 履歴 (${state.history.length})</button><button class="secondary" data-goto="watchlater">後で見る (${state.watchlater.length})</button><button class="secondary" data-goto="liked">高く評価 (${state.liked.length})</button><button class="secondary" data-goto="playlists">再生リスト (${state.playlists.length})</button><button class="secondary" data-goto="posts">投稿</button></div><p class="muted">履歴・リスト・投稿をこの端末で管理できます。</p>`;bindMain();return}
  else if(currentPage==="posts"){main.innerHTML=`<div class="pagehead"><h1>投稿</h1><button class="primary" id="newPostBtn">＋ 投稿を作成</button></div>${state.posts.map(p=>`<article class="description"><strong>${esc(state.channel.name)}</strong><p>${esc(p.text)}</p>${p.image?`<img src="${esc(p.image)}" style="max-width:100%;max-height:360px;border-radius:12px" alt="">`:""}<div class="muted">${esc(p.date)}</div></article>`).join("")}${state.posts.length?"":empty("投稿はまだありません","テキストや画像で近況を伝えましょう。","投稿を作成")}`;bindMain();const b=$("newPostBtn");if(b)b.onclick=openPost;return}
- if(currentPage==="home"||currentPage==="explore"){const cats=["すべて","音楽","ゲーム","ライブ","ニュース","スポーツ","学習","テクノロジー","料理","旅行","コメディ","映画とアニメ","科学と技術","ペット","美容","ファッション","自動車","ビジネス","健康","自然","キッズ","その他"];main.innerHTML=`<div class="chips">${cats.map(c=>`${c==="すべて"?`<button class="compass-btn category-compass" id="compassBtn" type="button" aria-label="ナビゲーションを開く" aria-expanded="false" title="ナビゲーション">🧭</button>`:""}<button class="chip ${category===c?"active":""}" data-category="${esc(c)}">${esc(c)}</button>`).join("")}</div><section class="grid">${list.filter(v=>category==="すべて"||v.category===category||currentPage==="explore"&&category==="人気").map(card).join("")}</section>${list.length?"":empty("動画はまだありません","動画を投稿すると、ここに表示されます。","動画をアップロード")}`}
+ if(currentPage==="home"||currentPage==="explore"){const cats=["すべて","音楽","ゲーム","ライブ","ニュース","スポーツ","学習","テクノロジー","料理","旅行","コメディ","映画とアニメ","科学と技術","ペット","美容","ファッション","自動車","ビジネス","健康","自然","キッズ","その他"];main.innerHTML=`<div class="chips">${cats.map(c=>`${c==="すべて"?`<button class="compass-btn category-compass" id="compassBtn" type="button" aria-label="ナビゲーションを開く" aria-expanded="false" title="ナビゲーション" onclick="toggleYouTubeMenu(event)">🧭</button>`:""}<button class="chip ${category===c?"active":""}" data-category="${esc(c)}">${esc(c)}</button>`).join("")}</div><section class="grid">${list.filter(v=>category==="すべて"||v.category===category||currentPage==="explore"&&category==="人気").map(card).join("")}</section>${list.length?"":empty("動画はまだありません","動画を投稿すると、ここに表示されます。","動画をアップロード")}`}
  else {main.innerHTML=`<div class="pagehead"><h1>${navTitle(currentPage)}</h1>${currentPage==="history"?`<button class="secondary" id="clearHistory">履歴を削除</button>`:""}</div><section class="grid">${list.map(card).join("")}</section>${list.length?"":empty("動画はありません","視聴した動画や保存した動画がここに表示されます。",currentPage==="subscriptions"?"チャンネルを開く":"")}`}
  bindMain()
 }
@@ -676,12 +676,11 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
   document.body.classList.toggle("mobile-video-open",mobile()&&playing);
   if(nav)nav.style.setProperty("display",show?"grid":"none","important");
  }
- document.addEventListener("click",e=>{
-  const compass=e.target.closest("#compassBtn");
-  if(!compass)return;
-  e.preventDefault();e.stopPropagation();
+ window.toggleYouTubeMenu=function(e){
+  if(e){e.preventDefault();e.stopPropagation();}
+  if(!mobile())return;
   if(sidebar.classList.contains("is-open"))closeMenu();else openMenu();
- },true);
+ };
  backdrop.addEventListener("click",closeMenu);
  sidebar.addEventListener("click",e=>{if(e.target.closest("[data-page],[data-explore]"))closeMenu()});
  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMenu()});
