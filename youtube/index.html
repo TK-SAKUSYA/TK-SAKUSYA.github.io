@@ -678,8 +678,21 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
  }
  window.toggleYouTubeMenu=function(e){
   if(e){e.preventDefault();e.stopPropagation();}
-  if(!mobile())return;
-  if(sidebar.classList.contains("is-open"))closeMenu();else openMenu();
+  if(mobile()){
+   if(sidebar.classList.contains("is-open"))closeMenu();else openMenu();
+   return;
+  }
+  // Desktop: toggle the left navigation column. Removing the inline rule restores its CSS layout.
+  const isHidden=getComputedStyle(sidebar).display==="none";
+  if(isHidden){
+   sidebar.style.removeProperty("display");
+   sidebar.style.removeProperty("visibility");
+   sidebar.style.removeProperty("pointer-events");
+   document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded","false"));
+  }else{
+   sidebar.style.setProperty("display","none","important");
+   document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded","true"));
+  }
  };
  backdrop.addEventListener("click",closeMenu);
  sidebar.addEventListener("click",e=>{if(e.target.closest("[data-page],[data-explore]"))closeMenu()});
