@@ -827,6 +827,42 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
  updateMobileUI();
 })();
 
+/* Final navigation fix: honor the selected display mode and use one toggle path. */
+(function(){
+ const side=document.getElementById("sidebar");
+ const shade=document.getElementById("menuBackdrop");
+ if(!side||!shade)return;
+ const style=document.createElement("style");
+ style.textContent="body.pc-forced.youtube-sidebar-hidden #sidebar{display:none!important}body.pc-forced.youtube-sidebar-hidden #main{margin-left:0!important;width:100%!important;max-width:100%!important}@media(min-width:651px){body.youtube-sidebar-hidden #sidebar{display:none!important}body.youtube-sidebar-hidden #main{margin-left:0!important;width:100%!important;max-width:100%!important}}body.mobile-forced #sidebar{position:fixed!important;top:0!important;left:0!important;bottom:0!important;width:min(300px,84vw)!important;height:100dvh!important;max-width:84vw!important;overflow-y:auto!important;z-index:1002!important;flex-direction:column!important;background:#0f0f0f!important;box-shadow:8px 0 28px #0009!important}body.mobile-forced #sidebar:not(.is-open){display:none!important;visibility:hidden!important;pointer-events:none!important}body.mobile-forced #sidebar.is-open{display:flex!important;visibility:visible!important;pointer-events:auto!important}body.mobile-forced #menuBackdrop{position:fixed!important;inset:0!important;z-index:1001!important;background:rgba(0,0,0,.5)!important}body.mobile-forced #sidebar .nav{flex:0 0 auto!important;flex-direction:row!important;justify-content:flex-start!important;gap:18px!important;padding:12px 14px!important;font-size:14px!important}body.mobile-forced #sidebar .nav span:last-child,body.mobile-forced #sidebar .navheading,body.mobile-forced #sidebar .sep{display:initial!important}";
+ document.head.appendChild(style);
+ const isMobileMode=()=>document.body.classList.contains("mobile-forced")||(!document.body.classList.contains("pc-forced")&&window.matchMedia("(max-width:650px)").matches);
+ function close(){
+  side.classList.remove("is-open");
+  side.style.removeProperty("display");side.style.removeProperty("visibility");side.style.removeProperty("pointer-events");
+  shade.classList.remove("is-open");shade.style.setProperty("display","none","important");
+  document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded","false"));
+ }
+ function open(){
+  side.style.setProperty("display","flex","important");side.style.setProperty("visibility","visible","important");side.style.setProperty("pointer-events","auto","important");
+  side.classList.add("is-open");
+  shade.style.setProperty("display","block","important");shade.classList.add("is-open");
+  document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded","true"));
+ }
+ window.toggleYouTubeMenu=function(e){
+  if(e){e.preventDefault();e.stopPropagation();}
+  if(isMobileMode()){
+   if(side.classList.contains("is-open"))close();else open();
+  }else{
+   const hidden=!document.body.classList.contains("youtube-sidebar-hidden");
+   document.body.classList.toggle("youtube-sidebar-hidden",hidden);
+   side.style.removeProperty("display");side.style.removeProperty("visibility");side.style.removeProperty("pointer-events");
+   document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded",String(!hidden)));
+  }
+ };
+ shade.addEventListener("click",close);
+ document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+})();
+
 </script>
 </body>
 </html>
