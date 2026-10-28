@@ -686,14 +686,7 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
   const hidden=document.body.classList.toggle("youtube-sidebar-hidden");
   document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded",String(!hidden)));
  };
- document.addEventListener("click",function(e){
-  const button=e.target.closest("#compassBtn");
-  if(!button)return;
-  e.preventDefault();
-  e.stopPropagation();
-  e.stopImmediatePropagation();
-  window.toggleYouTubeMenu(e);
- },true);
+ // Compass click is handled once, by the final mode-aware handler at the end of this script.
  backdrop.addEventListener("click",closeMenu);
  sidebar.addEventListener("click",e=>{if(e.target.closest("[data-page],[data-explore]"))closeMenu()});
  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMenu()});
@@ -862,6 +855,15 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
  shade.addEventListener("click",close);
  document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
 })();
+
+/* One authoritative compass click handler, registered after the mode-aware toggle exists. */
+document.addEventListener("click",function(e){
+ const button=e.target instanceof Element ? e.target.closest("#compassBtn") : null;
+ if(!button)return;
+ e.preventDefault();
+ e.stopPropagation();
+ if(typeof window.toggleYouTubeMenu==="function")window.toggleYouTubeMenu(e);
+},true);
 
 </script>
 </body>
