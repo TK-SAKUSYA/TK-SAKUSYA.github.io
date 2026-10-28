@@ -125,7 +125,7 @@ const dateDiff=(a,b)=>{const x=parseISO(a),y=parseISO(b);return x&&y?Math.round(
 const fmtDate=s=>{const d=parseISO(s);return d?`${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）`:'期限未設定'};
 const fullDate=s=>{const d=parseISO(s);return d?`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${'日月火水木金土'[d.getDay()]}）`:'日付未選択'};
 const uid=()=>`${Date.now().toString(36)}-${Math.random().toString(36).slice(2,10)}`;
-let homework=[], storageOK=true, editing=false, selectedDate=todayISO(), weekStart=null, confirmAction=null, themeMode='light';
+let homework=[], storageOK=true, editing=false, selectedDate=todayISO(), weekStart=null, confirmAction=null, themeMode='auto';
 function escapeHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function safeLoad(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return [];const data=JSON.parse(raw);if(!Array.isArray(data))throw Error('保存データの形式が正しくありません');return data.filter(x=>x&&typeof x==='object').map(x=>({id:String(x.id||uid()),subject:String(x.subject||''),title:String(x.title||''),dueDate:parseISO(x.dueDate)?x.dueDate:'',minutes:Number.isFinite(Number(x.minutes))&&Number(x.minutes)>0?Math.min(1440,Number(x.minutes)):null,memo:String(x.memo||''),done:!!x.done,createdAt:Number(x.createdAt)||Date.now(),completedAt:Number(x.completedAt)||null,images:Array.isArray(x.images)?x.images.slice(0,8):[],personalDeadline:String(x.personalDeadline||''),category:String(x.category||x.subject||''),priority:['low','normal','high','urgent'].includes(x.priority)?x.priority:'normal'}))}catch(e){storageOK=false;toast('保存データを読み込めませんでした。設定からバックアップを確認してください。','error');return []}}
 function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(homework));storageOK=true;updateStorageStatus();return true}catch(e){storageOK=false;updateStorageStatus();toast('⚠️ 保存できませんでした。ブラウザの空き容量や設定を確認してください。','error');return false}}
@@ -161,7 +161,7 @@ $('themeBtn').onclick=()=>applyTheme((document.documentElement.dataset.theme==='
 $('clearAllBtn').onclick=()=>{if(!homework.length){toast('削除する宿題データはありません');return}askConfirm('すべての宿題データを削除',`登録済みの宿題 ${homework.length}件をすべて削除します。バックアップしていないデータは復元できません。`,()=>{const old=homework;homework=[];if(save()){renderAllViews();toast('すべての宿題データを削除しました')}else homework=old},'すべて削除')};
 $('closeConfirm').onclick=closeConfirm;$('confirmCancel').onclick=closeConfirm;$('confirmOK').onclick=()=>{const action=confirmAction;closeConfirm();if(action)action()};$('confirmModal').addEventListener('click',e=>{if(e.target===$('confirmModal'))closeConfirm()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeForm();closeConfirm()}});
 var study2={checklists:{}};
-try{themeMode=localStorage.getItem(THEME_KEY)||'light'}catch(e){themeMode='light'}applyTheme(themeMode);homework=safeLoad();weekStart=startWeek(selectedDate);renderAllViews();updateStorageStatus();
+try{themeMode=localStorage.getItem(THEME_KEY)||'auto'}catch(e){themeMode='auto'}applyTheme(themeMode);homework=safeLoad();weekStart=startWeek(selectedDate);renderAllViews();updateStorageStatus();
 if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(themeMode==='auto')applyTheme('auto')})}
 
 /* Study upgrade logic */
