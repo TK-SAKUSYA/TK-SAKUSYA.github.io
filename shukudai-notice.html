@@ -160,6 +160,7 @@ $('addBtn').onclick=()=>openForm();$('allAdd').onclick=()=>openForm();$('planAdd
 $('themeBtn').onclick=()=>applyTheme((document.documentElement.dataset.theme==='dark')?'light':'dark');$('lightMode').onclick=()=>applyTheme('light');$('darkMode').onclick=()=>applyTheme('dark');$('autoMode').onclick=()=>applyTheme('auto');$('exportBtn').onclick=exportData;$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=e=>{const f=e.target.files[0];if(f)importData(f);e.target.value=''};
 $('clearAllBtn').onclick=()=>{if(!homework.length){toast('削除する宿題データはありません');return}askConfirm('すべての宿題データを削除',`登録済みの宿題 ${homework.length}件をすべて削除します。バックアップしていないデータは復元できません。`,()=>{const old=homework;homework=[];if(save()){renderAllViews();toast('すべての宿題データを削除しました')}else homework=old},'すべて削除')};
 $('closeConfirm').onclick=closeConfirm;$('confirmCancel').onclick=closeConfirm;$('confirmOK').onclick=()=>{const action=confirmAction;closeConfirm();if(action)action()};$('confirmModal').addEventListener('click',e=>{if(e.target===$('confirmModal'))closeConfirm()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeForm();closeConfirm()}});
+var study2={checklists:{}};
 try{themeMode=localStorage.getItem(THEME_KEY)||'light'}catch(e){themeMode='light'}applyTheme(themeMode);homework=safeLoad();weekStart=startWeek(selectedDate);renderAllViews();updateStorageStatus();
 if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(themeMode==='auto')applyTheme('auto')})}
 
@@ -201,7 +202,7 @@ renderPlaylists();renderSmart();
 
 initUpgrade();
 
-const STUDY2_KEY='homework-notice-study-v2';let study2={checklists:{},logs:[],schedule:[],achievements:[],reminders:[],settings:{budget:90,breakEvery:25,enabled:false,time:'18:00'},timer:{active:false,paused:false,deadline:0,remain:1500,start:0,planned:1500,homeworkId:'',mode:'study'}};
+const STUDY2_KEY='homework-notice-study-v2';study2={checklists:{},logs:[],schedule:[],achievements:[],reminders:[],settings:{budget:90,breakEvery:25,enabled:false,time:'18:00'},timer:{active:false,paused:false,deadline:0,remain:1500,start:0,planned:1500,homeworkId:'',mode:'study'}};
 function studyLoad(){try{study2=Object.assign(study2,JSON.parse(localStorage.getItem(STUDY2_KEY)||'{}'));study2.settings=Object.assign({budget:90,breakEvery:25,enabled:false,time:'18:00'},study2.settings||{});['logs','schedule','achievements','reminders'].forEach(k=>{if(!Array.isArray(study2[k]))study2[k]=[]});study2.checklists=study2.checklists||{}}catch(e){}}
 function studySave(){try{localStorage.setItem(STUDY2_KEY,JSON.stringify(study2));return true}catch(e){toast('学習記録を保存できません。空き容量を確認してください。','error');return false}}
 function sx(v){return escapeHTML(String(v??''))}
