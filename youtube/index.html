@@ -628,6 +628,7 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
  const css=document.createElement("style");
  css.id="mobileReliabilityPatch";
  css.textContent=`
+  @media(min-width:651px){body.youtube-sidebar-hidden #sidebar{display:none!important}body.youtube-sidebar-hidden .main{margin-left:0!important;width:100%!important;max-width:100%!important}}
  @media(max-width:650px){
   header.top{border:0!important;outline:0!important;box-shadow:none!important}
   header.top::before,header.top::after{content:none!important;display:none!important}
@@ -682,17 +683,8 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
    if(sidebar.classList.contains("is-open"))closeMenu();else openMenu();
    return;
   }
-  // Desktop: toggle the left navigation column. Removing the inline rule restores its CSS layout.
-  const isHidden=getComputedStyle(sidebar).display==="none";
-  if(isHidden){
-   sidebar.style.removeProperty("display");
-   sidebar.style.removeProperty("visibility");
-   sidebar.style.removeProperty("pointer-events");
-   document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded","false"));
-  }else{
-   sidebar.style.setProperty("display","none","important");
-   document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded","true"));
-  }
+  const hidden=document.body.classList.toggle("youtube-sidebar-hidden");
+  document.querySelectorAll("#compassBtn").forEach(b=>b.setAttribute("aria-expanded",String(!hidden)));
  };
  backdrop.addEventListener("click",closeMenu);
  sidebar.addEventListener("click",e=>{if(e.target.closest("[data-page],[data-explore]"))closeMenu()});
