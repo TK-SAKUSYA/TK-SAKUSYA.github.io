@@ -132,6 +132,47 @@ body.launcher-mode main{padding-top:0}
 @media(min-width:761px) and (max-width:950px){.launcher-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.launcher-icon,.launcher-dock-icon{transition:none}}
 </style>
+<style id="launcher-layout-hard-fix">
+/* Explicit final layout rules: keep the launcher a grid even if legacy styles conflict. */
+body.launcher-mode #page-launcher.active #launcherGrid{
+ display:grid!important;width:100%!important;grid-auto-flow:row!important;
+ grid-template-columns:repeat(6,minmax(0,1fr))!important;align-items:start!important;
+ justify-items:stretch!important;gap:clamp(16px,2.2vw,26px) clamp(8px,1.6vw,18px)!important;
+}
+body.launcher-mode #page-launcher.active #launcherGrid>.launcher-app-wrap{
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:flex-start!important;min-width:0!important;width:100%!important;grid-column:auto!important;float:none!important;
+}
+body.launcher-mode #page-launcher.active #launcherGrid .launcher-app{
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:flex-start!important;width:100%!important;min-width:0!important;
+ text-align:center!important;white-space:normal!important;
+}
+body.launcher-mode #page-launcher.active #launcherGrid .launcher-icon{
+ display:grid!important;place-items:center!important;flex:0 0 auto!important;
+ width:clamp(58px,6.4vw,78px)!important;height:clamp(58px,6.4vw,78px)!important;
+ aspect-ratio:1/1!important;font-size:clamp(1.8rem,3vw,2.4rem)!important;border-radius:21px!important;
+}
+body.launcher-mode #page-launcher.active #launcherGrid .launcher-name{
+ display:block!important;width:100%!important;max-width:100%!important;text-align:center!important;
+ white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;line-height:1.25!important;
+}
+body.launcher-mode #page-launcher.active .launcher-dock-wrap{display:block!important}
+body:not(.launcher-mode) #page-launcher .launcher-dock-wrap{display:none!important}
+#page-launcher .launcher-dock{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#page-launcher .launcher-dock-app{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
+#page-launcher .launcher-dock-name{display:none!important}
+@media(max-width:760px){
+ body.launcher-mode #page-launcher.active #launcherGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:17px 7px!important}
+ body.launcher-mode #page-launcher.active #launcherGrid .launcher-icon{width:clamp(56px,13vw,72px)!important;height:clamp(56px,13vw,72px)!important}
+ body.launcher-mode .app{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))!important}
+}
+@media(max-width:360px){
+ body.launcher-mode #page-launcher.active #launcherGrid{gap:14px 3px!important}
+ body.launcher-mode #page-launcher.active #launcherGrid .launcher-icon{width:54px!important;height:54px!important}
+}
+@media(prefers-reduced-motion:reduce){#page-launcher .launcher-icon,#page-launcher .launcher-dock-icon{transition:none!important}}
+</style>
 </head>
 <body>
 <div class="app">
