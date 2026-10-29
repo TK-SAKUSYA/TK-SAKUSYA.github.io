@@ -867,6 +867,7 @@ function attachEvents(){
 function extendBackup(){
  if(typeof window.exportData==='function'&&!window.__newExportWrapped){
   window.exportData=function(){const snapshot={};[STORAGE_KEY,EXTRA_KEY,PLAYLIST_KEY,STUDY2_KEY,LAB_KEY,THEME_KEY,APP_HOME_KEY,EXAM_KEY,QB_KEY,REPORT_KEY].forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)snapshot[k]=v}catch(e){}});const data={app:'宿題のお知らせ',version:5,exportedAt:new Date().toISOString(),homework:homework,appStorage:snapshot};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='宿題のお知らせ_完全バックアップ_'+dateToday()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast2('宿題・コイン・プレイリスト・テスト・問題集を含むバックアップを作成しました')};window.__newExportWrapped=true;
+  const exportBtn=$('exportBtn');if(exportBtn&&!exportBtn.dataset.fullBackup){exportBtn.dataset.fullBackup='1';exportBtn.addEventListener('click',function(ev){ev.stopImmediatePropagation();window.exportData()},true)}
  }
  const input=$('importFile');
  if(input&&!input.dataset.newBackup){
