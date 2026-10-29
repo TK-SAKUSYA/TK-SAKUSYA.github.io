@@ -37,6 +37,47 @@ button:disabled{opacity:.62;cursor:not-allowed}input,select,textarea{color:var(-
 .nav{display:flex;gap:8px;overflow-x:auto;white-space:nowrap;scrollbar-width:thin;overscroll-behavior-x:contain}.nav button{flex:0 0 auto}.page,.improve-card,.improve-item{min-width:0}.hw-title,.plan-item strong,.improve-item strong{overflow-wrap:anywhere;word-break:normal}
 .improve-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:14px;margin:14px 0}.improve-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadow)}.improve-card h3{margin:0 0 10px;font-size:1.05rem}.improve-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.improve-row>*{min-width:0}.improve-field{display:grid;gap:5px;margin:10px 0}.improve-field input,.improve-field select,.improve-field textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:10px}.improve-small{font-size:.86rem;color:var(--muted)}.improve-list{display:grid;gap:8px;margin-top:10px}.improve-item{padding:10px;border:1px solid var(--line);border-radius:12px;display:grid;gap:7px}.risk-pill{display:inline-flex;border-radius:999px;padding:3px 8px;font-size:.82rem;font-weight:800;border:1px solid currentColor}.risk-green{color:var(--green);background:var(--greenbg)}.risk-yellow{color:#795800;background:#fff4c2}.risk-orange{color:var(--orange);background:var(--orangebg)}.risk-red{color:var(--red);background:var(--redbg)}.risk-black{color:white;background:#242630}.timer-clock{font-size:clamp(2rem,8vw,3.2rem);font-weight:900;font-variant-numeric:tabular-nums}.check-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.check-row span{overflow-wrap:anywhere}.playlist-layout{grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr)}.report-bar{height:10px;border-radius:999px;background:var(--surface2);overflow:hidden}.report-bar span{display:block;height:100%;background:var(--primary)}
 @media(max-width:640px){.app{padding:14px 12px 32px}.improve-card{padding:12px}.playlist-layout{grid-template-columns:1fr}.nav button{padding:9px 11px}}.lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:12px;margin:12px 0}.lab-card{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:14px;margin:12px 0;min-width:0}.lab-item{border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0;overflow-wrap:anywhere}.lab-flex{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.lab-muted{color:var(--muted);font-size:.88rem}.lab-meter{height:9px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:7px 0}.lab-meter span{display:block;height:100%;background:var(--primary)}.lab-stat{font-size:1.35rem;font-weight:850}.lab-robot{text-align:center;font-size:3.6rem;padding:8px}.lab-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.lab-day{text-align:center;background:var(--surface2);padding:5px 1px;border-radius:7px;font-size:.78rem}.lab-day.active{background:var(--greenbg);border:1px solid var(--green)}.lab-day.today{outline:2px solid var(--primary)}.lab-form{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.lab-form label{display:flex;flex-direction:column;gap:4px;flex:1 1 130px;min-width:0}.lab-form input,.lab-form select,.lab-form textarea{width:100%;min-width:0;padding:8px;border:1px solid var(--line);border-radius:8px}.page-progress{padding:9px;border-top:1px solid var(--line);margin-top:8px}.lab-quote{font-size:1.05rem;font-weight:750}@media(max-width:640px){.lab-card{padding:11px}.lab-day{font-size:.7rem}} </style>
+<style>
+/* Smartphone launcher + exam and question bank */
+body.launcher-mode .nav{display:none}
+.launcher-page{padding:clamp(14px,3vw,30px);min-height:58vh;border-radius:24px;background:linear-gradient(145deg,var(--surface2),var(--surface));border:1px solid var(--line)}
+.launcher-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.launcher-top h2{margin:0;font-size:clamp(1.25rem,3vw,1.8rem)}
+.launcher-clock{font-size:.9rem;color:var(--muted)}
+.launcher-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(10px,2.2vw,22px);align-items:start}
+.launcher-app{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;padding:8px 4px;border:0;background:transparent;color:var(--text);cursor:pointer;border-radius:16px}
+.launcher-app:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.launcher-icon{display:grid;place-items:center;width:clamp(54px,7.4vw,78px);height:clamp(54px,7.4vw,78px);font-size:clamp(1.7rem,3.5vw,2.35rem);border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);transition:transform .15s}
+.launcher-app:active .launcher-icon{transform:scale(.95)}
+.launcher-name{font-size:clamp(.72rem,1.25vw,.9rem);font-weight:750;text-align:center;line-height:1.35;overflow-wrap:anywhere}
+.launcher-star{position:absolute;top:0;right:calc(50% - 42px);font-size:.9rem}
+.launcher-controls{display:flex;gap:5px;margin-top:4px}
+.launcher-controls button{font-size:.72rem;padding:4px 7px;min-height:30px}
+.launcher-bottom{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:24px}
+.module-page{padding:clamp(12px,2.5vw,24px);border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.module-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.module-head h2{margin:0}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:14px}
+.module-card{min-width:0;padding:15px;border:1px solid var(--line);border-radius:16px;background:var(--surface2)}
+.module-card h3{margin:0 0 10px}
+.module-field{display:flex;flex-direction:column;gap:5px;margin:10px 0}
+.module-field input,.module-field select,.module-field textarea,.module-input{width:100%;min-width:0;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);font:inherit}
+.module-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.module-row>*{min-width:0}
+.module-btn{min-height:42px;padding:9px 13px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+.module-btn.primary{background:var(--primary);color:white;border-color:transparent}
+.module-btn.danger{color:var(--red)}
+.module-muted{color:var(--muted);font-size:.9rem}
+.module-pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:.78rem;margin:2px}
+.module-progress{height:9px;background:var(--line);border-radius:99px;overflow:hidden;margin:8px 0}
+.module-progress span{display:block;height:100%;background:var(--green)}
+.question-choice{display:block;width:100%;text-align:left;margin:8px 0;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;cursor:pointer}
+.question-choice:hover{border-color:var(--primary)}
+.question-choice:disabled{cursor:default;opacity:1}
+.question-result{padding:12px;border-radius:12px;background:var(--surface2);margin-top:12px}
+@media(max-width:800px){.launcher-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:480px){.launcher-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.launcher-page{border-radius:18px;padding:12px}.launcher-icon{width:60px;height:60px;border-radius:18px}.launcher-name{font-size:.78rem}.launcher-controls button{min-height:32px}.module-page{padding:12px}.module-btn{min-height:44px}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -586,6 +627,258 @@ renderV5Playlists();renderV5SplitSelect();renderV5SavedPlans();renderV5Quests();
 })();
 
 })();
+})();
+</script>
+
+<script>
+(function(){
+'use strict';
+const APP_HOME_KEY='homework-notice-launcher-v1';
+const EXAM_KEY='homework-notice-exams-v1';
+const QB_KEY='homework-notice-questionbank-v1';
+const REPORT_KEY='homework-notice-learning-report-v1';
+const appDefs=[
+ {id:'home',icon:'🏠',name:'メイン',desc:'今日の宿題・進捗'},
+ {id:'plan',icon:'🎯',name:'今日の計画',desc:'学習予定の確認'},
+ {id:'calendar',icon:'🗓️',name:'カレンダー',desc:'予定・期限・履歴'},
+ {id:'all',icon:'📋',name:'すべての宿題',desc:'宿題一覧・編集'},
+ {id:'rankings',icon:'🏆',name:'宿題ランキング',desc:'優先度を確認'},
+ {id:'profile',icon:'👤',name:'プレイヤープロフィール',desc:'実績・学習状況'},
+ {id:'growth',icon:'🪙',name:'コインルーム',desc:'コイン・ロボット'},
+ {id:'playlists',icon:'🎵',name:'プレイリスト作成',desc:'学習コース'},
+ {id:'settings',icon:'⚙️',name:'設定',desc:'表示・バックアップ'},
+ {id:'exams',icon:'📝',name:'定期考査',desc:'テスト対策・結果'},
+ {id:'questionbank',icon:'📚',name:'教科別問題集',desc:'問題演習・復習'}
+];
+const seedQuestions=[
+{id:'ja1',subject:'国語',unit:'漢字',grade:1,difficulty:'基礎',type:'choice',q:'「努力」の読み方として正しいものはどれ？',choices:['どりょく','とうりょく','どりき','とりょく'],answer:0,explain:'「努力」は「どりょく」と読みます。'},
+{id:'ja2',subject:'国語',unit:'漢字',grade:1,difficulty:'基礎',type:'text',q:'「きょうりょく」を漢字で書くと？',answer:'協力',accept:['協力'],explain:'力を合わせることを「協力」と書きます。'},
+{id:'ja3',subject:'国語',unit:'文法',grade:1,difficulty:'標準',type:'choice',q:'「美しい花が咲く」の「美しい」の品詞は？',choices:['名詞','動詞','形容詞','副詞'],answer:2,explain:'「美しい」は物事の性質・状態を表す形容詞です。'},
+{id:'ja4',subject:'国語',unit:'文法',grade:1,difficulty:'標準',type:'choice',q:'「走る」の活用しない部分（語幹）はどれ？',choices:['走','る','走る','語幹はない'],answer:0,explain:'五段活用動詞「走る」の語幹は「走」です。'},
+{id:'ja5',subject:'国語',unit:'語句',grade:1,difficulty:'基礎',type:'choice',q:'「慎重」の意味に最も近いものは？',choices:['急いで行う','注意深く行う','大声で話す','気軽に決める'],answer:1,explain:'慎重は、軽々しく判断せず注意深く行うことです。'},
+{id:'ja6',subject:'国語',unit:'読解',grade:1,difficulty:'標準',type:'choice',q:'「雨が降ったので、試合は中止になった。」原因を表す部分は？',choices:['試合は','中止になった','雨が降ったので','ので'],answer:2,explain:'「雨が降ったので」が中止になった原因を示しています。'},
+{id:'ma1',subject:'数学',unit:'正負の数',grade:1,difficulty:'基礎',type:'text',q:'(-3)+8 の答えは？',answer:'5',accept:['5','＋5','+5'],explain:'-3から正の方向に8進むので、答えは5です。'},
+{id:'ma2',subject:'数学',unit:'正負の数',grade:1,difficulty:'基礎',type:'text',q:'(-4)×(-6) の答えは？',answer:'24',accept:['24','＋24','+24'],explain:'負の数どうしの積は正になり、4×6=24です。'},
+{id:'ma3',subject:'数学',unit:'文字式',grade:1,difficulty:'基礎',type:'text',q:'x×3 を、数を前にして表すと？',answer:'3x',accept:['3x','3ｘ'],explain:'文字と数の積では数を前に書き、×を省略して3xとします。'},
+{id:'ma4',subject:'数学',unit:'方程式',grade:1,difficulty:'標準',type:'text',q:'x+7=12 のとき、xはいくつ？',answer:'5',accept:['5'],explain:'両辺から7を引くとx=12-7=5です。'},
+{id:'ma5',subject:'数学',unit:'比例・反比例',grade:1,difficulty:'標準',type:'choice',q:'y=3x はどの関係？',choices:['反比例','比例','一次関数ではない','どちらでもない'],answer:1,explain:'y=ax（aは一定）の形なので比例です。'},
+{id:'ma6',subject:'数学',unit:'図形',grade:1,difficulty:'基礎',type:'text',q:'三角形の内角の和は何度？',answer:'180',accept:['180','180度'],explain:'三角形の内角の和は180度です。'},
+{id:'en1',subject:'英語',unit:'英単語',grade:1,difficulty:'基礎',type:'text',q:'「図書館」を意味する英単語は？',answer:'library',accept:['library','a library'],explain:'library は「図書館」です。'},
+{id:'en2',subject:'英語',unit:'文法',grade:1,difficulty:'基礎',type:'choice',q:'I ___ a student. に入る語は？',choices:['am','is','are','be'],answer:0,explain:'主語がIのとき、be動詞はamです。'},
+{id:'en3',subject:'英語',unit:'文法',grade:1,difficulty:'基礎',type:'choice',q:'She ___ tennis every Sunday. に入る語は？',choices:['play','plays','playing','are play'],answer:1,explain:'三人称単数の現在形では一般動詞に-sを付けます。'},
+{id:'en4',subject:'英語',unit:'並べ替え',grade:1,difficulty:'標準',type:'text',q:'「私は毎日英語を勉強します。」を英語にすると？',answer:'I study English every day.',accept:['i study english every day','I study English every day'],explain:'主語I＋動詞study＋目的語English＋every dayの順です。'},
+{id:'en5',subject:'英語',unit:'英単語',grade:1,difficulty:'基礎',type:'choice',q:'「早く、早い」を表す英単語は？',choices:['late','early','long','easy'],answer:1,explain:'early は「早く／早い」です。'},
+{id:'en6',subject:'英語',unit:'文法',grade:1,difficulty:'標準',type:'choice',q:'疑問文「あなたは野球が好きですか？」として正しいものは？',choices:['You like baseball?','Do you like baseball?','Are you like baseball?','Does you like baseball?'],answer:1,explain:'一般動詞の疑問文はDo＋主語＋動詞の原形です。'},
+{id:'sc1',subject:'理科',unit:'生物',grade:1,difficulty:'基礎',type:'choice',q:'植物の細胞にあり、光合成を行うつくりは？',choices:['核','葉緑体','細胞膜','液胞だけ'],answer:1,explain:'葉緑体には葉緑素があり、光合成が行われます。'},
+{id:'sc2',subject:'理科',unit:'生物',grade:1,difficulty:'基礎',type:'choice',q:'光合成に必要なものの組み合わせとして正しいものは？',choices:['光・水・二酸化炭素','酸素・砂糖だけ','窒素・塩だけ','水素だけ'],answer:0,explain:'光エネルギーを使い、水と二酸化炭素から養分をつくります。'},
+{id:'sc3',subject:'理科',unit:'化学',grade:1,difficulty:'標準',type:'choice',q:'水を加熱し続けたとき、標準的な気圧で沸騰する温度は？',choices:['0℃','50℃','100℃','200℃'],answer:2,explain:'標準的な気圧では水の沸点は約100℃です。'},
+{id:'sc4',subject:'理科',unit:'物理',grade:1,difficulty:'基礎',type:'text',q:'光が鏡に当たってはね返る現象を何という？',answer:'反射',accept:['反射'],explain:'光が物体の表面ではね返る現象を反射といいます。'},
+{id:'sc5',subject:'理科',unit:'地学',grade:1,difficulty:'標準',type:'choice',q:'地震が発生した地下の場所を何という？',choices:['震央','震源','断層面の地上点','震度'],answer:1,explain:'地震が発生した地下の場所が震源、真上の地表が震央です。'},
+{id:'sc6',subject:'理科',unit:'化学',grade:1,difficulty:'基礎',type:'choice',q:'酸素の性質として正しいものは？',choices:['火を消す','ものを燃やすはたらきを助ける','必ず青色','水に大量に溶ける'],answer:1,explain:'酸素自体が燃えるのではなく、ものが燃えるのを助けます。'},
+{id:'so1',subject:'社会',unit:'地理',grade:1,difficulty:'基礎',type:'choice',q:'地球上で赤道が通る緯度は？',choices:['北緯90度','北緯0度','南緯45度','北緯23.4度'],answer:1,explain:'赤道は緯度0度です。'},
+{id:'so2',subject:'社会',unit:'地理',grade:1,difficulty:'基礎',type:'choice',q:'日本の標準時子午線が通る兵庫県の市は？',choices:['神戸市','姫路市','明石市','豊岡市'],answer:2,explain:'東経135度の子午線が通る明石市がよく知られています。'},
+{id:'so3',subject:'社会',unit:'歴史',grade:1,difficulty:'基礎',type:'choice',q:'縄文時代の代表的な土器は？',choices:['弥生土器','縄文土器','須恵器','磁器'],answer:1,explain:'縄文土器は縄目のような文様が特徴です。'},
+{id:'so4',subject:'社会',unit:'歴史',grade:1,difficulty:'標準',type:'choice',q:'稲作が広まり、弥生時代の特徴となったものは？',choices:['水田稲作','鉄道の建設','武士の登場','活版印刷'],answer:0,explain:'弥生時代には水田稲作が広がりました。'},
+{id:'so5',subject:'社会',unit:'地理',grade:1,difficulty:'標準',type:'choice',q:'世界で最も面積が大きい大陸は？',choices:['アフリカ大陸','北アメリカ大陸','ユーラシア大陸','南アメリカ大陸'],answer:2,explain:'ユーラシア大陸はヨーロッパとアジアにまたがる最大の大陸です。'},
+{id:'so6',subject:'社会',unit:'公民',grade:1,difficulty:'基礎',type:'choice',q:'日本の国会は何権を担当する機関？',choices:['立法権','行政権','司法権','監査権'],answer:0,explain:'国会は法律を制定する立法権を担います。'}
+];
+let launcher={favorites:[],order:appDefs.map(x=>x.id)};
+let exams=[],qb={custom:[],history:[],wrong:[],favorites:[],attempts:{}};
+let currentExamId='',practice={subject:'すべて',unit:'すべて',mode:'all',questionId:'',answered:false,selected:null},examEditingId='';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const subjects=['国語','数学','英語','理科','社会'];
+function load(key,fallback){try{const x=JSON.parse(localStorage.getItem(key)||'null');return x===null?fallback:x}catch(e){return fallback}}
+function save(key,val){try{localStorage.setItem(key,JSON.stringify(val));return true}catch(e){alert('保存できませんでした。端末の空き容量を確認してください。');return false}}
+function toast2(s){if(typeof window.toast==='function')window.toast(s);else alert(s)}
+function allQuestions(){return seedQuestions.concat(qb.custom||[])}
+function dateToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function dayDiff(a,b){return Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000)}
+function getExam(id){return exams.find(x=>x.id===id)}
+function initData(){
+ const l=load(APP_HOME_KEY,null);if(l&&typeof l==='object'){launcher.favorites=Array.isArray(l.favorites)?l.favorites:[];launcher.order=Array.isArray(l.order)?l.order:appDefs.map(x=>x.id)}
+ launcher.order=appDefs.map(x=>x.id).filter(id=>launcher.order.includes(id)).concat(appDefs.map(x=>x.id).filter(id=>!launcher.order.includes(id)));
+ launcher.favorites=launcher.favorites.filter(id=>appDefs.some(x=>x.id===id));
+ const e=load(EXAM_KEY,[]);exams=Array.isArray(e)?e:[];
+ const q=load(QB_KEY,{});if(q&&typeof q==='object')qb=Object.assign(qb,q);
+ ['custom','history','wrong','favorites'].forEach(k=>{if(!Array.isArray(qb[k]))qb[k]=[]});
+ if(!qb.attempts||typeof qb.attempts!=='object')qb.attempts={};
+}
+function saveAll(){save(APP_HOME_KEY,launcher);save(EXAM_KEY,exams);save(QB_KEY,qb)}
+function getPage(id){return $('page-'+id)}
+function createPage(id,title){
+ let p=getPage(id);if(p)return p;
+ p=document.createElement('section');p.className='page';p.id='page-'+id;p.innerHTML='<div class="module-page"><div class="module-head"><h2>'+title+'</h2><div class="module-row"><button class="module-btn" data-launch-home>⌂ ホーム画面</button><button class="module-btn" data-open-main>🏠 メイン</button></div></div><div id="'+id+'Root"></div></div>';
+ const main=document.querySelector('main');main.appendChild(p);return p;
+}
+function ensureLauncher(){
+ let p=$('page-launcher');if(!p){p=document.createElement('section');p.className='page launcher-page';p.id='page-launcher';p.innerHTML='<div class="launcher-top"><div><h2>📱 ホーム画面</h2><p class="module-muted">使いたいアプリを選んで開こう</p></div><div class="launcher-clock" id="launcherDate"></div></div><div class="launcher-grid" id="launcherGrid"></div><div class="launcher-bottom"><button class="module-btn" id="launcherReset">並び順を初期化</button><span class="module-muted">★ お気に入り · ↑↓で並べ替え</span></div>';document.querySelector('main').prepend(p)}
+ return p;
+}
+function renderLauncher(){
+ const root=$('launcherGrid');if(!root)return;
+ const defs=launcher.order.map(id=>appDefs.find(x=>x.id===id)).filter(Boolean);
+ root.innerHTML=defs.map((a,i)=>'<div class="launcher-app-wrap"><button class="launcher-app" data-launch-app="'+a.id+'" aria-label="'+esc(a.name)+'を開く"><span class="launcher-icon">'+a.icon+'</span><span class="launcher-name">'+esc(a.name)+'</span>'+(launcher.favorites.includes(a.id)?'<span class="launcher-star" aria-label="お気に入り">⭐</span>':'')+'</button><div class="launcher-controls"><button class="module-btn" data-fav-app="'+a.id+'" aria-label="'+esc(a.name)+'のお気に入り">'+(launcher.favorites.includes(a.id)?'★':'☆')+'</button><button class="module-btn" data-move-app="'+a.id+'" data-dir="-1" aria-label="上へ">↑</button><button class="module-btn" data-move-app="'+a.id+'" data-dir="1" aria-label="下へ">↓</button></div></div>').join('');
+ const d=new Date();$('launcherDate').textContent=d.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+}
+function activatePage(name){
+ document.body.classList.toggle('launcher-mode',name==='launcher');
+ document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));
+ document.querySelectorAll('.nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+ if(name==='launcher')renderLauncher();
+ if(name==='exams')renderExams();
+ if(name==='questionbank')renderQuestionBank();
+ if(name==='plan'&&typeof window.renderPlan==='function')window.renderPlan();
+ if(name==='calendar'&&typeof window.renderCalendar==='function')window.renderCalendar();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function goApp(id){
+ if(id==='exams'||id==='questionbank'){activatePage(id);return}
+ if(typeof window.openPage==='function')window.openPage(id);
+ activatePage(id);
+}
+function renderExams(){
+ const root=$('examsRoot');if(!root)return;
+ const ex=getExam(currentExamId);
+ root.innerHTML='<div class="module-grid"><div class="module-card"><h3>📝 定期考査を登録</h3><form id="examForm"><input type="hidden" id="examId"><label class="module-field">テスト名<input id="examName" required maxlength="100" placeholder="例：2学期期末考査"></label><div class="module-row"><label class="module-field" style="flex:1">開始日<input id="examStart" type="date"></label><label class="module-field" style="flex:1">終了日<input id="examEnd" type="date"></label></div><label class="module-field">教科別設定<div id="examSubjects"></div></label><div class="module-row"><button class="module-btn primary" type="submit">💾 テストを保存</button><button class="module-btn" type="button" id="examCancel">新規入力</button></div></form><p class="module-muted">試験範囲・目標点・苦手分野・試験日・学習予定は教科ごとに保存できます。</p></div><div class="module-card"><h3>📚 保存したテスト</h3><div id="examList"></div></div></div><div class="module-card" style="margin-top:14px"><h3>📈 テスト結果・振り返り</h3><div id="examResults"></div></div><div class="module-card" style="margin-top:14px"><h3>🔗 問題集とレポート</h3><p class="module-muted">選択中のテストの教科を問題集に引き継げます。結果は入力された点数のみ記録します。</p><div class="module-row"><button class="module-btn primary" id="examPractice">このテストの範囲を問題集で解く</button><button class="module-btn" id="examReport">学習レポートを表示</button></div><div id="examReportInline"></div></div>';
+ const fields=$('examSubjects');
+ fields.innerHTML=subjects.map((s,i)=>{const data=ex&&ex.subjects&&ex.subjects[s]||{};return '<details class="module-card" style="margin:8px 0"><summary>'+s+'</summary><div class="module-field">試験日<input type="date" data-exam-sub="'+s+'" data-key="date" value="'+esc(data.date||'')+'"></div><div class="module-field">試験範囲<textarea data-exam-sub="'+s+'" data-key="range" rows="2" placeholder="例：教科書 p.20〜35">'+esc(data.range||'')+'</textarea></div><div class="module-field">目標点<input type="number" min="0" max="100" data-exam-sub="'+s+'" data-key="target" value="'+esc(data.target??'')+'" placeholder="100点満点"></div><div class="module-field">苦手分野<input data-exam-sub="'+s+'" data-key="weak" maxlength="200" value="'+esc(data.weak||'')+'" placeholder="苦手な単元"></div><div class="module-field">学習予定<textarea data-exam-sub="'+s+'" data-key="plan" rows="2" placeholder="復習・問題演習・間違い直し">'+esc(data.plan||'')+'</textarea></div><div class="module-field">実際の点数<input type="number" min="0" max="100" data-exam-sub="'+s+'" data-key="score" value="'+esc(data.score??'')+'" placeholder="結果入力後に記入"></div><div class="module-field">振り返り<textarea data-exam-sub="'+s+'" data-key="reflection" rows="2" placeholder="得意・苦手、次回に復習する内容">'+esc(data.reflection||'')+'</textarea></div></details>'}).join('');
+ $('examId').value=ex?ex.id:'';$('examName').value=ex?ex.name:'';$('examStart').value=ex?ex.startDate||'':'';$('examEnd').value=ex?ex.endDate||'':'';
+ $('examList').innerHTML=exams.length?exams.slice().sort((a,b)=>(a.startDate||'').localeCompare(b.startDate||'')).map(e=>'<div class="module-card" style="margin:8px 0"><strong>'+esc(e.name)+'</strong><p class="module-muted">'+esc(e.startDate||'開始日未設定')+' 〜 '+esc(e.endDate||'終了日未設定')+'</p><div class="module-row"><button class="module-btn" data-exam-edit="'+e.id+'">編集</button><button class="module-btn" data-exam-select="'+e.id+'">範囲を開く</button><button class="module-btn danger" data-exam-delete="'+e.id+'">削除</button></div></div>').join(''):'<p class="module-muted">テストはまだ登録されていません。</p>';
+ const selected=ex||exams[0];
+ $('examResults').innerHTML=selected?subjects.map(s=>{const d=selected.subjects&&selected.subjects[s]||{};const has=d.score!==''&&d.score!==null&&d.score!==undefined&&Number.isFinite(Number(d.score));return '<div class="module-card" style="margin:8px 0"><strong>'+s+'</strong><p>試験日：'+esc(d.date||'未設定')+' ／ 目標：'+(d.target!==''&&d.target!=null?esc(d.target)+'点':'未設定')+'</p><p>実際の点数：'+(has?esc(d.score)+'点（目標との差 '+(d.target!==''&&d.target!=null?(Number(d.score)-Number(d.target)>0?'+':'')+(Number(d.score)-Number(d.target))+'点':'目標未設定')+'）':'未入力')+'</p><p class="module-muted">'+esc(d.reflection||'振り返り未入力')+'</p></div>'}).join(''):'<p class="module-muted">テストを登録すると、結果を入力・振り返りできます。</p>';
+}
+function examDataFromForm(){
+ const id=$('examId').value||uid(),old=getExam(id),data={id,name:$('examName').value.trim(),startDate:$('examStart').value,endDate:$('examEnd').value,subjects:{}};
+ subjects.forEach(s=>{const prior=old&&old.subjects&&old.subjects[s]||{},d={};document.querySelectorAll('[data-exam-sub="'+s+'"]').forEach(el=>{d[el.dataset.key]=el.value});data.subjects[s]=Object.assign({},prior,d)});
+ return data;
+}
+function saveExamForm(ev){
+ ev.preventDefault();const data=examDataFromForm();if(!data.name){toast2('テスト名を入力してください');return}
+ if(data.startDate&&data.endDate&&data.endDate<data.startDate){toast2('終了日は開始日以降にしてください');return}
+ const i=exams.findIndex(x=>x.id===data.id);if(i>=0)exams[i]=data;else exams.push(data);currentExamId=data.id;save(EXAM_KEY,exams);renderExams();toast2('定期考査を保存しました');
+}
+function normalizeAnswer(s){return String(s??'').trim().normalize('NFKC').toLocaleLowerCase('ja').replace(/[。．.!！?？\s]/g,'')}
+function eligibleQuestions(){
+ let arr=allQuestions();
+ if(practice.subject!=='すべて')arr=arr.filter(q=>q.subject===practice.subject);
+ if(practice.unit!=='すべて')arr=arr.filter(q=>q.unit===practice.unit);
+ if(practice.mode==='wrong')arr=arr.filter(q=>qb.wrong.includes(q.id));
+ if(practice.mode==='favorites')arr=arr.filter(q=>qb.favorites.includes(q.id));
+ if(currentExamId){const ex=getExam(currentExamId);if(ex){const chosen=subjects.filter(s=>ex.subjects&&ex.subjects[s]&&ex.subjects[s].range);if(practice.subject!=='すべて')arr=arr.filter(q=>q.subject===practice.subject);else if(chosen.length)arr=arr.filter(q=>chosen.includes(q.subject));}}
+ return arr;
+}
+function questionStats(){
+ const qs=allQuestions(),by={};subjects.forEach(s=>{const h=qb.history.filter(x=>{const q=qs.find(q=>q.id===x.questionId);return q&&q.subject===s});by[s]={total:h.length,correct:h.filter(x=>x.correct).length,rate:h.length?Math.round(100*h.filter(x=>x.correct).length/h.length):null}});return by;
+}
+function renderQuestionBank(){
+ const root=$('questionbankRoot');if(!root)return;
+ const units=['すべて',...new Set(allQuestions().filter(q=>practice.subject==='すべて'||q.subject===practice.subject).map(q=>q.unit))];
+ const stats=questionStats();
+ root.innerHTML='<div class="module-grid"><div class="module-card"><h3>🔎 問題を選ぶ</h3><label class="module-field">教科<select id="qbSubject" class="module-input"><option>すべて</option>'+subjects.map(s=>'<option '+(practice.subject===s?'selected':'')+'>'+s+'</option>').join('')+'</select></label><label class="module-field">単元<select id="qbUnit" class="module-input">'+units.map(u=>'<option '+(practice.unit===u?'selected':'')+'>'+esc(u)+'</option>').join('')+'</select></label><label class="module-field">出題モード<select id="qbMode" class="module-input"><option value="all" '+(practice.mode==='all'?'selected':'')+'>すべての問題</option><option value="wrong" '+(practice.mode==='wrong'?'selected':'')+'>間違えた問題</option><option value="favorites" '+(practice.mode==='favorites'?'selected':'')+'>お気に入り</option></select></label><div class="module-row"><button class="module-btn primary" id="qbStart">▶ 演習開始</button><button class="module-btn" id="qbNext">次の問題</button></div><p class="module-muted">中学1年のオリジナル問題 '+allQuestions().length+'問。演習結果は宿題の進捗とは別に保存します。</p></div><div class="module-card"><h3>📊 教科別の演習記録</h3>'+subjects.map(s=>'<div style="margin:10px 0"><strong>'+s+'</strong><p class="module-muted">'+stats[s].total+'回回答 ／ '+(stats[s].rate===null?'正答率の記録なし':stats[s].rate+'%')+'</p><div class="module-progress"><span style="width:'+(stats[s].rate||0)+'%"></span></div></div>').join('')+'<p>間違い：'+qb.wrong.length+'問 ／ お気に入り：'+qb.favorites.length+'問</p></div></div><div class="module-grid" style="margin-top:14px"><div class="module-card"><div class="module-head"><h3>✍️ 問題演習</h3><button class="module-btn" id="qbFavorite">☆ お気に入り</button></div><div id="qbQuestion"><p class="module-muted">教科や単元を選び「演習開始」を押してください。</p></div></div><div class="module-card"><h3>🧰 問題データを追加</h3><p class="module-muted">自分の授業範囲に合わせてオリジナル問題を追加できます。</p><form id="qbAddForm"><label class="module-field">問題文<input id="qbNewQuestion" required maxlength="500"></label><div class="module-row"><label class="module-field" style="flex:1">教科<select id="qbNewSubject">'+subjects.map(s=>'<option>'+s+'</option>').join('')+'</select></label><label class="module-field" style="flex:1">単元<input id="qbNewUnit" required maxlength="80" value="復習"></label></div><label class="module-field">回答形式<select id="qbNewType"><option value="text">記述式</option><option value="choice">4択</option></select></label><label class="module-field">正答<input id="qbNewAnswer" required maxlength="200" placeholder="4択の場合は正答の選択肢番号（1〜4）"></label><div id="qbChoiceFields"><label class="module-field">選択肢（1行に1つ）<textarea id="qbNewChoices" rows="4"></textarea></label></div><label class="module-field">解説<textarea id="qbNewExplain" rows="2" maxlength="800"></textarea></label><button class="module-btn primary" type="submit">問題を追加</button></form></div></div><div class="module-card" style="margin-top:14px"><h3>🗂️ 最近の演習履歴</h3><div id="qbHistory"></div></div>';
+ $('qbSubject').value=practice.subject;$('qbUnit').value=practice.unit;$('qbMode').value=practice.mode;
+ renderQuestion();
+ $('qbHistory').innerHTML=qb.history.length?qb.history.slice(-12).reverse().map(h=>{const q=allQuestions().find(x=>x.id===h.questionId);return '<div class="module-row" style="padding:8px 0;border-bottom:1px solid var(--line)"><span>'+esc(q?q.subject+' / '+q.q:'削除済み問題')+' — '+(h.correct?'✅ 正解':'❌ 不正解')+' <span class="module-muted">'+esc(new Date(h.at).toLocaleString('ja-JP'))+'</span></span>'+(q?'<button class="module-btn" data-q-retry="'+q.id+'">もう一度</button>':'')+'</div>'}).join(''):'<p class="module-muted">演習履歴はまだありません。</p>';
+}
+function chooseQuestion(){
+ const arr=eligibleQuestions();if(!arr.length)return null;
+ const done=new Set(qb.history.slice(-arr.length).map(x=>x.questionId));
+ const unseen=arr.filter(q=>!done.has(q.id));
+ return (unseen.length?unseen:arr)[Math.floor(Math.random()*(unseen.length?unseen:arr).length)];
+}
+function renderQuestion(){
+ const root=$('qbQuestion');if(!root)return;
+ let q=allQuestions().find(x=>x.id===practice.questionId);
+ if(!q){root.innerHTML='<p class="module-muted">「演習開始」を押して問題を表示してください。間違えた問題やお気に入りが0問の場合は、通常モードを選んでください。</p>';return}
+ root.innerHTML='<div class="module-row"><span class="module-pill">'+esc(q.subject)+'</span><span class="module-pill">'+esc(q.unit)+'</span><span class="module-pill">中1・'+esc(q.difficulty||'標準')+'</span></div><h3 style="margin:14px 0;overflow-wrap:anywhere">'+esc(q.q)+'</h3>'+(q.type==='choice'?(q.choices||[]).map((x,i)=>'<button class="question-choice" data-q-answer="'+i+'" '+(practice.answered?'disabled':'')+'>'+(i+1)+'. '+esc(x)+'</button>').join(''):'<form id="qbAnswerForm"><label class="module-field">回答<input id="qbAnswerText" '+(practice.answered?'disabled':'')+' maxlength="500" placeholder="答えを入力"></label><button class="module-btn primary" type="submit" '+(practice.answered?'disabled':'')+'>答え合わせ</button></form>')+(practice.answered?'<div class="question-result"><strong>'+(practice.selected?'✅ 正解！':'❌ 不正解')+'</strong><p>正答：'+esc(q.type==='choice'?q.choices[q.answer]:q.answer)+'</p><p>'+esc(q.explain||'解説はありません。')+'</p><div class="module-row"><button class="module-btn primary" id="qbNextAfter">次の問題へ →</button><button class="module-btn" data-q-wrong-add="'+q.id+'">復習対象に追加</button></div></div>':'');
+}
+function answerQuestion(raw){
+ const q=allQuestions().find(x=>x.id===practice.questionId);if(!q||practice.answered)return;
+ let correct=q.type==='choice'?Number(raw)===Number(q.answer):[q.answer].concat(q.accept||[]).some(a=>normalizeAnswer(a)===normalizeAnswer(raw));
+ practice.answered=true;practice.selected=correct;
+ const rec={id:uid(),questionId:q.id,correct,answer:String(raw),at:new Date().toISOString(),subject:q.subject,unit:q.unit};
+ qb.history.push(rec);if(qb.history.length>5000)qb.history=qb.history.slice(-5000);
+ if(!correct&&!qb.wrong.includes(q.id))qb.wrong.push(q.id);
+ save(QB_KEY,qb);renderQuestion();renderQuestionBankStats();
+}
+function renderQuestionBankStats(){const s=questionStats();document.querySelectorAll('[data-q-stat]').forEach(el=>el.textContent=JSON.stringify(s))}
+function openPracticeFromExam(){
+ const ex=getExam(currentExamId);if(!ex){toast2('先にテストを登録してください');return}
+ const chosen=subjects.find(s=>ex.subjects&&ex.subjects[s]&&(ex.subjects[s].range||ex.subjects[s].date));
+ practice.subject=chosen||'すべて';practice.unit='すべて';practice.mode='all';practice.questionId='';practice.answered=false;activatePage('questionbank');
+}
+function renderReportInline(){
+ const target=$('examReportInline');if(!target)return;
+ const hs=qb.history,correct=hs.filter(x=>x.correct).length,qs=allQuestions();
+ let done=0,pages=0;
+ try{const h=JSON.parse(localStorage.getItem('homework-notice-data-v1')||'[]');if(Array.isArray(h)){done=h.filter(x=>x.done).length;pages=h.reduce((n,x)=>n+(Array.isArray(x.pageMarks)?x.pageMarks.length:0),0)}}catch(e){}
+ target.innerHTML='<div class="module-grid" style="margin-top:12px"><div class="module-card"><strong>完了した宿題</strong><p>'+done+'件</p></div><div class="module-card"><strong>記録済み完了ページ</strong><p>'+pages+'ページ</p></div><div class="module-card"><strong>問題演習</strong><p>'+hs.length+'回回答 ／ '+(hs.length?Math.round(correct*100/hs.length)+'%':'正答率の記録なし')+'</p></div><div class="module-card"><strong>問題集の登録数</strong><p>'+qs.length+'問</p></div></div><p class="module-muted">学習時間は記録された時間のみ表示します。時間データが見つからない場合、推測値は表示しません。</p>';
+}
+function addReportAccess(){
+ const home=$('page-home');if(home&&!$('reportShortcut')){const sec=document.createElement('section');sec.className='section';sec.id='reportShortcut';sec.innerHTML='<div class="section-head"><div><h2>📈 学習レポート</h2><p>実際に保存された宿題・問題演習の記録を振り返る</p></div><button class="btn" id="openReportShortcut">レポートを見る</button></div><div id="homeReportSummary" class="profile-grid"></div>';home.appendChild(sec);$('openReportShortcut').addEventListener('click',()=>{activatePage('exams');renderReportInline();$('examReportInline').scrollIntoView({behavior:'smooth',block:'start'})})}
+}
+function attachEvents(){
+ document.addEventListener('click',function(ev){
+  const app=ev.target.closest('[data-launch-app]');if(app){goApp(app.dataset.launchApp);return}
+  const fav=ev.target.closest('[data-fav-app]');if(fav){const id=fav.dataset.favApp;launcher.favorites=launcher.favorites.includes(id)?launcher.favorites.filter(x=>x!==id):launcher.favorites.concat(id);save(APP_HOME_KEY,launcher);renderLauncher();return}
+  const move=ev.target.closest('[data-move-app]');if(move){const id=move.dataset.moveApp,idx=launcher.order.indexOf(id),to=idx+Number(move.dataset.dir);if(to>=0&&to<launcher.order.length){[launcher.order[idx],launcher.order[to]]=[launcher.order[to],launcher.order[idx]];save(APP_HOME_KEY,launcher);renderLauncher()}return}
+  if(ev.target.closest('#launcherReset')){launcher.order=appDefs.map(x=>x.id);save(APP_HOME_KEY,launcher);renderLauncher();return}
+  if(ev.target.closest('[data-launch-home]')){activatePage('launcher');return}
+  if(ev.target.closest('[data-open-main]')){goApp('home');return}
+  const edit=ev.target.closest('[data-exam-edit]');if(edit){currentExamId=edit.dataset.examEdit;renderExams();return}
+  const sel=ev.target.closest('[data-exam-select]');if(sel){currentExamId=sel.dataset.examSelect;renderExams();return}
+  const del=ev.target.closest('[data-exam-delete]');if(del){const e=getExam(del.dataset.examDelete);if(e&&confirm('「'+e.name+'」を削除しますか？')){exams=exams.filter(x=>x.id!==e.id);if(currentExamId===e.id)currentExamId='';save(EXAM_KEY,exams);renderExams()}return}
+  const choice=ev.target.closest('[data-q-answer]');if(choice){answerQuestion(choice.dataset.qAnswer);return}
+  const retry=ev.target.closest('[data-q-retry]');if(retry){practice.questionId=retry.dataset.qRetry;practice.answered=false;practice.selected=null;renderQuestion();return}
+  const wrong=ev.target.closest('[data-q-wrong-add]');if(wrong){if(!qb.wrong.includes(wrong.dataset.qWrongAdd))qb.wrong.push(wrong.dataset.qWrongAdd);save(QB_KEY,qb);toast2('復習対象に登録しました');return}
+  if(ev.target.closest('#qbStart')){const q=chooseQuestion();if(!q){toast2('条件に合う問題がありません。出題モードを変更してください');return}practice.questionId=q.id;practice.answered=false;practice.selected=null;renderQuestion();return}
+  if(ev.target.closest('#qbNext')||ev.target.closest('#qbNextAfter')){const q=chooseQuestion();if(!q){toast2('条件に合う問題がありません');return}practice.questionId=q.id;practice.answered=false;practice.selected=null;renderQuestion();return}
+  if(ev.target.closest('#qbFavorite')){const id=practice.questionId;if(!id)return;qb.favorites=qb.favorites.includes(id)?qb.favorites.filter(x=>x!==id):qb.favorites.concat(id);save(QB_KEY,qb);renderQuestionBank();toast2(qb.favorites.includes(id)?'お気に入りに登録しました':'お気に入りを解除しました');return}
+  if(ev.target.closest('#examPractice')){openPracticeFromExam();return}
+  if(ev.target.closest('#examReport')){renderReportInline();$('examReportInline').scrollIntoView({behavior:'smooth',block:'start'});return}
+ });
+ document.addEventListener('submit',function(ev){
+  if(ev.target.id==='examForm'){saveExamForm(ev);return}
+  if(ev.target.id==='qbAnswerForm'){ev.preventDefault();answerQuestion($('qbAnswerText').value);return}
+  if(ev.target.id==='qbAddForm'){ev.preventDefault();const type=$('qbNewType').value,raw=$('qbNewAnswer').value.trim();let answer=raw,choices=[];if(type==='choice'){choices=$('qbNewChoices').value.split('\\n').map(x=>x.trim()).filter(Boolean);const n=Number(raw);if(choices.length!==4||!Number.isInteger(n)||n<1||n>4){toast2('4つの選択肢と、正答番号1〜4を入力してください');return}answer=n-1}const q={id:'custom-'+uid(),subject:$('qbNewSubject').value,unit:$('qbNewUnit').value.trim(),grade:1,difficulty:'自作',type,q:$('qbNewQuestion').value.trim(),answer,choices,explain:$('qbNewExplain').value.trim()};qb.custom.push(q);save(QB_KEY,qb);practice.subject=q.subject;practice.unit='すべて';practice.questionId=q.id;practice.answered=false;renderQuestionBank();toast2('問題を追加しました');return}
+ });
+ document.addEventListener('change',function(ev){
+  if(ev.target.id==='qbSubject'){practice.subject=ev.target.value;practice.unit='すべて';practice.questionId='';renderQuestionBank();return}
+  if(ev.target.id==='qbUnit'){practice.unit=ev.target.value;practice.questionId='';renderQuestionBank();return}
+  if(ev.target.id==='qbMode'){practice.mode=ev.target.value;practice.questionId='';renderQuestionBank();return}
+ });
+ document.addEventListener('click',function(ev){if(ev.target.closest('#examCancel')){currentExamId='';renderExams()}});
+}
+function extendBackup(){
+ if(typeof window.exportData==='function'&&!window.__newExportWrapped){
+  const old=window.exportData;
+  window.exportData=function(){const snapshot={};[STORAGE_KEY,EXTRA_KEY,PLAYLIST_KEY,STUDY2_KEY,LAB_KEY,THEME_KEY,APP_HOME_KEY,EXAM_KEY,QB_KEY,REPORT_KEY].forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)snapshot[k]=v}catch(e){}});const data={app:'宿題のお知らせ',version:5,exportedAt:new Date().toISOString(),homework:window.homework,appStorage:snapshot};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='宿題のお知らせ_完全バックアップ_'+dateToday()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast2('宿題・コイン・プレイリスト・テスト・問題集を含むバックアップを作成しました')};window.__newExportWrapped=true;
+ }
+ const input=$('importFile');
+ if(input&&!input.dataset.newBackup){input.dataset.newBackup='1';input.addEventListener('change',function(ev){const file=ev.target.files&&ev.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(reader.result);if(!data||(!Array.isArray(data)&&!Array.isArray(data.homework)))throw Error('形式が違います');if(!confirm('バックアップを復元しますか？現在の保存データは、ファイルに含まれるキーのみ置き換わります。先に現在のバックアップを保存してください。'))return;if(data.appStorage&&typeof data.appStorage==='object'){Object.keys(data.appStorage).forEach(k=>{if([STORAGE_KEY,EXTRA_KEY,PLAYLIST_KEY,STUDY2_KEY,LAB_KEY,THEME_KEY,APP_HOME_KEY,EXAM_KEY,QB_KEY,REPORT_KEY].includes(k))localStorage.setItem(k,data.appStorage[k])})}else if(Array.isArray(data.homework)){if(typeof window.save==='function'){window.homework=data.homework;window.save()}else localStorage.setItem(STORAGE_KEY,JSON.stringify(data.homework))}initData();if(typeof window.renderAllViews==='function')window.renderAllViews();renderLauncher();toast2('バックアップを復元しました。必要に応じて再読み込みしてください')}catch(e){toast2('バックアップを読み込めませんでした: '+e.message)}finally{input.value=''}};reader.readAsText(file)})}
+}
+function start(){
+ initData();ensureLauncher();createPage('exams','📝 定期考査');createPage('questionbank','📚 教科別問題集');
+ // Rename the legacy app label to メイン without changing its page or stored data.
+ const homeBtn=document.querySelector('.nav button[data-page="home"]');if(homeBtn)homeBtn.textContent='🏠 メイン';
+ const nav=document.querySelector('.nav');if(nav){const order=['home','plan','calendar','all','rankings','profile','growth','playlists','settings'];const map={};nav.querySelectorAll('button[data-page]').forEach(b=>map[b.dataset.page]=b);order.forEach(id=>{if(map[id])nav.appendChild(map[id])});if(map.growth)map.growth.textContent='🪙 コインルーム'}
+ // Add shortcuts into the existing navigation, but keep the launcher as the distinct startup screen.
+ if(nav&&!nav.querySelector('[data-page="launcher"]')){const b=document.createElement('button');b.dataset.page='launcher';b.textContent='📱 ホーム画面';b.addEventListener('click',()=>activatePage('launcher'));nav.insertBefore(b,nav.firstChild)}
+ // Add small home-return controls to the two new app pages.
+ ['exams','questionbank'].forEach(id=>{const p=getPage(id);p.querySelectorAll('[data-launch-home],[data-open-main]').forEach(()=>{});});
+ const home=getPage('home');if(home){home.classList.remove('active')}
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('page-launcher').classList.add('active');document.body.classList.add('launcher-mode');
+ // If legacy "today dashboard" was previously hidden, preserve that UI decision.
+ const dashboard=$('dailyDashboard');if(dashboard)dashboard.style.display='none';
+ const quote=$('dashQuote')?.closest('.lab-item');if(quote)quote.style.display='none';
+ addReportAccess();attachEvents();extendBackup();renderLauncher();renderExams();renderQuestionBank();renderReportInline();
+ // New-page support in the existing app's navigation dispatcher.
+ const oldOpen=window.openPage;
+ window.openPage=function(name){if(name==='launcher'||name==='exams'||name==='questionbank'){activatePage(name);return}document.body.classList.remove('launcher-mode');if(typeof oldOpen==='function')oldOpen(name);document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));if(name==='home'){const t=$('page-home')?.querySelector('.welcome h2');if(t&&t.textContent==='今日の宿題を確認しよう！')t.textContent='メイン：今日の宿題を確認しよう！'}};
+ // Home launch controls always route through this dispatcher.
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
 </body>
