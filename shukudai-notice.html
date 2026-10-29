@@ -408,6 +408,7 @@ if(dashboard){
  if(quote&&calendar){quote.classList.add('v5-card');quote.querySelector('.lab-muted').textContent='💬 今日の名言（アプリオリジナル）';quote.insertAdjacentHTML('afterbegin','<h2>💬 今日の名言</h2>');calendar.insertBefore(quote,calendar.firstChild)}
  dashboard.classList.add('v5-hide');
 }
+if(calendar){const legacyHead=calendar.querySelector('.section-head');if(legacyHead)legacyHead.classList.add('v5-hide');const monthlyCard=$5('labCalGrid')&&$5('labCalGrid').closest('.lab-card');if(monthlyCard){const mh=monthlyCard.querySelector('h3');if(mh)mh.textContent='🗓️ 学習予定・提出期限・学習履歴'}}
 const smart=home&&home.querySelector('.smart-grid');
 if(smart){const panels=smart.querySelectorAll('.smart-panel');if(panels[0])panels[0].classList.add('v5-hide');if(panels[1])panels[1].classList.add('v5-hide');}
 const adviceTitle=home&&home.querySelector('.smart-panel h3');
