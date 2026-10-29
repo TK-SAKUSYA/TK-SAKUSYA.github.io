@@ -823,6 +823,7 @@ function attachEvents(){
   const app=ev.target.closest('[data-launch-app]');if(app){goApp(app.dataset.launchApp);return}
   const fav=ev.target.closest('[data-fav-app]');if(fav){const id=fav.dataset.favApp;launcher.favorites=launcher.favorites.includes(id)?launcher.favorites.filter(x=>x!==id):launcher.favorites.concat(id);save(APP_HOME_KEY,launcher);renderLauncher();return}
   const move=ev.target.closest('[data-move-app]');if(move){const id=move.dataset.moveApp,idx=launcher.order.indexOf(id),to=idx+Number(move.dataset.dir);if(to>=0&&to<launcher.order.length){[launcher.order[idx],launcher.order[to]]=[launcher.order[to],launcher.order[idx]];save(APP_HOME_KEY,launcher);renderLauncher()}return}
+  if(ev.target.closest('#launcherReport')){activatePage('exams');renderReportInline();$('examReportInline').scrollIntoView({behavior:'smooth',block:'start'});return}
   if(ev.target.closest('#launcherReset')){launcher.order=appDefs.map(x=>x.id);save(APP_HOME_KEY,launcher);renderLauncher();return}
   if(ev.target.closest('[data-launch-home]')){activatePage('launcher');return}
   if(ev.target.closest('[data-open-main]')){goApp('home');return}
@@ -852,11 +853,28 @@ function attachEvents(){
 }
 function extendBackup(){
  if(typeof window.exportData==='function'&&!window.__newExportWrapped){
-  const old=window.exportData;
-  window.exportData=function(){const snapshot={};[STORAGE_KEY,EXTRA_KEY,PLAYLIST_KEY,STUDY2_KEY,LAB_KEY,THEME_KEY,APP_HOME_KEY,EXAM_KEY,QB_KEY,REPORT_KEY].forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)snapshot[k]=v}catch(e){}});const data={app:'宿題のお知らせ',version:5,exportedAt:new Date().toISOString(),homework:window.homework,appStorage:snapshot};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='宿題のお知らせ_完全バックアップ_'+dateToday()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast2('宿題・コイン・プレイリスト・テスト・問題集を含むバックアップを作成しました')};window.__newExportWrapped=true;
+  window.exportData=function(){const snapshot={};[STORAGE_KEY,EXTRA_KEY,PLAYLIST_KEY,STUDY2_KEY,LAB_KEY,THEME_KEY,APP_HOME_KEY,EXAM_KEY,QB_KEY,REPORT_KEY].forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)snapshot[k]=v}catch(e){}});const data={app:'宿題のお知らせ',version:5,exportedAt:new Date().toISOString(),homework:homework,appStorage:snapshot};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='宿題のお知らせ_完全バックアップ_'+dateToday()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast2('宿題・コイン・プレイリスト・テスト・問題集を含むバックアップを作成しました')};window.__newExportWrapped=true;
  }
  const input=$('importFile');
- if(input&&!input.dataset.newBackup){input.dataset.newBackup='1';input.addEventListener('change',function(ev){const file=ev.target.files&&ev.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(reader.result);if(!data||(!Array.isArray(data)&&!Array.isArray(data.homework)))throw Error('形式が違います');if(!confirm('バックアップを復元しますか？現在の保存データは、ファイルに含まれるキーのみ置き換わります。先に現在のバックアップを保存してください。'))return;if(data.appStorage&&typeof data.appStorage==='object'){Object.keys(data.appStorage).forEach(k=>{if([STORAGE_KEY,EXTRA_KEY,PLAYLIST_KEY,STUDY2_KEY,LAB_KEY,THEME_KEY,APP_HOME_KEY,EXAM_KEY,QB_KEY,REPORT_KEY].includes(k))localStorage.setItem(k,data.appStorage[k])})}else if(Array.isArray(data.homework)){if(typeof window.save==='function'){window.homework=data.homework;window.save()}else localStorage.setItem(STORAGE_KEY,JSON.stringify(data.homework))}initData();if(typeof window.renderAllViews==='function')window.renderAllViews();renderLauncher();toast2('バックアップを復元しました。必要に応じて再読み込みしてください')}catch(e){toast2('バックアップを読み込めませんでした: '+e.message)}finally{input.value=''}};reader.readAsText(file)})}
+ if(input&&!input.dataset.newBackup){
+  input.dataset.newBackup='1';
+  input.onchange=function(ev){
+   const file=ev.target.files&&ev.target.files[0];if(!file)return;
+   const reader=new FileReader();
+   reader.onload=function(){try{
+    const data=JSON.parse(reader.result);
+    if(!data||(!Array.isArray(data)&&!Array.isArray(data.homework)))throw Error('形式が違います');
+    if(!confirm('バックアップを復元しますか？現在の保存データは、ファイルに含まれるキーのみ置き換わります。先に現在のバックアップを保存してください。'))return;
+    if(data.appStorage&&typeof data.appStorage==='object'){
+     Object.keys(data.appStorage).forEach(k=>{if([STORAGE_KEY,EXTRA_KEY,PLAYLIST_KEY,STUDY2_KEY,LAB_KEY,THEME_KEY,APP_HOME_KEY,EXAM_KEY,QB_KEY,REPORT_KEY].includes(k))localStorage.setItem(k,data.appStorage[k])});
+     if(data.appStorage[STORAGE_KEY]!==undefined)homework=safeLoad();
+    }else if(Array.isArray(data.homework)){homework=data.homework;save()}
+    initData();if(typeof window.renderAllViews==='function')window.renderAllViews();renderLauncher();renderExams();renderQuestionBank();toast2('バックアップを復元しました');
+   }catch(e){toast2('バックアップを読み込めませんでした: '+e.message)}finally{input.value=''}};
+   reader.onerror=function(){toast2('バックアップファイルを読み込めませんでした')};
+   reader.readAsText(file);
+  };
+ }
 }
 function start(){
  initData();ensureLauncher();createPage('exams','📝 定期考査');createPage('questionbank','📚 教科別問題集');
@@ -871,6 +889,7 @@ function start(){
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('page-launcher').classList.add('active');document.body.classList.add('launcher-mode');
  // If legacy "today dashboard" was previously hidden, preserve that UI decision.
  const dashboard=$('dailyDashboard');if(dashboard)dashboard.style.display='none';
+ const smart=$('page-home')&&$('page-home').querySelector('.smart-grid');if(smart){const panels=smart.querySelectorAll('.smart-panel');if(panels[0])panels[0].style.display='none';if(panels[1])panels[1].style.display='';}
  const quote=$('dashQuote')?.closest('.lab-item');if(quote)quote.style.display='none';
  addReportAccess();attachEvents();extendBackup();renderLauncher();renderExams();renderQuestionBank();renderReportInline();
  // New-page support in the existing app's navigation dispatcher.
