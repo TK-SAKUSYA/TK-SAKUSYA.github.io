@@ -45,7 +45,7 @@ button:disabled{opacity:.62;cursor:not-allowed}input,select,textarea{color:var(-
   <div class="top-actions"><button class="btn iconbtn" id="themeBtn" aria-label="テーマ切り替え" title="ライト・ダーク切り替え">🌙</button><span class="header-coins" id="headerCoins" aria-live="polite" title="現在のコイン残高">🪙 0</span><button class="btn primary" id="addBtn">＋ <span class="longlabel">宿題を追加</span><span class="shortlabel">追加</span></button></div>
 </header>
 <nav class="nav" aria-label="メインメニュー">
-<button class="active" data-page="home">🏠 ホーム</button><button data-page="calendar">🗓️ カレンダー</button><button data-page="plan">🎯 今日の計画</button><button data-page="all">📋 すべての宿題</button><button data-page="rankings">🏆 宿題ランキング</button><button data-page="playlists">🎵 プレイリスト作成</button><button data-page="growth">🪙 学習ラボ</button><button data-page="profile">👤 プレイヤープロフィール</button><button data-page="settings">⚙️ 設定・バックアップ</button>
+<button class="active" data-page="home">🏠 ホーム</button><button data-page="calendar">🗓️ カレンダー</button><button data-page="plan">🎯 今日の計画</button><button data-page="all">📋 すべての宿題</button><button data-page="rankings">🏆 宿題ランキング</button><button data-page="playlists">🎵 プレイリスト作成</button><button data-page="growth">🪙 コインルーム</button><button data-page="profile">👤 プレイヤープロフィール</button><button data-page="settings">⚙️ 設定・バックアップ</button>
 </nav>
 
 <main>
@@ -64,7 +64,7 @@ button:disabled{opacity:.62;cursor:not-allowed}input,select,textarea{color:var(-
     </div>
   </div>
 
-<div class="lab-card" id="dailyDashboard"><div class="lab-flex"><h2>🌱 今日の学習ダッシュボード</h2><button class="btn small" data-page="growth">学習ラボへ →</button></div><div class="lab-grid"><div class="lab-item">今日の宿題<div class="lab-stat" id="dashTodayTasks">—</div><span id="dashTodayDone" class="lab-muted"></span></div><div class="lab-item">今日のページ<div class="lab-stat" id="dashPages">—</div><span id="dashPageHistory" class="lab-muted"></span></div><div class="lab-item">今週の勉強時間<div class="lab-stat" id="dashMinutes">—</div><span id="dashTotalMinutes" class="lab-muted"></span></div><div class="lab-item">コイン<div class="lab-stat" id="dashCoins">—</div><span id="dashRobot" class="lab-muted"></span></div></div><div class="lab-item"><div class="lab-muted">💬 今日の名言（アプリオリジナル）</div><p class="lab-quote" id="dashQuote"></p><div class="lab-flex"><span id="dashQuoteAuthor"></span><button class="btn small" id="quoteFavoriteBtn">☆ お気に入り</button></div><div id="favoriteQuotes" class="lab-muted"></div></div></div>
+<div class="lab-card" id="dailyDashboard"><div class="lab-flex"><h2>🌱 今日の学習ダッシュボード</h2><button class="btn small" data-page="growth">コインルームへ →</button></div><div class="lab-grid"><div class="lab-item">今日の宿題<div class="lab-stat" id="dashTodayTasks">—</div><span id="dashTodayDone" class="lab-muted"></span></div><div class="lab-item">今日のページ<div class="lab-stat" id="dashPages">—</div><span id="dashPageHistory" class="lab-muted"></span></div><div class="lab-item">今週の勉強時間<div class="lab-stat" id="dashMinutes">—</div><span id="dashTotalMinutes" class="lab-muted"></span></div><div class="lab-item">コイン<div class="lab-stat" id="dashCoins">—</div><span id="dashRobot" class="lab-muted"></span></div></div><div class="lab-item"><div class="lab-muted">💬 今日の名言（アプリオリジナル）</div><p class="lab-quote" id="dashQuote"></p><div class="lab-flex"><span id="dashQuoteAuthor"></span><button class="btn small" id="quoteFavoriteBtn">☆ お気に入り</button></div><div id="favoriteQuotes" class="lab-muted"></div></div></div>
 </section>
 
 <section class="page" id="page-calendar">
@@ -96,7 +96,7 @@ button:disabled{opacity:.62;cursor:not-allowed}input,select,textarea{color:var(-
   <div class="panel section" id="playlistPanel"><h3 class="section-title">🎧 勉強用YouTubeプレイリスト</h3><p class="subtle">URLを保存してリスト化できます。動画タイトルが取得できない場合もURLから再生・移動できます。</p><div class="field"><label for="playlistName">プレイリスト名</label><div class="smart-row"><input id="playlistName" maxlength="80" placeholder="例：集中BGM" style="flex:1;min-width:160px"><button class="btn primary" id="createPlaylistBtn">＋ リスト作成</button></div></div><div class="playlist-layout" style="margin-top:14px"><div><label for="playlistSelect">プレイリスト</label><select id="playlistSelect" style="width:100%;margin:6px 0 8px"></select><div class="smart-row"><button class="btn small" id="renamePlaylistBtn">名前変更</button><button class="btn small danger" id="deletePlaylistBtn">削除</button></div><div class="field" style="margin-top:14px"><label for="youtubeUrl">YouTube動画URL</label><input id="youtubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=..." style="width:100%"><button class="btn primary" id="addVideoBtn" style="margin-top:8px">動画を追加</button></div></div><div><div id="playlistVideos"></div><div id="youtubePlayerWrap" style="margin-top:12px"></div></div></div></div><div class="panel section"><h3 class="section-title">ℹ️ アプリについて</h3><p>「宿題のお知らせ」は、宿題の登録・期限管理・計画づくりをサポートするアプリです。</p><p class="subtle">宿題データは外部サーバーに送信せず、このブラウザのローカルストレージに保存します。保存領域が利用できない場合は、画面にお知らせします。</p><p id="storageStatus" class="subtle"></p></div>
 </section>
 
-<section class="page" id="page-growth"><div class="section-head"><div><h2>🪙 学習ラボ</h2><p>端末内のルールベースで学習を支援します。外部AIサービスには接続していません。</p></div></div>
+<section class="page" id="page-growth"><div class="section-head"><div><h2>🪙 コインルーム</h2><p>端末内のルールベースで学習を支援します。外部AIサービスには接続していません。</p></div></div>
 <div class="lab-grid"><div class="lab-card"><h3>🤖 ロボット育成</h3><div id="robotDisplay" class="lab-robot">🥚</div><strong id="robotName"></strong><p id="robotStageText" class="lab-muted"></p><div class="lab-meter"><span id="robotMeter" style="width:0"></span></div><p id="robotNext" class="lab-muted"></p><div id="robotCollection"></div></div>
 <div class="lab-card"><h3>🪙 コイン・ログインボーナス</h3><div class="lab-stat" id="labCoins">0 🪙</div><p id="loginStatus" class="lab-muted"></p><button class="btn primary" id="loginClaimBtn">🎁 今日のボーナスを受け取る</button><div id="coinHistory"></div></div>
 <div class="lab-card"><h3>🧠 宿題アシスタント</h3><div id="assistantAdvice"></div><div class="lab-form"><label>相談<input id="assistantQuestion" maxlength="240" placeholder="宿題が多すぎる、何から始める？"></label><button class="btn primary" id="assistantAsk">相談する</button></div><div id="assistantAnswer"></div></div>
@@ -271,7 +271,7 @@ const LD={pageEvents:[],ledger:[],login:{lastDate:'',streak:0,best:0},notificati
 let lab=JSON.parse(JSON.stringify(LD));
 const Q=[['今日の一歩は、小さくても未来の自分を助ける。','宿題のお知らせ オリジナル'],['全部を一度にやらなくていい。まず一つを始めよう。','宿題のお知らせ オリジナル'],['分からない場所が分かったら、それも前進。','宿題のお知らせ オリジナル'],['完璧な計画より、やり直せる計画。','宿題のお知らせ オリジナル'],['5分の集中も、ゼロからの大きな一歩。','宿題のお知らせ オリジナル'],['休憩は続けるための作戦。','宿題のお知らせ オリジナル'],['昨日より少し分かる。それが学びの成長。','宿題のお知らせ オリジナル'],['間違いは次に確認する場所を教えてくれる。','宿題のお知らせ オリジナル']];
 const SHOP=[{id:'cap',name:'学習キャップ',emoji:'🧢',price:20,slot:'hat'},{id:'glasses',name:'ひらめきメガネ',emoji:'🤓',price:35,slot:'accessory'},{id:'scarf',name:'応援マフラー',emoji:'🧣',price:45,slot:'body'},{id:'crown',name:'努力の王冠',emoji:'👑',price:100,slot:'hat'},{id:'sparkle',name:'きらきら',emoji:'✨',price:60,slot:'accessory'}];
-function loadLab(){try{const v=JSON.parse(localStorage.getItem(LAB_KEY)||'null');if(v&&typeof v==='object')lab=Object.assign(JSON.parse(JSON.stringify(LD)),v)}catch(e){toast('学習ラボのデータを読み込めません。バックアップを確認してください。','error')}lab.login=Object.assign({},LD.login,lab.login||{});lab.goals=Object.assign({},LD.goals,lab.goals||{});lab.settings=Object.assign({},LD.settings,lab.settings||{});['pageEvents','ledger','notifications','achievements','favorites','lists','owned'].forEach(k=>{if(!Array.isArray(lab[k]))lab[k]=[]});lab.robot=Object.assign(JSON.parse(JSON.stringify(LD.robot)),lab.robot||{});lab.robot.equipped=Object.assign({},LD.robot.equipped,lab.robot.equipped||{});lab.stages=Array.isArray(lab.stages)&&lab.stages.length?lab.stages:LD.stages;homework.forEach(h=>{h.category=h.subject||'その他';h.personalDeadline='';h.totalPages=Math.max(0,Math.min(10000,Number(h.totalPages)||0));h.pageMarks=Array.isArray(h.pageMarks)?[...new Set(h.pageMarks.map(Number).filter(n=>Number.isInteger(n)&&n>0&&n<=10000))]:[];h.reviewStatus=h.reviewStatus||'unknown';h.reviewNote=h.reviewNote||''})}
+function loadLab(){try{const v=JSON.parse(localStorage.getItem(LAB_KEY)||'null');if(v&&typeof v==='object')lab=Object.assign(JSON.parse(JSON.stringify(LD)),v)}catch(e){toast('コインルームのデータを読み込めません。バックアップを確認してください。','error')}lab.login=Object.assign({},LD.login,lab.login||{});lab.goals=Object.assign({},LD.goals,lab.goals||{});lab.settings=Object.assign({},LD.settings,lab.settings||{});['pageEvents','ledger','notifications','achievements','favorites','lists','owned'].forEach(k=>{if(!Array.isArray(lab[k]))lab[k]=[]});lab.robot=Object.assign(JSON.parse(JSON.stringify(LD.robot)),lab.robot||{});lab.robot.equipped=Object.assign({},LD.robot.equipped,lab.robot.equipped||{});lab.stages=Array.isArray(lab.stages)&&lab.stages.length?lab.stages:LD.stages;homework.forEach(h=>{h.category=h.subject||'その他';h.personalDeadline='';h.totalPages=Math.max(0,Math.min(10000,Number(h.totalPages)||0));h.pageMarks=Array.isArray(h.pageMarks)?[...new Set(h.pageMarks.map(Number).filter(n=>Number.isInteger(n)&&n>0&&n<=10000))]:[];h.reviewStatus=h.reviewStatus||'unknown';h.reviewNote=h.reviewNote||''})}
 function saveLab(){try{localStorage.setItem(LAB_KEY,JSON.stringify(lab));return true}catch(e){toast('学習データを保存できません。空き容量を確認してください。','error');return false}}
 function day(){return todayISO()}function dateOf(t){const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function countPages(h){return h&&h.totalPages?(h.pageMarks||[]).filter(n=>n<=h.totalPages).length:0}function leftPages(h){return h&&h.totalPages?Math.max(0,h.totalPages-countPages(h)):null}function totalPages(){return homework.reduce((s,h)=>s+countPages(h),0)}function pageDay(d){return lab.pageEvents.filter(e=>e.date===d).reduce((s,e)=>s+e.pages.length,0)}function pagesToday(){return pageDay(day())}
@@ -317,7 +317,7 @@ loadLab();setupLab();bindLab();$('exportBtn').onclick=exportData;const oldRemFor
 const oldRenderLab=renderLab;renderLab=function(){oldRenderLab();const fav=lab.favorites.map(i=>Q[i]&&Q[i][0]).filter(Boolean);$('favoriteQuotes').textContent='お気に入り：'+(fav.join(' ／ ')||'なし')};
 const oldPageLab=openPage;openPage=function(n){oldPageLab(n);if(n==='growth')renderLab();if(n==='playlists')renderLists();if(n==='calendar')renderCal()};
 const oldViewsLab=renderAllViews;renderAllViews=function(){oldViewsLab();renderLab()};
-$('importFile').onchange=function(e){const file=e.target.files&&e.target.files[0];e.target.value='';if(!file)return;const reader=new FileReader();reader.onload=function(){try{const d=JSON.parse(reader.result),arr=Array.isArray(d)?d:d.homework;if(!Array.isArray(arr)||arr.length>10000)throw Error('宿題データの形式または件数が不正です');const clean=arr.map(x=>{if(!x||typeof x!=='object'||Array.isArray(x))throw Error('宿題データが不正です');const y=Object.assign({},x);y.id=String(y.id||uid());y.subject=String(y.subject||'').slice(0,100);y.title=String(y.title||'').slice(0,500);y.dueDate=parseISO(y.dueDate)?y.dueDate:'';y.totalPages=Math.max(0,Math.min(10000,Number(y.totalPages)||0));y.pageMarks=Array.isArray(y.pageMarks)?[...new Set(y.pageMarks.map(Number).filter(n=>Number.isInteger(n)&&n>0&&n<=10000))]:[];y.category=y.subject||'その他';y.reviewStatus=['understood','unsure','difficult','review'].includes(y.reviewStatus)?y.reviewStatus:'unknown';y.reviewNote=String(y.reviewNote||'').slice(0,1000);return y});if(d.extraData!==undefined&&(!d.extraData||typeof d.extraData!=='object'||Array.isArray(d.extraData)))throw Error('追加データが不正です');if(d.extraData&&d.extraData.playlists!==undefined&&!Array.isArray(d.extraData.playlists))throw Error('YouTubeプレイリストの形式が不正です');if(d.study!==undefined&&(!d.study||typeof d.study!=='object'||Array.isArray(d.study)))throw Error('学習記録の形式が不正です');if(d.study){['logs','schedule','achievements','reminders'].forEach(k=>{if(d.study[k]!==undefined&&!Array.isArray(d.study[k]))throw Error('学習記録の'+k+'が不正です')});if(d.study.checklists!==undefined&&(!d.study.checklists||typeof d.study.checklists!=='object'||Array.isArray(d.study.checklists)))throw Error('チェックリストが不正です')}if(d.lab!==undefined){if(!d.lab||typeof d.lab!=='object'||Array.isArray(d.lab))throw Error('学習ラボデータが不正です');['pageEvents','ledger','notifications','achievements','favorites','stages','lists','owned'].forEach(k=>{if(d.lab[k]!==undefined&&!Array.isArray(d.lab[k]))throw Error('学習ラボの'+k+'が不正です')});['login','goals','settings','robot'].forEach(k=>{if(d.lab[k]!==undefined&&(!d.lab[k]||typeof d.lab[k]!=='object'||Array.isArray(d.lab[k])))throw Error('学習ラボの'+k+'が不正です')})}askConfirm('バックアップを復元','宿題 '+clean.length+'件で現在の宿題を置き換えます。必要なら先にバックアップしてください。',function(){const keys=[STORAGE_KEY,EXTRA_KEY,PLAYLIST_KEY,STUDY2_KEY,LAB_KEY,THEME_KEY],stored={};keys.forEach(k=>{try{stored[k]=localStorage.getItem(k)}catch(e){stored[k]=null}});const ph=homework,pe=JSON.parse(JSON.stringify(extraData)),ps=JSON.parse(JSON.stringify(study2)),pl=JSON.parse(JSON.stringify(lab));try{homework=clean;if(d.extraData)extraData=Object.assign(extraData,d.extraData);if(d.study)study2=Object.assign(study2,d.study);if(d.lab)lab=Object.assign(JSON.parse(JSON.stringify(LD)),d.lab);if(!save()||!studySave()||!saveLab()||!savePlaylists())throw Error('保存領域に書き込めません');saveExtra();loadLab();applyTheme(['light','dark','auto'].includes(d.theme)?d.theme:(localStorage.getItem(THEME_KEY)||'auto'));renderAllViews();toast('バックアップを復元しました')}catch(err){homework=ph;extraData=pe;study2=ps;lab=pl;keys.forEach(k=>{try{if(stored[k]===null)localStorage.removeItem(k);else localStorage.setItem(k,stored[k])}catch(e){}});renderAllViews();toast('復元に失敗しました。元データを戻しました','error')}})}catch(err){toast('バックアップを読み込めません：'+(err.message||'JSON形式を確認してください'),'error')}};reader.readAsText(file)};
+$('importFile').onchange=function(e){const file=e.target.files&&e.target.files[0];e.target.value='';if(!file)return;const reader=new FileReader();reader.onload=function(){try{const d=JSON.parse(reader.result),arr=Array.isArray(d)?d:d.homework;if(!Array.isArray(arr)||arr.length>10000)throw Error('宿題データの形式または件数が不正です');const clean=arr.map(x=>{if(!x||typeof x!=='object'||Array.isArray(x))throw Error('宿題データが不正です');const y=Object.assign({},x);y.id=String(y.id||uid());y.subject=String(y.subject||'').slice(0,100);y.title=String(y.title||'').slice(0,500);y.dueDate=parseISO(y.dueDate)?y.dueDate:'';y.totalPages=Math.max(0,Math.min(10000,Number(y.totalPages)||0));y.pageMarks=Array.isArray(y.pageMarks)?[...new Set(y.pageMarks.map(Number).filter(n=>Number.isInteger(n)&&n>0&&n<=10000))]:[];y.category=y.subject||'その他';y.reviewStatus=['understood','unsure','difficult','review'].includes(y.reviewStatus)?y.reviewStatus:'unknown';y.reviewNote=String(y.reviewNote||'').slice(0,1000);return y});if(d.extraData!==undefined&&(!d.extraData||typeof d.extraData!=='object'||Array.isArray(d.extraData)))throw Error('追加データが不正です');if(d.extraData&&d.extraData.playlists!==undefined&&!Array.isArray(d.extraData.playlists))throw Error('YouTubeプレイリストの形式が不正です');if(d.study!==undefined&&(!d.study||typeof d.study!=='object'||Array.isArray(d.study)))throw Error('学習記録の形式が不正です');if(d.study){['logs','schedule','achievements','reminders'].forEach(k=>{if(d.study[k]!==undefined&&!Array.isArray(d.study[k]))throw Error('学習記録の'+k+'が不正です')});if(d.study.checklists!==undefined&&(!d.study.checklists||typeof d.study.checklists!=='object'||Array.isArray(d.study.checklists)))throw Error('チェックリストが不正です')}if(d.lab!==undefined){if(!d.lab||typeof d.lab!=='object'||Array.isArray(d.lab))throw Error('コインルームデータが不正です');['pageEvents','ledger','notifications','achievements','favorites','stages','lists','owned','quests','pagePlans'].forEach(k=>{if(d.lab[k]!==undefined&&!Array.isArray(d.lab[k]))throw Error('コインルームの'+k+'が不正です')});['login','goals','settings','robot'].forEach(k=>{if(d.lab[k]!==undefined&&(!d.lab[k]||typeof d.lab[k]!=='object'||Array.isArray(d.lab[k])))throw Error('コインルームの'+k+'が不正です')})}askConfirm('バックアップを復元','宿題 '+clean.length+'件で現在の宿題を置き換えます。必要なら先にバックアップしてください。',function(){const keys=[STORAGE_KEY,EXTRA_KEY,PLAYLIST_KEY,STUDY2_KEY,LAB_KEY,THEME_KEY],stored={};keys.forEach(k=>{try{stored[k]=localStorage.getItem(k)}catch(e){stored[k]=null}});const ph=homework,pe=JSON.parse(JSON.stringify(extraData)),ps=JSON.parse(JSON.stringify(study2)),pl=JSON.parse(JSON.stringify(lab));try{homework=clean;if(d.extraData)extraData=Object.assign(extraData,d.extraData);if(d.study)study2=Object.assign(study2,d.study);if(d.lab)lab=Object.assign(JSON.parse(JSON.stringify(LD)),d.lab);if(!save()||!studySave()||!saveLab()||!savePlaylists())throw Error('保存領域に書き込めません');saveExtra();loadLab();applyTheme(['light','dark','auto'].includes(d.theme)?d.theme:(localStorage.getItem(THEME_KEY)||'auto'));renderAllViews();toast('バックアップを復元しました')}catch(err){homework=ph;extraData=pe;study2=ps;lab=pl;keys.forEach(k=>{try{if(stored[k]===null)localStorage.removeItem(k);else localStorage.setItem(k,stored[k])}catch(e){}});renderAllViews();toast('復元に失敗しました。元データを戻しました','error')}})}catch(err){toast('バックアップを読み込めません：'+(err.message||'JSON形式を確認してください'),'error')}};reader.readAsText(file)};
 
 
 /* Improvement 4: consolidate visible UI while retaining legacy storage and logic. */
@@ -346,7 +346,7 @@ claimLogin=function(){if(lab.login.lastDate===day())return false;const before=co
 const escU=s=>escapeHTML(String(s??''));
 function getDetailOverlay(){let e=$u('homeworkDetailOverlay');if(e)return e;e=document.createElement('div');e.id='homeworkDetailOverlay';e.className='detail-overlay';e.innerHTML='<div class="detail-panel" role="dialog" aria-modal="true" aria-labelledby="homeworkDetailTitle"><button class="btn iconbtn detail-close" data-detail-close aria-label="閉じる">✕</button><h2 id="homeworkDetailTitle">宿題の詳細</h2><div id="homeworkDetailBody"></div><div class="detail-actions"><button class="btn primary" data-detail-action="edit">✏️ 編集</button><button class="btn" data-detail-action="pages">📖 ページ記録</button><button class="btn" data-detail-action="toggle">☑️ 完了状態を変更</button><button class="btn danger" data-detail-action="delete">🗑️ 削除</button></div></div>';document.body.appendChild(e);e.addEventListener('click',ev=>{if(ev.target===e||ev.target.closest('[data-detail-close]'))closeDetail()});e.addEventListener('click',ev=>{const b=ev.target.closest('[data-detail-action]');if(!b||!window.currentDetailHomework)return;const id=window.currentDetailHomework,h=homework.find(x=>x.id===id);if(!h)return;closeDetail();if(b.dataset.detailAction==='edit')openForm(h);else if(b.dataset.detailAction==='pages'){const pg=Array.from(document.querySelectorAll('[data-pageprog]')).find(x=>x.dataset.pageprog===id);if(pg)pg.click();else openForm(h)}else if(b.dataset.detailAction==='toggle'){toggleDone(id);renderAllViews()}else if(b.dataset.detailAction==='delete')deleteHomework(id)});e.addEventListener('keydown',ev=>{if(ev.key==='Escape')closeDetail()});return e}
 function closeDetail(){const e=$u('homeworkDetailOverlay');if(e)e.classList.remove('open');window.currentDetailHomework=null}
-function openDetail(id){const h=homework.find(x=>x.id===id);if(!h)return;window.currentDetailHomework=id;const e=getDetailOverlay(),total=Number(h.totalPages)||0,done=countPages(h);$u('homeworkDetailTitle').textContent=h.title||h.subject||'宿題の詳細';$u('homeworkDetailBody').innerHTML='<div class="lab-item"><strong>教科：</strong>'+escU(h.subject||h.category||'未設定')+'<br><strong>提出期限：</strong>'+escU(h.dueDate?fmtDate(h.dueDate):'未設定')+'<br><strong>ページ：</strong>'+(total?done+'/'+total+'ページ · 残り'+Math.max(0,total-done)+'ページ · '+Math.round(done/Math.max(1,total)*100)+'%':'未設定')+'<br><strong>状態：</strong>'+(h.done?'✅ 完了':'📝 未完了')+'</div>'+(h.memo?'<p>'+escU(h.memo)+'</p>':'')+(h.reviewNote?'<div class="lab-item"><strong>復習メモ</strong><p>'+escU(h.reviewNote)+'</p></div>':'');e.classList.add('open');e.querySelector('[data-detail-close]').focus()}
+function openDetail(id){const h=homework.find(x=>x.id===id);if(!h)return;window.currentDetailHomework=id;const e=getDetailOverlay(),total=Number(h.totalPages)||0,done=countPages(h);$u('homeworkDetailTitle').textContent=h.title||h.subject||'宿題の詳細';$u('homeworkDetailBody').innerHTML='<div class="lab-item"><strong>教科：</strong>'+escU(h.subject||h.category||'未設定')+'<br><strong>提出期限：</strong>'+escU(h.dueDate?fmtDate(h.dueDate):'未設定')+'<br><strong>ページ：</strong>'+(total?done+'/'+total+'ページ · 残り'+Math.max(0,total-done)+'ページ · '+Math.round(done/Math.max(1,total)*100)+'%':'未設定')+'<br><strong>状態：</strong>'+(h.done?'✅ 完了':'📝 未完了')+'<br><strong>期限の判定：</strong>'+dueLabel(h)+'</div>'+(h.memo?'<p>'+escU(h.memo)+'</p>':'')+(h.reviewNote?'<div class="lab-item"><strong>復習メモ</strong><p>'+escU(h.reviewNote)+'</p></div>':'');e.classList.add('open');e.querySelector('[data-detail-close]').focus()}
 const card0=card;card=function(h){return card0(h).replace('<article class="hw-card','<article tabindex="0" aria-haspopup="dialog" aria-label="宿題の詳細を開く：'+escU(h.title||h.subject||'宿題')+'" data-homework-card="'+escU(h.id)+'" class="hw-card')};
 document.addEventListener('click',ev=>{const a=ev.target.closest('[data-homework-card]');if(!a||ev.target.closest('button,input,a,select,textarea,[data-imagezoom]'))return;openDetail(a.dataset.homeworkCard)});
 document.addEventListener('keydown',ev=>{const a=ev.target.closest&&ev.target.closest('[data-homework-card]');if(a&&ev.target===a&&['Enter',' '].includes(ev.key)){ev.preventDefault();openDetail(a.dataset.homeworkCard)}});
@@ -363,6 +363,228 @@ const review0=renderReview;renderReview=function(){review0();const n=$u('labRevi
 lab.notifications=lab.notifications.filter(n=>!String(n.key||'').startsWith('login-ready:'));
 if(lab.login.lastDate!==day())claimLogin();else{updateHeaderCoins();renderProfile()}
 renderAllViews();renderCal();renderReview();renderAssistant();
+
+/* Improvement 5: consolidate calendar/home, expand homework playlists, page planning, reports and quests. */
+(function(){
+const $5=function(id){return document.getElementById(id)};
+const style=document.createElement('style');
+style.textContent=[
+'.v5-hide{display:none!important}',
+'.v5-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0;min-width:0}',
+'.v5-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}',
+'.v5-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}',
+'.v5-actions .btn{min-height:40px}',
+'.v5-item{border:1px solid var(--line);border-radius:12px;padding:12px;margin:9px 0;min-width:0;overflow-wrap:anywhere}',
+'.v5-muted{color:var(--muted);font-size:.9rem}',
+'.v5-progress{height:9px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:8px 0}',
+'.v5-progress>span{display:block;height:100%;background:var(--green)}',
+'.v5-field{display:flex;flex-wrap:wrap;gap:8px;align-items:end}',
+'.v5-field label{display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px}',
+'.v5-field input,.v5-field select{width:100%;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text)}',
+'.v5-quote{font-size:1.1rem;font-weight:700;line-height:1.7}',
+'.v5-barrow{display:grid;grid-template-columns:minmax(62px,90px) 1fr 48px;gap:8px;align-items:center;margin:8px 0;font-size:.88rem}',
+'.v5-bar{height:12px;border-radius:99px;background:var(--surface2);overflow:hidden}.v5-bar span{display:block;height:100%;background:var(--accent)}',
+'.v5-session{border:2px solid var(--accent);border-radius:16px;padding:16px;margin:14px 0}',
+'.v5-clock{font-size:2rem;font-variant-numeric:tabular-nums;font-weight:800}',
+'.v5-badge{display:inline-block;border-radius:99px;padding:4px 9px;font-size:.85rem;font-weight:700;background:var(--surface2);margin:3px 3px 3px 0}',
+'.v5-danger{color:var(--red)}',
+'@media(max-width:640px){.v5-card{padding:12px}.v5-actions .btn{flex:1 1 auto;min-height:44px}.v5-clock{font-size:1.7rem}.nav{overflow-x:auto;overscroll-behavior-x:contain;flex-wrap:nowrap}.nav button{flex:0 0 auto}}'
+].join('');
+document.head.appendChild(style);
+const nav=document.querySelector('nav.nav');
+if(nav){
+ const order=['home','plan','calendar','all','rankings','profile','growth','playlists','settings'];
+ const buttons={};Array.from(nav.querySelectorAll('[data-page]')).forEach(function(b){buttons[b.dataset.page]=b});
+ order.forEach(function(k){if(buttons[k])nav.appendChild(buttons[k])});
+ if(buttons.growth)buttons.growth.textContent='🪙 コインルーム';
+ if(buttons.settings)buttons.settings.textContent='⚙️ 設定';
+}
+const growth=$5('page-growth');
+if(growth){const h=growth.querySelector('.section-head h2');if(h)h.textContent='🪙 コインルーム';const p=growth.querySelector('.section-head p');if(p)p.textContent='ロボット育成・実績・アイテムを管理。報酬と進化の内部処理はそのまま維持します。'}
+const home=$5('page-home'),calendar=$5('page-calendar'),plan=$5('page-plan'),mount=$5('playlistMount');
+const dashboard=$5('dailyDashboard');
+if(dashboard){
+ const quote=$5('dashQuote')&&$5('dashQuote').closest('.lab-item');
+ if(quote&&calendar){quote.classList.add('v5-card');quote.querySelector('.lab-muted').textContent='💬 今日の名言（アプリオリジナル）';quote.insertAdjacentHTML('afterbegin','<h2>💬 今日の名言</h2>');calendar.insertBefore(quote,calendar.firstChild)}
+ dashboard.classList.add('v5-hide');
+}
+if(calendar){const legacyHead=calendar.querySelector('.section-head');if(legacyHead)legacyHead.classList.add('v5-hide');const monthlyCard=$5('labCalGrid')&&$5('labCalGrid').closest('.lab-card');if(monthlyCard){const mh=monthlyCard.querySelector('h3');if(mh)mh.textContent='🗓️ 学習予定・提出期限・学習履歴'}}
+const smart=home&&home.querySelector('.smart-grid');
+if(smart){const panels=smart.querySelectorAll('.smart-panel');if(panels[0])panels[0].classList.add('v5-hide');if(panels[1])panels[1].classList.add('v5-hide');}
+const adviceTitle=home&&home.querySelector('.smart-panel h3');
+if(adviceTitle&&/アドバイス/.test(adviceTitle.textContent))adviceTitle.textContent='宿題アシスタント';
+const checkCard=$5('checkHomework')&&$5('checkHomework').closest('.improve-card');
+if(checkCard)checkCard.classList.add('v5-hide');
+const achievementCard=$5('achievementList')&&$5('achievementList').closest('.improve-card');
+if(achievementCard)achievementCard.classList.add('v5-hide');
+const oldPlaylistPanel=$5('playlistPanel');
+if(mount&&oldPlaylistPanel&&!mount.contains(oldPlaylistPanel))mount.appendChild(oldPlaylistPanel);
+if(mount){
+ mount.insertAdjacentHTML('afterbegin','<section class="v5-card" id="homeworkPlaylistSystem"><div class="section-head"><div><h2>📚 宿題プレイリスト</h2><p>宿題データを共有し、順番に取り組めます。動画プレイリストとは別に管理します。</p></div></div><div id="v5PlaylistRoot"></div></section>');
+ const oldHead=$5('page-playlists').querySelector('.section-head p');if(oldHead)oldHead.textContent='宿題を順番に進める学習プレイリストと、勉強用YouTube動画を管理できます。';
+}
+if(calendar){
+ const analysis=document.createElement('section');analysis.className='v5-card';analysis.id='todayAnalysis';analysis.innerHTML='<h2>📈 今日の分析</h2><div id="v5AnalysisBody"></div>';calendar.appendChild(analysis);
+}
+if(plan){
+ const split=document.createElement('section');split.className='v5-card';split.id='v5PageSplit';split.innerHTML='<h2>📅 宿題のページ自動分割</h2><p class="v5-muted">残りページ数と提出期限から日ごとの目安を計算します。既存の予定は自動変更しません。</p><div class="v5-field"><label>宿題<select id="v5SplitHomework"></select></label><button class="btn primary" id="v5SplitBuild">分割案を作る</button></div><div id="v5SplitResult"></div><div id="v5SavedPlans"></div>';
+ const grid=plan.querySelector('.improve-grid');if(grid)grid.insertAdjacentElement('afterend',split);else plan.prepend(split);
+ const quests=document.createElement('section');quests.className='v5-card';quests.id='v5Quests';quests.innerHTML='<h2>🎮 学習クエスト</h2><p class="v5-muted">実際のページ記録・宿題完了に連動します。報酬はクエストごとに1回だけ付与されます。</p><div class="v5-field"><label>クエスト名<input id="v5QuestName" maxlength="80" placeholder="例：数学を5ページ進める"></label><label>達成条件<select id="v5QuestType"><option value="pages">累計完了ページ数</option><option value="dailyPages">今日の完了ページ数</option><option value="homework">宿題を1件完了</option></select></label><label>目標値<input id="v5QuestTarget" type="number" min="1" max="10000" value="5"></label></div><div class="v5-field"><label>対象宿題（宿題完了クエスト用）<select id="v5QuestHomework"></select></label><label>報酬コイン<input id="v5QuestReward" type="number" min="0" max="1000" value="5"></label><button class="btn primary" id="v5QuestCreate">クエスト作成</button></div><div id="v5QuestList"></div>';
+ plan.appendChild(quests);
+}
+const oldDueLabel=dueLabel;
+dueLabel=function(h){
+ if(h.done)return '<span class="tag green">✅ 完了</span>';
+ if(!h.dueDate)return '<span class="tag">📅 期限未設定</span>';
+ const n=dateDiff(todayISO(),h.dueDate);
+ if(n<0)return '<span class="tag red">🔴 期限超過 '+Math.abs(n)+'日</span>';
+ if(n===0)return '<span class="tag red">🔴 今日が期限</span>';
+ if(n<=2)return '<span class="tag orange">🟠 期限が近い · '+n+'日</span>';
+ if(n<=7)return '<span class="tag" style="color:var(--yellow)">🟡 注意 · '+n+'日</span>';
+ return '<span class="tag green">🟢 余裕あり · '+n+'日</span>';
+};
+function esc5(v){return escapeHTML(String(v==null?'':v))}
+function activeList(){if(!Array.isArray(lab.lists))lab.lists=[];lab.lists.forEach(function(p){if(!Array.isArray(p.ids))p.ids=[];p.favorite=!!p.favorite});return lab.lists}
+function selectedList(){const a=activeList();return a.find(function(p){return p.id===lab.activeStudyListId})||a[0]||null}
+function listProgress(p){const hs=(p.ids||[]).map(function(id){return homework.find(function(h){return h.id===id})}).filter(Boolean);const done=hs.filter(function(h){return h.done}).length;return {hs:hs,done:done,open:hs.length-done,pct:hs.length?Math.round(done/hs.length*100):0}}
+function sessionElapsed(s){if(!s)return 0;return Math.max(0,Number(s.elapsedSeconds)||0)+(s.active&&!s.paused&&s.startedAt?Math.floor((Date.now()-s.startedAt)/1000):0)}
+function saveV5(){saveLab();studySave()}
+function renderV5Playlists(){
+ const root=$5('v5PlaylistRoot');if(!root)return;
+ const lists=activeList(),sel=selectedList(),allTasks=homework.slice().sort(function(a,b){return (a.done===b.done?0:a.done?1:-1)||String(a.title||'').localeCompare(String(b.title||''),'ja')});
+ const options=allTasks.map(function(h){return '<option value="'+esc5(h.id)+'">'+esc5((h.subject?'['+h.subject+'] ':'')+(h.title||'宿題'))+(h.done?'（完了）':'')+'</option>'}).join('');
+ root.innerHTML='<div class="v5-field"><label>プレイリスト<select id="v5PlaylistSelect">'+(lists.map(function(p){return '<option value="'+esc5(p.id)+'" '+(sel&&p.id===sel.id?'selected':'')+'>'+ (p.favorite?'★ ':'')+esc5(p.name)+'</option>'}).join('')||'<option value="">まだありません</option>')+'</select></label><label>新しいプレイリスト名<input id="v5PlaylistName" maxlength="80" placeholder="例：今日やる宿題"></label><button class="btn primary" id="v5PlaylistCreate">＋ 作成</button></div>'+
+ (sel?'<div class="v5-actions"><button class="btn" id="v5PlaylistRename">名前変更</button><button class="btn" id="v5PlaylistFavorite">'+(sel.favorite?'★ お気に入り解除':'☆ お気に入り')+'</button><button class="btn" id="v5PlaylistClone">複製</button><button class="btn danger" id="v5PlaylistDelete">削除</button></div>'+
+ '<div class="v5-item"><strong>'+esc5(sel.name)+'</strong><span class="v5-badge">'+listProgress(sel).hs.length+'件登録</span><span class="v5-badge">完了 '+listProgress(sel).done+'</span><span class="v5-badge">未完了 '+listProgress(sel).open+'</span><span class="v5-badge">'+listProgress(sel).pct+'%</span><div class="v5-progress"><span style="width:'+listProgress(sel).pct+'%"></span></div><div class="v5-muted">完了状況は元の宿題データから計算しています。</div></div>'+
+ '<div class="v5-field"><label>追加する宿題<select id="v5PlaylistHomework">'+(options||'<option value="">宿題がありません</option>')+'</select></label><button class="btn primary" id="v5PlaylistAdd">宿題を追加</button><button class="btn primary" id="v5StudyStart">▶ 学習開始</button></div>'+
+ '<div id="v5PlaylistItems">'+(listProgress(sel).hs.length?listProgress(sel).hs.map(function(h,i){return '<div class="v5-item"><strong>'+esc5(h.title||h.subject||'宿題')+'</strong><div class="v5-muted">'+esc5(h.subject||'教科未設定')+' · '+esc5(h.dueDate?fmtDate(h.dueDate):'期限未設定')+' · '+(h.totalPages?countPages(h)+'/'+h.totalPages+'ページ':'ページ数未設定')+'</div><div class="v5-actions"><button class="btn small primary" data-v5-open="'+esc5(h.id)+'">詳細</button><button class="btn small" data-v5-up="'+i+'" '+(i===0?'disabled':'')+'>↑ 上へ</button><button class="btn small" data-v5-down="'+i+'" '+(i===listProgress(sel).hs.length-1?'disabled':'')+'>↓ 下へ</button><button class="btn small danger" data-v5-remove="'+esc5(h.id)+'">リストから除外</button></div></div>'}).join(''):'<p class="v5-muted">このプレイリストには宿題がありません。上から追加できます。</p>')+'</div>'+
+ '<div class="v5-session" id="v5StudySession"></div>':'<p class="v5-muted">プレイリストを作成すると、宿題を順番に進められます。</p>')+
+ '<details class="v5-item"><summary>🎧 勉強用YouTube動画プレイリスト</summary><p class="v5-muted">動画プレイリスト機能も引き続き利用できます。</p></details>';
+ const details=root.querySelector('details');if(details&&oldPlaylistPanel){details.appendChild(oldPlaylistPanel);oldPlaylistPanel.classList.remove('v5-hide')}
+ renderV5Session();
+}
+function renderV5Session(){
+ const box=$5('v5StudySession');if(!box)return;
+ const s=lab.studySession;
+ if(!s||!s.active){box.innerHTML='<strong>🎧 学習モード</strong><p class="v5-muted">「学習開始」を押すと、プレイリストの最初の未完了宿題から始めます。</p>';return}
+ const p=activeList().find(function(x){return x.id===s.playlistId});if(!p){s.active=false;saveLab();box.innerHTML='<p>プレイリストが見つかりません。</p>';return}
+ const hs=(p.ids||[]).map(function(id){return homework.find(function(h){return h.id===id})}).filter(Boolean),idx=Math.min(Math.max(0,Number(s.index)||0),Math.max(0,hs.length-1)),h=hs[idx],next=hs[idx+1],prog=listProgress(p),secs=sessionElapsed(s);
+ box.innerHTML='<h3>🎧 学習モード：'+esc5(p.name)+'</h3><div class="v5-clock" id="v5SessionClock">'+String(Math.floor(secs/3600)).padStart(2,'0')+':'+String(Math.floor(secs%3600/60)).padStart(2,'0')+':'+String(secs%60).padStart(2,'0')+'</div><div class="v5-progress"><span style="width:'+prog.pct+'%"></span></div><p class="v5-muted">プレイリスト全体：'+prog.done+'/'+prog.hs.length+'件完了 · '+prog.pct+'%</p>'+
+ (h?'<div class="v5-item"><span class="v5-badge">宿題 '+(idx+1)+' / '+hs.length+'</span><h3>'+esc5(h.title||h.subject||'宿題')+'</h3><p>'+esc5(h.subject||'教科未設定')+' · '+esc5(h.dueDate?fmtDate(h.dueDate):'期限未設定')+'</p><p>'+(h.totalPages?countPages(h)+'/'+h.totalPages+'ページ · 残り'+leftPages(h)+'ページ':'ページ数未設定')+' · '+(h.done?'✅ 完了':'📝 未完了')+'</p><button class="btn" data-v5-session-detail="'+esc5(h.id)+'">宿題の詳細・進捗を更新</button></div>'+(next?'<p>次の宿題：'+esc5(next.title||next.subject||'宿題')+'</p>':'<p>このリストの最後の宿題です。</p>'):'<p>このプレイリストに宿題がありません。</p>')+
+ '<div class="v5-actions"><button class="btn primary" id="v5SessionPause" '+(s.paused?'disabled':'')+'>⏸ 一時停止</button><button class="btn" id="v5SessionResume" '+(!s.paused?'disabled':'')+'>▶ 再開</button><button class="btn" id="v5SessionNext" '+(idx>=hs.length-1?'disabled':'')+'>次の宿題へ →</button><button class="btn danger" id="v5SessionEnd">学習終了・記録</button></div>';
+}
+function updateSessionClock(){const el=$5('v5SessionClock'),s=lab.studySession;if(!el||!s||!s.active)return;const n=sessionElapsed(s);el.textContent=String(Math.floor(n/3600)).padStart(2,'0')+':'+String(Math.floor(n%3600/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');if(n%10===0)saveLab()}
+function endV5Session(){
+ const s=lab.studySession;if(!s||!s.active)return;
+ const elapsed=sessionElapsed(s),p=activeList().find(function(x){return x.id===s.playlistId});
+ if(elapsed>0){study2.logs.push({id:uid(),homeworkId:(p&&p.ids&&p.ids[Math.min(s.index,p.ids.length-1)])||'',endedAt:Date.now(),day:day(),seconds:elapsed,source:'homework-playlist'});studySave()}
+ s.active=false;s.paused=true;s.elapsedSeconds=elapsed;s.startedAt=0;saveLab();renderV5Playlists();renderV5Analysis();toast('学習時間 '+Math.floor(elapsed/60)+'分を記録しました。')
+}
+function renderV5SplitSelect(){
+ const s=$5('v5SplitHomework');if(!s)return;const old=s.value;
+ s.innerHTML=homework.filter(function(h){return !h.done&&Number(h.totalPages)>0}).map(function(h){return '<option value="'+esc5(h.id)+'">'+esc5(h.title||h.subject||'宿題')+' · 残り'+leftPages(h)+'ページ</option>'}).join('')||'<option value="">ページ数が設定された未完了宿題がありません</option>';
+ if(homework.some(function(h){return h.id===old&&!h.done&&Number(h.totalPages)>0}))s.value=old;
+}
+let v5SplitRows=[];
+function buildV5Split(){
+ const id=$5('v5SplitHomework').value,h=homework.find(function(x){return x.id===id}),out=$5('v5SplitResult');if(!out)return;
+ if(!h||!h.totalPages){out.innerHTML='<p class="v5-muted">総ページ数が設定された未完了宿題を選んでください。</p>';return}
+ const remain=leftPages(h);if(remain===0){v5SplitRows=[];out.innerHTML='<p>✅ この宿題は全ページ完了しています。新しい予定は不要です。</p>';return}
+ if(!h.dueDate){v5SplitRows=[];out.innerHTML='<p>📅 提出期限が未設定です。期限を設定してから分割してください。</p><button class="btn" id="v5SplitEdit">宿題を編集</button>';$5('v5SplitEdit').onclick=function(){openForm(h)};return}
+ const days=dateDiff(todayISO(),h.dueDate)+1;if(days<=0){v5SplitRows=[];out.innerHTML='<p class="v5-danger">🔴 提出期限を'+Math.abs(days-1)+'日過ぎています。まず提出期限を確認・更新してください。</p>';return}
+ const base=Math.floor(remain/days),extra=remain%days;v5SplitRows=Array.from({length:days},function(_,i){return {date:addDays(todayISO(),i),pages:base+(i<extra?1:0)}}).filter(function(x){return x.pages>0});
+ out.innerHTML='<p><strong>'+esc5(h.title||h.subject||'宿題')+'</strong>：残り'+remain+'ページ / '+days+'日間。下の数値は編集できます。</p><div id="v5SplitRows">'+v5SplitRows.map(function(r,i){return '<div class="v5-field v5-item"><label>日付<input type="date" data-v5-split-date="'+i+'" value="'+r.date+'"></label><label>目安ページ数<input type="number" min="0" max="'+remain+'" data-v5-split-pages="'+i+'" value="'+r.pages+'"></label></div>'}).join('')+'</div><p class="v5-muted">合計が残りページ数と一致するように調整してください。保存しても既存の予定は変更しません。</p><button class="btn primary" id="v5SplitSave">この分割案を保存</button>';
+ $5('v5SplitSave').onclick=function(){
+  const rows=v5SplitRows.map(function(r,i){return {date:$5('v5SplitRows').querySelector('[data-v5-split-date="'+i+'"]').value,pages:Number($5('v5SplitRows').querySelector('[data-v5-split-pages="'+i+'"]').value)}}).filter(function(r){return r.date&&Number.isInteger(r.pages)&&r.pages>=0});
+  if(rows.reduce(function(s,r){return s+r.pages},0)!==remain)return toast('ページ数の合計を残り'+remain+'ページに合わせてください');
+  lab.pagePlans=Array.isArray(lab.pagePlans)?lab.pagePlans:[];
+  lab.pagePlans=lab.pagePlans.filter(function(r){return r.homeworkId!==h.id});
+  rows.filter(function(r){return r.pages>0}).forEach(function(r){lab.pagePlans.push({id:uid(),homeworkId:h.id,date:r.date,pages:r.pages,createdAt:Date.now()})});
+  saveLab();renderV5SavedPlans();renderV5Analysis();toast('ページ分割案を保存しました。既存の学習予定は変更していません。')
+ };
+}
+function renderV5SavedPlans(){
+ const box=$5('v5SavedPlans');if(!box)return;const rows=Array.isArray(lab.pagePlans)?lab.pagePlans:[];
+ box.innerHTML='<h3>📋 保存済みページ予定</h3>'+(rows.length?rows.slice().sort(function(a,b){return a.date.localeCompare(b.date)}).map(function(r){const h=homework.find(function(x){return x.id===r.homeworkId});return '<div class="v5-item"><strong>'+esc5(r.date)+' · '+esc5(h?h.title:'削除済み宿題')+'</strong><div>'+Number(r.pages||0)+'ページ</div><div class="v5-actions"><button class="btn small" data-v5-plan-edit="'+esc5(r.homeworkId)+'">宿題を開く</button><button class="btn small danger" data-v5-plan-delete="'+esc5(r.id)+'">予定を削除</button></div></div>'}).join(''):'<p class="v5-muted">保存済みのページ予定はありません。</p>');
+}
+function renderV5Analysis(){
+ const out=$5('v5AnalysisBody');if(!out)return;const d=todayISO(),events=(lab.pageEvents||[]).filter(function(x){return x.date===d}),pages=events.reduce(function(s,x){return s+(x.pages||[]).length},0),done=homework.filter(function(h){return h.done&&h.completedAt&&dateOf(h.completedAt)===d}).length,due=homework.filter(function(h){return !h.done&&h.dueDate===d}).length,seconds=study2.logs.filter(function(x){return (x.day||dateOf(x.endedAt))===d}).reduce(function(s,x){return s+Number(x.seconds||0)},0),scheduled=(Array.isArray(lab.pagePlans)?lab.pagePlans:[]).filter(function(x){return x.date===d});
+ out.innerHTML='<div class="v5-grid"><div class="v5-item"><span class="v5-muted">今日の完了ページ</span><div class="profile-big">'+pages+'ページ</div></div><div class="v5-item"><span class="v5-muted">今日完了した宿題</span><div class="profile-big">'+done+'件</div></div><div class="v5-item"><span class="v5-muted">今日の提出期限</span><div class="profile-big">'+due+'件</div></div><div class="v5-item"><span class="v5-muted">記録済み学習時間</span><div class="profile-big">'+Math.round(seconds/60)+'分</div></div></div><h3>📌 今日のページ予定</h3>'+(scheduled.length?scheduled.map(function(r){const h=homework.find(function(x){return x.id===r.homeworkId});return '<div class="v5-item">'+esc5(h?h.title:'削除済み宿題')+'：'+r.pages+'ページ</div>'}).join(''):'<p class="v5-muted">今日のページ予定はありません。</p>')+'<p class="v5-muted">この分析は保存済みの学習記録・宿題データのみを使用しています。</p>';
+}
+function renderV5Quests(){
+ const out=$5('v5QuestList');if(!out)return;if(!Array.isArray(lab.quests))lab.quests=[];
+ const taskSelect=$5('v5QuestHomework'),old=taskSelect.value;
+ taskSelect.innerHTML=homework.map(function(h){return '<option value="'+esc5(h.id)+'">'+esc5(h.title||h.subject||'宿題')+(h.done?'（完了）':'')+'</option>'}).join('')||'<option value="">宿題がありません</option>';if(homework.some(function(h){return h.id===old}))taskSelect.value=old;
+ lab.quests.forEach(function(q){let achieved=false;if(q.type==='pages')achieved=totalPages()>=Number(q.target||1);else if(q.type==='dailyPages')achieved=pagesToday()>=Number(q.target||1);else if(q.type==='homework'){const h=homework.find(function(x){return x.id===q.homeworkId});achieved=!!(h&&h.done)}
+  q.achieved=achieved;
+  if(achieved&&!q.rewardedAt){give('quest:'+q.id,Number(q.reward)||0,'学習クエスト：'+q.name);q.rewardedAt=Date.now();saveLab();toast('🎮 クエスト達成！ '+q.name)}
+ });
+ out.innerHTML=lab.quests.length?lab.quests.map(function(q){return '<div class="v5-item"><strong>'+esc5(q.name)+'</strong><span class="v5-badge">'+(q.achieved?'✅ 達成':'🎯 挑戦中')+'</span><p class="v5-muted">'+(q.type==='pages'?'累計完了ページ '+totalPages()+'/'+q.target:q.type==='dailyPages'?'今日の完了ページ '+pagesToday()+'/'+q.target:(function(){const h=homework.find(function(x){return x.id===q.homeworkId});return '宿題完了：'+(h?(h.title||h.subject)+' · '+(h.done?'完了':'未完了'):'対象宿題が見つかりません')})())+' · 報酬 '+Number(q.reward||0)+'コイン</p><button class="btn small danger" data-v5-quest-delete="'+esc5(q.id)+'">クエストを削除</button></div>'}).join(''):'<p class="v5-muted">クエストはまだありません。自分に合った小さな目標を作ってみよう。</p>';
+}
+function renderV5Report(period){
+ const out=$5('learningReport');if(!out)return;const now=new Date(),today=todayISO(),start=new Date(now);
+ if(period==='month')start.setDate(1);else start.setDate(start.getDate()-((start.getDay()+6)%7));start.setHours(0,0,0,0);
+ const startIso=dateOf(start.getTime()),days=[];for(let t=new Date(start);t<=now;t.setDate(t.getDate()+1))days.push(dateOf(t.getTime()));
+ const logs=study2.logs.filter(function(x){return (x.day||dateOf(x.endedAt))>=startIso}),secs=logs.reduce(function(s,x){return s+Number(x.seconds||0)},0),done=homework.filter(function(h){return h.done&&h.completedAt&&dateOf(h.completedAt)>=startIso&&h.completedAt<=Date.now()}),pageByDay={},subjectPages={},subjectDone={},activeDays=new Set();
+ (lab.pageEvents||[]).filter(function(x){return x.date>=startIso&&x.date<=today}).forEach(function(e){const n=(e.pages||[]).length;pageByDay[e.date]=(pageByDay[e.date]||0)+n;activeDays.add(e.date);const h=homework.find(function(x){return x.id===e.homeworkId}),sub=h?(h.subject||h.category||'未分類'):'削除済み宿題';subjectPages[sub]=(subjectPages[sub]||0)+n});
+ logs.forEach(function(x){if(Number(x.seconds)>0)activeDays.add(x.day||dateOf(x.endedAt))});
+ done.forEach(function(h){const sub=h.subject||h.category||'未分類';subjectDone[sub]=(subjectDone[sub]||0)+1});
+ const max=Math.max(1,...days.map(function(d){return pageByDay[d]||0}));
+ out.innerHTML='<div class="v5-grid"><div class="v5-item"><span class="v5-muted">完了した宿題</span><div class="profile-big">'+done.length+'件</div></div><div class="v5-item"><span class="v5-muted">記録済み学習時間</span><div class="profile-big">'+Math.round(secs/60)+'分</div></div><div class="v5-item"><span class="v5-muted">学習した日数</span><div class="profile-big">'+activeDays.size+'日</div></div><div class="v5-item"><span class="v5-muted">完了ページ</span><div class="profile-big">'+days.reduce(function(s,d){return s+(pageByDay[d]||0)},0)+'ページ</div></div></div><h3>📊 日別の完了ページ</h3>'+days.map(function(d){const n=pageByDay[d]||0;return '<div class="v5-barrow"><span>'+esc5(d.slice(5))+'</span><div class="v5-bar"><span style="width:'+(n/max*100)+'%"></span></div><strong>'+n+'</strong></div>'}).join('')+'<h3>📚 科目ごとの進捗</h3>'+Object.keys(Object.assign({},subjectPages,subjectDone)).sort().map(function(s){return '<div class="v5-item"><strong>'+esc5(s)+'</strong><p>'+Number(subjectPages[s]||0)+'ページ記録 · '+Number(subjectDone[s]||0)+'件完了</p></div>'}).join('')+'<p class="v5-muted">学習時間はタイマー記録のみを集計しています。記録がない時間は推測していません。</p>';
+}
+const originalReport=report;report=function(period){renderV5Report(period||'week')};
+const oldOpen5=openPage;openPage=function(n){oldOpen5(n);if(n==='playlists')renderV5Playlists();if(n==='calendar'){renderCal();renderV5Analysis()}if(n==='plan'){renderV5SplitSelect();renderV5SavedPlans();renderV5Quests();renderV5Report('week')}if(n==='growth'){const hh=$5('page-growth').querySelector('.section-head h2');if(hh)hh.textContent='🪙 コインルーム'}};
+const oldRender5=renderAllViews;renderAllViews=function(){oldRender5();renderV5Playlists();renderV5SplitSelect();renderV5SavedPlans();renderV5Quests();renderV5Analysis();updateHeaderCoins()};
+if(mount){
+ mount.addEventListener('click',function(ev){
+  const b=ev.target.closest('button');if(!b)return;const p=selectedList();
+  if(b.id==='v5PlaylistCreate'){const n=$5('v5PlaylistName').value.trim();if(!n)return toast('プレイリスト名を入力してください');const x={id:uid(),name:n.slice(0,80),ids:[],favorite:false};activeList().push(x);lab.activeStudyListId=x.id;saveLab();renderV5Playlists();toast('プレイリストを作成しました');return}
+  if(b.id==='v5PlaylistSelect')return;
+  if(b.id==='v5PlaylistRename'&&p){const n=prompt('プレイリスト名',p.name);if(n&&n.trim()){p.name=n.trim().slice(0,80);saveLab();renderV5Playlists()}return}
+  if(b.id==='v5PlaylistFavorite'&&p){p.favorite=!p.favorite;saveLab();renderV5Playlists();return}
+  if(b.id==='v5PlaylistClone'&&p){const x={id:uid(),name:(p.name+'（コピー）').slice(0,80),ids:p.ids.slice(),favorite:false};activeList().push(x);lab.activeStudyListId=x.id;saveLab();renderV5Playlists();toast('プレイリストを複製しました');return}
+  if(b.id==='v5PlaylistDelete'&&p){askConfirm('プレイリストを削除','「'+p.name+'」を削除します。宿題本体と進捗は削除されません。',function(){lab.lists=activeList().filter(function(x){return x.id!==p.id});if(lab.activeStudyListId===p.id)lab.activeStudyListId=lab.lists[0]?lab.lists[0].id:'';if(lab.studySession&&lab.studySession.playlistId===p.id)lab.studySession.active=false;saveLab();renderV5Playlists()},'削除する');return}
+  if(b.id==='v5PlaylistAdd'&&p){const id=$5('v5PlaylistHomework').value;if(!id)return toast('追加する宿題を選んでください');if(p.ids.includes(id))return toast('この宿題は登録済みです');p.ids.push(id);saveLab();renderV5Playlists();return}
+  if(b.id==='v5StudyStart'&&p){if(!p.ids.length)return toast('先に宿題を追加してください');if(lab.studySession&&lab.studySession.active)return toast('現在の学習を終了してから、新しい学習を開始してください');const prog=listProgress(p),idx=prog.hs.findIndex(function(h){return !h.done});if(idx<0)return toast('このプレイリストの宿題はすべて完了しています！');lab.activeStudyListId=p.id;lab.studySession={playlistId:p.id,index:idx,active:true,paused:false,startedAt:Date.now(),elapsedSeconds:0,sessionId:uid()};saveLab();renderV5Playlists();toast('学習モードを開始しました');return}
+  if(b.dataset.v5Remove&&p){p.ids=p.ids.filter(function(id){return id!==b.dataset.v5Remove});saveLab();renderV5Playlists();return}
+  if(b.dataset.v5Up!==undefined&&p){const i=Number(b.dataset.v5Up);if(i>0){const t=p.ids[i];p.ids[i]=p.ids[i-1];p.ids[i-1]=t;saveLab();renderV5Playlists()}return}
+  if(b.dataset.v5Down!==undefined&&p){const i=Number(b.dataset.v5Down);if(i>=0&&i<p.ids.length-1){const t=p.ids[i];p.ids[i]=p.ids[i+1];p.ids[i+1]=t;saveLab();renderV5Playlists()}return}
+  if(b.dataset.v5Open){openDetail(b.dataset.v5Open);return}
+  if(b.dataset.v5SessionDetail){openDetail(b.dataset.v5SessionDetail);return}
+  if(b.id==='v5SessionPause'&&lab.studySession){const s=lab.studySession;s.elapsedSeconds=sessionElapsed(s);s.paused=true;s.startedAt=0;saveLab();renderV5Session();return}
+  if(b.id==='v5SessionResume'&&lab.studySession){lab.studySession.paused=false;lab.studySession.startedAt=Date.now();saveLab();renderV5Session();return}
+  if(b.id==='v5SessionNext'&&lab.studySession){lab.studySession.elapsedSeconds=sessionElapsed(lab.studySession);lab.studySession.index++;lab.studySession.startedAt=Date.now();lab.studySession.paused=false;saveLab();renderV5Session();return}
+  if(b.id==='v5SessionEnd'){endV5Session();return}
+  if(b.id==='v5SplitBuild'){buildV5Split();return}
+  if(b.dataset.v5PlanEdit){const h=homework.find(function(x){return x.id===b.dataset.v5PlanEdit});if(h)openForm(h);return}
+  if(b.dataset.v5PlanDelete){lab.pagePlans=(lab.pagePlans||[]).filter(function(x){return x.id!==b.dataset.v5PlanDelete});saveLab();renderV5SavedPlans();renderV5Analysis();return}
+ });
+ $5('v5PlaylistSelect')&&mount.addEventListener('change',function(ev){if(ev.target.id==='v5PlaylistSelect'){lab.activeStudyListId=ev.target.value;saveLab();renderV5Playlists()}});
+}
+if(plan){
+ $5('v5QuestCreate').onclick=function(){
+  const name=$5('v5QuestName').value.trim(),type=$5('v5QuestType').value,target=Number($5('v5QuestTarget').value),reward=Number($5('v5QuestReward').value),homeworkId=$5('v5QuestHomework').value;
+  if(!name)return toast('クエスト名を入力してください');if(!Number.isInteger(target)||target<1||target>10000)return toast('目標値は1〜10000で入力してください');if(!Number.isInteger(reward)||reward<0||reward>1000)return toast('報酬は0〜1000コインで入力してください');if(type==='homework'&&!homeworkId)return toast('対象宿題を選んでください');
+  lab.quests=Array.isArray(lab.quests)?lab.quests:[];lab.quests.push({id:uid(),name:name.slice(0,80),type:type,target:target,reward:reward,homeworkId:type==='homework'?homeworkId:'',createdAt:Date.now(),rewardedAt:0});$5('v5QuestName').value='';saveLab();renderV5Quests();toast('クエストを作成しました')
+ };
+ $5('v5QuestList').addEventListener('click',function(ev){const b=ev.target.closest('[data-v5-quest-delete]');if(!b)return;lab.quests=(lab.quests||[]).filter(function(q){return q.id!==b.dataset.v5QuestDelete});saveLab();renderV5Quests()});
+}
+if($5('v5SplitBuild'))$5('v5SplitBuild').addEventListener('click',buildV5Split);
+if($5('v5SplitHomework'))$5('v5SplitHomework').addEventListener('change',function(){});
+const oldQuoteFavorite=$5('quoteFavoriteBtn');
+if(oldQuoteFavorite)oldQuoteFavorite.addEventListener('click',function(){setTimeout(function(){const q=$5('dashQuote')&&$5('dashQuote').closest('.lab-item');if(q&&calendar&&q.parentElement!==calendar)calendar.insertBefore(q,calendar.firstChild)},0)});
+const oldRenderQuote=quoteRender;quoteRender=function(){oldRenderQuote();const q=$5('dashQuote')&&$5('dashQuote').closest('.lab-item');if(q&&calendar&&q.parentElement!==calendar)calendar.insertBefore(q,calendar.firstChild)};
+const oldRenderLab5=renderLab;renderLab=function(){oldRenderLab5();const hh=$5('page-growth').querySelector('.section-head h2');if(hh)hh.textContent='🪙 コインルーム';renderV5Quests();renderV5Analysis();renderV5Playlists()};
+const oldCalV5=renderCal;renderCal=function(){oldCalV5();const d=window.selectedLabDate||day(),box=$5('mergedCalendarDetails');if(box){const rows=(Array.isArray(lab.pagePlans)?lab.pagePlans:[]).filter(function(x){return x.date===d});if(rows.length){box.insertAdjacentHTML('beforeend','<h4>📌 保存済みページ予定</h4>'+rows.map(function(r){const h=homework.find(function(x){return x.id===r.homeworkId});return '<div class="lab-item">'+esc5(h?h.title:'削除済み宿題')+'：'+Number(r.pages||0)+'ページ</div>'}).join(''))}}};
+const oldOpenDetail5=openDetail;openDetail=function(id){oldOpenDetail5(id);const h=homework.find(function(x){return x.id===id}),body=$5('homeworkDetailBody');if(!h||!body)return;const total=Number(h.totalPages)||0,remain=total?leftPages(h):null,days=h.dueDate?dateDiff(todayISO(),h.dueDate):null;let advice;if(h.done)advice='この宿題は完了済みです。必要なら復習メモを残しておこう。';else if(days!==null&&days<0)advice='提出期限を'+Math.abs(days)+'日過ぎています。まず提出先・期限を確認し、残りの作業を小さく分けよう。';else if(remain===0&&total)advice='登録済みのページはすべて完了しています。内容の見直しや復習を確認しよう。';else if(remain!==null&&days!==null&&days>=0)advice='残り'+remain+'ページ、提出まで'+(days+1)+'日。1日あたり約'+Math.ceil(remain/Math.max(1,days+1))+'ページを目安にできます。';else advice='提出期限や総ページ数を設定すると、より具体的な計画を提案できます。';body.insertAdjacentHTML('beforeend','<div class="v5-card"><h3>🤖 宿題アシスタント</h3><p class="v5-muted">端末内のルールベースの提案です。外部AIサービスには接続していません。</p><p>'+esc5(advice)+'</p><div class="v5-actions"><button class="btn" data-v5-detail-split="'+esc5(h.id)+'">📅 ページ分割案を作る</button></div></div>');const b=body.querySelector('[data-v5-detail-split]');};
+const oldDetailBodyHandler=$5('homeworkDetailOverlay');
+if(oldDetailBodyHandler)oldDetailBodyHandler.addEventListener('click',function(ev){const b=ev.target.closest('[data-v5-detail-split]');if(b){ev.preventDefault();closeDetail();openPage('plan');renderV5SplitSelect();$5('v5SplitHomework').value=b.dataset.v5DetailSplit;buildV5Split()}});
+if(calendar){const oldMonthNext=$5('labCalNext'),oldMonthPrev=$5('labCalPrev');if(oldMonthNext)oldMonthNext.textContent='次の月 →';if(oldMonthPrev)oldMonthPrev.textContent='← 前の月'}
+if(typeof window.__v5SessionTimer==='undefined')window.__v5SessionTimer=setInterval(updateSessionClock,1000);
+window.addEventListener('pagehide',function(){const s=lab.studySession;if(s&&s.active&&!s.paused){s.elapsedSeconds=sessionElapsed(s);s.paused=true;s.startedAt=0;saveLab()}});
+renderV5Playlists();renderV5SplitSelect();renderV5SavedPlans();renderV5Quests();renderV5Analysis();renderV5Report('week');updateHeaderCoins();
+})();
+
 })();
 })();
 </script>
