@@ -731,6 +731,7 @@ function activatePage(name){
  if(name==='questionbank')renderQuestionBank();
  if(name==='plan'&&typeof window.renderPlan==='function')window.renderPlan();
  if(name==='calendar'&&typeof window.renderCalendar==='function')window.renderCalendar();
+ if(name==='plan'||name==='calendar')renderExamPlanning();
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function goApp(id){
@@ -741,7 +742,7 @@ function goApp(id){
 function renderExams(){
  const root=$('examsRoot');if(!root)return;
  const ex=getExam(currentExamId);
- root.innerHTML='<div class="module-grid"><div class="module-card"><h3>📝 定期考査を登録</h3><form id="examForm"><input type="hidden" id="examId"><label class="module-field">テスト名<input id="examName" required maxlength="100" placeholder="例：2学期期末考査"></label><div class="module-row"><label class="module-field" style="flex:1">開始日<input id="examStart" type="date"></label><label class="module-field" style="flex:1">終了日<input id="examEnd" type="date"></label></div><label class="module-field">教科別設定<div id="examSubjects"></div></label><div class="module-row"><button class="module-btn primary" type="submit">💾 テストを保存</button><button class="module-btn" type="button" id="examCancel">新規入力</button></div></form><p class="module-muted">試験範囲・目標点・苦手分野・試験日・学習予定は教科ごとに保存できます。</p></div><div class="module-card"><h3>📚 保存したテスト</h3><div id="examList"></div></div></div><div class="module-card" style="margin-top:14px"><h3>📈 テスト結果・振り返り</h3><div id="examResults"></div></div><div class="module-card" style="margin-top:14px"><h3>🔗 問題集とレポート</h3><p class="module-muted">選択中のテストの教科を問題集に引き継げます。結果は入力された点数のみ記録します。</p><div class="module-row"><button class="module-btn primary" id="examPractice">このテストの範囲を問題集で解く</button><button class="module-btn" id="examReport">学習レポートを表示</button></div><div id="examReportInline"></div></div>';
+ root.innerHTML='<div class="module-grid"><div class="module-card"><h3>📝 定期考査を登録</h3><form id="examForm"><input type="hidden" id="examId"><label class="module-field">テスト名<input id="examName" required maxlength="100" placeholder="例：2学期期末考査"></label><div class="module-row"><label class="module-field" style="flex:1">開始日<input id="examStart" type="date"></label><label class="module-field" style="flex:1">終了日<input id="examEnd" type="date"></label></div><div class="module-field"><strong>教科別設定</strong><div id="examSubjects"></div></div><div class="module-row"><button class="module-btn primary" type="submit">💾 テストを保存</button><button class="module-btn" type="button" id="examCancel">新規入力</button></div></form><p class="module-muted">試験範囲・目標点・苦手分野・試験日・学習予定は教科ごとに保存できます。</p></div><div class="module-card"><h3>📚 保存したテスト</h3><div id="examList"></div></div></div><div class="module-card" style="margin-top:14px"><h3>📈 テスト結果・振り返り</h3><div id="examResults"></div></div><div class="module-card" style="margin-top:14px"><h3>🔗 問題集とレポート</h3><p class="module-muted">選択中のテストの教科を問題集に引き継げます。結果は入力された点数のみ記録します。</p><div class="module-row"><button class="module-btn primary" id="examPractice">このテストの範囲を問題集で解く</button><button class="module-btn" id="examReport">学習レポートを表示</button></div><div id="examReportInline"></div></div>';
  const fields=$('examSubjects');
  fields.innerHTML=subjects.map((s,i)=>{const data=ex&&ex.subjects&&ex.subjects[s]||{};return '<details class="module-card" style="margin:8px 0"><summary>'+s+'</summary><div class="module-field">試験日<input type="date" data-exam-sub="'+s+'" data-key="date" value="'+esc(data.date||'')+'"></div><div class="module-field">試験範囲<textarea data-exam-sub="'+s+'" data-key="range" rows="2" placeholder="例：教科書 p.20〜35">'+esc(data.range||'')+'</textarea></div><div class="module-field">目標点<input type="number" min="0" max="100" data-exam-sub="'+s+'" data-key="target" value="'+esc(data.target??'')+'" placeholder="100点満点"></div><div class="module-field">苦手分野<input data-exam-sub="'+s+'" data-key="weak" maxlength="200" value="'+esc(data.weak||'')+'" placeholder="苦手な単元"></div><div class="module-field">学習予定<textarea data-exam-sub="'+s+'" data-key="plan" rows="2" placeholder="復習・問題演習・間違い直し">'+esc(data.plan||'')+'</textarea></div><div class="module-field">実際の点数<input type="number" min="0" max="100" data-exam-sub="'+s+'" data-key="score" value="'+esc(data.score??'')+'" placeholder="結果入力後に記入"></div><div class="module-field">振り返り<textarea data-exam-sub="'+s+'" data-key="reflection" rows="2" placeholder="得意・苦手、次回に復習する内容">'+esc(data.reflection||'')+'</textarea></div></details>'}).join('');
  $('examId').value=ex?ex.id:'';$('examName').value=ex?ex.name:'';$('examStart').value=ex?ex.startDate||'':'';$('examEnd').value=ex?ex.endDate||'':'';
@@ -751,13 +752,13 @@ function renderExams(){
 }
 function examDataFromForm(){
  const id=$('examId').value||uid(),old=getExam(id),data={id,name:$('examName').value.trim(),startDate:$('examStart').value,endDate:$('examEnd').value,subjects:{}};
- subjects.forEach(s=>{const prior=old&&old.subjects&&old.subjects[s]||{},d={};document.querySelectorAll('[data-exam-sub="'+s+'"]').forEach(el=>{d[el.dataset.key]=el.value});data.subjects[s]=Object.assign({},prior,d)});
+ subjects.forEach(s=>{const prior=old&&old.subjects&&old.subjects[s]||{},d={};document.querySelectorAll('[data-exam-sub="'+s+'"]').forEach(el=>{d[el.dataset.key]=el.value});const merged=Object.assign({},prior,d);if(!String(merged.plan||'').trim()&&(merged.range||merged.date)){merged.plan='① 教科書・授業ノートを復習\n② 試験範囲の問題集を解く\n③ 間違えた問題を解き直す'+(merged.weak?'\n④ 苦手分野「'+merged.weak+'」を重点復習':'');}data.subjects[s]=merged});
  return data;
 }
 function saveExamForm(ev){
  ev.preventDefault();const data=examDataFromForm();if(!data.name){toast2('テスト名を入力してください');return}
  if(data.startDate&&data.endDate&&data.endDate<data.startDate){toast2('終了日は開始日以降にしてください');return}
- const i=exams.findIndex(x=>x.id===data.id);if(i>=0)exams[i]=data;else exams.push(data);currentExamId=data.id;save(EXAM_KEY,exams);renderExams();toast2('定期考査を保存しました');
+ const i=exams.findIndex(x=>x.id===data.id);if(i>=0)exams[i]=data;else exams.push(data);currentExamId=data.id;save(EXAM_KEY,exams);renderExams();renderExamPlanning();toast2('定期考査を保存しました');
 }
 function normalizeAnswer(s){return String(s??'').trim().normalize('NFKC').toLocaleLowerCase('ja').replace(/[。．.!！?？\s]/g,'')}
 function eligibleQuestions(){
@@ -812,9 +813,16 @@ function openPracticeFromExam(){
 function renderReportInline(){
  const target=$('examReportInline');if(!target)return;
  const hs=qb.history,correct=hs.filter(x=>x.correct).length,qs=allQuestions();
- let done=0,pages=0;
+ let done=0,pages=0,studySeconds=null;
  try{const h=JSON.parse(localStorage.getItem('homework-notice-data-v1')||'[]');if(Array.isArray(h)){done=h.filter(x=>x.done).length;pages=h.reduce((n,x)=>n+(Array.isArray(x.pageMarks)?x.pageMarks.length:0),0)}}catch(e){}
+ try{const st=JSON.parse(localStorage.getItem('homework-notice-study-v2')||'null');if(st&&Array.isArray(st.logs))studySeconds=st.logs.reduce((n,x)=>n+Number(x.seconds||0),0)}catch(e){}
  target.innerHTML='<div class="module-grid" style="margin-top:12px"><div class="module-card"><strong>完了した宿題</strong><p>'+done+'件</p></div><div class="module-card"><strong>記録済み完了ページ</strong><p>'+pages+'ページ</p></div><div class="module-card"><strong>問題演習</strong><p>'+hs.length+'回回答 ／ '+(hs.length?Math.round(correct*100/hs.length)+'%':'正答率の記録なし')+'</p></div><div class="module-card"><strong>問題集の登録数</strong><p>'+qs.length+'問</p></div></div><p class="module-muted">学習時間は記録された時間のみ表示します。時間データが見つからない場合、推測値は表示しません。</p>';
+}
+function renderExamPlanning(){
+ const examRows=exams.flatMap(ex=>subjects.map(s=>({exam:ex,subject:s,data:(ex.subjects||{})[s]||{}})).filter(x=>x.data.date||x.data.range||x.data.plan));
+ const calendar=$('page-calendar'),plan=$('page-plan');
+ if(calendar){let box=$('examCalendarPanel');if(!box){box=document.createElement('section');box.className='section module-card';box.id='examCalendarPanel';calendar.appendChild(box)}box.innerHTML='<h3>📝 定期考査の予定</h3>'+(examRows.length?examRows.sort((a,b)=>(a.data.date||a.exam.startDate||'').localeCompare(b.data.date||b.exam.startDate||'')).map(x=>'<div class="module-card" style="margin:8px 0"><strong>'+esc(x.exam.name)+' · '+esc(x.subject)+'</strong><p>試験日：'+esc(x.data.date||'未設定')+' ／ 範囲：'+esc(x.data.range||'未設定')+'</p><p class="module-muted">'+esc(x.data.plan||'学習予定は未設定')+'</p></div>').join(''):'<p class="module-muted">定期考査の予定はまだありません。</p>')}
+ if(plan){let box=$('examPlanPanel');if(!box){box=document.createElement('section');box.className='section module-card';box.id='examPlanPanel';plan.appendChild(box)}box.innerHTML='<h3>📝 定期考査の学習予定</h3>'+(examRows.length?examRows.map(x=>'<div class="module-card" style="margin:8px 0"><strong>'+esc(x.exam.name)+' · '+esc(x.subject)+'</strong><p>試験日：'+esc(x.data.date||'未設定')+' ／ 範囲：'+esc(x.data.range||'未設定')+'</p><p style="white-space:pre-line">'+esc(x.data.plan||'学習予定は未設定')+'</p><button class="module-btn" data-exam-practice-subject="'+x.subject+'" data-exam-ref="'+x.exam.id+'">この教科の問題集を開く</button></div>').join(''):'<p class="module-muted">定期考査で教科・範囲を設定すると、ここに表示されます。</p>')}
 }
 function addReportAccess(){
  const home=$('page-home');if(home&&!$('reportShortcut')){const sec=document.createElement('section');sec.className='section';sec.id='reportShortcut';sec.innerHTML='<div class="section-head"><div><h2>📈 学習レポート</h2><p>実際に保存された宿題・問題演習の記録を振り返る</p></div><button class="btn" id="openReportShortcut">レポートを見る</button></div><div id="homeReportSummary" class="profile-grid"></div>';home.appendChild(sec);$('openReportShortcut').addEventListener('click',()=>{activatePage('exams');renderReportInline();$('examReportInline').scrollIntoView({behavior:'smooth',block:'start'})})}
@@ -830,12 +838,13 @@ function attachEvents(){
   if(ev.target.closest('[data-open-main]')){goApp('home');return}
   const edit=ev.target.closest('[data-exam-edit]');if(edit){currentExamId=edit.dataset.examEdit;renderExams();return}
   const sel=ev.target.closest('[data-exam-select]');if(sel){currentExamId=sel.dataset.examSelect;renderExams();return}
-  const del=ev.target.closest('[data-exam-delete]');if(del){const e=getExam(del.dataset.examDelete);if(e&&confirm('「'+e.name+'」を削除しますか？')){exams=exams.filter(x=>x.id!==e.id);if(currentExamId===e.id)currentExamId='';save(EXAM_KEY,exams);renderExams()}return}
+  const del=ev.target.closest('[data-exam-delete]');if(del){const e=getExam(del.dataset.examDelete);if(e&&confirm('「'+e.name+'」を削除しますか？')){exams=exams.filter(x=>x.id!==e.id);if(currentExamId===e.id)currentExamId='';save(EXAM_KEY,exams);renderExams();renderExamPlanning()}return}
   const choice=ev.target.closest('[data-q-answer]');if(choice){answerQuestion(choice.dataset.qAnswer);return}
   const retry=ev.target.closest('[data-q-retry]');if(retry){practice.questionId=retry.dataset.qRetry;practice.answered=false;practice.selected=null;renderQuestion();return}
   const qedit=ev.target.closest('[data-q-edit]');if(qedit){const q=qb.custom.find(x=>x.id===qedit.dataset.qEdit);if(!q)return;$('qbEditId').value=q.id;$('qbNewQuestion').value=q.q;$('qbNewSubject').value=q.subject;$('qbNewUnit').value=q.unit;$('qbNewType').value=q.type;$('qbNewAnswer').value=q.type==='choice'?String(Number(q.answer)+1):q.answer;$('qbNewChoices').value=(q.choices||[]).join('\n');$('qbNewExplain').value=q.explain||'';$('qbNewQuestion').focus();return}
   const qdel=ev.target.closest('[data-q-delete]');if(qdel){if(!confirm('この自作問題を削除しますか？保存済みの演習履歴は残ります。'))return;qb.custom=qb.custom.filter(x=>x.id!==qdel.dataset.qDelete);save(QB_KEY,qb);if(practice.questionId===qdel.dataset.qDelete){practice.questionId='';practice.answered=false}renderQuestionBank();toast2('自作問題を削除しました');return}
   if(ev.target.closest('#qbCancelEdit')){$('qbEditId').value='';$('qbAddForm').reset();$('qbNewUnit').value='復習';return}
+  const exSub=ev.target.closest('[data-exam-practice-subject]');if(exSub){currentExamId=exSub.dataset.examRef;practice.subject=exSub.dataset.examPracticeSubject;practice.unit='すべて';practice.mode='all';practice.questionId='';practice.answered=false;activatePage('questionbank');return}
   const wrong=ev.target.closest('[data-q-wrong-add]');if(wrong){if(!qb.wrong.includes(wrong.dataset.qWrongAdd))qb.wrong.push(wrong.dataset.qWrongAdd);save(QB_KEY,qb);toast2('復習対象に登録しました');return}
   if(ev.target.closest('#qbStart')){const q=chooseQuestion();if(!q){toast2('条件に合う問題がありません。出題モードを変更してください');return}practice.questionId=q.id;practice.answered=false;practice.selected=null;renderQuestion();return}
   if(ev.target.closest('#qbNext')||ev.target.closest('#qbNextAfter')){const q=chooseQuestion();if(!q){toast2('条件に合う問題がありません');return}practice.questionId=q.id;practice.answered=false;practice.selected=null;renderQuestion();return}
@@ -895,7 +904,7 @@ function start(){
  const dashboard=$('dailyDashboard');if(dashboard)dashboard.style.display='none';
  const smart=$('page-home')&&$('page-home').querySelector('.smart-grid');if(smart){const panels=smart.querySelectorAll('.smart-panel');if(panels[0])panels[0].style.display='none';if(panels[1])panels[1].style.display='';}
  const quote=$('dashQuote')?.closest('.lab-item');if(quote)quote.style.display='none';
- addReportAccess();attachEvents();extendBackup();renderLauncher();renderExams();renderQuestionBank();renderReportInline();
+ addReportAccess();attachEvents();extendBackup();renderLauncher();renderExams();renderQuestionBank();renderReportInline();renderExamPlanning();
  // New-page support in the existing app's navigation dispatcher.
  const oldOpen=window.openPage;
  window.openPage=function(name){if(name==='launcher'||name==='exams'||name==='questionbank'){activatePage(name);return}document.body.classList.remove('launcher-mode');if(typeof oldOpen==='function')oldOpen(name);document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));if(name==='home'){const t=$('page-home')?.querySelector('.welcome h2');if(t&&t.textContent==='今日の宿題を確認しよう！')t.textContent='メイン：今日の宿題を確認しよう！'}};
