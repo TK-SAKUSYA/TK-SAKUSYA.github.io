@@ -78,6 +78,60 @@ body.launcher-mode .nav{display:none}body.launcher-mode .top-actions #addBtn{dis
 @media(max-width:800px){.launcher-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:480px){.launcher-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.launcher-page{border-radius:18px;padding:12px}.launcher-icon{width:60px;height:60px;border-radius:18px}.launcher-name{font-size:.78rem}.launcher-controls button{min-height:32px}.module-page{padding:12px}.module-btn{min-height:44px}}
 </style>
+
+<style id="smartphone-launcher-redesign">
+/* Phone-like launcher: wallpaper, app grid, edit-only controls and persistent dock */
+body.launcher-mode{background:var(--bg)}
+body.launcher-mode .app{max-width:1240px;padding-bottom:calc(126px + env(safe-area-inset-bottom,0px))}
+body.launcher-mode .topbar{padding:10px 14px;margin-bottom:10px;gap:10px}
+body.launcher-mode .brand .logo{width:38px;height:38px;font-size:1.35rem}
+body.launcher-mode .brand h1{font-size:clamp(1rem,2.5vw,1.35rem)}
+body.launcher-mode .brand .subtitle{font-size:.76rem;margin-top:2px}
+body.launcher-mode .top-actions{gap:7px}
+body.launcher-mode .top-actions #addBtn{display:none}
+body.launcher-mode .header-coins{min-height:36px;padding:0 9px;font-size:.88rem}
+body.launcher-mode main{padding-top:0}
+.launcher-page{position:relative;overflow:visible;min-height:calc(100vh - 145px);padding:clamp(12px,2.4vw,28px);border:0;border-radius:26px;background:radial-gradient(ellipse at 12% 8%,#b6d5ff70 0,transparent 34%),radial-gradient(ellipse at 90% 35%,#d7b9ff60 0,transparent 34%),linear-gradient(145deg,#f2f7ff,#e8efff 48%,#f7f2ff);box-shadow:inset 0 0 0 1px #ffffff80}
+:root[data-theme="dark"] .launcher-page{background:radial-gradient(ellipse at 12% 8%,#304b8060 0,transparent 34%),radial-gradient(ellipse at 90% 35%,#5c397660 0,transparent 34%),linear-gradient(145deg,#111827,#1a2034 48%,#211b32);box-shadow:inset 0 0 0 1px #ffffff10}
+.launcher-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:clamp(18px,3vw,30px)}
+.launcher-top h2{font-size:clamp(1.15rem,2.6vw,1.6rem);color:var(--text)}
+.launcher-subtitle{margin:4px 0 0;color:var(--muted);font-size:.82rem}
+.launcher-top-actions{display:flex;align-items:center;gap:10px}
+.launcher-clock{font-size:.82rem;color:var(--muted);white-space:nowrap}
+.launcher-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(14px,2.4vw,26px) clamp(8px,1.6vw,18px);align-items:start}
+.launcher-app-wrap{display:flex;flex-direction:column;align-items:center;min-width:0}
+.launcher-app{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;min-width:0;padding:5px 3px 8px;border:0;background:transparent;color:var(--text);cursor:pointer;border-radius:16px}
+.launcher-icon{display:grid;place-items:center;flex:0 0 auto;width:clamp(56px,6.7vw,78px);height:clamp(56px,6.7vw,78px);font-size:clamp(1.8rem,3vw,2.45rem);line-height:1;border-radius:22px;border:1px solid #ffffffa6;box-shadow:0 8px 18px #273a671c,inset 0 1px 0 #ffffffa8;background:linear-gradient(145deg,#ffffffed,#e8eeffed);transition:transform .16s ease,box-shadow .16s ease}
+:root[data-theme="dark"] .launcher-icon{background:linear-gradient(145deg,#303b55,#222b40);border-color:#ffffff20;box-shadow:0 8px 18px #0003,inset 0 1px 0 #ffffff12}
+.launcher-icon-home{background:linear-gradient(145deg,#fff,#dce9ff)}.launcher-icon-plan{background:linear-gradient(145deg,#fff4d8,#ffd98a)}.launcher-icon-calendar{background:linear-gradient(145deg,#ffe3e8,#ffb5c4)}.launcher-icon-all{background:linear-gradient(145deg,#e2f8ee,#a9e8cd)}.launcher-icon-rankings{background:linear-gradient(145deg,#fff2d4,#ffd179)}.launcher-icon-profile{background:linear-gradient(145deg,#e8e2ff,#c7baff)}.launcher-icon-growth{background:linear-gradient(145deg,#d8fff2,#8ce7ca)}.launcher-icon-playlists{background:linear-gradient(145deg,#ffe3f6,#f7b8e5)}.launcher-icon-settings{background:linear-gradient(145deg,#e7edf6,#cbd6e6)}.launcher-icon-exams{background:linear-gradient(145deg,#ffe4e5,#ffb6b6)}.launcher-icon-questionbank{background:linear-gradient(145deg,#dff5ff,#9fe1f4)}.launcher-icon-report{background:linear-gradient(145deg,#e1e5ff,#b9c4ff)}
+:root[data-theme="dark"] .launcher-icon-home,:root[data-theme="dark"] .launcher-icon-plan,:root[data-theme="dark"] .launcher-icon-calendar,:root[data-theme="dark"] .launcher-icon-all,:root[data-theme="dark"] .launcher-icon-rankings,:root[data-theme="dark"] .launcher-icon-profile,:root[data-theme="dark"] .launcher-icon-growth,:root[data-theme="dark"] .launcher-icon-playlists,:root[data-theme="dark"] .launcher-icon-settings,:root[data-theme="dark"] .launcher-icon-exams,:root[data-theme="dark"] .launcher-icon-questionbank,:root[data-theme="dark"] .launcher-icon-report{filter:saturate(.72) brightness(.8)}
+.launcher-app:hover .launcher-icon{transform:translateY(-2px);box-shadow:0 11px 22px #273a6728}
+.launcher-app:active .launcher-icon{transform:scale(.93)}
+.launcher-app:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.launcher-name{max-width:100%;min-height:2.45em;font-size:clamp(.7rem,1vw,.88rem);font-weight:750;text-align:center;line-height:1.25;overflow-wrap:anywhere;text-shadow:0 1px 0 #ffffff70}
+:root[data-theme="dark"] .launcher-name{text-shadow:0 1px 0 #0004}
+.launcher-star{position:absolute;top:0;right:calc(50% - 39px);font-size:.8rem}
+.launcher-controls{display:flex;flex-direction:column;gap:6px;width:100%;margin-top:2px;padding:8px;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:var(--shadow)}
+.launcher-controls .module-btn{min-height:32px;padding:5px 7px;font-size:.76rem}
+.launcher-order-controls{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.launcher-order-controls .module-btn{flex:1}
+.launcher-edit-panel{margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:var(--shadow)}
+.launcher-edit-panel[hidden]{display:none}
+.launcher-edit-heading,.launcher-edit-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.launcher-edit-actions{margin-top:10px}
+.launcher-edit-panel p{margin:10px 0 0}
+.launcher-dock-wrap{position:fixed;z-index:500;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(520px,calc(100vw - 28px));pointer-events:none}
+.launcher-dock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(8px,2vw,18px);align-items:center;padding:10px 14px;border:1px solid #ffffffa0;border-radius:24px;background:#ffffffb8;backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 10px 35px #273a6724;pointer-events:auto}
+:root[data-theme="dark"] .launcher-dock{background:#171d2bd9;border-color:#ffffff1c;box-shadow:0 10px 35px #0005}
+.launcher-dock-app{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;padding:2px;border:0;border-radius:12px;background:transparent;color:var(--text);cursor:pointer}
+.launcher-dock-app:active .launcher-dock-icon{transform:scale(.91)}
+.launcher-dock-icon{display:grid;place-items:center;width:clamp(38px,4.5vw,48px);height:clamp(38px,4.5vw,48px);font-size:1.6rem;border-radius:14px;background:var(--surface);box-shadow:0 3px 10px #273a671b;transition:transform .14s}
+.launcher-dock-name{max-width:100%;font-size:clamp(.58rem,1vw,.7rem);font-weight:700;line-height:1.15;text-align:center;overflow-wrap:anywhere}
+@media(max-width:760px){.launcher-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:17px 7px}.launcher-icon{width:clamp(56px,13vw,72px);height:clamp(56px,13vw,72px);font-size:2rem;border-radius:19px}.launcher-name{font-size:.73rem;min-height:2.5em}.launcher-page{min-height:calc(100vh - 130px);padding:14px 10px 24px}.launcher-top{margin-bottom:18px}.launcher-top-actions{gap:6px}.launcher-clock{font-size:.72rem}.launcher-top-actions .module-btn{min-height:36px;padding:7px 9px;font-size:.8rem}.launcher-dock-wrap{width:calc(100vw - 24px);bottom:calc(9px + env(safe-area-inset-bottom,0px))}.launcher-dock{padding:8px 9px;border-radius:21px;gap:4px}.launcher-dock-icon{width:38px;height:38px;font-size:1.4rem}.launcher-dock-name{font-size:.61rem}.launcher-controls{padding:6px}.launcher-order-controls .module-btn{min-width:42px}}
+@media(max-width:380px){.launcher-clock{display:none}.launcher-top h2{font-size:1.1rem}.launcher-grid{gap:14px 3px}.launcher-icon{width:54px;height:54px;font-size:1.8rem}.launcher-name{font-size:.68rem}}
+@media(min-width:761px) and (max-width:950px){.launcher-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.launcher-icon,.launcher-dock-icon{transition:none}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -648,7 +702,8 @@ const appDefs=[
  {id:'playlists',icon:'🎵',name:'プレイリスト作成',desc:'学習コース'},
  {id:'settings',icon:'⚙️',name:'設定',desc:'表示・バックアップ'},
  {id:'exams',icon:'📝',name:'定期考査',desc:'テスト対策・結果'},
- {id:'questionbank',icon:'📚',name:'教科別問題集',desc:'問題演習・復習'}
+ {id:'questionbank',icon:'📚',name:'教科別問題集',desc:'問題演習・復習'},
+ {id:'report',icon:'📈',name:'学習レポート',desc:'学習時間・達成状況'}
 ];
 const seedQuestions=[
 {id:'ja1',subject:'国語',unit:'漢字',grade:1,difficulty:'基礎',type:'choice',q:'「努力」の読み方として正しいものはどれ？',choices:['どりょく','とうりょく','どりき','とりょく'],answer:0,explain:'「努力」は「どりょく」と読みます。'},
@@ -682,7 +737,8 @@ const seedQuestions=[
 {id:'so5',subject:'社会',unit:'地理',grade:1,difficulty:'標準',type:'choice',q:'世界で最も面積が大きい大陸は？',choices:['アフリカ大陸','北アメリカ大陸','ユーラシア大陸','南アメリカ大陸'],answer:2,explain:'ユーラシア大陸はヨーロッパとアジアにまたがる最大の大陸です。'},
 {id:'so6',subject:'社会',unit:'公民',grade:1,difficulty:'基礎',type:'choice',q:'日本の国会は何権を担当する機関？',choices:['立法権','行政権','司法権','監査権'],answer:0,explain:'国会は法律を制定する立法権を担います。'}
 ];
-let launcher={favorites:[],order:appDefs.map(x=>x.id)};
+let launcher={favorites:[],order:appDefs.map(x=>x.id),dock:['home','plan','calendar','all']};
+let launcherEditMode=false;
 let exams=[],qb={custom:[],history:[],wrong:[],favorites:[],attempts:{}};
 let currentExamId='',practice={subject:'すべて',unit:'すべて',mode:'all',questionId:'',answered:false,selected:null},examEditingId='';
 const $=id=>document.getElementById(id);
@@ -697,9 +753,11 @@ function dateToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getM
 function dayDiff(a,b){return Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000)}
 function getExam(id){return exams.find(x=>x.id===id)}
 function initData(){
- const l=load(APP_HOME_KEY,null);if(l&&typeof l==='object'){launcher.favorites=Array.isArray(l.favorites)?l.favorites:[];launcher.order=Array.isArray(l.order)?l.order:appDefs.map(x=>x.id)}
+ const l=load(APP_HOME_KEY,null);if(l&&typeof l==='object'){launcher.favorites=Array.isArray(l.favorites)?l.favorites:[];launcher.order=Array.isArray(l.order)?l.order:appDefs.map(x=>x.id);launcher.dock=Array.isArray(l.dock)?l.dock:[]}
  launcher.order=appDefs.map(x=>x.id).filter(id=>launcher.order.includes(id)).concat(appDefs.map(x=>x.id).filter(id=>!launcher.order.includes(id)));
  launcher.favorites=launcher.favorites.filter(id=>appDefs.some(x=>x.id===id));
+ launcher.dock=launcher.dock.filter((id,i,arr)=>appDefs.some(x=>x.id===id)&&arr.indexOf(id)===i).slice(0,4);
+ if(!launcher.dock.length)launcher.dock=['home','plan','calendar','all'];
  const e=load(EXAM_KEY,[]);exams=Array.isArray(e)?e:[];
  const q=load(QB_KEY,{});if(q&&typeof q==='object')qb=Object.assign(qb,q);
  ['custom','history','wrong','favorites'].forEach(k=>{if(!Array.isArray(qb[k]))qb[k]=[]});
@@ -713,14 +771,17 @@ function createPage(id,title){
  const main=document.querySelector('main');main.appendChild(p);return p;
 }
 function ensureLauncher(){
- let p=$('page-launcher');if(!p){p=document.createElement('section');p.className='page launcher-page';p.id='page-launcher';p.innerHTML='<div class="launcher-top"><div><h2>📱 ホーム画面</h2><p class="module-muted">使いたいアプリを選んで開こう</p></div><div class="launcher-clock" id="launcherDate"></div></div><div class="launcher-grid" id="launcherGrid"></div><div class="launcher-bottom"><button class="module-btn" id="launcherReport">📈 学習レポート</button><button class="module-btn" id="launcherReset">並び順を初期化</button><span class="module-muted">★ お気に入り · ↑↓で並べ替え</span></div>';document.querySelector('main').prepend(p)}
+ let p=$('page-launcher');if(!p){p=document.createElement('section');p.className='page launcher-page';p.id='page-launcher';p.innerHTML='<div class="launcher-top"><div><h2>📱 ホーム画面</h2><p class="launcher-subtitle">アプリをタップして開く</p></div><div class="launcher-top-actions"><div class="launcher-clock" id="launcherDate"></div><button class="module-btn" id="launcherEdit" aria-pressed="false">✏️ 編集</button></div></div><div class="launcher-grid" id="launcherGrid"></div><div class="launcher-edit-panel" id="launcherEditPanel" hidden><div class="launcher-edit-heading"><strong>ホーム画面を編集</strong><span class="module-muted">☆ お気に入り・並べ替え・ドック設定</span></div><div class="launcher-edit-actions"><button class="module-btn" id="launcherReset">↺ 並び順を初期化</button><button class="module-btn primary" id="launcherDone">✓ 編集を終了</button></div><p class="module-muted">ドックに置くアプリは最大4個。各アプリの「ドック」ボタンで選択できます。</p></div><div class="launcher-dock-wrap"><div class="launcher-dock" id="launcherDock" aria-label="お気に入りドック"></div></div>';document.querySelector('main').prepend(p)}
  return p;
 }
 function renderLauncher(){
  const root=$('launcherGrid');if(!root)return;
  const defs=launcher.order.map(id=>appDefs.find(x=>x.id===id)).filter(Boolean);
- root.innerHTML=defs.map((a,i)=>'<div class="launcher-app-wrap"><button class="launcher-app" data-launch-app="'+a.id+'" aria-label="'+esc(a.name)+'を開く"><span class="launcher-icon">'+a.icon+'</span><span class="launcher-name">'+esc(a.name)+'</span>'+(launcher.favorites.includes(a.id)?'<span class="launcher-star" aria-label="お気に入り">⭐</span>':'')+'</button><div class="launcher-controls"><button class="module-btn" data-fav-app="'+a.id+'" aria-label="'+esc(a.name)+'のお気に入り">'+(launcher.favorites.includes(a.id)?'★':'☆')+'</button><button class="module-btn" data-move-app="'+a.id+'" data-dir="-1" aria-label="上へ">↑</button><button class="module-btn" data-move-app="'+a.id+'" data-dir="1" aria-label="下へ">↓</button></div></div>').join('');
- const d=new Date();$('launcherDate').textContent=d.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+ root.innerHTML=defs.map(a=>'<div class="launcher-app-wrap"><button class="launcher-app" data-launch-app="'+a.id+'" aria-label="'+esc(a.name)+'を開く"><span class="launcher-icon launcher-icon-'+a.id+'">'+a.icon+'</span><span class="launcher-name">'+esc(a.name)+'</span>'+(launcherEditMode&&launcher.favorites.includes(a.id)?'<span class="launcher-star" aria-label="お気に入り">⭐</span>':'')+'</button>'+(launcherEditMode?'<div class="launcher-controls"><button class="module-btn" data-fav-app="'+a.id+'" aria-label="'+esc(a.name)+'のお気に入り">'+(launcher.favorites.includes(a.id)?'★ お気に入り':'☆ お気に入り')+'</button><div class="launcher-order-controls"><button class="module-btn" data-move-app="'+a.id+'" data-dir="-1" aria-label="'+esc(a.name)+'を上へ" '+(launcher.order.indexOf(a.id)===0?'disabled':'')+'>↑</button><button class="module-btn" data-move-app="'+a.id+'" data-dir="1" aria-label="'+esc(a.name)+'を下へ" '+(launcher.order.indexOf(a.id)===launcher.order.length-1?'disabled':'')+'>↓</button><button class="module-btn" data-dock-app="'+a.id+'" aria-pressed="'+launcher.dock.includes(a.id)+'">'+(launcher.dock.includes(a.id)?'✓ ドック':'＋ ドック')+'</button></div></div>':'')+'</div>').join('');
+ const d=new Date();$('launcherDate').textContent=d.toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});
+ const editPanel=$('launcherEditPanel');if(editPanel)editPanel.hidden=!launcherEditMode;
+ const editButton=$('launcherEdit');if(editButton){editButton.textContent=launcherEditMode?'✕ 編集を終了':'✏️ 編集';editButton.setAttribute('aria-pressed',String(launcherEditMode))}
+ const dock=$('launcherDock');if(dock)dock.innerHTML=launcher.dock.map(id=>appDefs.find(a=>a.id===id)).filter(Boolean).map(a=>'<button class="launcher-dock-app" data-launch-app="'+a.id+'" aria-label="'+esc(a.name)+'を開く"><span class="launcher-dock-icon">'+a.icon+'</span><span class="launcher-dock-name">'+esc(a.name)+'</span></button>').join('');
 }
 function activatePage(name){
  document.body.classList.toggle('launcher-mode',name==='launcher');
@@ -735,6 +796,7 @@ function activatePage(name){
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function goApp(id){
+ if(id==='report'){activatePage('exams');renderReportInline();setTimeout(()=>{const target=$('examReportInline');if(target)target.scrollIntoView({behavior:'smooth',block:'start'})},0);return}
  if(id==='exams'||id==='questionbank'){activatePage(id);return}
  if(typeof window.openPage==='function')window.openPage(id);
  activatePage(id);
@@ -832,7 +894,9 @@ function attachEvents(){
   const app=ev.target.closest('[data-launch-app]');if(app){goApp(app.dataset.launchApp);return}
   const fav=ev.target.closest('[data-fav-app]');if(fav){const id=fav.dataset.favApp;launcher.favorites=launcher.favorites.includes(id)?launcher.favorites.filter(x=>x!==id):launcher.favorites.concat(id);save(APP_HOME_KEY,launcher);renderLauncher();return}
   const move=ev.target.closest('[data-move-app]');if(move){const id=move.dataset.moveApp,idx=launcher.order.indexOf(id),to=idx+Number(move.dataset.dir);if(to>=0&&to<launcher.order.length){[launcher.order[idx],launcher.order[to]]=[launcher.order[to],launcher.order[idx]];save(APP_HOME_KEY,launcher);renderLauncher()}return}
-  if(ev.target.closest('#launcherReport')){activatePage('exams');renderReportInline();$('examReportInline').scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(ev.target.closest('#launcherEdit')){launcherEditMode=!launcherEditMode;renderLauncher();return}
+  if(ev.target.closest('#launcherDone')){launcherEditMode=false;renderLauncher();return}
+  const dockApp=ev.target.closest('[data-dock-app]');if(dockApp){const id=dockApp.dataset.dockApp;if(launcher.dock.includes(id)){launcher.dock=launcher.dock.filter(x=>x!==id)}else if(launcher.dock.length<4){launcher.dock.push(id)}else{toast2('ドックは4個までです。先に1つ外してください');return}save(APP_HOME_KEY,launcher);renderLauncher();return}
   if(ev.target.closest('#launcherReset')){launcher.order=appDefs.map(x=>x.id);save(APP_HOME_KEY,launcher);renderLauncher();return}
   if(ev.target.closest('[data-launch-home]')){activatePage('launcher');return}
   if(ev.target.closest('[data-open-main]')){goApp('home');return}
