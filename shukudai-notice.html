@@ -178,7 +178,7 @@ body:not(.launcher-mode) #page-launcher .launcher-dock-wrap{display:none!importa
 #quickBottomNav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:52px;padding:5px 3px;border:0;border-radius:13px;background:transparent;color:var(--text);font-weight:750;font-size:.82rem}
 #quickBottomNav button .quick-nav-icon{font-size:1.35rem;line-height:1.1}
 #quickBottomNav button[aria-current="page"]{background:var(--soft);color:var(--primary)}
-#quickBottomNav button:focus:not(:focus-visible){outline:none;box-shadow:none}
+#quickBottomNav button:focus,#quickBottomNav button:focus-visible,#quickBottomNav button:active{outline:none!important;outline-offset:0!important;box-shadow:none!important;-webkit-tap-highlight-color:transparent}
 body{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 @media(prefers-reduced-motion:reduce){#quickBottomNav *{transition:none!important}}
 </style>
@@ -1011,7 +1011,7 @@ function start(){
    const bar=document.createElement('nav');bar.id='quickBottomNav';bar.setAttribute('aria-label','下部メニュー');
    bar.innerHTML='<button type="button" data-quick-nav="home" aria-label="メイン"><span class="quick-nav-icon">🏠</span><span>メイン</span></button><button type="button" data-quick-nav="launcher" aria-label="ホーム"><span class="quick-nav-icon">📱</span><span>ホーム</span></button><button type="button" data-quick-nav="settings" aria-label="設定"><span class="quick-nav-icon">⚙️</span><span>設定</span></button>';
    document.body.appendChild(bar);
-   bar.addEventListener('click',function(ev){const btn=ev.target.closest('[data-quick-nav]');if(!btn)return;const dest=btn.dataset.quickNav;if(dest==='launcher'){activatePage('launcher')}else{document.body.classList.remove('launcher-mode');if(typeof window.openPage==='function')window.openPage(dest);else activatePage(dest)}if(ev.detail>0)btn.blur()});
+   bar.addEventListener('pointerdown',function(ev){const btn=ev.target.closest('[data-quick-nav]');if(btn&&ev.pointerType!=='mouse')setTimeout(()=>btn.blur(),0)});bar.addEventListener('click',function(ev){const btn=ev.target.closest('[data-quick-nav]');if(!btn)return;const dest=btn.dataset.quickNav;if(dest==='launcher'){activatePage('launcher')}else{document.body.classList.remove('launcher-mode');if(typeof window.openPage==='function')window.openPage(dest);else activatePage(dest)}if(ev.detail>0)btn.blur()});
   }
 
  // Rename the legacy app label to メイン without changing its page or stored data.
