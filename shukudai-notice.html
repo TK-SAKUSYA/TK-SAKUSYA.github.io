@@ -207,7 +207,7 @@ body{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .memo-body{width:100%;flex:1;min-height:380px;resize:vertical;border:0!important;outline:0!important;background:transparent!important;padding:8px 0 20px;line-height:1.8;font-size:1rem;color:var(--text)}
 .memo-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);padding-top:11px;color:var(--muted);font-size:.78rem}
 .memo-no-selection{margin:auto;text-align:center;color:var(--muted);padding:40px 15px}.memo-no-selection>div{font-size:3rem}.memo-no-selection strong{display:block;color:var(--text);font-size:1.15rem;margin:10px}.memo-no-selection p{font-size:.9rem}
-@media(max-width:680px){.memo-app{grid-template-columns:1fr;min-height:calc(100dvh - 210px);border-radius:16px}.memo-sidebar{border-right:0;border-bottom:1px solid var(--line);padding:13px}.memo-sidebar-head{padding:3px 4px 10px}.memo-sidebar-head h3{font-size:1.25rem}.memo-list{max-height:230px;overflow:auto}.memo-editor{padding:10px 16px 14px;min-height:440px}.memo-back{display:inline-block}.memo-title{padding-top:18px}.memo-body{min-height:260px}.memo-save-state{font-size:.7rem}}
+@media(max-width:680px){body.memo-mobile-editing #page-memo .memo-sidebar{display:none}body.memo-mobile-editing #page-memo .memo-editor{min-height:calc(100dvh - 190px)}.memo-app{grid-template-columns:1fr;min-height:calc(100dvh - 210px);border-radius:16px}.memo-sidebar{border-right:0;border-bottom:1px solid var(--line);padding:13px}.memo-sidebar-head{padding:3px 4px 10px}.memo-sidebar-head h3{font-size:1.25rem}.memo-list{max-height:230px;overflow:auto}.memo-editor{padding:10px 16px 14px;min-height:440px}.memo-back{display:inline-block}.memo-title{padding-top:18px}.memo-body{min-height:260px}.memo-save-state{font-size:.7rem}}
 </style>
 </head>
 <body>
@@ -815,7 +815,7 @@ const seedQuestions=[
 ];
 let launcher={favorites:[],order:appDefs.map(x=>x.id),dock:['home','plan','calendar','all']};
 let launcherEditMode=false;
-const MEMO_KEY='homework-notice-memos-v1';let memos=[],currentMemoId='';
+const MEMO_KEY='homework-notice-memos-v1';let memos=[],currentMemoId='',memoMobileEditing=false;
 let exams=[],qb={custom:[],history:[],wrong:[],favorites:[],attempts:{}};
 let currentExamId='',practice={subject:'すべて',unit:'すべて',mode:'all',questionId:'',answered:false,selected:null},examEditingId='';
 const $=id=>document.getElementById(id);
@@ -883,6 +883,7 @@ function goApp(id){
 }
 function renderMemo(){
  const page=$('page-memo');if(!page)return;const root=$('memoRoot');if(!root)return;
+ document.body.classList.toggle('memo-mobile-editing',memoMobileEditing);
  const selected=memos.find(m=>m.id===currentMemoId)||null;
  const sorted=memos.slice().sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||(b.updatedAt||'').localeCompare(a.updatedAt||''));
  const query=String($('memoSearch')?.value||'').trim().toLowerCase();
@@ -982,12 +983,12 @@ function addReportAccess(){
 function attachEvents(){
  document.addEventListener('click',function(ev){
   const app=ev.target.closest('[data-launch-app]');if(app){goApp(app.dataset.launchApp);return}
-   if(ev.target.closest('#memoNew')||ev.target.closest('#memoNewEmpty')){createMemo();return}
+   if(ev.target.closest('#memoNew')||ev.target.closest('#memoNewEmpty')){memoMobileEditing=true;createMemo();return}
    if(ev.target.closest('#memoSave')){if(saveCurrentMemo())toast2('メモを保存しました');return}
    if(ev.target.closest('#memoPin')){const memo=memos.find(m=>m.id===currentMemoId);if(memo){memo.pinned=!memo.pinned;saveCurrentMemo();renderMemo()}return}
-   if(ev.target.closest('#memoBack')){saveCurrentMemo();$('memoSearch')?.focus();return}
+   if(ev.target.closest('#memoBack')){saveCurrentMemo();memoMobileEditing=false;renderMemo();return}
    if(ev.target.closest('#memoChecklist')){const body=$('memoBody');if(body){const start=body.selectionStart,end=body.selectionEnd;const line='☐ ';body.setRangeText(line,start,end,'end');body.dispatchEvent(new Event('input',{bubbles:true}));body.focus()}return}
-   const memoOpen=ev.target.closest('[data-memo-open]');if(memoOpen){if(currentMemoId!==memoOpen.dataset.memoOpen)saveCurrentMemo();currentMemoId=memoOpen.dataset.memoOpen;renderMemo();return}
+   const memoOpen=ev.target.closest('[data-memo-open]');if(memoOpen){if(currentMemoId!==memoOpen.dataset.memoOpen)saveCurrentMemo();currentMemoId=memoOpen.dataset.memoOpen;memoMobileEditing=true;renderMemo();return}
    const memoDelete=ev.target.closest('[data-memo-delete]');if(memoDelete){const target=memos.find(m=>m.id===memoDelete.dataset.memoDelete);if(target&&confirm('「'+(target.title||'無題のメモ')+'」を削除しますか？')){memos=memos.filter(m=>m.id!==target.id);if(currentMemoId===target.id)currentMemoId=memos[0]?.id||'';save(MEMO_KEY,memos);renderMemo()}return}
   const fav=ev.target.closest('[data-fav-app]');if(fav){const id=fav.dataset.favApp;launcher.favorites=launcher.favorites.includes(id)?launcher.favorites.filter(x=>x!==id):launcher.favorites.concat(id);save(APP_HOME_KEY,launcher);renderLauncher();return}
   const move=ev.target.closest('[data-move-app]');if(move){const id=move.dataset.moveApp,idx=launcher.order.indexOf(id),to=idx+Number(move.dataset.dir);if(to>=0&&to<launcher.order.length){[launcher.order[idx],launcher.order[to]]=[launcher.order[to],launcher.order[idx]];save(APP_HOME_KEY,launcher);renderLauncher()}return}
@@ -1088,7 +1089,7 @@ function start(){
  addReportAccess();attachEvents();extendBackup();renderLauncher();renderExams();renderQuestionBank();renderMemo();renderReportInline();renderExamPlanning();
  // New-page support in the existing app's navigation dispatcher.
  const oldOpen=window.openPage;
- window.openPage=function(name){if(name==='launcher'||name==='exams'||name==='questionbank'){activatePage(name);return}document.body.classList.remove('launcher-mode');if(typeof oldOpen==='function')oldOpen(name);document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));if(name==='home'){const t=$('page-home')?.querySelector('.welcome h2');if(t&&t.textContent==='今日の宿題を確認しよう！')t.textContent='メイン：今日の宿題を確認しよう！'}};
+ window.openPage=function(name){if(name==='launcher'||name==='exams'||name==='questionbank'||name==='memo'){activatePage(name);return}document.body.classList.remove('launcher-mode');if(typeof oldOpen==='function')oldOpen(name);document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));if(name==='home'){const t=$('page-home')?.querySelector('.welcome h2');if(t&&t.textContent==='今日の宿題を確認しよう！')t.textContent='メイン：今日の宿題を確認しよう！'}};
  // Home launch controls always route through this dispatcher.
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
