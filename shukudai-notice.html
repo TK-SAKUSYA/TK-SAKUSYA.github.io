@@ -1131,6 +1131,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #page-appstore[data-store-theme="light"]{color-scheme:light;--bg:#f4f7ff;--surface:#fff;--surface2:#f7f9fe;--text:#202945;--muted:#4e5b75;--line:#d6deed;--primary:#4053cb;--soft:#e9edff;--green:#126c49;--greenbg:#e4f7ee;--orange:#8a4a00;--orangebg:#fff2df;--red:#a8243a;--redbg:#ffeaee}
 #page-appstore[data-store-theme="dark"]{color-scheme:dark;--bg:#121725;--surface:#1b2233;--surface2:#222b40;--text:#eef2ff;--muted:#c0c9df;--line:#46516a;--primary:#91a0ff;--soft:#2c365c;--green:#72d8a8;--greenbg:#1d4037;--orange:#ffc477;--orangebg:#4a3522;--red:#ff9aaa;--redbg:#4b2631}
 #page-appstore .store-shell{max-width:1050px;margin:auto;padding:4px 0 86px}
+/* アプリストアでは外側の「ホーム画面」「メイン」ボタンを表示せず、ストア内ナビゲーションを使う */
+#page-appstore > .module-page > .module-head .module-row{display:none!important}
 #page-appstore .store-top{position:sticky;top:0;z-index:8;background:var(--bg);padding:10px 0 8px}
 #page-appstore .store-search{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:28px;background:var(--surface2);padding:0 15px;min-height:54px}
 #page-appstore .store-search input{width:100%;border:0;outline:0;background:transparent;color:var(--text);min-width:0;font-size:1rem}
