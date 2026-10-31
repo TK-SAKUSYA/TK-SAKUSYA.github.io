@@ -785,6 +785,7 @@ const EXAM_KEY='homework-notice-exams-v1';
 const QB_KEY='homework-notice-questionbank-v1';
 const REPORT_KEY='homework-notice-learning-report-v1';
 const appDefs=[
+ {id:'appstore',icon:'🛍️',name:'アプリストア',desc:'アプリを探してインストール'},
  {id:'home',icon:'🏠',name:'メイン',desc:'今日の宿題・進捗'},
  {id:'plan',icon:'🎯',name:'今日の計画',desc:'学習予定の確認'},
  {id:'calendar',icon:'🗓️',name:'カレンダー',desc:'予定・期限・履歴'},
@@ -794,8 +795,7 @@ const appDefs=[
  {id:'growth',icon:'🪙',name:'コインルーム',desc:'コイン・ロボット'},
  {id:'playlists',icon:'🎵',name:'プレイリスト作成',desc:'学習コース'},
  {id:'memo',icon:'📝',name:'メモ帳',desc:'自由にメモを保存'},
- {id:'settings',icon:'⚙️',name:'設定',desc:'表示・バックアップ'},
- {id:'appstore',icon:'🛍️',name:'アプリストア',desc:'アプリを探してインストール'}
+ {id:'settings',icon:'⚙️',name:'設定',desc:'表示・バックアップ'}
  ];
 const seedQuestions=[
 {id:'ja1',subject:'国語',unit:'漢字',grade:1,difficulty:'基礎',type:'choice',q:'「努力」の読み方として正しいものはどれ？',choices:['どりょく','とうりょく','どりき','とりょく'],answer:0,explain:'「努力」は「どりょく」と読みます。'},
@@ -848,7 +848,7 @@ function getExam(id){return exams.find(x=>x.id===id)}
 function initData(){
  const l=load(APP_HOME_KEY,null);if(l&&typeof l==='object'){launcher.favorites=Array.isArray(l.favorites)?l.favorites:[];launcher.order=Array.isArray(l.order)?l.order:appDefs.map(x=>x.id);launcher.dock=Array.isArray(l.dock)?l.dock:[]}
  const savedMemos=load(MEMO_KEY,[]);memos=Array.isArray(savedMemos)?savedMemos.filter(m=>m&&typeof m==='object'&&typeof m.id==='string'):[];if(!memos.some(m=>m.id===currentMemoId))currentMemoId=memos[0]?.id||'';
- const validAppIds=new Set(appDefs.map(x=>x.id));const savedOrder=Array.isArray(launcher.order)?launcher.order:[];launcher.order=savedOrder.filter((id,i)=>validAppIds.has(id)&&savedOrder.indexOf(id)===i);if(!launcher.order.includes('memo')){const settingsIndex=launcher.order.indexOf('settings');launcher.order.splice(settingsIndex<0?launcher.order.length:settingsIndex,0,'memo')}launcher.order=launcher.order.concat(appDefs.map(x=>x.id).filter(id=>!launcher.order.includes(id)));
+ const validAppIds=new Set(appDefs.map(x=>x.id));const savedOrder=Array.isArray(launcher.order)?launcher.order:[];launcher.order=savedOrder.filter((id,i)=>validAppIds.has(id)&&savedOrder.indexOf(id)===i);if(!launcher.order.includes('memo')){const settingsIndex=launcher.order.indexOf('settings');launcher.order.splice(settingsIndex<0?launcher.order.length:settingsIndex,0,'memo')}launcher.order=launcher.order.concat(appDefs.map(x=>x.id).filter(id=>!launcher.order.includes(id)));const storeIndex=launcher.order.indexOf('appstore');if(storeIndex>=0)launcher.order.splice(storeIndex,1);const mainIndex=launcher.order.indexOf('home');launcher.order.splice(mainIndex<0?0:mainIndex,0,'appstore');
  launcher.favorites=launcher.favorites.filter(id=>appDefs.some(x=>x.id===id));
  launcher.dock=launcher.dock.filter((id,i,arr)=>appDefs.some(x=>x.id===id)&&arr.indexOf(id)===i).slice(0,4);
  if(!launcher.dock.length)launcher.dock=['home','plan','calendar','all'];
@@ -871,7 +871,10 @@ function ensureLauncher(){
 function renderLauncher(){
  const root=$('launcherGrid');if(!root)return;
  const defs=launcher.order.map(id=>appDefs.find(x=>x.id===id)).filter(Boolean);
- root.innerHTML=defs.map(a=>'<div class="launcher-app-wrap"><button class="launcher-app" data-launch-app="'+a.id+'" aria-label="'+esc(a.name)+'を開く"><span class="launcher-icon launcher-icon-'+a.id+'">'+a.icon+'</span><span class="launcher-name">'+esc(a.name)+'</span>'+(launcherEditMode&&launcher.favorites.includes(a.id)?'<span class="launcher-star" aria-label="お気に入り">⭐</span>':'')+'</button>'+(launcherEditMode?'<div class="launcher-controls"><button class="module-btn" data-fav-app="'+a.id+'" aria-label="'+esc(a.name)+'のお気に入り">'+(launcher.favorites.includes(a.id)?'★ お気に入り':'☆ お気に入り')+'</button><div class="launcher-order-controls"><button class="module-btn" data-move-app="'+a.id+'" data-dir="-1" aria-label="'+esc(a.name)+'を上へ" '+(launcher.order.indexOf(a.id)===0?'disabled':'')+'>↑</button><button class="module-btn" data-move-app="'+a.id+'" data-dir="1" aria-label="'+esc(a.name)+'を下へ" '+(launcher.order.indexOf(a.id)===launcher.order.length-1?'disabled':'')+'>↓</button></div></div>':'')+'</div>').join('');
+ const installedStoreApps=typeof window.getInstalledStoreApps==='function'?window.getInstalledStoreApps():[];
+ const staticMarkup=defs.map(a=>'<div class="launcher-app-wrap"><button class="launcher-app" data-launch-app="'+a.id+'" aria-label="'+esc(a.name)+'を開く"><span class="launcher-icon launcher-icon-'+a.id+'">'+a.icon+'</span><span class="launcher-name">'+esc(a.name)+'</span>'+(launcherEditMode&&launcher.favorites.includes(a.id)?'<span class="launcher-star" aria-label="お気に入り">⭐</span>':'')+'</button>'+(launcherEditMode?'<div class="launcher-controls"><button class="module-btn" data-fav-app="'+a.id+'" aria-label="'+esc(a.name)+'のお気に入り">'+(launcher.favorites.includes(a.id)?'★ お気に入り':'☆ お気に入り')+'</button><div class="launcher-order-controls"><button class="module-btn" data-move-app="'+a.id+'" data-dir="-1" aria-label="'+esc(a.name)+'を上へ" '+(launcher.order.indexOf(a.id)===0?'disabled':'')+'>↑</button><button class="module-btn" data-move-app="'+a.id+'" data-dir="1" aria-label="'+esc(a.name)+'を下へ" '+(launcher.order.indexOf(a.id)===launcher.order.length-1?'disabled':'')+'>↓</button></div></div>':'')+'</div>').join('');
+ const installedMarkup=installedStoreApps.map(a=>'<div class="launcher-app-wrap"><button class="launcher-app" data-launch-app="storeapp:'+a.id+'" aria-label="'+esc(a.name)+'を開く"><span class="launcher-icon launcher-icon-storeapp" style="background:'+a.color+'">'+a.icon+'</span><span class="launcher-name">'+esc(a.name)+'</span><span class="launcher-installed-badge" aria-label="インストール済み">✓</span></button></div>').join('');
+ root.innerHTML=staticMarkup+(installedMarkup?'<div class="launcher-installed-heading">📦 インストール済みアプリ</div><div class="launcher-installed-grid">'+installedMarkup+'</div>':'');
  const d=new Date();$('launcherDate').textContent=d.toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});
  const editPanel=$('launcherEditPanel');if(editPanel)editPanel.hidden=!launcherEditMode;
  const editButton=$('launcherEdit');if(editButton){editButton.textContent=launcherEditMode?'✕ 編集を終了':'✏️ 編集';editButton.setAttribute('aria-pressed',String(launcherEditMode))}
@@ -891,6 +894,7 @@ function activatePage(name){
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function goApp(id){
+ if(id.indexOf('storeapp:')===0){const appId=id.slice(9);if(typeof window.launchInstalledStoreApp==='function'){activatePage('appstore');window.launchInstalledStoreApp(appId)}return}
  if(id==='appstore'){activatePage('appstore');if(window.renderAppStore)window.renderAppStore();return}
  if(id==='memo'){activatePage('memo');renderMemo();return}
  if(id==='report'){activatePage('exams');renderReportInline();setTimeout(()=>{const target=$('examReportInline');if(target)target.scrollIntoView({behavior:'smooth',block:'start'})},0);return}
@@ -1265,7 +1269,9 @@ document.addEventListener('input',e=>{if(e.target.id==='storeSearch'){state.quer
 document.addEventListener('change',e=>{if(e.target.id==='storeTheme'){state.theme=e.target.value;persist();applyTheme()}if(e.target.id==='musicFile'){const f=e.target.files&&e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);$('musicAudio').src=url;storeData.musicbox=storeData.musicbox||{};storeData.musicbox.musicName=f.name;persist();$('musicName').textContent=f.name}if(e.target.id==='calendarForm'){/* handled by submit */}if(e.target.id==='paintColor'){const d=storeData.drawing||(storeData.drawing={});d.paintColor=e.target.value;persist()}if(e.target.id==='photoFiles'){const files=Array.from(e.target.files||[]);const d=storeData.photos||(storeData.photos={photos:[]});Promise.all(files.map(f=>new Promise(resolve=>{const rd=new FileReader();rd.onload=()=>resolve({name:f.name,data:rd.result});rd.onerror=()=>resolve(null);rd.readAsDataURL(f)}))).then(items=>{d.photos=(d.photos||[]).concat(items.filter(Boolean));storeData.photos=d;persist();render()})}});
 document.addEventListener('submit',e=>{if(e.target.id==='calendarForm'){e.preventDefault();const d=storeData.calendarplus||(storeData.calendarplus={events:[]});d.events=Array.isArray(d.events)?d.events:[];d.events.push({date:$('eventDate').value,title:$('eventTitle').value.trim()});persist();render();return}});
 function applyTheme(){const page=$('page-appstore');if(!page)return;if(state.theme==='light'||state.theme==='dark')page.setAttribute('data-store-theme',state.theme);else page.removeAttribute('data-store-theme')}
-window.renderAppStore=function(){loadState();const page=$('page-appstore');if(!page)return;const p=$('appstoreRoot');if(!p){const wrap=document.createElement('div');wrap.className='module-page';wrap.innerHTML='<div class="module-head"><h2>🛍️ アプリストア</h2><div class="module-row"><button class="module-btn" data-launch-home>⌂ ホーム画面</button><button class="module-btn" data-open-main>🏠 メイン</button></div></div><div id="appstoreRoot"></div>';page.appendChild(wrap)}applyTheme();render()};
+window.getInstalledStoreApps=function(){loadState();return APPS.filter(installed).map(a=>({id:a.id,name:a.name,icon:a.icon,color:a.color,category:a.category}))};
+window.launchInstalledStoreApp=function(id){loadState();const a=getApp(id);if(!a||!installed(a))return;state.selected=id;state.screen='mini';applyTheme();render()};
+window.renderAppStore=function(){loadState();const page=$('page-appstore');if(!page)return;const p=$('appstoreRoot');if(!p){const wrap=document.createElement('div');wrap.className='module-page';wrap.innerHTML='<div class="module-head"><h2>🛍️ アプリストア</h2><div class="module-row"><button class="module-btn" data-launch-home>⌂ アプリ一覧へ戻る</button><button class="module-btn" data-store-screen="home">🏠 ストアホーム</button><button class="module-btn" data-open-main>🏠 メイン</button></div></div><div id="appstoreRoot"></div>';page.appendChild(wrap)}applyTheme();render()};
 const origRender=window.renderAppStore;
 const oldPageOpen=window.openPage;
 window.openPage=function(name){if(name==='appstore'){document.body.classList.remove('launcher-mode');document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-appstore'));window.renderAppStore();window.scrollTo({top:0,behavior:'smooth'});return}if(typeof oldPageOpen==='function')return oldPageOpen(name)};
