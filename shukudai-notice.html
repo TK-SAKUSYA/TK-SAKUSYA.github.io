@@ -897,7 +897,7 @@ function activatePage(name){
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function goApp(id){
- if(id.indexOf('storeapp:')===0){const appId=id.slice(9);if(typeof window.launchInstalledStoreApp==='function'){activatePage('appstore');window.launchInstalledStoreApp(appId)}return}
+ if(id.indexOf('storeapp:')===0){const appId=id.slice(9);if(typeof window.launchInstalledStoreApp==='function')window.launchInstalledStoreApp(appId);return}
  if(id==='appstore'){activatePage('appstore');if(window.renderAppStore)window.renderAppStore();return}
  if(id==='memo'){activatePage('memo');renderMemo();return}
  if(id==='report'){activatePage('exams');renderReportInline();setTimeout(()=>{const target=$('examReportInline');if(target)target.scrollIntoView({behavior:'smooth',block:'start'})},0);return}
@@ -1132,6 +1132,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #page-appstore[data-store-theme="dark"]{color-scheme:dark;--bg:#121725;--surface:#1b2233;--surface2:#222b40;--text:#eef2ff;--muted:#c0c9df;--line:#46516a;--primary:#91a0ff;--soft:#2c365c;--green:#72d8a8;--greenbg:#1d4037;--orange:#ffc477;--orangebg:#4a3522;--red:#ff9aaa;--redbg:#4b2631}
 #page-appstore .store-shell{max-width:1050px;margin:auto;padding:4px 0 86px}
 #page-storeapp .store-shell{max-width:900px;margin:auto;padding:12px 0 40px}
+#page-storeapp>.module-page>.module-head{display:none!important}
 #page-storeapp .store-standalone-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 0 18px;border-bottom:1px solid var(--line,#ddd);margin-bottom:18px}
 #page-storeapp .store-standalone-head>span{display:flex;align-items:center;gap:12px;font-size:1.15rem}
 #page-storeapp .store-standalone-head .store-icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:1.8rem}
