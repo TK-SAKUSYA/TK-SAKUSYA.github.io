@@ -1,20 +1,115 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#000000">
-  <title></title>
-  <style>
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      background: #000;
-      overflow: hidden;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>You must not look</title>
+<style>
+*{box-sizing:border-box} :root{color-scheme:dark}
+body{margin:0;min-height:100vh;background:#050505;color:#ddd;font-family:Georgia,"Yu Mincho",serif;text-align:center;overflow-x:hidden}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(transparent 0,rgba(255,255,255,.018) 1px,transparent 3px);z-index:20}
+button,.admin{font:inherit;background:#171717;color:#ddd;border:1px solid #555;padding:13px 25px;cursor:pointer;transition:.2s;min-height:48px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+button:hover:not(:disabled),.admin:hover{background:#3a0808;border-color:#a22}
+button:disabled{opacity:.3;cursor:not-allowed}
+#app{width:min(850px,100%);min-height:100svh;margin:auto;padding:clamp(18px,4vw,36px) 16px 28px;display:flex;flex-direction:column}
+.warning{color:#a33;font-size:12px;letter-spacing:3px;margin:12px 0 20px}
+h1{font-size:clamp(30px,7vw,58px);letter-spacing:clamp(3px,1vw,8px);color:#9b1515;text-shadow:0 0 25px #500;margin:8px 0 4px}
+.subtitle{color:#777;letter-spacing:4px;margin:0 0 24px}
+.line{border-top:1px solid #292929;margin:22px 0}
+#stage{color:#888;letter-spacing:4px;margin:8px}
+#progress{height:3px;background:#222;margin:18px 0}#progressBar{height:100%;width:0;background:#941515;transition:width .4s}
+#timer{font-size:clamp(48px,12vw,72px);line-height:1.1;color:#9e1717;margin:14px;text-shadow:0 0 20px #600}
+#message{color:#aaa;min-height:28px;margin:12px 0;line-height:1.7}
+#imageArea{width:100%;min-height:260px;height:min(54svh,560px);background:#090909;border:1px solid #292929;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+#horrorImage{display:none;max-width:100%;max-height:100%;object-fit:contain;filter:brightness(.82) contrast(1.12)}
+#placeholder{color:#444;letter-spacing:3px;padding:20px;line-height:1.9}
+.controls{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:20px 0 8px}
+#imageNumber,.small{font-size:11px;color:#666}
+#glitch{position:fixed;inset:0;background:#600;opacity:0;pointer-events:none;z-index:10}
+.glitch{animation:glitch .2s}@keyframes glitch{0%{opacity:0}30%{opacity:.13;transform:translateX(5px)}60%{opacity:0;transform:translateX(-4px)}100%{opacity:0}}
+footer{margin-top:auto;padding-top:30px;color:#333;font-size:10px;letter-spacing:2px}
+@media(max-width:480px){#app{padding:16px 12px 22px}.warning{letter-spacing:2px}#imageArea{min-height:220px;height:48svh}.controls button{flex:1 1 42%;padding:12px 10px}}
+</style>
 </head>
-<body></body>
+<body>
+<div id="glitch"></div>
+<main id="app">
+ <p class="warning">⚠ AN UNWELCOME EXPERIENCE ⚠</p>
+ <h1>YOU MUST NOT LOOK</h1>
+ <p class="subtitle">見てはいけない。</p>
+ <div class="line"></div>
+ <p id="stage">CONNECTING...</p>
+ <div id="progress"><div id="progressBar"></div></div>
+ <div id="timer">—</div>
+ <p id="message" aria-live="polite">共有画像を読み込んでいます。</p>
+ <div id="imageArea"><span id="placeholder">PLEASE WAIT...</span><img id="horrorImage" alt="共有された画像"></div>
+ <p id="imageNumber" class="small"></p>
+ <div class="controls"><button id="reveal" disabled>REVEAL</button><button id="next" disabled>NEXT</button></div>
+ <p class="small">画像はGitHub上で共有され、すべての端末で同じ内容が表示されます。</p>
+ <p><a class="admin" href="https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/tree/main/you-must-not-look/images" target="_blank" rel="noopener">管理者：画像を追加する</a></p>
+ <p class="small">※画像の追加はサイト管理者のみ可能です。</p>
+ <footer>YOU MUST NOT LOOK / UNKNOWN EXPERIENCE</footer>
+</main>
+<script>
+const API='https://api.github.com/repos/TK-SAKUSYA/TK-SAKUSYA.github.io/contents/you-must-not-look/images?ref=main';
+let images=[],index=0,revealed=false,timerInterval=null;
+const $=id=>document.getElementById(id),revealButton=$('reveal'),nextButton=$('next');
+async function init(){
+ try{
+  const response=await fetch(API,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});
+  if(!response.ok)throw new Error('共有フォルダを読み込めません');
+  const files=await response.json();
+  images=files.filter(f=>f.type==='file'&&/\.(png|jpe?g|gif|webp|avif)$/i.test(f.name)&&f.download_url).sort((a,b)=>a.name.localeCompare(b.name,'ja',{numeric:true}));
+  if(!images.length){
+   $('stage').textContent='WAITING FOR THE IMAGES';$('timer').textContent='…';
+   $('placeholder').textContent='共有画像はまだ登録されていません。';
+   $('message').textContent='管理者は「管理者：画像を追加する」から画像を追加できます。追加後、ページを再読み込みしてください。';
+   return;
+  }
+  prepare();
+ }catch(e){
+  $('stage').textContent='DATA ERROR';$('timer').textContent='!';
+  $('placeholder').textContent='共有データを読み込めませんでした。';
+  $('message').textContent='通信できないか、共有フォルダを読み込めません。少し待って再読み込みしてください。';
+ }
+}
+function prepare(){
+ revealed=false;clearInterval(timerInterval);
+ $('horrorImage').style.display='none';$('horrorImage').removeAttribute('src');
+ $('placeholder').style.display='block';$('placeholder').textContent='NOTHING TO SEE';
+ revealButton.disabled=false;nextButton.disabled=true;nextButton.textContent='NEXT';
+ $('stage').textContent='STAGE '+String(index+1).padStart(2,'0');
+ $('imageNumber').textContent=(index+1)+' / '+images.length;
+ $('progressBar').style.width=(index/images.length*100)+'%';
+ $('message').textContent='準備はいいですか？';$('timer').textContent='5';
+}
+function reveal(){
+ if(revealed||!images.length)return;revealed=true;revealButton.disabled=true;
+ $('message').textContent='LOOK.';let count=5;$('timer').textContent=count;
+ timerInterval=setInterval(()=>{count--;$('timer').textContent=count;if(count<=0){clearInterval(timerInterval);displayImage();}},1000);
+}
+function displayImage(){
+ const img=$('horrorImage');img.onload=()=>{
+  $('placeholder').style.display='none';img.style.display='block';$('timer').textContent='...';
+  $('message').textContent='あなたは見てしまった。';nextButton.disabled=false;
+  $('progressBar').style.width=((index+1)/images.length*100)+'%';
+  $('glitch').classList.remove('glitch');void $('glitch').offsetWidth;$('glitch').classList.add('glitch');
+ };
+ img.onerror=()=>{$('placeholder').textContent='IMAGE NOT FOUND';$('message').textContent='この画像を読み込めません。管理者にお知らせください。';$('timer').textContent='!';nextButton.disabled=false;};
+ img.src=images[index].download_url;
+}
+function next(){
+ if(!revealed)return;index++;
+ if(index>=images.length){
+  clearInterval(timerInterval);$('stage').textContent='EXPERIENCE COMPLETED';$('timer').textContent='END';
+  $('placeholder').style.display='block';$('placeholder').textContent='YOU SURVIVED.';
+  $('horrorImage').style.display='none';$('message').textContent='あなたは最後まで見届けました。';
+  $('imageNumber').textContent='';$('progressBar').style.width='100%';revealButton.disabled=true;nextButton.disabled=true;nextButton.textContent='FINISHED';return;
+ }
+ prepare();
+}
+revealButton.addEventListener('click',reveal);nextButton.addEventListener('click',next);init();
+</script>
+</body>
 </html>
