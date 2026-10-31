@@ -182,6 +182,33 @@ body:not(.launcher-mode) #page-launcher .launcher-dock-wrap{display:none!importa
 body{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 @media(prefers-reduced-motion:reduce){#bottomQuickNavV2 *{transition:none!important}}
 </style>
+<style id="memo-iphone-redesign">
+#page-memo .module-page{padding:0;border:0;background:transparent;box-shadow:none}
+#page-memo .module-head{display:none}
+.memo-app{display:grid;grid-template-columns:minmax(250px,330px) minmax(0,1fr);min-height:min(760px,calc(100vh - 190px));background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+.memo-sidebar{background:var(--surface2);border-right:1px solid var(--line);padding:20px 14px;min-width:0}
+.memo-sidebar-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 5px 14px}
+.memo-sidebar-head h3{font-size:1.45rem;margin:2px 0}.memo-sidebar-head p,.memo-kicker{margin:0;color:var(--muted);font-size:.8rem}.memo-kicker{font-weight:750;letter-spacing:.04em}
+.memo-new{width:38px;height:38px;border:0;border-radius:50%;background:var(--primary);color:white;font-size:1.5rem;line-height:1}
+.memo-search{display:flex;align-items:center;gap:8px;background:var(--line);border-radius:10px;padding:9px 11px;margin:0 3px 13px;color:var(--muted)}
+.memo-search input{border:0;outline:0;background:transparent;color:var(--text);width:100%;min-width:0}
+.memo-list{display:grid;gap:5px}.memo-list-row{display:flex;align-items:stretch;gap:4px}
+.memo-item{flex:1;min-width:0;text-align:left;border:0;border-radius:11px;padding:10px 11px;background:transparent;color:var(--text);display:grid;gap:3px}
+.memo-item.selected{background:var(--soft)}.memo-item-title{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.memo-item-meta,.memo-item-preview{font-size:.78rem;color:var(--muted)}.memo-item-preview{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.memo-delete{border:0;background:transparent;color:var(--muted);padding:0 8px;border-radius:9px}.memo-delete:hover{background:var(--redbg);color:var(--red)}
+.memo-empty{text-align:center;color:var(--muted);padding:25px 8px;font-size:.9rem}
+.memo-editor{min-width:0;display:flex;flex-direction:column;padding:16px clamp(16px,4vw,48px) 18px;background:var(--surface)}
+.memo-toolbar{display:flex;align-items:center;gap:12px;min-height:42px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.memo-back{display:none;border:0;background:transparent;color:var(--primary);font-weight:750;padding:6px 0}
+.memo-save-state{font-size:.78rem;color:var(--muted);flex:1;min-width:0}
+.memo-toolbar-actions{display:flex;align-items:center;gap:8px}.memo-tool{border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:9px;padding:7px 10px}
+.memo-save{border:0;border-radius:9px;background:var(--primary);color:white;padding:8px 17px;font-weight:800}
+.memo-title{width:100%;border:0!important;outline:0!important;background:transparent!important;font-size:1.65rem;font-weight:850;padding:25px 0 12px;color:var(--text)}
+.memo-body{width:100%;flex:1;min-height:380px;resize:vertical;border:0!important;outline:0!important;background:transparent!important;padding:8px 0 20px;line-height:1.8;font-size:1rem;color:var(--text)}
+.memo-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);padding-top:11px;color:var(--muted);font-size:.78rem}
+.memo-no-selection{margin:auto;text-align:center;color:var(--muted);padding:40px 15px}.memo-no-selection>div{font-size:3rem}.memo-no-selection strong{display:block;color:var(--text);font-size:1.15rem;margin:10px}.memo-no-selection p{font-size:.9rem}
+@media(max-width:680px){.memo-app{grid-template-columns:1fr;min-height:calc(100dvh - 210px);border-radius:16px}.memo-sidebar{border-right:0;border-bottom:1px solid var(--line);padding:13px}.memo-sidebar-head{padding:3px 4px 10px}.memo-sidebar-head h3{font-size:1.25rem}.memo-list{max-height:230px;overflow:auto}.memo-editor{padding:10px 16px 14px;min-height:440px}.memo-back{display:inline-block}.memo-title{padding-top:18px}.memo-body{min-height:260px}.memo-save-state{font-size:.7rem}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -190,7 +217,7 @@ body{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
   <div class="top-actions"><button class="btn iconbtn" id="themeBtn" aria-label="テーマ切り替え" title="ライト・ダーク切り替え">🌙</button><span class="header-coins" id="headerCoins" aria-live="polite" title="現在のコイン残高">🪙 0</span><button class="btn primary" id="addBtn">＋ <span class="longlabel">宿題を追加</span><span class="shortlabel">追加</span></button></div>
 </header>
 <nav class="nav" aria-label="メインメニュー">
-<button class="active" data-page="home">🏠 ホーム</button><button data-page="calendar">🗓️ カレンダー</button><button data-page="plan">🎯 今日の計画</button><button data-page="all">📋 すべての宿題</button><button data-page="rankings">🏆 宿題ランキング</button><button data-page="playlists">🎵 プレイリスト作成</button><button data-page="growth">🪙 コインルーム</button><button data-page="profile">👤 プレイヤープロフィール</button><button data-page="settings">⚙️ 設定・バックアップ</button>
+<button class="active" data-page="home">🏠 ホーム</button><button data-page="calendar">🗓️ カレンダー</button><button data-page="plan">🎯 今日の計画</button><button data-page="all">📋 すべての宿題</button><button data-page="rankings">🏆 宿題ランキング</button><button data-page="playlists">🎵 プレイリスト作成</button><button data-page="growth">🪙 コインルーム</button><button data-page="profile">👤 プレイヤープロフィール</button><button data-page="settings">⚙️ 設定・バックアップ</button><button data-page="memo">📝 メモ</button>
 </nav>
 
 <main>
@@ -539,7 +566,7 @@ style.textContent=[
 document.head.appendChild(style);
 const nav=document.querySelector('nav.nav');
 if(nav){
- const order=['home','plan','calendar','all','rankings','profile','growth','playlists','settings'];
+ const order=['home','plan','calendar','all','rankings','profile','growth','playlists','settings','memo'];
  const buttons={};Array.from(nav.querySelectorAll('[data-page]')).forEach(function(b){buttons[b.dataset.page]=b});
  order.forEach(function(k){if(buttons[k])nav.appendChild(buttons[k])});
  if(buttons.growth)buttons.growth.textContent='🪙 コインルーム';
@@ -857,10 +884,13 @@ function goApp(id){
 function renderMemo(){
  const page=$('page-memo');if(!page)return;const root=$('memoRoot');if(!root)return;
  const selected=memos.find(m=>m.id===currentMemoId)||null;
- root.innerHTML='<div class="module-grid"><div class="module-card"><div class="module-head"><h3>📚 保存したメモ</h3><button class="module-btn primary" id="memoNew">＋ 新しいメモ</button></div><div id="memoList">'+(memos.length?memos.slice().sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||'')).map(m=>'<div class="module-row" style="padding:8px 0;border-bottom:1px solid var(--line)"><button class="module-btn" style="flex:1;text-align:left;min-width:0;overflow:hidden;text-overflow:ellipsis" data-memo-open="'+esc(m.id)+'">'+(m.id===currentMemoId?'📌 ':'')+esc(m.title||'無題のメモ')+'</button><button class="module-btn danger" data-memo-delete="'+esc(m.id)+'" aria-label="メモを削除">🗑️</button></div>').join(''):'<p class="module-muted">メモはまだありません。「新しいメモ」から作成できます。</p>')+'</div></div><div class="module-card"><h3>✍️ メモを書く</h3>'+(selected?'<label class="module-field">タイトル<input id="memoTitle" maxlength="100" value="'+esc(selected.title||'')+'" placeholder="メモのタイトル"></label><label class="module-field">本文<textarea id="memoBody" rows="14" maxlength="20000" placeholder="自由にメモを書こう">'+esc(selected.body||'')+'</textarea></label><p class="module-muted" id="memoSavedAt">入力内容は自動保存されます。</p>':'<p class="module-muted">メモを選ぶか、新しいメモを作成してください。</p>')+'</div></div>';
+ const sorted=memos.slice().sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||(b.updatedAt||'').localeCompare(a.updatedAt||''));
+ const query=String($('memoSearch')?.value||'').trim().toLowerCase();
+ const visible=sorted.filter(m=>(String(m.title||'')+' '+String(m.body||'')).toLowerCase().includes(query));
+ root.innerHTML='<div class="memo-app"><aside class="memo-sidebar"><div class="memo-sidebar-head"><div><div class="memo-kicker">iCloudメモ風</div><h3>すべてのメモ</h3><p>'+memos.length+'件のメモ</p></div><button class="memo-new" id="memoNew" aria-label="新しいメモ">＋</button></div><label class="memo-search">🔎 <input id="memoSearch" type="search" value="'+esc(query)+'" placeholder="検索" aria-label="メモを検索"></label><div class="memo-list" id="memoList">'+(visible.length?visible.map(m=>'<div class="memo-list-row"><button class="memo-item '+(m.id===currentMemoId?'selected':'')+'" data-memo-open="'+esc(m.id)+'"><span class="memo-item-title">'+(m.pinned?'📌 ':'')+esc(m.title||'無題のメモ')+'</span><span class="memo-item-meta">'+esc(new Date(m.updatedAt||m.createdAt||Date.now()).toLocaleDateString('ja-JP',{month:'short',day:'numeric'}))+'</span><span class="memo-item-preview">'+esc((m.body||'').replace(/\s+/g,' ').slice(0,75)||'本文なし')+'</span></button><button class="memo-delete" data-memo-delete="'+esc(m.id)+'" aria-label="メモを削除">🗑</button></div>').join(''):'<div class="memo-empty">'+(query?'検索結果がありません':'メモはまだありません')+'</div>')+'</div></aside><section class="memo-editor">'+(selected?'<div class="memo-toolbar"><button class="memo-back" id="memoBack">‹ メモ</button><span class="memo-save-state" id="memoSavedAt">未保存の変更は自動保存されます</span><div class="memo-toolbar-actions"><button class="memo-tool" id="memoPin" title="ピン留め">'+(selected.pinned?'📌':'📍')+'</button><button class="memo-save" id="memoSave">保存</button></div></div><input class="memo-title" id="memoTitle" maxlength="100" value="'+esc(selected.title||'')+'" placeholder="タイトル" aria-label="メモのタイトル"><textarea class="memo-body" id="memoBody" rows="18" maxlength="20000" placeholder="メモを入力…">'+esc(selected.body||'')+'</textarea><div class="memo-footer"><button class="memo-tool" id="memoChecklist">☑ チェックリスト項目</button><span id="memoCount">'+String((selected.body||'').length)+'文字</span></div>':'<div class="memo-no-selection"><div>📝</div><strong>メモを選択</strong><p>既存のメモを開くか、新しいメモを作成してください。</p><button class="memo-save" id="memoNewEmpty">＋ 新しいメモ</button></div>')+'</section></div>';
 }
-function saveCurrentMemo(){const memo=memos.find(m=>m.id===currentMemoId);if(!memo)return;const title=$('memoTitle'),body=$('memoBody');if(title)memo.title=title.value;if(body)memo.body=body.value;memo.updatedAt=new Date().toISOString();save(MEMO_KEY,memos);const status=$('memoSavedAt');if(status)status.textContent='💾 保存済み · '+new Date(memo.updatedAt).toLocaleString('ja-JP')}
-function createMemo(){const memo={id:uid(),title:'',body:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};memos.unshift(memo);currentMemoId=memo.id;save(MEMO_KEY,memos);renderMemo();if($('memoTitle'))$('memoTitle').focus()}
+function saveCurrentMemo(){const memo=memos.find(m=>m.id===currentMemoId);if(!memo)return false;const title=$('memoTitle'),body=$('memoBody');if(title)memo.title=title.value;if(body)memo.body=body.value;memo.updatedAt=new Date().toISOString();const ok=save(MEMO_KEY,memos);const status=$('memoSavedAt');if(status)status.textContent=ok?'✓ 保存済み · '+new Date(memo.updatedAt).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'保存できませんでした';return ok}
+function createMemo(){const memo={id:uid(),title:'',body:'',pinned:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};memos.unshift(memo);currentMemoId=memo.id;save(MEMO_KEY,memos);renderMemo();if($('memoTitle'))$('memoTitle').focus()}
 function renderExams(){
  const root=$('examsRoot');if(!root)return;
  const ex=getExam(currentExamId);
@@ -952,7 +982,11 @@ function addReportAccess(){
 function attachEvents(){
  document.addEventListener('click',function(ev){
   const app=ev.target.closest('[data-launch-app]');if(app){goApp(app.dataset.launchApp);return}
-   if(ev.target.closest('#memoNew')){createMemo();return}
+   if(ev.target.closest('#memoNew')||ev.target.closest('#memoNewEmpty')){createMemo();return}
+   if(ev.target.closest('#memoSave')){if(saveCurrentMemo())toast2('メモを保存しました');return}
+   if(ev.target.closest('#memoPin')){const memo=memos.find(m=>m.id===currentMemoId);if(memo){memo.pinned=!memo.pinned;saveCurrentMemo();renderMemo()}return}
+   if(ev.target.closest('#memoBack')){saveCurrentMemo();$('memoSearch')?.focus();return}
+   if(ev.target.closest('#memoChecklist')){const body=$('memoBody');if(body){const start=body.selectionStart,end=body.selectionEnd;const line='☐ ';body.setRangeText(line,start,end,'end');body.dispatchEvent(new Event('input',{bubbles:true}));body.focus()}return}
    const memoOpen=ev.target.closest('[data-memo-open]');if(memoOpen){if(currentMemoId!==memoOpen.dataset.memoOpen)saveCurrentMemo();currentMemoId=memoOpen.dataset.memoOpen;renderMemo();return}
    const memoDelete=ev.target.closest('[data-memo-delete]');if(memoDelete){const target=memos.find(m=>m.id===memoDelete.dataset.memoDelete);if(target&&confirm('「'+(target.title||'無題のメモ')+'」を削除しますか？')){memos=memos.filter(m=>m.id!==target.id);if(currentMemoId===target.id)currentMemoId=memos[0]?.id||'';save(MEMO_KEY,memos);renderMemo()}return}
   const fav=ev.target.closest('[data-fav-app]');if(fav){const id=fav.dataset.favApp;launcher.favorites=launcher.favorites.includes(id)?launcher.favorites.filter(x=>x!==id):launcher.favorites.concat(id);save(APP_HOME_KEY,launcher);renderLauncher();return}
@@ -984,7 +1018,7 @@ function attachEvents(){
   if(ev.target.id==='qbAnswerForm'){ev.preventDefault();answerQuestion($('qbAnswerText').value);return}
   if(ev.target.id==='qbAddForm'){ev.preventDefault();const type=$('qbNewType').value,raw=$('qbNewAnswer').value.trim();let answer=raw,choices=[];if(type==='choice'){choices=$('qbNewChoices').value.split('\\n').map(x=>x.trim()).filter(Boolean);const n=Number(raw);if(choices.length!==4||!Number.isInteger(n)||n<1||n>4){toast2('4つの選択肢と、正答番号1〜4を入力してください');return}answer=n-1}const editId=$('qbEditId').value;const q={id:editId||'custom-'+uid(),subject:$('qbNewSubject').value,unit:$('qbNewUnit').value.trim(),grade:1,difficulty:'自作',type,q:$('qbNewQuestion').value.trim(),answer,choices,explain:$('qbNewExplain').value.trim()};if(editId){const idx=qb.custom.findIndex(x=>x.id===editId);if(idx>=0)qb.custom[idx]=q;else qb.custom.push(q)}else qb.custom.push(q);$('qbEditId').value='';save(QB_KEY,qb);practice.subject=q.subject;practice.unit='すべて';practice.questionId=q.id;practice.answered=false;renderQuestionBank();toast2(editId?'自作問題を更新しました':'問題を追加しました');return}
  });
- document.addEventListener('input',function(ev){if(ev.target.id==='memoTitle'||ev.target.id==='memoBody'){saveCurrentMemo();return}});
+ document.addEventListener('input',function(ev){if(ev.target.id==='memoTitle'||ev.target.id==='memoBody'){saveCurrentMemo();const count=$('memoCount');if(count&&$('memoBody'))count.textContent=$('memoBody').value.length+'文字';return}if(ev.target.id==='memoSearch'){const pos=ev.target.selectionStart;renderMemo();const search=$('memoSearch');if(search){search.focus();search.setSelectionRange(pos,pos)}return}});
  document.addEventListener('change',function(ev){
   if(ev.target.id==='qbSubject'){practice.subject=ev.target.value;practice.unit='すべて';practice.questionId='';renderQuestionBank();return}
   if(ev.target.id==='qbUnit'){practice.unit=ev.target.value;practice.questionId='';renderQuestionBank();return}
