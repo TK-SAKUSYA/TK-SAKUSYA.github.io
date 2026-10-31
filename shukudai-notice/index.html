@@ -802,7 +802,7 @@ function dayDiff(a,b){return Math.round((new Date(b+'T12:00:00')-new Date(a+'T12
 function getExam(id){return exams.find(x=>x.id===id)}
 function initData(){
  const l=load(APP_HOME_KEY,null);if(l&&typeof l==='object'){launcher.favorites=Array.isArray(l.favorites)?l.favorites:[];launcher.order=Array.isArray(l.order)?l.order:appDefs.map(x=>x.id);launcher.dock=Array.isArray(l.dock)?l.dock:[]}
- launcher.order=appDefs.map(x=>x.id).filter(id=>launcher.order.includes(id)).concat(appDefs.map(x=>x.id).filter(id=>!launcher.order.includes(id)));
+ const validAppIds=new Set(appDefs.map(x=>x.id));const savedOrder=Array.isArray(launcher.order)?launcher.order:[];launcher.order=savedOrder.filter((id,i)=>validAppIds.has(id)&&savedOrder.indexOf(id)===i).concat(appDefs.map(x=>x.id).filter(id=>!savedOrder.includes(id)));
  launcher.favorites=launcher.favorites.filter(id=>appDefs.some(x=>x.id===id));
  launcher.dock=launcher.dock.filter((id,i,arr)=>appDefs.some(x=>x.id===id)&&arr.indexOf(id)===i).slice(0,4);
  if(!launcher.dock.length)launcher.dock=['home','plan','calendar','all'];
