@@ -1096,7 +1096,7 @@ function start(){
 
  // Rename the legacy app label to メイン without changing its page or stored data.
  const homeBtn=document.querySelector('.nav button[data-page="home"]');if(homeBtn)homeBtn.textContent='🏠 メイン';
- const nav=document.querySelector('.nav');if(nav){const order=['home','plan','calendar','all','rankings','profile','growth','playlists','settings'];const map={};nav.querySelectorAll('button[data-page]').forEach(b=>map[b.dataset.page]=b);order.forEach(id=>{if(map[id])nav.appendChild(map[id])});if(map.growth)map.growth.textContent='🪙 コインルーム'}
+ const nav=document.querySelector('.nav');if(nav){const order=['home','plan','calendar','all','rankings','profile','growth','playlists','memo','settings'];const map={};nav.querySelectorAll('button[data-page]').forEach(b=>map[b.dataset.page]=b);order.forEach(id=>{if(map[id])nav.appendChild(map[id])});if(map.growth)map.growth.textContent='🪙 コインルーム'}
  // Add shortcuts into the existing navigation, but keep the launcher as the distinct startup screen.
  if(nav&&!nav.querySelector('[data-page="launcher"]')){const b=document.createElement('button');b.dataset.page='launcher';b.textContent='📱 ホーム画面';b.addEventListener('click',()=>activatePage('launcher'));nav.insertBefore(b,nav.firstChild)}
  // Add small home-return controls to the two new app pages.
