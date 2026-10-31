@@ -794,7 +794,8 @@ const appDefs=[
  {id:'growth',icon:'🪙',name:'コインルーム',desc:'コイン・ロボット'},
  {id:'playlists',icon:'🎵',name:'プレイリスト作成',desc:'学習コース'},
  {id:'memo',icon:'📝',name:'メモ帳',desc:'自由にメモを保存'},
- {id:'settings',icon:'⚙️',name:'設定',desc:'表示・バックアップ'}
+ {id:'settings',icon:'⚙️',name:'設定',desc:'表示・バックアップ'},
+ {id:'appstore',icon:'🛍️',name:'アプリストア',desc:'アプリを探してインストール'}
  ];
 const seedQuestions=[
 {id:'ja1',subject:'国語',unit:'漢字',grade:1,difficulty:'基礎',type:'choice',q:'「努力」の読み方として正しいものはどれ？',choices:['どりょく','とうりょく','どりき','とりょく'],answer:0,explain:'「努力」は「どりょく」と読みます。'},
@@ -890,6 +891,7 @@ function activatePage(name){
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function goApp(id){
+ if(id==='appstore'){activatePage('appstore');if(window.renderAppStore)window.renderAppStore();return}
  if(id==='memo'){activatePage('memo');renderMemo();return}
  if(id==='report'){activatePage('exams');renderReportInline();setTimeout(()=>{const target=$('examReportInline');if(target)target.scrollIntoView({behavior:'smooth',block:'start'})},0);return}
  if(id==='exams'||id==='questionbank'){activatePage(id);return}
@@ -1075,7 +1077,7 @@ function extendBackup(){
  }
 }
 function start(){
- initData();ensureLauncher();createPage('exams','📝 定期考査');createPage('questionbank','📚 教科別問題集');createPage('memo','📝 メモ帳');
+ initData();ensureLauncher();createPage('appstore','🛍️ アプリストア');createPage('exams','📝 定期考査');createPage('questionbank','📚 教科別問題集');createPage('memo','📝 メモ帳');
   // Rebuilt bottom navigation (v2): remove the old bar and create a fresh one.
   const previousBottomNav=$('quickBottomNav');
   if(previousBottomNav)previousBottomNav.remove();
@@ -1110,11 +1112,166 @@ function start(){
  addReportAccess();attachEvents();extendBackup();renderLauncher();renderExams();renderQuestionBank();renderMemo();renderReportInline();renderExamPlanning();
  // New-page support in the existing app's navigation dispatcher.
  const oldOpen=window.openPage;
- window.openPage=function(name){if(name==='launcher'||name==='exams'||name==='questionbank'||name==='memo'){activatePage(name);return}document.body.classList.remove('launcher-mode');if(typeof oldOpen==='function')oldOpen(name);document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));if(name==='home'){const t=$('page-home')?.querySelector('.welcome h2');if(t&&t.textContent==='今日の宿題を確認しよう！')t.textContent='メイン：今日の宿題を確認しよう！'}};
+ window.openPage=function(name){if(name==='launcher'||name==='exams'||name==='questionbank'||name==='memo'||name==='appstore'){activatePage(name);if(name==='appstore'&&window.renderAppStore)window.renderAppStore();return}document.body.classList.remove('launcher-mode');if(typeof oldOpen==='function')oldOpen(name);document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));if(name==='home'){const t=$('page-home')?.querySelector('.welcome h2');if(t&&t.textContent==='今日の宿題を確認しよう！')t.textContent='メイン：今日の宿題を確認しよう！'}};
  // Home launch controls always route through this dispatcher.
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
+
+<style id="appstore-style">
+#page-appstore{--store-bg:var(--bg);--store-card:var(--surface);color:var(--text)}
+#page-appstore .store-shell{max-width:1050px;margin:auto;padding:4px 0 86px}
+#page-appstore .store-top{position:sticky;top:0;z-index:8;background:var(--bg);padding:10px 0 8px}
+#page-appstore .store-search{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:28px;background:var(--surface2);padding:0 15px;min-height:54px}
+#page-appstore .store-search input{width:100%;border:0;outline:0;background:transparent;color:var(--text);min-width:0;font-size:1rem}
+#page-appstore .store-tabs,#page-appstore .store-chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0;scrollbar-width:thin}
+#page-appstore .store-tab,#page-appstore .store-chip{flex:0 0 auto;border:0;background:transparent;color:var(--muted);padding:9px 13px;border-radius:24px;font-weight:750}
+#page-appstore .store-tab.active{background:var(--soft);color:var(--primary)}
+#page-appstore .store-chip{border:1px solid var(--line);background:var(--surface)}
+#page-appstore .store-chip.active{background:var(--soft);color:var(--primary);border-color:var(--primary)}
+#page-appstore .store-section{margin:22px 0}
+#page-appstore .store-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+#page-appstore .store-section-head h3{margin:0;font-size:1.2rem}
+#page-appstore .store-hscroll{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(225px,34%);gap:12px;overflow-x:auto;padding:2px 2px 12px;scroll-snap-type:x proximity}
+#page-appstore .store-feature{border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:15px;min-width:0;scroll-snap-align:start;cursor:pointer}
+#page-appstore .store-feature-art{height:105px;border-radius:15px;background:linear-gradient(135deg,var(--soft),var(--surface2));display:flex;align-items:center;justify-content:center;font-size:3.2rem;margin-bottom:12px}
+#page-appstore .store-app-row{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);min-width:0}
+#page-appstore .store-icon{width:56px;height:56px;border-radius:17px;display:grid;place-items:center;font-size:1.8rem;border:1px solid #0000000d;box-shadow:0 2px 5px #0000000b;flex:0 0 auto}
+#page-appstore .store-app-title{font-weight:800;overflow-wrap:anywhere}
+#page-appstore .store-meta{font-size:.82rem;color:var(--muted);overflow-wrap:anywhere}
+#page-appstore .store-action{border:0;border-radius:22px;padding:9px 15px;min-height:39px;background:var(--soft);color:var(--primary);font-weight:800;white-space:nowrap}
+#page-appstore .store-action.primary{background:var(--primary);color:white}
+#page-appstore .store-action.danger{background:var(--redbg);color:var(--red)}
+#page-appstore .store-detail-hero{display:flex;align-items:center;gap:16px;margin:14px 0}
+#page-appstore .store-detail-hero .store-icon{width:88px;height:88px;border-radius:25px;font-size:3rem}
+#page-appstore .store-preview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}
+#page-appstore .store-preview{min-height:105px;border-radius:15px;background:linear-gradient(145deg,var(--soft),var(--surface2));border:1px solid var(--line);display:grid;place-items:center;text-align:center;padding:8px;font-size:1.8rem}
+#page-appstore .store-preview small{display:block;font-size:.72rem;color:var(--muted)}
+#page-appstore .store-bottom{position:fixed;z-index:30;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,760px);display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;box-shadow:0 -4px 22px #0000000c}
+#page-appstore .store-bottom button{border:0;background:transparent;color:var(--muted);border-radius:14px;padding:7px 3px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.75rem;font-weight:750}
+#page-appstore .store-bottom button.active{background:var(--soft);color:var(--primary)}
+#page-appstore .store-bottom .store-nav-icon{font-size:1.25rem}
+#page-appstore .store-mini{border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:16px;margin-top:12px}
+#page-appstore .store-mini input,#page-appstore .store-mini textarea,#page-appstore .store-mini select{max-width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--surface);color:var(--text)}
+#page-appstore .store-mini textarea{width:100%;min-height:110px}
+#page-appstore .store-mini button{margin:4px}
+#page-appstore .store-mini .store-calc{width:100%;font-size:1.8rem;text-align:right;margin-bottom:10px}
+#page-appstore .store-keypad{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+#page-appstore .store-keypad button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--surface2);color:var(--text);font-weight:800}
+#page-appstore .store-paint{width:100%;height:300px;border:1px solid var(--line);border-radius:12px;touch-action:none;background:white}
+#page-appstore .store-animal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:9px}
+#page-appstore .store-animal{border:1px solid var(--line);border-radius:13px;padding:12px;background:var(--surface2);cursor:pointer;text-align:left;color:var(--text)}
+#page-appstore .store-empty{text-align:center;padding:34px 16px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);background:var(--surface2)}
+#page-appstore .store-note{font-size:.8rem;color:var(--muted)}
+@media(min-width:760px){#page-appstore .store-bottom{position:static;transform:none;width:100%;margin:20px auto 0;border:1px solid var(--line);border-radius:18px;box-shadow:none}#page-appstore .store-shell{padding-bottom:24px}#page-appstore .store-top{position:static}#page-appstore .store-hscroll{grid-auto-columns:minmax(230px,28%)}}
+@media(max-width:520px){#page-appstore .store-hscroll{grid-auto-columns:minmax(205px,76%)}#page-appstore .store-app-row{grid-template-columns:48px minmax(0,1fr) auto;gap:9px}#page-appstore .store-icon{width:48px;height:48px;border-radius:15px;font-size:1.55rem}#page-appstore .store-action{padding:8px 12px}#page-appstore .store-detail-hero .store-icon{width:75px;height:75px}#page-appstore .store-preview-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+<script id="appstore-script">
+(function(){
+'use strict';
+const KEY='homework-notice-appstore-v1';
+const APPS=[
+{id:'calcplus',name:'電卓プラス',icon:'🧮',genre:'ツール',category:'ツール',color:'#dce8ff',rating:'4.7',size:'2.4 MB',desc:'日常の計算をすばやく。四則演算に対応したシンプルな電卓です。',feature:'四則演算・計算履歴',shots:['➕','➖','✖️']},
+{id:'minigames',name:'ミニゲームパーク',icon:'🎮',genre:'ゲーム',category:'ゲーム',color:'#ffe1d6',rating:'4.5',size:'8.1 MB',desc:'数字当てと反射神経チャレンジで遊べる、ちいさなゲームコレクション。',feature:'数字当て・反応チャレンジ',shots:['🎯','⚡','🏆']},
+{id:'musicbox',name:'ミュージックボックス',icon:'🎵',genre:'音楽',category:'音楽',color:'#f2dfff',rating:'4.4',size:'3.6 MB',desc:'端末内の音声ファイルを選んで再生したり、曲のリストを管理したりできます。',feature:'音声ファイル再生・プレイリスト',shots:['🎧','🎼','🎶']},
+{id:'notepad',name:'メモ帳',icon:'📝',genre:'仕事効率化',category:'仕事効率化',color:'#fff0b8',rating:'4.6',size:'2.1 MB',desc:'思いついたことをすぐに記録。複数のメモをブラウザ内に保存できます。',feature:'メモ作成・自動保存',shots:['✍️','📌','💾']},
+{id:'animals',name:'どうぶつ図鑑',icon:'🐾',genre:'教育',category:'教育',color:'#d8f3df',rating:'4.8',size:'5.2 MB',desc:'身近な動物から野生動物まで、特徴や生息地を調べられる図鑑です。',feature:'動物情報・キーワード検索',shots:['🦊','🐬','🦉']},
+{id:'drawing',name:'お絵描きスタジオ',icon:'🎨',genre:'アート・デザイン',category:'アート・デザイン',color:'#ffe0e8',rating:'4.5',size:'4.9 MB',desc:'指やマウスで自由に描いて、作品をPNG画像として保存できます。',feature:'キャンバス・色と太さ・PNG保存',shots:['🖌️','🌈','🖼️']},
+{id:'calendarplus',name:'カレンダー＋',icon:'📅',genre:'仕事効率化',category:'仕事効率化',color:'#dcecff',rating:'4.3',size:'3.0 MB',desc:'予定と日付を登録し、保存した予定を一覧で確認できます。',feature:'予定の追加・削除',shots:['🗓️','📍','⏰']},
+{id:'brain',name:'脳トレチャレンジ',icon:'🧠',genre:'パズル',category:'ゲーム',color:'#f0e2ff',rating:'4.6',size:'6.4 MB',desc:'計算やひらめき問題に挑戦。回答すると正誤と解説を確認できます。',feature:'クイズ・正解数の記録',shots:['❓','💡','🏅']},
+{id:'photos',name:'フォトアルバム',icon:'📸',genre:'写真',category:'写真',color:'#ffe5cf',rating:'4.2',size:'3.8 MB',desc:'画像を選んでブラウザ内のアルバムに追加。プレビューや削除ができます。',feature:'画像の読み込み・アルバム管理',shots:['🌄','🖼️','🌇']},
+{id:'space',name:'宇宙探検',icon:'🌌',genre:'教育・娯楽',category:'教育',color:'#dce3ff',rating:'4.7',size:'5.7 MB',desc:'太陽系の惑星や宇宙の基本情報を読んで、ミニクイズにも挑戦できます。',feature:'惑星図鑑・宇宙クイズ',shots:['🪐','🌍','🚀']}
+];
+const CATEGORIES=['すべて','ゲーム','教育','ツール','仕事効率化','音楽','写真','アート・デザイン','エンターテインメント'];
+let state={installed:[],favorites:[],theme:'system',screen:'home',category:'すべて',query:'',selected:null,gameTab:'apps'};
+let storeData={};
+const $=(id)=>document.getElementById(id);
+const esc=(s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const getApp=id=>APPS.find(a=>a.id===id);
+function loadState(){try{const raw=localStorage.getItem(KEY);if(raw===null)return;const x=JSON.parse(raw);if(x&&typeof x==='object'&&!Array.isArray(x)){if(Array.isArray(x.installed))state.installed=x.installed.filter(id=>getApp(id));if(Array.isArray(x.favorites))state.favorites=x.favorites.filter(id=>getApp(id));if(['system','light','dark'].includes(x.theme))state.theme=x.theme;if(x.data&&typeof x.data==='object'&&!Array.isArray(x.data))storeData=x.data}}catch(e){console.warn('App store data was preserved; could not be read.',e)}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify({version:1,installed:state.installed,favorites:state.favorites,theme:state.theme,data:storeData}));return true}catch(e){alert('アプリストアの保存に失敗しました。ブラウザの空き容量を確認してください。');return false}}
+function escHtml(s){return esc(s)}
+function root(){return $('appstoreRoot')}
+function appIcon(a){return '<span class="store-icon" style="background:'+a.color+'" aria-hidden="true">'+a.icon+'</span>'}
+function installed(a){return state.installed.includes(a.id)}
+function buttonFor(a){return '<button class="store-action '+(installed(a)?'':'primary')+'" data-store-action="'+a.id+'">'+(installed(a)?'開く':'インストール')+'</button>'}
+function appRow(a){return '<div class="store-app-row"><button data-store-detail="'+a.id+'" style="border:0;background:transparent;padding:0" aria-label="'+esc(a.name)+'の詳細">'+appIcon(a)+'</button><div style="min-width:0"><button class="store-app-title" data-store-detail="'+a.id+'" style="border:0;background:transparent;color:var(--text);padding:0;text-align:left">'+esc(a.name)+'</button><div class="store-meta">'+esc(a.genre)+' ・ ★ '+a.rating+' <span class="store-note">（デモ評価）</span></div><div class="store-meta">'+esc(a.feature)+'</div></div>'+buttonFor(a)+'</div>'}
+function featureCard(a){return '<article class="store-feature" data-store-detail="'+a.id+'"><div class="store-feature-art" style="background:linear-gradient(135deg,'+a.color+',var(--surface2))">'+a.icon+'</div><div class="store-app-title">'+esc(a.name)+'</div><div class="store-meta">'+esc(a.genre)+' ・ ★ '+a.rating+'（デモ）</div><p class="store-meta">'+esc(a.desc)+'</p><div>'+buttonFor(a)+'</div></article>'}
+function section(title,apps,mode){if(!apps.length)return '';return '<section class="store-section"><div class="store-section-head"><h3>'+title+'</h3><button class="btn small" data-store-view="'+mode+'">すべて見る →</button></div><div class="store-hscroll">'+apps.map(featureCard).join('')+'</div></section>'}
+function header(){return '<div class="store-top"><div class="store-search"><span>🔍</span><input id="storeSearch" type="search" placeholder="アプリやゲームを検索" value="'+esc(state.query)+'" aria-label="アプリ検索"><button class="btn small" data-store-profile aria-label="設定">⚙️</button></div><div class="store-tabs"><button class="store-tab '+(state.gameTab==='games'?'active':'')+'" data-store-tab="games">🎮 ゲーム</button><button class="store-tab '+(state.gameTab==='apps'?'active':'')+'" data-store-tab="apps">📱 アプリ</button></div></div>'}
+function bottom(){return '<nav class="store-bottom" aria-label="アプリストアのナビゲーション"><button class="'+(state.screen==='home'?'active':'')+'" data-store-screen="home"><span class="store-nav-icon">⌂</span>ホーム</button><button class="'+(state.screen==='games'?'active':'')+'" data-store-screen="games"><span class="store-nav-icon">🎮</span>ゲーム</button><button class="'+(state.screen==='apps'?'active':'')+'" data-store-screen="apps"><span class="store-nav-icon">▦</span>アプリ</button><button class="'+(state.screen==='search'?'active':'')+'" data-store-screen="search"><span class="store-nav-icon">⌕</span>検索</button></nav>'}
+function homeScreen(){const game=state.gameTab==='games';const filtered=APPS.filter(a=>game?a.category==='ゲーム':a.category!=='ゲーム');return '<div class="store-chips">'+CATEGORIES.map(c=>'<button class="store-chip '+(state.category===c?'active':'')+'" data-store-category="'+esc(c)+'">'+esc(c)+'</button>').join('')+'</div>'+section('✨ おすすめ',filtered.slice(0,5),'recommended')+section('🔥 人気のアプリ',APPS.filter(a=>a.id==='animals'||a.id==='calcplus'||a.id==='notepad'||a.id==='brain'),'popular')+section('🆕 新着アプリ',APPS.slice(5,10),'new')+section('🎯 あなたにおすすめ',APPS.filter(a=>state.favorites.includes(a.id)||a.id==='space'||a.id==='minigames'),'recommended')+'<section class="store-section"><div class="store-section-head"><h3>📚 カテゴリから探す</h3></div><div class="store-chips">'+CATEGORIES.filter(c=>c!=='すべて').map(c=>'<button class="store-chip" data-store-category="'+esc(c)+'">'+esc(c)+'　›</button>').join('')+'</div></section>'}
+function listScreen(ids,title){const apps=APPS.filter(a=>ids.includes(a.id));return '<section class="store-section"><div class="store-section-head"><h3>'+title+'</h3><span class="store-meta">'+apps.length+'個</span></div>'+(apps.length?apps.map(appRow).join(''):'<div class="store-empty">このカテゴリにはまだアプリがありません。</div>')+'</section>'}
+function categoryScreen(){const apps=state.category==='すべて'?APPS:APPS.filter(a=>a.category===state.category||a.genre===state.category);return '<div class="store-chips">'+CATEGORIES.map(c=>'<button class="store-chip '+(state.category===c?'active':'')+'" data-store-category="'+esc(c)+'">'+esc(c)+'</button>').join('')+'</div>'+listScreen(apps.map(a=>a.id),'📚 '+state.category)}
+function searchScreen(){const q=state.query.trim().toLocaleLowerCase('ja');const apps=APPS.filter(a=>[a.name,a.genre,a.category,a.desc,a.feature].some(v=>v.toLocaleLowerCase('ja').includes(q)));return '<section class="store-section"><div class="store-section-head"><h3>🔍 '+(q?'検索結果':'アプリを検索')+'</h3><span class="store-meta">'+(q?apps.length+'件':'10個のアプリ')+'</span></div>'+(q?(apps.length?apps.map(appRow).join(''):'<div class="store-empty"><div style="font-size:2rem">🔎</div><strong>アプリが見つかりません</strong><p>別のキーワードを試してください。</p></div>'):listScreen(APPS.map(a=>a.id),'おすすめ検索'))+'</section>'}
+function installedScreen(){const apps=APPS.filter(installed);return listScreen(apps.map(a=>a.id),'📲 インストール済み')+'<p class="store-note">インストールはこのHTMLアプリ内で管理されます。Android OSにアプリ本体を追加するものではありません。</p>'}
+function detailScreen(){const a=getApp(state.selected);if(!a){state.screen='home';return homeScreen()}return '<button class="btn" data-store-back>← 戻る</button><div class="store-detail-hero">'+appIcon(a)+'<div style="min-width:0"><h2 style="margin:0">'+esc(a.name)+'</h2><div class="store-meta">'+esc(a.genre)+'</div><div class="store-meta">★ '+a.rating+' <span class="store-note">デモ評価</span> ・ '+a.size+'</div></div></div><p>'+esc(a.desc)+'</p><div class="store-meta">おすすめ順の掲載です。評価は実測値ではありません。</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin:15px 0">'+buttonFor(a)+'<button class="store-action '+(state.favorites.includes(a.id)?'':'')+'" data-store-favorite="'+a.id+'">'+(state.favorites.includes(a.id)?'★ お気に入り済み':'☆ お気に入り')+'</button>'+(installed(a)?'<button class="store-action danger" data-store-uninstall="'+a.id+'">アンインストール</button>':'')+'</div><div class="store-preview-grid">'+a.shots.map((s,i)=>'<div class="store-preview">'+s+'<small>'+['画面プレビュー','機能紹介','使いやすい操作'][i]+'</small></div>').join('')+'</div><h3>このアプリについて</h3><p>'+esc(a.feature)+'を利用できます。入力内容や作成したデータは、このブラウザ内に保存されます。</p><h3>関連アプリ</h3>'+APPS.filter(x=>x.id!==a.id&&x.category===a.category).slice(0,3).map(appRow).join('')+'<h3>更新情報</h3><p class="store-meta">バージョン 1.0 ・ 初回リリース</p>'}
+function settingsScreen(){return '<section class="store-section"><h2>⚙️ アプリストアの設定</h2><div class="store-mini"><strong>表示モード</strong><p><select id="storeTheme"><option value="system">端末・アプリの設定に合わせる</option><option value="light">ライトモード</option><option value="dark">ダークモード</option></select></p><p class="store-note">「端末・アプリの設定に合わせる」では、宿題のお知らせの現在のテーマを尊重します。</p><button class="btn" data-store-screen="installed">📲 インストール済みアプリ</button><button class="btn" data-store-screen="favorites">⭐ お気に入り</button><button class="btn" data-store-screen="home">ストアに戻る</button></div></section>'}
+function miniScreen(){const a=getApp(state.selected);if(!a||!installed(a)){state.screen='detail';return detailScreen()}const d=storeData[a.id]||{};let body='';
+if(a.id==='calcplus'){body='<input id="calcDisplay" class="store-calc" value="'+esc(d.calc||'0')+'" readonly aria-label="計算結果"><div class="store-keypad">'+['7','8','9','÷','4','5','6','×','1','2','3','−','C','0','.','+','=','⌫'].map(k=>'<button data-calc-key="'+k+'">'+k+'</button>').join('')+'</div><p class="store-note">計算式を評価します。対応演算は + − × ÷ と括弧です。</p>'}
+else if(a.id==='minigames'){body='<div class="store-mini"><h3>🎯 数字当て</h3><p>1〜20の数字を予想してみよう！</p><input id="guessInput" type="number" min="1" max="20" value="'+esc(d.guess||'')+'" placeholder="数字を入力"><button class="btn primary" data-guess>回答</button><button class="btn" data-new-guess>新しい問題</button><p id="guessResult">'+esc(d.guessResult||'')+'</p></div><div class="store-mini"><h3>⚡ 反応チャレンジ</h3><p>準備ができたら開始。表示が変わったら押してね。</p><button class="btn primary" data-reaction-start>チャレンジ開始</button><button class="btn" data-reaction-hit>今押す！</button><p id="reactionResult">'+esc(d.reactionResult||'')+'</p></div>'}
+else if(a.id==='musicbox'){body='<div class="store-mini"><h3>🎵 端末の音楽を再生</h3><p>音声ファイルを選択してください。ファイル自体はアップロードされません。</p><input type="file" id="musicFile" accept="audio/*"><audio id="musicAudio" controls style="width:100%;margin-top:12px"></audio><div id="musicName" class="store-meta">'+esc(d.musicName||'ファイル未選択')+'</div></div>'}
+else if(a.id==='notepad'){body='<div class="store-mini"><h3>📝 マイメモ</h3><input id="miniNoteTitle" placeholder="タイトル" value="'+esc(d.noteTitle||'')+'" style="width:100%;margin-bottom:8px"><textarea id="miniNoteBody" placeholder="ここにメモを書く">'+esc(d.noteBody||'')+'</textarea><button class="btn" data-note-save>保存</button><span id="noteSaved" class="store-note">入力は自動保存されます</span></div>'}
+else if(a.id==='animals'){const animals=[['🐈','ネコ','哺乳類','主に小動物などを食べる肉食性の動物。人と暮らす個体も多い。','世界各地'],['🦊','キツネ','哺乳類','鋭い聴覚を持ち、昆虫や小動物、果実などを食べる。','北半球など'],['🐬','イルカ','哺乳類','水中で生活し、音を使って周囲の情報を得る。','海洋'],['🦉','フクロウ','鳥類','夜に活動する種類が多く、優れた聴覚を持つ。','世界各地'],['🐢','ウミガメ','爬虫類','海で生活し、産卵の際に砂浜へ上陸する。','熱帯〜温帯の海'],['🐘','ゾウ','哺乳類','長い鼻を器用に使い、植物を中心に食べる。','アフリカ・アジア']];body='<input id="animalSearch" placeholder="動物を検索" value="'+esc(d.animalSearch||'')+'" style="width:100%"><div class="store-animal-grid" id="animalGrid">'+animals.map((x,i)=>'<button class="store-animal" data-animal="'+i+'"><div style="font-size:2rem">'+x[0]+'</div><strong>'+x[1]+'</strong><div class="store-meta">'+x[2]+'</div></button>').join('')+'</div><div id="animalInfo" class="store-mini">動物を選ぶと詳しい情報が表示されます。</div>';storeData._animals=animals}
+else if(a.id==='drawing'){body='<div class="store-mini"><div class="store-row"><label>色 <input id="paintColor" type="color" value="'+esc(d.paintColor||'#4053cb')+'"></label>　<label>太さ <input id="paintSize" type="range" min="1" max="28" value="'+esc(d.paintSize||5)+'"></label> <button class="btn" data-paint-clear>消去</button><button class="btn primary" data-paint-save>PNG保存</button></div><canvas id="paintCanvas" class="store-paint" width="900" height="500"></canvas><p class="store-note">指またはマウスで描けます。PNGとして保存できます。</p></div>'}
+else if(a.id==='calendarplus'){body='<div class="store-mini"><h3>📅 予定を追加</h3><form id="calendarForm"><input id="eventDate" type="date" required value="'+esc(d.eventDate||new Date().toISOString().slice(0,10))+'"><input id="eventTitle" placeholder="予定の名前" required><button class="btn primary">追加</button></form><div id="eventList">'+(Array.isArray(d.events)?d.events:[]).sort((x,y)=>x.date.localeCompare(y.date)).map((e,i)=>'<div class="store-app-row"><div>📌</div><div><strong>'+esc(e.title)+'</strong><div class="store-meta">'+esc(e.date)+'</div></div><button class="store-action danger" data-event-delete="'+i+'">削除</button></div>').join('')||'<p class="store-note">予定はまだありません。</p>'+'</div></div>'}
+else if(a.id==='brain'){const questions=[['5 + 7 は？',['10','11','12','13'],2,'5に7を足すと12です。'],['仲間はずれは？',['りんご','バナナ','にんじん','ぶどう'],2,'にんじんは一般に野菜として扱われます。'],['2、4、8、16、？',['18','24','30','32'],3,'前の数を2倍にしています。'],['1時間は何分？',['30','45','60','100'],2,'1時間は60分です。']];const idx=Number(d.brainIndex||0)%questions.length,q=questions[idx];body='<div class="store-mini"><div class="store-meta">問題 '+(idx+1)+' / '+questions.length+'　正解数：'+Number(d.brainScore||0)+'</div><h3>'+q[0]+'</h3>'+q[1].map((x,i)=>'<button class="btn" data-brain-answer="'+i+'">'+x+'</button>').join('')+'<p id="brainResult">'+esc(d.brainResult||'答えを選んでね！')+'</p><button class="btn primary" data-brain-next>次の問題</button></div>'}
+else if(a.id==='photos'){body='<div class="store-mini"><h3>📸 マイアルバム</h3><input type="file" id="photoFiles" accept="image/*" multiple><p class="store-note">画像はブラウザ内に保存されます。大きな画像を多数保存すると容量制限に達する場合があります。</p><div id="photoGrid" class="store-animal-grid">'+(Array.isArray(d.photos)?d.photos.map((p,i)=>'<div class="store-animal"><img alt="アルバム画像" src="'+p.data+'" style="width:100%;height:100px;object-fit:cover;border-radius:9px"><div class="store-meta">'+esc(p.name)+'</div><button class="store-action danger" data-photo-delete="'+i+'">削除</button></div>').join(''):'')+'</div></div>'}
+else if(a.id==='space'){const planets=[['☀️','太陽','恒星','太陽系の中心にある恒星。光と熱を放出している。'],['☿️','水星','惑星','太陽に最も近い惑星。大気は非常に薄い。'],['♀️','金星','惑星','厚い大気に覆われ、表面温度が非常に高い。'],['🌍','地球','惑星','液体の水が地表に存在し、多様な生命が暮らす。'],['🔴','火星','惑星','赤っぽく見える。過去に水が流れた痕跡がある。'],['🪐','木星','惑星','太陽系最大の惑星で、主にガスからできている。'],['💍','土星','惑星','氷や岩石などからなる目立つ環を持つ。'],['🔵','天王星','惑星','自転軸が大きく傾いている巨大氷惑星。'],['🌊','海王星','惑星','太陽から最も遠い位置を公転する8番目の惑星。']];body='<div class="store-animal-grid">'+planets.map((p,i)=>'<button class="store-animal" data-planet="'+i+'"><div style="font-size:2rem">'+p[0]+'</div><strong>'+p[1]+'</strong><div class="store-meta">'+p[2]+'</div></button>').join('')+'</div><div id="planetInfo" class="store-mini">惑星を選んで説明を読もう。</div><div class="store-mini"><h3>🌌 宇宙クイズ</h3><p>太陽系で最も大きい惑星は？</p>'+['地球','木星','火星','水星'].map((x,i)=>'<button class="btn" data-space-answer="'+i+'">'+x+'</button>').join('')+'<p id="spaceResult">'+esc(d.spaceResult||'')+'</p></div>';storeData._planets=planets}
+return '<button class="btn" data-store-back>← ストアに戻る</button><div class="store-detail-hero">'+appIcon(a)+'<div><h2 style="margin:0">'+esc(a.name)+'</h2><div class="store-meta">インストール済み ・ このアプリ内で実行中</div></div></div>'+body}
+function render(){const r=root();if(!r)return;const search=state.screen==='search';let content='';if(state.screen==='home')content=homeScreen();else if(state.screen==='games')content=listScreen(APPS.filter(a=>a.category==='ゲーム').map(a=>a.id),'🎮 ゲーム');else if(state.screen==='apps')content=listScreen(APPS.filter(a=>a.category!=='ゲーム').map(a=>a.id),'📱 アプリ');else if(state.screen==='search')content=searchScreen();else if(state.screen==='detail')content=detailScreen();else if(state.screen==='installed')content=installedScreen();else if(state.screen==='favorites')content=listScreen(state.favorites,'⭐ お気に入り');else if(state.screen==='settings')content=settingsScreen();else if(state.screen==='mini')content=miniScreen();r.innerHTML='<div class="store-shell">'+(state.screen==='mini'||state.screen==='detail'||state.screen==='settings'?'':header())+content+bottom()+'</div>';const t=$('storeTheme');if(t)t.value=state.theme;const searchInput=$('storeSearch');if(searchInput&&state.screen==='search'){searchInput.focus({preventScroll:true});searchInput.setSelectionRange(state.query.length,state.query.length)}if(state.screen==='mini')initMini()}
+function setScreen(s){state.screen=s;if(['home','games','apps','search'].includes(s)&&s!=='search')state.query='';render()}
+function openDetail(id){state.selected=id;state.screen='detail';render()}
+function doAction(id){if(!getApp(id))return;if(installed(getApp(id))){state.selected=id;state.screen='mini';render();return}const b=document.querySelector('[data-store-action="'+id+'"]');if(b){b.disabled=true;b.textContent='インストール中…';setTimeout(()=>{state.installed.push(id);persist();state.selected=id;state.screen='detail';render()},450)}else{state.installed.push(id);persist();state.selected=id;state.screen='detail';render()}}
+function initMini(){const a=getApp(state.selected);if(!a)return;const d=storeData[a.id]||(storeData[a.id]={});
+if(a.id==='drawing'){const c=$('paintCanvas');if(c){const ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,c.width,c.height);if(d.paintData){const img=new Image();img.onload=()=>ctx.drawImage(img,0,0,c.width,c.height);img.src=d.paintData}let drawing=false;const point=e=>{const r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width,y:(e.clientY-r.top)*c.height/r.height}};c.onpointerdown=e=>{drawing=true;c.setPointerCapture(e.pointerId);const p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.strokeStyle=$('paintColor').value;ctx.lineWidth=Number($('paintSize').value);ctx.lineCap='round';ctx.lineJoin='round'};c.onpointermove=e=>{if(!drawing)return;const p=point(e);ctx.lineTo(p.x,p.y);ctx.stroke()};c.onpointerup=c.onpointercancel=()=>{drawing=false;try{d.paintData=c.toDataURL('image/png');persist()}catch(e){}};$('paintColor').onchange=()=>{d.paintColor=$('paintColor').value;persist()};$('paintSize').onchange=()=>{d.paintSize=$('paintSize').value;persist()}}}
+if(a.id==='musicbox'&&d.musicName)$('musicName').textContent=d.musicName;
+if(a.id==='animals'){const animals=storeData._animals||[];document.addEventListener('input',animalFilter,{once:false});function animalFilter(e){if(e.target.id!=='animalSearch')return;const q=e.target.value.toLowerCase();document.querySelectorAll('#animalGrid [data-animal]').forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(q))}}
+}
+function safeCalc(expr){if(!/^[0-9+\-*/().\s×÷]+$/.test(expr))return '0';const normalized=expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');if(!normalized.trim())return '0';try{const v=Function('"use strict";return ('+normalized+')')();return Number.isFinite(v)?String(Math.round(v*1e10)/1e10):'エラー'}catch(e){return '式を確認'}}
+function eventHandler(e){const t=e.target.closest('[data-store-screen],[data-store-tab],[data-store-category],[data-store-view],[data-store-detail],[data-store-action],[data-store-uninstall],[data-store-favorite],[data-store-back],[data-store-profile],[data-calc-key],[data-guess],[data-new-guess],[data-reaction-start],[data-reaction-hit],[data-note-save],[data-paint-clear],[data-paint-save],[data-animal],[data-planet],[data-brain-answer],[data-brain-next],[data-space-answer],[data-event-delete],[data-photo-delete]');if(!t)return;
+if(t.dataset.storeScreen){setScreen(t.dataset.storeScreen);return}
+if(t.dataset.storeTab){state.gameTab=t.dataset.storeTab;state.category='すべて';state.screen='home';render();return}
+if(t.dataset.storeCategory!==undefined){state.category=t.dataset.storeCategory;state.screen='apps';render();return}
+if(t.dataset.storeView){state.screen='apps';state.category='すべて';render();return}
+if(t.dataset.storeDetail){openDetail(t.dataset.storeDetail);return}
+if(t.dataset.storeAction){doAction(t.dataset.storeAction);return}
+if(t.dataset.storeUninstall){const a=getApp(t.dataset.storeUninstall);if(confirm('「'+a.name+'」をアンインストールしますか？')){state.installed=state.installed.filter(x=>x!==a.id);state.screen='detail';persist();render()}return}
+if(t.dataset.storeFavorite){const id=t.dataset.storeFavorite;state.favorites=state.favorites.includes(id)?state.favorites.filter(x=>x!==id):state.favorites.concat(id);persist();render();return}
+if(t.hasAttribute('data-store-back')){state.screen='detail';render();return}
+if(t.hasAttribute('data-store-profile')){state.screen='settings';render();return}
+const a=getApp(state.selected),d=a?(storeData[a.id]||(storeData[a.id]={})):null;
+if(t.dataset.calcKey){const k=t.dataset.calcKey;if(k==='C')d.calc='0';else if(k==='⌫')d.calc=(d.calc||'0').slice(0,-1)||'0';else if(k==='=')d.calc=safeCalc(d.calc||'0');else d.calc=(d.calc==='0'&&/[0-9.]/.test(k))?k:(d.calc||'0')+k;persist();render();return}
+if(t.hasAttribute('data-guess')){const n=Number($('guessInput').value);if(!Number.isInteger(n)||n<1||n>20){d.guessResult='1〜20の整数を入力してください'}else{if(!d.secret)d.secret=1+Math.floor(Math.random()*20);d.guessResult=n===d.secret?'正解！🎉':n<d.secret?'もっと大きい数字です':'もっと小さい数字です'}persist();render();return}
+if(t.hasAttribute('data-new-guess')){d.secret=1+Math.floor(Math.random()*20);d.guessResult='新しい問題を作りました！';persist();render();return}
+if(t.hasAttribute('data-reaction-start')){d.reactionStart=Date.now()+1000+Math.random()*2500;d.reactionResult='表示が変わるまで待ってね…';persist();render();setTimeout(()=>{if(d.reactionStart){d.reactionReady=Date.now();d.reactionResult='今！ボタンを押してね';persist();render()}},Math.max(1000,d.reactionStart-Date.now()));return}
+if(t.hasAttribute('data-reaction-hit')){if(!d.reactionReady)d.reactionResult='まだ早い！まず開始を押してね';else{d.reactionResult='反応時間：'+Math.max(0,Date.now()-d.reactionReady)+' ms';d.reactionReady=null}persist();render();return}
+if(t.hasAttribute('data-note-save')){d.noteTitle=$('miniNoteTitle').value;d.noteBody=$('miniNoteBody').value;persist();$('noteSaved').textContent='保存しました';return}
+if(t.hasAttribute('data-paint-clear')){const c=$('paintCanvas');c.getContext('2d').fillStyle='#fff';c.getContext('2d').fillRect(0,0,c.width,c.height);d.paintData=c.toDataURL();persist();return}
+if(t.hasAttribute('data-paint-save')){const c=$('paintCanvas');const aTag=document.createElement('a');aTag.href=c.toDataURL('image/png');aTag.download='お絵描き.png';aTag.click();return}
+if(t.dataset.animal!==undefined){const x=(storeData._animals||[])[Number(t.dataset.animal)];if(x)$('animalInfo').innerHTML='<h3>'+x[0]+' '+esc(x[1])+'</h3><p>'+esc(x[2])+'</p><p>'+esc(x[3])+'</p><p>生息地：'+esc(x[4])+'</p>';return}
+if(t.dataset.planet!==undefined){const x=(storeData._planets||[])[Number(t.dataset.planet)];if(x)$('planetInfo').innerHTML='<h3>'+x[0]+' '+esc(x[1])+'</h3><p>'+esc(x[2])+'</p><p>'+esc(x[3])+'</p>';return}
+if(t.dataset.brainAnswer!==undefined){const qs=[['5 + 7 は？',['10','11','12','13'],2,'5に7を足すと12です。'],['仲間はずれは？',['りんご','バナナ','にんじん','ぶどう'],2,'にんじんは一般に野菜として扱われます。'],['2、4、8、16、？',['18','24','30','32'],3,'前の数を2倍にしています。'],['1時間は何分？',['30','45','60','100'],2,'1時間は60分です。']];const q=qs[Number(d.brainIndex||0)%qs.length],correct=Number(t.dataset.brainAnswer)===q[2];if(correct)d.brainScore=Number(d.brainScore||0)+1;d.brainResult=(correct?'正解！🎉 ':'不正解。')+q[3];persist();render();return}
+if(t.hasAttribute('data-brain-next')){d.brainIndex=(Number(d.brainIndex||0)+1)%4;d.brainResult='';persist();render();return}
+if(t.dataset.spaceAnswer!==undefined){d.spaceResult=Number(t.dataset.spaceAnswer)===1?'正解！木星が最大です。':'不正解。正解は木星です。';persist();render();return}
+if(t.dataset.eventDelete!==undefined){const arr=Array.isArray(d.events)?d.events:[];arr.splice(Number(t.dataset.eventDelete),1);d.events=arr;persist();render();return}
+if(t.dataset.photoDelete!==undefined){const arr=Array.isArray(d.photos)?d.photos:[];arr.splice(Number(t.dataset.photoDelete),1);d.photos=arr;persist();render();return}
+}
+document.addEventListener('click',eventHandler);
+document.addEventListener('input',e=>{if(e.target.id==='storeSearch'){state.query=e.target.value;state.screen='search';render()}if(e.target.id==='miniNoteTitle'||e.target.id==='miniNoteBody'){const d=storeData.notepad||(storeData.notepad={});d.noteTitle=$('miniNoteTitle').value;d.noteBody=$('miniNoteBody').value;persist()}if(e.target.id==='animalSearch'){const q=e.target.value.toLowerCase();document.querySelectorAll('#animalGrid [data-animal]').forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(q))}});
+document.addEventListener('change',e=>{if(e.target.id==='storeTheme'){state.theme=e.target.value;persist();applyTheme()}if(e.target.id==='musicFile'){const f=e.target.files&&e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);$('musicAudio').src=url;storeData.musicbox=storeData.musicbox||{};storeData.musicbox.musicName=f.name;persist();$('musicName').textContent=f.name}if(e.target.id==='calendarForm'){/* handled by submit */}if(e.target.id==='paintColor'){const d=storeData.drawing||(storeData.drawing={});d.paintColor=e.target.value;persist()}if(e.target.id==='photoFiles'){const files=Array.from(e.target.files||[]);const d=storeData.photos||(storeData.photos={photos:[]});Promise.all(files.map(f=>new Promise(resolve=>{const rd=new FileReader();rd.onload=()=>resolve({name:f.name,data:rd.result});rd.onerror=()=>resolve(null);rd.readAsDataURL(f)}))).then(items=>{d.photos=(d.photos||[]).concat(items.filter(Boolean));storeData.photos=d;persist();render()})}});
+document.addEventListener('submit',e=>{if(e.target.id==='calendarForm'){e.preventDefault();const d=storeData.calendarplus||(storeData.calendarplus={events:[]});d.events=Array.isArray(d.events)?d.events:[];d.events.push({date:$('eventDate').value,title:$('eventTitle').value.trim()});persist();render();return}});
+function applyTheme(){const rootEl=document.documentElement;const base=rootEl.getAttribute('data-theme');if(state.theme==='light'||state.theme==='dark')rootEl.setAttribute('data-theme',state.theme);else if(base!=='light'&&base!=='dark'){rootEl.removeAttribute('data-theme')}}
+window.renderAppStore=function(){loadState();const page=$('page-appstore');if(!page)return;const p=$('appstoreRoot');if(!p){const wrap=document.createElement('div');wrap.className='module-page';wrap.innerHTML='<div class="module-head"><h2>🛍️ アプリストア</h2><div class="module-row"><button class="module-btn" data-launch-home>⌂ ホーム画面</button><button class="module-btn" data-open-main>🏠 メイン</button></div></div><div id="appstoreRoot"></div>';page.appendChild(wrap)}applyTheme();render()};
+const origRender=window.renderAppStore;
+const oldPageOpen=window.openPage;
+window.openPage=function(name){if(name==='appstore'){document.body.classList.remove('launcher-mode');document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-appstore'));window.renderAppStore();window.scrollTo({top:0,behavior:'smooth'});return}if(typeof oldPageOpen==='function')return oldPageOpen(name)};
+document.addEventListener('click',e=>{if(e.target.closest('[data-launch-app="appstore"]')){e.preventDefault();e.stopImmediatePropagation();if(typeof window.openPage==='function')window.openPage('appstore')}});
+document.addEventListener('input',e=>{if(e.target.id==='miniNoteTitle'||e.target.id==='miniNoteBody'){const d=storeData.notepad||(storeData.notepad={});d.noteTitle=$('miniNoteTitle').value;d.noteBody=$('miniNoteBody').value;persist()}});
+document.addEventListener('click',e=>{if(e.target.closest('[data-store-action="calcplus"]')){} });
+})();
+</script>
+
 </body>
 </html>
