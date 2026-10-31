@@ -579,6 +579,9 @@ style.textContent=[
 '@media(max-width:640px){.v5-card{padding:12px}.v5-actions .btn{flex:1 1 auto;min-height:44px}.v5-clock{font-size:1.7rem}.nav{overflow-x:auto;overscroll-behavior-x:contain;flex-wrap:nowrap}.nav button{flex:0 0 auto}}'
 ].join('');
 document.head.appendChild(style);
+const installedLauncherStyle=document.createElement('style');
+installedLauncherStyle.textContent='.launcher-installed-heading{grid-column:1/-1;font-weight:700;font-size:1rem;margin:16px 0 0;padding-top:14px;border-top:1px solid var(--line,#ddd)}.launcher-installed-grid{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:14px 10px}.launcher-icon-storeapp{display:flex;align-items:center;justify-content:center;border-radius:22px;font-size:2rem}.launcher-installed-badge{position:absolute;right:4px;bottom:28px;background:#16845b;color:white;border:2px solid var(--surface,#fff);border-radius:50%;width:19px;height:19px;font-size:12px;display:grid;place-items:center}.launcher-app-wrap{position:relative}';
+document.head.appendChild(installedLauncherStyle);
 const nav=document.querySelector('nav.nav');
 if(nav){
  const order=['home','plan','calendar','all','rankings','profile','growth','playlists','memo','settings'];
