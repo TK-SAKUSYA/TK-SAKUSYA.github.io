@@ -2,205 +2,115 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
 <title>You must not look</title>
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;background:#050505;color:#ddd;
- font-family:Georgia,"Yu Mincho",serif;
- overflow-x:hidden;text-align:center;
-}
-body:after{
- content:"";position:fixed;inset:0;pointer-events:none;
- background:repeating-linear-gradient(
- transparent 0px,rgba(255,255,255,.018) 1px,
- transparent 3px);
- z-index:20;
-}
-button,input{font:inherit}
-button{
- background:#171717;color:#ddd;border:1px solid #555;
- padding:13px 25px;cursor:pointer;
- transition:.3s;
-}
-button:hover{background:#3a0808;border-color:#a22}
+:root{color-scheme:dark}
+body{margin:0;min-height:100vh;background:#050505;color:#ddd;font-family:Georgia,"Yu Mincho",serif;text-align:center;overflow-x:hidden}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(transparent 0,rgba(255,255,255,.018) 1px,transparent 3px);z-index:20}
+button{font:inherit;background:#171717;color:#ddd;border:1px solid #555;padding:13px 25px;cursor:pointer;transition:.2s;min-height:48px}
+button:hover:not(:disabled){background:#3a0808;border-color:#a22}
 button:disabled{opacity:.3;cursor:not-allowed}
-#app{min-height:100vh;padding:30px 15px}
-.screen{display:none;max-width:750px;margin:auto}
-.screen.active{display:block}
-h1{
- font-size:clamp(35px,8vw,75px);
- letter-spacing:8px;color:#9b1515;
- text-shadow:0 0 25px #500;
- margin:70px 0 10px;
-}
-.subtitle{color:#777;letter-spacing:4px}
-.warning{
- color:#a33;font-size:13px;letter-spacing:3px;
- margin:35px 0;
-}
-.line{border-top:1px solid #292929;margin:35px 0}
-.description{color:#888;line-height:2}
-input[type=file]{
- display:block;max-width:100%;margin:20px auto;
- color:#aaa;
-}
-#imageCount{color:#999;font-size:13px}
-#imageArea{
- margin:25px auto;width:100%;min-height:280px;
- background:#090909;border:1px solid #292929;
- display:flex;align-items:center;justify-content:center;
- overflow:hidden;position:relative;
-}
-#horrorImage{
- max-width:100%;max-height:65vh;object-fit:contain;
- display:none;
- filter:brightness(.8) contrast(1.15);
-}
-#placeholder{color:#444;letter-spacing:4px}
-#timer{
- font-size:65px;color:#9e1717;
- margin:20px;
- text-shadow:0 0 20px #600;
-}
-#stage{color:#777;letter-spacing:4px}
-#progress{
- height:3px;background:#222;margin:25px 0;
-}
-#progressBar{
- height:100%;width:0;background:#941515;
- transition:width .5s;
-}
-#message{
- color:#aaa;min-height:30px;
- margin:20px;
-}
-.danger{color:#a22!important}
-#glitch{
- position:fixed;inset:0;background:#600;
- opacity:0;pointer-events:none;z-index:10;
-}
+#app{width:min(850px,100%);min-height:100svh;margin:auto;padding:clamp(18px,4vw,36px) 16px 28px;display:flex;flex-direction:column}
+.warning{color:#a33;font-size:12px;letter-spacing:3px;margin:12px 0 20px}
+h1{font-size:clamp(30px,7vw,58px);letter-spacing:clamp(3px,1vw,8px);color:#9b1515;text-shadow:0 0 25px #500;margin:8px 0 4px}
+.subtitle{color:#777;letter-spacing:4px;margin:0 0 24px}
+.line{border-top:1px solid #292929;margin:22px 0}
+#stage{color:#888;letter-spacing:4px;margin:8px}
+#progress{height:3px;background:#222;margin:18px 0}
+#progressBar{height:100%;width:0;background:#941515;transition:width .4s}
+#timer{font-size:clamp(48px,12vw,72px);line-height:1.1;color:#9e1717;margin:14px;text-shadow:0 0 20px #600}
+#message{color:#aaa;min-height:28px;margin:12px 0}
+#imageArea{width:100%;min-height:260px;height:min(54svh,560px);background:#090909;border:1px solid #292929;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+#horrorImage{display:none;max-width:100%;max-height:100%;object-fit:contain;filter:brightness(.82) contrast(1.12)}
+#placeholder{color:#444;letter-spacing:3px;padding:20px;line-height:1.9}
+.controls{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:20px 0 8px}
+#imageNumber,.small{font-size:11px;color:#666}
+#glitch{position:fixed;inset:0;background:#600;opacity:0;pointer-events:none;z-index:10}
 .glitch{animation:glitch .2s}
-@keyframes glitch{
- 0%{opacity:0}
- 30%{opacity:.13;transform:translateX(5px)}
- 60%{opacity:0;transform:translateX(-4px)}
- 100%{opacity:0}
-}
-.small{font-size:11px;color:#555}
-footer{margin-top:70px;color:#333;font-size:10px}
+@keyframes glitch{0%{opacity:0}30%{opacity:.13;transform:translateX(5px)}60%{opacity:0;transform:translateX(-4px)}100%{opacity:0}}
+footer{margin-top:auto;padding-top:30px;color:#333;font-size:10px;letter-spacing:2px}
+.danger{color:#a22!important}
+@media(max-width:480px){#app{padding:16px 12px 22px}.warning{letter-spacing:2px}#imageArea{min-height:220px;height:48svh}.controls button{flex:1 1 42%;padding:12px 10px}}
 </style>
 </head>
 <body>
 <div id="glitch"></div>
-<div id="app">
-<section id="home" class="screen active">
+<main id="app">
  <p class="warning">⚠ AN UNWELCOME EXPERIENCE ⚠</p>
- <h1>YOU MUST<br>NOT LOOK</h1>
+ <h1>YOU MUST NOT LOOK</h1>
  <p class="subtitle">見てはいけない。</p>
  <div class="line"></div>
- <p class="description">
-  あなたは本当に最後まで見られますか？<br>
-  この先に何があるかは、誰にも分かりません。
- </p>
- <p class="warning">DO NOT CONTINUE IF YOU ARE AFRAID.</p>
- <button onclick="show('setup')">ENTER</button>
- <footer>YOU MUST NOT LOOK / UNKNOWN EXPERIENCE</footer>
-</section>
-<section id="setup" class="screen">
- <p class="warning">PREPARATION</p>
- <h1 style="font-size:35px">BEFORE YOU BEGIN</h1>
- <p class="description">
-  あなたが用意した画像を登録してください。<br>
-  画像はこのブラウザ内でのみ使用されます。
- </p>
- <div class="line"></div>
- <input type="file" id="files" accept="image/*" multiple>
- <p id="imageCount">0 IMAGES SELECTED</p>
- <p class="small">画像は最低1枚必要です。</p>
- <br>
- <button onclick="start()">BEGIN THE EXPERIENCE</button>
- <br><br>
- <button onclick="show('home')">BACK</button>
-</section>
-<section id="game" class="screen">
- <p class="warning">YOU ARE ALREADY HERE.</p>
- <p id="stage">STAGE 01</p>
+ <p id="stage">CONNECTING...</p>
  <div id="progress"><div id="progressBar"></div></div>
- <div id="timer">5</div>
- <p id="message">準備してください。</p>
+ <div id="timer">—</div>
+ <p id="message" aria-live="polite">共有データを読み込んでいます。</p>
  <div id="imageArea">
-  <span id="placeholder">NOTHING TO SEE</span>
-  <img id="horrorImage">
+  <span id="placeholder">PLEASE WAIT...</span>
+  <img id="horrorImage" alt="共有された画像">
  </div>
  <p id="imageNumber" class="small"></p>
- <button id="reveal" onclick="reveal()">REVEAL</button>
- <button id="next" onclick="next()" disabled>NEXT</button>
- <p class="small">最後まで進むことができるでしょうか。</p>
-</section>
-<section id="ending" class="screen">
- <p class="warning">EXPERIENCE COMPLETED</p>
- <h1>YOU SURVIVED.</h1>
- <p class="description">
-  あなたは最後まで見届けました。<br>
-  しかし、本当に終わったのでしょうか。
- </p>
- <div class="line"></div>
- <button onclick="restart()">PLAY AGAIN</button>
- <footer>THANK YOU FOR WATCHING.</footer>
-</section>
-</div>
+ <div class="controls">
+  <button id="reveal" disabled>REVEAL</button>
+  <button id="next" disabled>NEXT</button>
+ </div>
+ <p class="small">このページの画像と進行順は、すべての端末で共通です。</p>
+ <footer>YOU MUST NOT LOOK / UNKNOWN EXPERIENCE</footer>
+</main>
 <script>
-let images=[];
+let imagePaths=[];
 let index=0;
 let revealed=false;
 let timerInterval=null;
 const $=id=>document.getElementById(id);
-function show(id){
- document.querySelectorAll('.screen')
- .forEach(s=>s.classList.remove('active'));
- $(id).classList.add('active');
-}
-$('files').addEventListener('change',e=>{
- images.forEach(i=>URL.revokeObjectURL(i));
- images=Array.from(e.target.files)
- .filter(f=>f.type.startsWith('image/'))
- .map(f=>URL.createObjectURL(f));
- $('imageCount').textContent=
- images.length+' IMAGES SELECTED';
-});
-function start(){
- if(!images.length){
-  alert('画像を登録してください。');
-  return;
+const revealButton=$('reveal');
+const nextButton=$('next');
+
+async function init(){
+ try{
+  const response=await fetch('./images/manifest.json',{cache:'no-store'});
+  if(!response.ok) throw new Error('manifest');
+  const data=await response.json();
+  if(!Array.isArray(data)) throw new Error('format');
+  imagePaths=data.filter(path=>typeof path==='string' && /\.(png|jpe?g|gif|webp|avif)$/i.test(path));
+  if(!imagePaths.length){
+   $('stage').textContent='WAITING FOR THE IMAGES';
+   $('timer').textContent='…';
+   $('placeholder').textContent='共有画像はまだ登録されていません。';
+   $('message').textContent='管理者がGitHubのimagesフォルダに画像を追加すると、全員に同じ内容が表示されます。';
+   return;
+  }
+  index=0;
+  prepare();
+ }catch(error){
+  $('stage').textContent='DATA ERROR';
+  $('placeholder').textContent='共有データを読み込めませんでした。';
+  $('message').textContent='ページを再読み込みしてください。';
  }
- index=0;
- show('game');
- prepare();
 }
+
 function prepare(){
  revealed=false;
  clearInterval(timerInterval);
  $('horrorImage').style.display='none';
+ $('horrorImage').removeAttribute('src');
  $('placeholder').style.display='block';
  $('placeholder').textContent='NOTHING TO SEE';
- $('reveal').disabled=false;
- $('next').disabled=true;
- $('stage').textContent=
- 'STAGE '+String(index+1).padStart(2,'0');
- $('imageNumber').textContent=
- (index+1)+' / '+images.length;
- $('progressBar').style.width=
- (index/images.length*100)+'%';
- $('message').textContent=
- '準備はいいですか？';
+ revealButton.disabled=false;
+ nextButton.disabled=true;
+ $('stage').textContent='STAGE '+String(index+1).padStart(2,'0');
+ $('imageNumber').textContent=(index+1)+' / '+imagePaths.length;
+ $('progressBar').style.width=(index/imagePaths.length*100)+'%';
+ $('message').textContent='準備はいいですか？';
  $('timer').textContent='5';
 }
+
 function reveal(){
- if(revealed)return;
+ if(revealed || !imagePaths.length)return;
  revealed=true;
- $('reveal').disabled=true;
+ revealButton.disabled=true;
  $('message').textContent='LOOK.';
  let count=5;
  $('timer').textContent=count;
@@ -213,37 +123,52 @@ function reveal(){
   }
  },1000);
 }
+
 function displayImage(){
- $('placeholder').style.display='none';
- $('horrorImage').src=images[index];
- $('horrorImage').style.display='block';
- $('timer').textContent='...';
- $('message').textContent='あなたは見てしまった。';
- $('next').disabled=false;
- $('progressBar').style.width=
- ((index+1)/images.length*100)+'%';
- $('glitch').classList.remove('glitch');
- void $('glitch').offsetWidth;
- $('glitch').classList.add('glitch');
+ const img=$('horrorImage');
+ img.onload=()=>{
+  $('placeholder').style.display='none';
+  img.style.display='block';
+  $('timer').textContent='...';
+  $('message').textContent='あなたは見てしまった。';
+  nextButton.disabled=false;
+  $('progressBar').style.width=((index+1)/imagePaths.length*100)+'%';
+  $('glitch').classList.remove('glitch');
+  void $('glitch').offsetWidth;
+  $('glitch').classList.add('glitch');
+ };
+ img.onerror=()=>{
+  $('placeholder').textContent='IMAGE NOT FOUND';
+  $('message').textContent='共有画像を読み込めません。管理者にお知らせください。';
+  $('timer').textContent='!';
+  nextButton.disabled=false;
+ };
+ img.src='./'+imagePaths[index].replace(/^\.\//,'');
 }
+
 function next(){
  if(!revealed)return;
  index++;
- if(index>=images.length){
+ if(index>=imagePaths.length){
   clearInterval(timerInterval);
-  show('ending');
+  $('stage').textContent='EXPERIENCE COMPLETED';
+  $('timer').textContent='END';
+  $('placeholder').style.display='block';
+  $('placeholder').textContent='YOU SURVIVED.';
+  $('horrorImage').style.display='none';
+  $('message').textContent='あなたは最後まで見届けました。しかし、本当に終わったのでしょうか。';
+  $('imageNumber').textContent='';
+  $('progressBar').style.width='100%';
+  revealButton.disabled=true;
+  nextButton.disabled=true;
+  nextButton.textContent='FINISHED';
   return;
  }
  prepare();
 }
-function restart(){
- index=0;
- prepare();
- show('home');
-}
-window.addEventListener('beforeunload',()=>{
- images.forEach(i=>URL.revokeObjectURL(i));
-});
+revealButton.addEventListener('click',reveal);
+nextButton.addEventListener('click',next);
+init();
 </script>
 </body>
 </html>
