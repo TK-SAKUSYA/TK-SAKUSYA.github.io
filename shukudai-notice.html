@@ -581,7 +581,7 @@ style.textContent=[
 document.head.appendChild(style);
 const nav=document.querySelector('nav.nav');
 if(nav){
- const order=['home','plan','calendar','all','rankings','profile','growth','playlists','settings','memo'];
+ const order=['home','plan','calendar','all','rankings','profile','growth','playlists','memo','settings'];
  const buttons={};Array.from(nav.querySelectorAll('[data-page]')).forEach(function(b){buttons[b.dataset.page]=b});
  order.forEach(function(k){if(buttons[k])nav.appendChild(buttons[k])});
  if(buttons.growth)buttons.growth.textContent='🪙 コインルーム';
@@ -793,8 +793,8 @@ const appDefs=[
  {id:'profile',icon:'👤',name:'プレイヤープロフィール',desc:'実績・学習状況'},
  {id:'growth',icon:'🪙',name:'コインルーム',desc:'コイン・ロボット'},
  {id:'playlists',icon:'🎵',name:'プレイリスト作成',desc:'学習コース'},
- {id:'settings',icon:'⚙️',name:'設定',desc:'表示・バックアップ'},
- {id:'memo',icon:'📝',name:'メモ帳',desc:'自由にメモを保存'}
+ {id:'memo',icon:'📝',name:'メモ帳',desc:'自由にメモを保存'},
+ {id:'settings',icon:'⚙️',name:'設定',desc:'表示・バックアップ'}
  ];
 const seedQuestions=[
 {id:'ja1',subject:'国語',unit:'漢字',grade:1,difficulty:'基礎',type:'choice',q:'「努力」の読み方として正しいものはどれ？',choices:['どりょく','とうりょく','どりき','とりょく'],answer:0,explain:'「努力」は「どりょく」と読みます。'},
@@ -847,7 +847,7 @@ function getExam(id){return exams.find(x=>x.id===id)}
 function initData(){
  const l=load(APP_HOME_KEY,null);if(l&&typeof l==='object'){launcher.favorites=Array.isArray(l.favorites)?l.favorites:[];launcher.order=Array.isArray(l.order)?l.order:appDefs.map(x=>x.id);launcher.dock=Array.isArray(l.dock)?l.dock:[]}
  const savedMemos=load(MEMO_KEY,[]);memos=Array.isArray(savedMemos)?savedMemos.filter(m=>m&&typeof m==='object'&&typeof m.id==='string'):[];if(!memos.some(m=>m.id===currentMemoId))currentMemoId=memos[0]?.id||'';
- const validAppIds=new Set(appDefs.map(x=>x.id));const savedOrder=Array.isArray(launcher.order)?launcher.order:[];launcher.order=savedOrder.filter((id,i)=>validAppIds.has(id)&&id!=='memo'&&savedOrder.indexOf(id)===i);launcher.order=launcher.order.concat(appDefs.map(x=>x.id).filter(id=>id!=='memo'&&!launcher.order.includes(id)));const settingsIndex=launcher.order.indexOf('settings');launcher.order.splice(settingsIndex<0?launcher.order.length:settingsIndex+1,0,'memo');
+ const validAppIds=new Set(appDefs.map(x=>x.id));const savedOrder=Array.isArray(launcher.order)?launcher.order:[];launcher.order=savedOrder.filter((id,i)=>validAppIds.has(id)&&savedOrder.indexOf(id)===i);if(!launcher.order.includes('memo')){const settingsIndex=launcher.order.indexOf('settings');launcher.order.splice(settingsIndex<0?launcher.order.length:settingsIndex,0,'memo')}launcher.order=launcher.order.concat(appDefs.map(x=>x.id).filter(id=>!launcher.order.includes(id)));
  launcher.favorites=launcher.favorites.filter(id=>appDefs.some(x=>x.id===id));
  launcher.dock=launcher.dock.filter((id,i,arr)=>appDefs.some(x=>x.id===id)&&arr.indexOf(id)===i).slice(0,4);
  if(!launcher.dock.length)launcher.dock=['home','plan','calendar','all'];
