@@ -1282,7 +1282,33 @@ document.addEventListener('change',e=>{if(e.target.id==='storeTheme'){state.them
 document.addEventListener('submit',e=>{if(e.target.id==='calendarForm'){e.preventDefault();const d=storeData.calendarplus||(storeData.calendarplus={events:[]});d.events=Array.isArray(d.events)?d.events:[];d.events.push({date:$('eventDate').value,title:$('eventTitle').value.trim()});persist();render();return}});
 function applyTheme(){const page=$('page-appstore');if(!page)return;if(state.theme==='light'||state.theme==='dark')page.setAttribute('data-store-theme',state.theme);else page.removeAttribute('data-store-theme')}
 window.getInstalledStoreApps=function(){loadState();return APPS.filter(installed).map(a=>({id:a.id,name:a.name,icon:a.icon,color:a.color,category:a.category}))};
-window.launchInstalledStoreApp=function(id){loadState();const a=getApp(id);if(!a||!installed(a))return false;state.selected=a.id;state.screen='mini';window.storeAppStandalone=true;let page=$('page-storeapp');if(!page)page=createPage('storeapp','📱 '+a.name);let appRoot=$('storeappRoot');if(!appRoot){appRoot=document.createElement('div');appRoot.id='storeappRoot';const shell=page.querySelector('.module-page');if(shell)shell.appendChild(appRoot);else{const wrap=document.createElement('div');wrap.className='module-page';wrap.appendChild(appRoot);page.appendChild(wrap)}}document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p===page));document.body.classList.remove('launcher-mode');applyTheme();render();if(!$('storeappRoot')||!page.classList.contains('active')){window.storeAppStandalone=false;return false}window.scrollTo({top:0,behavior:'smooth'});return true};
+window.launchInstalledStoreApp=function(id){
+ loadState();
+ const a=getApp(String(id||''));
+ if(!a){console.error('起動できないアプリID:',id);return false}
+ if(!installed(a)){console.warn('未インストールのアプリです:',a.id);return false}
+ state.selected=a.id;state.screen='mini';window.storeAppStandalone=true;
+ let page=$('page-storeapp');
+ if(!page)page=createPage('storeapp','📱 '+a.name);
+ if(!page){window.storeAppStandalone=false;return false}
+ let appRoot=$('storeappRoot');
+ if(!appRoot){
+  appRoot=document.createElement('div');appRoot.id='storeappRoot';
+  let shell=page.querySelector('.module-page');
+  if(!shell){shell=document.createElement('div');shell.className='module-page';page.appendChild(shell)}
+  shell.appendChild(appRoot);
+ }
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ page.classList.add('active');document.body.classList.remove('launcher-mode');
+ applyTheme();
+ try{render()}catch(err){
+  console.error('アプリの描画エラー:',err);
+  const rootEl=$('storeappRoot');
+  if(rootEl)rootEl.innerHTML='<div class="store-shell"><div class="store-standalone-head"><strong>'+esc(a.name)+'</strong><button class="btn" data-store-exit>⌂ ホーム画面へ戻る</button></div><section class="store-section"><h2>アプリを開けませんでした</h2><p>起動中にエラーが発生しました。ホームに戻って、もう一度開いてください。</p><p class="store-note">'+esc(err&&err.message?err.message:String(err))+'</p></section></div>';
+ }
+ window.scrollTo({top:0,behavior:'smooth'});
+ return true;
+};
 window.renderAppStore=function(){loadState();const page=$('page-appstore');if(!page)return;const p=$('appstoreRoot');if(!p){const wrap=document.createElement('div');wrap.className='module-page';wrap.innerHTML='<div class="module-head"><h2>🛍️ アプリストア</h2><div class="module-row"><button class="module-btn" data-launch-home>⌂ アプリ一覧へ戻る</button><button class="module-btn" data-store-screen="home">🏠 ストアホーム</button><button class="module-btn" data-open-main>🏠 メイン</button></div></div><div id="appstoreRoot"></div>';page.appendChild(wrap)}applyTheme();render()};
 const origRender=window.renderAppStore;
 const oldPageOpen=window.openPage;
