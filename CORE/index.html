@@ -118,6 +118,49 @@ let gestureStart=null;
 $('#phone').addEventListener('touchstart',e=>{let t=e.touches[0];gestureStart={x:t.clientX,y:t.clientY,time:Date.now()}},{passive:true});
 $('#phone').addEventListener('touchend',e=>{if(!gestureStart)return;let t=e.changedTouches[0],dx=t.clientX-gestureStart.x,dy=t.clientY-gestureStart.y;let g=gestureStart;gestureStart=null;if(Math.abs(dx)>90&&Math.abs(dx)>Math.abs(dy)*1.4&&current){if(dx>0)close();else{$('#recentOpenBtn').click()}return}if(dy< -110&&g.y>innerHeight-90){if(current)close();else $('#drawer').classList.add('show')}}, {passive:true});
 
+
+/* CORE v6: app usage dashboard */
+S.usage=S.usage||{};
+let usageCurrent='',usageStarted=0,usageLastSaved=0;
+function usageCommit(){
+ if(!usageCurrent||!usageStarted)return;
+ const now=Date.now(),delta=Math.max(0,Math.floor((now-usageStarted)/1000));
+ if(delta>0){S.usage[usageCurrent]=(Number(S.usage[usageCurrent])||0)+delta;usageStarted=now;save()}
+}
+const usageBaseOpen=open;
+open=function(id){
+ if(usageCurrent!==id){usageCommit();usageCurrent=id;usageStarted=Date.now()}
+ usageBaseOpen(id);
+};
+const usageBaseClose=close;
+close=function(){usageCommit();usageCurrent='';usageStarted=0;usageBaseClose()};
+document.addEventListener('visibilitychange',()=>{if(document.hidden)usageCommit();else if(usageCurrent)usageStarted=Date.now()});
+function usageDuration(sec){
+ sec=Math.max(0,Math.floor(Number(sec)||0));
+ const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;
+ return h? h+'時間'+m+'分' : m? m+'分'+s+'秒' : s+'秒';
+}
+function usageDashboard(){
+ const el=$('#coreUsageDashboard');if(!el)return;
+ const list=apps().map(a=>({id:a.id,name:a.name,icon:a.icon,sec:(Number(S.usage[a.id])||0)+(usageCurrent===a.id&&usageStarted?Math.floor((Date.now()-usageStarted)/1000):0)})).sort((a,b)=>b.sec-a.sec);
+ const max=Math.max(1,...list.map(x=>x.sec));
+ el.innerHTML=list.length?list.map(x=>'<div style="margin:12px 0"><div class="row" style="justify-content:space-between"><span>'+x.icon+' '+esc(x.name)+'</span><b>'+usageDuration(x.sec)+'</b></div><div style="height:8px;border-radius:9px;background:var(--s2);overflow:hidden;margin-top:6px"><div style="height:100%;width:'+Math.round(x.sec/max*100)+'%;background:var(--a);border-radius:9px"></div></div></div>').join(''):'<p class="muted">利用データはありません。</p>';
+}
+const usageCard=document.createElement('div');
+usageCard.className='card';
+usageCard.innerHTML='<h3>⏱️ アプリの利用状況</h3><p class="muted">CORE内で各アプリを開いていた時間の目安です。このブラウザ内に保存されます。</p><div id="coreUsageDashboard"></div><div class="row" style="margin-top:12px"><button class="btn secondary" id="usageRefresh">更新</button><button class="btn danger" id="usageReset">利用時間をリセット</button></div><small class="muted">※実際の端末全体のスクリーンタイムではありません。COREを閉じている間や別アプリの利用時間は計測しません。</small>';
+const usageBaseDraw=draw;
+draw=function(id){
+ usageBaseDraw(id);
+ if(id==='settings'){
+  $('#body').append(usageCard);
+  usageDashboard();
+  $('#usageRefresh').onclick=usageDashboard;
+  $('#usageReset').onclick=()=>{if(confirm('CORE内のアプリ利用時間をすべてリセットしますか？')){S.usage={};save();usageDashboard()}};
+ }
+};
+setInterval(()=>{if(usageCurrent&&usageStarted){usageDashboard();if(Date.now()-usageLastSaved>10000){usageCommit();usageLastSaved=Date.now()}}},1000);
+
 theme();wall();render();tick();
 })();
 </script></body></html>
