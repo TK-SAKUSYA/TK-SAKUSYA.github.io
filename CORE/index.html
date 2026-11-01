@@ -43,6 +43,33 @@ function wall(){let a=['radial-gradient(ellipse at 20% 20%,#f9d7e7,transparent 4
 $('#darkQuick').onclick=()=>{S.dark=!S.dark;save();theme();$('#darkQuick').classList.toggle('active',S.dark)};$('#airplane').onclick=e=>e.target.classList.toggle('active');$('#brightness').oninput=e=>$('#phone').style.filter='brightness('+e.target.value/100+')';
 setInterval(()=>{tick();if(current==='clock'&&$('#now'))$('#now').textContent=new Date().toLocaleTimeString('ja-JP');if(S.alarms&&S.alarms.includes(new Date().toTimeString().slice(0,5))&&new Date().getSeconds()===0)alert('アラーム '+new Date().toTimeString().slice(0,5))},1000);
 $('#phone').addEventListener('touchstart',e=>window.sy=e.touches[0].clientY,{passive:true});$('#phone').addEventListener('touchend',e=>{let dy=e.changedTouches[0].clientY-window.sy;if(window.sy<45&&dy>65)$('#quick').classList.add('show');else if(dy< -100&&!current)$('#drawer').classList.add('show')},{passive:true});
+
+/* CORE v3 extensions */
+let homeEditing=false,recentApps=[];
+const extraStyle=document.createElement('style');
+extraStyle.textContent='.homeTools{display:flex;gap:6px;justify-content:flex-end;margin:2px 0 8px}.homeTools button,.moveBtn{border:0;border-radius:12px;padding:6px 9px;background:#ffffffaa;color:#263047}.homeEditing .appicon{outline:2px dashed #5369b5;border-radius:14px}.overlayExtra{position:absolute;inset:0;z-index:46;background:var(--bg);color:var(--ink);display:none;padding:48px 18px 20px;overflow:auto}.overlayExtra.show{display:block}.extraCard{background:var(--s2);padding:14px;border-radius:18px;margin:9px 0}';
+document.head.append(extraStyle);
+const tools=document.createElement('div');tools.className='homeTools';tools.innerHTML='<button id="homeEditBtn">✥ 配置編集</button><button id="folderCreateBtn">📁 フォルダ</button><button id="recentOpenBtn">▢ 履歴</button>';
+$('#homeIcons').before(tools);
+const notice=document.createElement('section');notice.id='noticeOverlay';notice.className='overlayExtra';notice.innerHTML='<div class="row"><b style="font-size:22px">通知センター 🔔</b><button class="btn secondary" id="noticeClose">閉じる</button></div><div id="noticeContent"></div><button class="btn secondary" id="noticeClear">通知を消去</button>';
+$('#phone').append(notice);
+const recents=document.createElement('section');recents.id='recentOverlay';recents.className='overlayExtra';recents.innerHTML='<div class="row"><b style="font-size:22px">最近使ったアプリ</b><button class="btn secondary" id="recentClose">閉じる</button></div><div id="recentContent"></div>';
+$('#phone').append(recents);
+const noticeButton=document.createElement('button');noticeButton.textContent='🔔';noticeButton.title='通知センター';noticeButton.style.cssText='position:absolute;right:16px;top:7px;z-index:22;border:0;background:transparent;font-size:18px';$('#status').append(noticeButton);
+noticeButton.onclick=()=>{const ns=S.notifications||[];$('#noticeContent').innerHTML=ns.length?ns.map(n=>'<div class="extraCard"><b>'+esc(n.title)+'</b><p>'+esc(n.body)+'</p><small>'+esc(n.time)+'</small></div>').join(''):'<p class="muted">新しい通知はありません。</p>';notice.classList.add('show')};
+$('#noticeClose').onclick=()=>notice.classList.remove('show');
+$('#noticeClear').onclick=()=>{S.notifications=[];save();$('#noticeContent').innerHTML='<p>通知はありません。</p>'};
+$('#recentOpenBtn').onclick=()=>{let a=recentApps.map(id=>apps().find(x=>x.id===id)).filter(Boolean);$('#recentContent').innerHTML=a.length?a.map(x=>'<button class="btn secondary" data-reopen="'+x.id+'" style="margin:5px">'+x.icon+' '+esc(x.name)+'</button>').join(''):'<p class="muted">まだありません。</p>';recents.classList.add('show')};
+$('#recentClose').onclick=()=>recents.classList.remove('show');
+$('#recentContent').onclick=e=>{let b=e.target.closest('[data-reopen]');if(b){recents.classList.remove('show');open(b.dataset.reopen)}};
+$('#homeEditBtn').onclick=()=>{homeEditing=!homeEditing;$('#homeEditBtn').textContent=homeEditing?'完了':'✥ 配置編集';$('#home').classList.toggle('homeEditing',homeEditing);render()};
+$('#folderCreateBtn').onclick=()=>{let name=prompt('フォルダ名');if(!name)return;let ids=prompt('入れるアプリのIDをカンマ区切りで入力（例: calculator,memo）');if(!ids)return;let chosen=ids.split(',').map(x=>x.trim()).filter(id=>apps().some(a=>a.id===id));if(!chosen.length)return alert('有効なアプリIDがありません');S.folders=S.folders||[];S.folders.push({name,ids:chosen});save();alert('フォルダ「'+name+'」を作成しました。アプリ一覧の下部に保存されます。');render()};
+const originalOpen=open;
+open=function(id){recentApps=[id,...recentApps.filter(x=>x!==id)].slice(0,10);originalOpen(id)};
+const originalRender=render;
+render=function(){originalRender();if(homeEditing){document.querySelectorAll('#homeIcons .appicon').forEach((el,i)=>{let id=el.dataset.open;if(!id||el.nextElementSibling?.classList.contains('moveControls'))return;let wrap=document.createElement('span');wrap.className='moveControls';wrap.innerHTML='<button class="moveBtn" data-home-move="'+id+'" data-dir="-1">◀</button><button class="moveBtn" data-home-move="'+id+'" data-dir="1">▶</button>';el.after(wrap)})}if(S.folders?.length){let old=document.getElementById('savedFolders');if(old)old.remove();let box=document.createElement('div');box.id='savedFolders';box.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px';box.innerHTML=S.folders.map((f,i)=>'<button class="appicon" data-folder="'+i+'"><span class="glyph">📁</span>'+esc(f.name)+'</button>').join('');$('#allApps').after(box)}};
+document.addEventListener('click',e=>{let m=e.target.closest('[data-home-move]');if(m){let id=m.dataset.homeMove,order=S.homeOrder||apps().map(x=>x.id),i=order.indexOf(id),j=Math.max(0,Math.min(order.length-1,i+Number(m.dataset.dir)));if(i>=0){[order[i],order[j]]=[order[j],order[i]];S.homeOrder=order;save();render()}return}let folder=e.target.closest('[data-folder]');if(folder){let f=S.folders[Number(folder.dataset.folder)];alert(f.name+'\\n'+f.ids.map(id=>apps().find(a=>a.id===id)?.name||id).join(' ・ '));return}let detail=e.target.closest('[data-detail-app]');if(detail){let x=(S.catalog||[]).find(a=>a.id===detail.dataset.detailApp);if(x)alert(x.name+'\\n'+x.desc+'\\nVersion '+x.version);return}});
+
 theme();wall();render();tick();
 })();
 </script></body></html>
