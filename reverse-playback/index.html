@@ -10,7 +10,7 @@
 <script type="module">
 const $=id=>document.getElementById(id);
 const picker=$('picker'),source=$('source'),preview=$('preview'),editor=$('editor'),result=$('result');
-let file=null,sourceUrl=null,outputUrl=null,ffmpeg=null,loadingPromise=null,busy=false;
+let file=null,sourceUrl=null,outputUrl=null,ffmpeg=null,loadingPromise=null,busy=false,ffmpegLogs=[];
 function fmt(s){s=Math.max(0,s||0);return Math.floor(s/60)+':'+('0'+Math.floor(s%60)).slice(-2)}
 function status(t){$('status').textContent=t}
 function cleanup(){if(sourceUrl)URL.revokeObjectURL(sourceUrl);if(outputUrl)URL.revokeObjectURL(outputUrl);sourceUrl=outputUrl=null;file=null;source.removeAttribute('src');source.load();preview.removeAttribute('src');preview.load();editor.classList.add('hidden');result.classList.add('hidden');$('progress').classList.add('hidden');picker.value='';$('reverse').disabled=false;busy=false}
@@ -22,13 +22,13 @@ async function getFFmpeg(){
  loadingPromise=(async()=>{
    status('FFmpegエンジンを読み込み中…初回は約30MB前後のダウンロードが必要です。');
    const [{FFmpeg},{toBlobURL}]=await Promise.all([
-     import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm/index.js'),
+     import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js'),
      import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/esm/index.js')
    ]);
    const instance=new FFmpeg();
-   instance.on('log',({message})=>{if(message&&/error|failed|invalid/i.test(message))console.warn('FFmpeg:',message)});
+   instance.on('log',({message})=>{if(message){ffmpegLogs.push(message);if(ffmpegLogs.length>12)ffmpegLogs.shift();if(/error|failed|invalid/i.test(message))console.warn('FFmpeg:',message)}});
    instance.on('progress',({progress})=>{if(Number.isFinite(progress)){$('bar').style.width=Math.max(0,Math.min(100,progress*100))+'%';status('映像・音声を逆再生中… '+Math.round(progress*100)+'%')}});
-   const base='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
+   const base='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
    await instance.load({coreURL:await toBlobURL(base+'/ffmpeg-core.js','text/javascript'),wasmURL:await toBlobURL(base+'/ffmpeg-core.wasm','application/wasm')});
    ffmpeg=instance;return ffmpeg;
  })();
@@ -56,7 +56,7 @@ $('reverse').onclick=async()=>{
    outputUrl=URL.createObjectURL(blob);preview.src=outputUrl;$('download').href=outputUrl;$('download').download=(file.name.replace(/\.[^.]+$/,'')||'video')+'-reverse.mp4';
    result.classList.remove('hidden');$('resultStatus').textContent='完成！ '+(blob.size/1048576).toFixed(1)+'MB · 映像と音声を一緒に逆再生しました。';status('逆再生が完成しました！');
    try{await engine.deleteFile(inputName)}catch{}try{await engine.deleteFile(outputName)}catch{}
- }catch(e){console.error(e);status('失敗しました。別の動画・短い動画で試してください。');alert('変換に失敗しました。動画形式が非対応、またはメモリ不足の可能性があります。\n\n詳細：'+(e?.message||e))}
+ }catch(e){console.error(e);status('失敗しました。詳細を確認してください。');const details=[e?.message||String(e),...ffmpegLogs.slice(-5)].join('\n');alert('変換に失敗しました。\n\n詳細：\n'+details)}
  finally{busy=false;$('reverse').disabled=false}
 };
 window.addEventListener('beforeunload',()=>{if(sourceUrl)URL.revokeObjectURL(sourceUrl);if(outputUrl)URL.revokeObjectURL(outputUrl)});
