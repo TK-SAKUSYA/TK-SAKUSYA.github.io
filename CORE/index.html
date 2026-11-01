@@ -330,8 +330,10 @@ function coreAdminDraw(){
  const usage=installed.map(a=>({name:a.name,icon:a.icon,time:Number((S.usage||{})[a.id])||0})).sort((a,b)=>b.time-a.time);
  const fmt=s=>{s=Math.max(0,Math.floor(s));return s>=3600?Math.floor(s/3600)+'時間'+Math.floor(s%3600/60)+'分':Math.floor(s/60)+'分'+s%60+'秒'};
  const logs=S.errorLog.slice(-15).reverse();
- $('#body').innerHTML='<div class="card"><h3>🛠️ CORE管理センター</h3><p class="muted">CORE OSの内部情報と保存データを確認します。</p><div class="gridapps" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:5px 0"><div class="adminMetric"><small>バージョン</small><b>1.0.0</b></div><div class="adminMetric"><small>インストール済み</small><b>'+installed.length+'本</b></div><div class="adminMetric"><small>CORE保存データ</small><b>'+storageText+'</b></div><div class="adminMetric"><small>記録エラー</small><b>'+S.errorLog.length+'件</b></div></div></div><div class="card"><h3>📱 システム情報</h3><div class="muted" id="coreAdminSystem"></div><button class="btn secondary" id="coreAdminRefresh">情報を更新</button></div><div class="card"><h3>⏱️ アプリ利用時間</h3>'+(usage.length?usage.map(a=>'<div class="listitem"><span>'+a.icon+' '+esc(a.name)+'</span><b>'+fmt(a.time)+'</b></div>').join(''):'<p class="muted">記録なし</p>')+'</div><div class="card"><h3>📦 アプリデータ</h3>'+(custom.length?custom.map(a=>'<div class="listitem"><span>'+esc(a.name)+'<br><small>'+esc(a.id)+' · '+coreFormatBytes(a.size)+'</small></span><button class="btn danger" data-admin-uninstall="'+esc(a.id)+'">削除</button></div>').join(''):'<p class="muted">追加アプリはありません。</p>')+'<p class="muted">標準アプリの内部データ容量は個別に分離されていないため、正確な個別容量は取得不可です。</p></div><div class="card"><h3>🧾 エラー履歴</h3>'+(logs.length?logs.map(x=>'<div class="adminLog"><b>'+esc(x.type)+'</b> · '+esc(x.time)+'<br>'+esc(x.message)+'</div>').join(''):'<p class="muted">記録されたエラーはありません。</p>')+'<button class="btn secondary" id="coreAdminClearLogs">エラー履歴を消去</button></div><div class="card"><h3>💾 データ保護</h3><p class="muted">現在のCOREデータをJSON形式で書き出します。既存データは自動削除しません。</p><button class="btn" id="coreAdminBackup">バックアップを書き出す</button></div><div class="card"><h3>ℹ️ COREについて</h3><b>CORE OS ver.1.0.0</b><p class="muted">正式公開に向けた基盤アップデートを適用中です。クラウド同期・全機能の実装と総合テストはまだ完了していません。</p><p class="muted">更新内容：起動ロゴ、バージョン管理、管理センター、エラー記録。</p></div>';
+ $('#body').innerHTML='<div class="card"><h3>🛠️ CORE管理センター</h3><p class="muted">CORE OSの内部情報と保存データを確認します。</p><div class="gridapps" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:5px 0"><div class="adminMetric"><small>バージョン</small><b>1.0.0</b></div><div class="adminMetric"><small>インストール済み</small><b>'+installed.length+'本</b></div><div class="adminMetric"><small>CORE保存データ</small><b>'+storageText+'</b></div><div class="adminMetric"><small>記録エラー</small><b>'+S.errorLog.length+'件</b></div></div></div><div class="card"><h3>📱 システム情報</h3><div class="muted" id="coreAdminSystem"></div><button class="btn secondary" id="coreAdminRefresh">情報を更新</button></div><div class="card"><h3>⏱️ アプリ利用時間</h3>'+(usage.length?usage.map(a=>'<div class="listitem"><span>'+a.icon+' '+esc(a.name)+'</span><b>'+fmt(a.time)+'</b></div>').join(''):'<p class="muted">記録なし</p>')+'</div><div class="card"><h3>📦 アプリデータ</h3>'+(custom.length?custom.map(a=>'<div class="listitem"><span>'+esc(a.name)+'<br><small>'+esc(a.id)+' · '+coreFormatBytes(a.size)+'</small></span><button class="btn danger" data-admin-uninstall="'+esc(a.id)+'">削除</button></div>').join(''):'<p class="muted">追加アプリはありません。</p>')+'<p class="muted">標準アプリの内部データ容量は個別に分離されていないため、正確な個別容量は取得不可です。</p></div><div class="card"><h3>🧾 エラー履歴</h3>'+(logs.length?logs.map(x=>'<div class="adminLog"><b>'+esc(x.type)+'</b> · '+esc(x.time)+'<br>'+esc(x.message)+'</div>').join(''):'<p class="muted">記録されたエラーはありません。</p>')+'<button class="btn secondary" id="coreAdminClearLogs">エラー履歴を消去</button></div><div class="card"><h3>🗄️ ストレージ基盤</h3><p class="muted" id="coreStorageStatus">IndexedDBの状態を確認しています…</p><button class="btn secondary" id="coreStorageRefresh">状態を再確認</button></div><div class="card"><h3>💾 データ保護</h3><p class="muted">現在のCOREデータをJSON形式で書き出します。既存データは自動削除しません。</p><button class="btn" id="coreAdminBackup">バックアップを書き出す</button></div><div class="card"><h3>ℹ️ COREについて</h3><b>CORE OS ver.1.0.0</b><p class="muted">正式公開に向けた基盤アップデートを適用中です。クラウド同期・全機能の実装と総合テストはまだ完了していません。</p><p class="muted">更新内容：起動ロゴ、バージョン管理、管理センター、エラー記録。</p></div>';
  coreAdminSystem();
+ coreStorageStatus();
+ $('#coreStorageRefresh').onclick=coreStorageStatus;
  $('#coreAdminRefresh').onclick=coreAdminSystem;
  $('#coreAdminClearLogs').onclick=()=>{if(confirm('記録されたエラー履歴を消去しますか？')){S.errorLog=[];save();coreAdminDraw()}};
  $('#coreAdminBackup').onclick=()=>{const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='CORE-backup-'+CORE_VERSION+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
@@ -351,6 +353,63 @@ window.addEventListener('error',e=>{
 window.addEventListener('unhandledrejection',e=>{
  try{S.errorLog.push({type:'Promise',message:String(e.reason?.message||e.reason||'不明な非同期エラー').slice(0,300),time:new Date().toLocaleString('ja-JP')});S.errorLog=S.errorLog.slice(-50);save()}catch(_){}
 });
+
+/* CORE IndexedDB foundation: safe additive storage and legacy wallpaper migration */
+const CORE_DB_NAME='core-os-storage';
+const CORE_DB_VERSION=1;
+let coreDBPromise=null;
+function coreOpenDB(){
+ if(!('indexedDB' in window))return Promise.reject(new Error('IndexedDB非対応'));
+ if(coreDBPromise)return coreDBPromise;
+ coreDBPromise=new Promise((resolve,reject)=>{
+  const req=indexedDB.open(CORE_DB_NAME,CORE_DB_VERSION);
+  req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains('blobs'))db.createObjectStore('blobs')};
+  req.onsuccess=()=>{const db=req.result;db.onversionchange=()=>{db.close();coreDBPromise=null};resolve(db)};
+  req.onerror=()=>{coreDBPromise=null;reject(req.error||new Error('DBを開けません'))};
+  req.onblocked=()=>{coreDBPromise=null;reject(new Error('別タブがデータベース更新を妨げています'))};
+ });
+ return coreDBPromise;
+}
+async function coreDBAction(mode,key,value){
+ const db=await coreOpenDB();
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction('blobs','readwrite'),store=tx.objectStore('blobs');
+  let req;
+  try{req=mode==='get'?store.get(key):mode==='delete'?store.delete(key):store.put(value,key)}
+  catch(e){reject(e);return}
+  req.onsuccess=()=>resolve(req.result);
+  req.onerror=()=>reject(req.error||new Error('保存処理に失敗'));
+  tx.onabort=()=>reject(tx.error||new Error('保存処理が中断'));
+ });
+}
+window.CORE=window.CORE||{};
+window.CORE.storage={
+ get:key=>coreDBAction('get',String(key)),
+ set:(key,value)=>coreDBAction('set',String(key),value),
+ delete:key=>coreDBAction('delete',String(key)),
+ ready:()=>coreOpenDB()
+};
+async function coreMigrateLegacyWallpaper(){
+ if(!S.customWallpaper)return {status:'not-needed'};
+ try{
+  const existing=await coreDBAction('get','customWallpaper');
+  if(!existing)await coreDBAction('set','customWallpaper',{data:S.customWallpaper,migratedAt:new Date().toISOString(),source:'core-v1-localStorage'});
+  return {status:'copied'};
+ }catch(e){return {status:'error',message:String(e.message||e)}}
+}
+async function coreStorageStatus(){
+ const el=$('#coreStorageStatus');if(!el)return;
+ try{
+  await coreOpenDB();
+  const saved=await coreDBAction('get','customWallpaper');
+  el.textContent='IndexedDB：利用可能 · '+(saved?'カスタム壁紙の複製を保存済み':'追加データなし')+'。旧データはそのまま保持中。';
+  el.dataset.state='ready';
+ }catch(e){
+  el.textContent='IndexedDB：利用不可（'+String(e.message||e)+'）。従来の保存方式で動作します。';
+  el.dataset.state='fallback';
+ }
+}
+coreMigrateLegacyWallpaper().then(()=>coreStorageStatus()).catch(()=>coreStorageStatus());
 
 theme();wall();render();tick();
 })();
