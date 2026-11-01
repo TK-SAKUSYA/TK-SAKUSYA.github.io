@@ -1419,6 +1419,20 @@ window.launchInstalledStoreApp=function(id){
  window.scrollTo({top:0,behavior:'smooth'});
  return true;
 };
+// インストール済みアプリの起動を最優先で処理する。既存の汎用ランチャー処理に依存しない。
+document.addEventListener('click',function(ev){
+ const button=ev.target.closest('[data-launch-app^="storeapp:"]');
+ if(!button)return;
+ ev.preventDefault();
+ ev.stopImmediatePropagation();
+ const id=button.dataset.launchApp.slice(9);
+ if(typeof window.launchInstalledStoreApp!=='function'){
+  console.error('アプリ起動処理が読み込まれていません:',id);
+  return;
+ }
+ const opened=window.launchInstalledStoreApp(id);
+ if(!opened)console.error('インストール済みアプリを起動できませんでした:',id);
+},true);
 window.renderAppStore=function(){loadState();const page=$('page-appstore');if(!page)return;const p=$('appstoreRoot');if(!p){const wrap=document.createElement('div');wrap.className='module-page';wrap.innerHTML='<div class="module-head"><h2>🛍️ アプリストア</h2><div class="module-row"><button class="module-btn" data-launch-home>⌂ アプリ一覧へ戻る</button><button class="module-btn" data-store-screen="home">🏠 ストアホーム</button><button class="module-btn" data-open-main>🏠 メイン</button></div></div><div id="appstoreRoot"></div>';page.appendChild(wrap)}applyTheme();render()};
 const origRender=window.renderAppStore;
 const oldPageOpen=window.openPage;
