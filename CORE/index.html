@@ -197,16 +197,16 @@ function paintNotificationButton(){
 }
 function renderNotificationCenter(){
  const ns=S.notifications||[];
- $('#noticeContent').innerHTML=ns.length?ns.map((n,i)=>'<div class="extraCard" style="position:relative"><div class="row" style="justify-content:space-between;align-items:flex-start"><b>'+esc(n.title)+'</b><button class="btn secondary" data-notice-delete="'+i+'" style="padding:5px 9px">削除</button></div><p>'+esc(n.body)+'</p><small>'+esc(n.time||'')+'</small><div style="font-size:11px;color:var(--muted);margin-top:5px">'+(n.read?'既読':'🔵 未読')+'</div></div>').join(''):'<p class="muted">新しい通知はありません。</p>';
+ $('#quickNoticeContent').innerHTML=ns.length?ns.map((n,i)=>'<div class="extraCard" style="position:relative"><div class="row" style="justify-content:space-between;align-items:flex-start"><b>'+esc(n.title)+'</b><button class="btn secondary" data-notice-delete="'+i+'" style="padding:5px 9px">削除</button></div><p>'+esc(n.body)+'</p><small>'+esc(n.time||'')+'</small><div style="font-size:11px;color:var(--muted);margin-top:5px">'+(n.read?'既読':'🔵 未読')+'</div></div>').join(''):'<p class="muted">新しい通知はありません。</p>';
  paintNotificationButton();
 }
 noticeButton.onclick=e=>{
  e?.stopPropagation?.();$('#quick').classList.remove('show');$('#drawer').classList.remove('show');recents.classList.remove('show');
  S.notifications=(S.notifications||[]).map(n=>({...n,read:true}));
- save();renderNotificationCenter();notice.classList.add('show');
+ save();renderNotificationCenter();
 };
-$('#noticeClear').onclick=()=>{S.notifications=[];save();renderNotificationCenter()};
-$('#noticeContent').onclick=e=>{
+$('#quickNoticeClear').onclick=()=>{S.notifications=[];save();renderNotificationCenter()};
+$('#quickNoticeContent').onclick=e=>{
  const b=e.target.closest('[data-notice-delete]');
  if(!b)return;
  const i=Number(b.dataset.noticeDelete);
@@ -444,18 +444,16 @@ const coreV101Style=document.createElement('style');
 coreV101Style.textContent=':root{--bg:#e8eaf2;--s:#f8f9ff;--s2:#e1e4ef;--ink:#191b22;--muted:#606574;--a:#5266a8;--line:#d5d9e5;--surface:#f4f5fb;--shadow:0 8px 28px #18213a20}body{background:#151923}.phone{background:var(--bg);box-shadow:0 24px 80px #0007,0 0 0 1px #ffffff20;border-radius:34px}.status{height:48px;padding:12px 18px 8px;align-items:center;gap:10px;color:var(--ink);font-size:13px;z-index:42}.statusActions{display:flex;align-items:center;gap:8px;margin-left:auto}.statusAction{height:34px;min-width:40px;padding:0 10px;border:0;border-radius:18px;background:#ffffff9c;color:var(--ink);font-size:15px;box-shadow:0 2px 8px #18213a12}.home{inset:48px 0 0;padding:25px 22px 12px;transition:opacity .2s ease,transform .24s cubic-bezier(.2,.8,.2,1)}#home.hide{display:flex!important;opacity:0;transform:scale(.985);pointer-events:none}.bigclock{font-size:70px;letter-spacing:-4.5px;font-weight:300}.widget,.dock{background:#ffffffa6;border:1px solid #ffffff90;box-shadow:0 8px 26px #24314a12;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.appicon{min-width:0;transition:transform .16s ease,filter .16s ease;user-select:none;-webkit-user-select:none;touch-action:pan-y}.appicon:active,.btn:active,.tile:active,.statusAction:active{transform:scale(.94)}.glyph{width:54px;height:54px;border-radius:19px;background:linear-gradient(145deg,#fff,#edf0f9);box-shadow:0 4px 12px #1d294018,inset 0 1px #ffffff}.panel{display:flex!important;visibility:hidden;opacity:0;transform:translateY(12px) scale(.99);pointer-events:none;transition:opacity .2s ease,transform .24s cubic-bezier(.2,.8,.2,1),visibility .24s}.panel.show{visibility:visible;opacity:1;transform:none;pointer-events:auto}.apphead{height:64px;padding:0 20px;background:var(--s);border-bottom:1px solid var(--line)}.appbody{overscroll-behavior:contain;scrollbar-width:thin}.btn,.secondary,.danger{transition:transform .14s ease,filter .14s ease,background .14s ease}.btn{border-radius:22px;box-shadow:0 2px 7px #26345a16}.field,textarea,select{border-radius:16px;background:var(--surface)}.card{border:1px solid #ffffff35;box-shadow:0 3px 14px #1c294010}.drawer{display:flex!important;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .22s ease,visibility .22s}.drawer.show{visibility:visible;opacity:1;pointer-events:auto}.drawerbox{max-height:92%;border-radius:30px 30px 0 0;box-shadow:0 -12px 40px #11182722;transform:translateY(24px);transition:transform .24s cubic-bezier(.2,.8,.2,1)}.drawer.show .drawerbox{transform:translateY(0)}.quick{display:block!important;visibility:hidden;opacity:0;pointer-events:none;transform:translateY(-12px);transition:opacity .2s ease,transform .22s ease,visibility .2s;background:color-mix(in srgb,var(--bg) 91%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:45}.quick.show{visibility:visible;opacity:1;pointer-events:auto;transform:none}.tile{border-radius:22px;min-height:68px;box-shadow:0 3px 12px #1c294012}.lock{visibility:hidden;opacity:0;transition:opacity .25s ease,visibility .25s}.lock.show{visibility:visible;opacity:1}.overlayExtra{visibility:hidden;opacity:0;display:block!important;pointer-events:none;transform:translateY(12px);transition:opacity .2s ease,transform .22s ease,visibility .2s}.overlayExtra.show{visibility:visible;opacity:1;pointer-events:auto;transform:none}.homeTools{align-items:center}.homeTools button{border-radius:18px;padding:8px 12px}#homeIcons{min-height:132px;align-content:start;grid-auto-rows:minmax(76px,auto)}#dock{min-height:84px;align-items:center;gap:4px}#dock .appicon .glyph{width:50px;height:50px}.dragging{opacity:.48;transform:scale(.92)!important}.dropTarget{outline:2px solid var(--a);outline-offset:3px;border-radius:18px}#corePageDots{display:flex;justify-content:center;gap:8px;padding:7px}#corePageDots button{border:0;background:var(--line);width:7px;height:7px;border-radius:9px;padding:0;transition:all .2s}#corePageDots button.active{width:22px;background:var(--a)}.chatShell{height:100%;min-height:430px;display:flex;flex-direction:column;gap:10px}.chatMessages{flex:1;min-height:250px;overflow:auto;display:flex;flex-direction:column;gap:9px;padding:6px 2px}.chatBubble{max-width:88%;padding:11px 14px;border-radius:18px;background:var(--s2);white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55}.chatBubble.user{align-self:flex-end;background:var(--a);color:white;border-bottom-right-radius:6px}.chatBubble.assistant{align-self:flex-start;border-bottom-left-radius:6px}.chatComposer{display:flex;gap:8px;align-items:flex-end}.chatComposer textarea{min-height:46px;max-height:120px;resize:vertical;margin:0}@media(max-width:500px){.phone{border-radius:0}.home{padding-left:20px;padding-right:20px}.bigclock{font-size:68px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}';
 document.head.append(coreV101Style);
 
-/* Separate status controls so notification clicks never bubble into quick settings */
-noticeButton.style.cssText='';
-noticeButton.className='statusAction';
-let statusActions=document.getElementById('statusActions');
-if(!statusActions){statusActions=document.createElement('div');statusActions.id='statusActions';statusActions.className='statusActions';$('#status').append(statusActions)}
-const updateButton=document.createElement('button');
-updateButton.className='statusAction';updateButton.type='button';updateButton.textContent='↻';updateButton.title='COREを更新';updateButton.setAttribute('aria-label','COREを更新');
-updateButton.onclick=e=>{e.stopPropagation();if(confirm('COREを再読み込みして更新しますか？'))location.reload()};
-statusActions.append(updateButton,noticeButton);
-/* クイック設定ボタンは削除。クイック設定は上端からのスワイプで開く */
-noticeButton.onclick=e=>{e.stopPropagation();S.notifications=(S.notifications||[]).map(n=>({...n,read:true}));save();renderNotificationCenter();notice.classList.add('show')};
+/* 通知ボタン・更新ボタンは廃止。通知はクイック設定の下部に表示 */
+noticeButton.remove();
 
+
+/* 通知センターをクイック設定の下に統合 */
+const quickNoticePanel=document.createElement('section');
+quickNoticePanel.className='card';quickNoticePanel.id='quickNoticePanel';
+quickNoticePanel.innerHTML='<div class="row" style="justify-content:space-between"><b style="font-size:18px">🔔 通知</b><button class="btn secondary" id="quickNoticeClear">すべて消去</button></div><div id="quickNoticeContent"></div>';
+$('#quick').append(quickNoticePanel);
+$('#quick').style.overflowY='auto';
 /* Persistent home pages and dock. Long press an icon to move it. */
 S.homePages=Array.isArray(S.homePages)?S.homePages:[];
 S.dockOrder=Array.isArray(S.dockOrder)?S.dockOrder:['browser','memo','store','settings'];
