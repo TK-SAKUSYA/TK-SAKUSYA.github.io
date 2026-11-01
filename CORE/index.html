@@ -41,7 +41,13 @@ if(id==='store'){
  }).join('')+'<p class="muted">外部サイトをCORE内のフレームで表示します。サイト側の埋め込み制限やブラウザ仕様により、アプリによっては別タブ起動が必要です。</p>';
 }
 if(id==='browser'){b.innerHTML='<div class="row"><input class="field" id="url" placeholder="https://example.com"><button class="btn" id="go">移動</button></div><div class="row"><button class="btn secondary" id="bookmark">保存</button><button class="btn secondary" id="bookmarks">ブックマーク</button><button class="btn secondary" id="hist">履歴</button></div><div id="notice" class="muted">サイトによっては埋め込み表示が拒否されます。</div><iframe id="web"></iframe><div id="bl"></div>'}
-let custom=(S.custom||[]).find(x=>x.id===id);if(custom){if(custom.url){b.innerHTML='<div class="muted" style="margin-bottom:8px">🌐 '+esc(custom.url)+'</div><iframe title="'+esc(custom.name)+'" allow="fullscreen; autoplay; clipboard-read; clipboard-write" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-popups" src="'+esc(custom.url)+'" style="width:100%;height:calc(100vh - 190px);min-height:480px;border:0;border-radius:14px;background:white"></iframe><p class="muted">表示できない場合は <a href="'+esc(custom.url)+'" target="_blank" rel="noopener">別タブで開く</a></p>'}else b.innerHTML='<iframe sandbox="allow-scripts allow-forms allow-downloads" srcdoc="'+esc(custom.html)+'"></iframe>'}
+let custom=(S.custom||[]).find(x=>x.id===id);if(custom){
+ if(custom.url){
+  b.innerHTML='<div class="nativeLaunch"><div class="nativeLaunchIcon">'+esc(custom.icon||'📱')+'</div><h2>'+esc(custom.name)+'</h2><p class="muted">独立した画面でアプリを起動します。CORE内の埋め込みブラウザ表示は使用しません。</p><div class="nativeLaunchInfo"><span>🌐</span><span><b>Webアプリ</b><br><small class="muted">提供元のアプリ画面を直接開きます</small></span></div><button class="btn nativeLaunchButton" id="launchExternalApp">アプリを起動 ↗</button><p class="muted nativeLaunchUrl">'+esc(custom.url)+'</p><button class="btn secondary" id="copyAppUrl">URLをコピー</button></div>';
+  $('#launchExternalApp').onclick=()=>{const w=window.open(custom.url,'_blank','noopener');if(!w)location.href=custom.url};
+  $('#copyAppUrl').onclick=async()=>{try{await navigator.clipboard.writeText(custom.url);alert('URLをコピーしました')}catch(e){prompt('このURLをコピーしてください',custom.url)}};
+ }else b.innerHTML='<div class="nativeLaunch"><div class="nativeLaunchIcon">'+esc(custom.icon||'📱')+'</div><h2>'+esc(custom.name)+'</h2><p class="muted">このアプリはCORE内で動作します。</p><iframe sandbox="allow-scripts allow-forms allow-downloads" srcdoc="'+esc(custom.html)+'"></iframe></div>';
+}
 }
 function click(e){let t=e.target.closest('[data-uninstall]');if(t){uninstall(t.dataset.uninstall);return}t=e.target.closest('[data-open]');if(t){$('#drawer').classList.remove('show');open(t.dataset.open);return}t=e.target.closest('[data-c]');if(t){calcPress(t.dataset.c);return}t=e.target.closest('[data-wall]');if(t){S.wall=+t.dataset.wall;save();wall();return}t=e.target.closest('[data-store-uninstall]');if(t){uninstall(t.dataset.storeUninstall);return}t=e.target.closest('[data-store-open]');if(t){if(!S.installed.includes(t.dataset.storeOpen))return alert('先にインストールしてください');open(t.dataset.storeOpen);return}t=e.target.closest('[data-install]');if(t){install(t.dataset.install);return}t=e.target.closest('[data-del]');if(t){let a=S.data.memos||[];a.splice(+t.dataset.del,1);S.data.memos=a;save();draw('memo');return}t=e.target.closest('[data-edit]');if(t){let a=S.data.memos||[],i=+t.dataset.edit,x=a[i],title=prompt('タイトル',x.title),text=prompt('内容',x.text);if(title!==null&&text!==null){a[i]={title,text};S.data.memos=a;save();draw('memo')}return}t=e.target.closest('[data-evdel]');if(t){let a=S.data.events||[];a.splice(+t.dataset.evdel,1);S.data.events=a;save();draw('calendar')}}
 function calcPress(x){if(x==='AC')calc='';else if(x==='⌫')calc=calc.slice(0,-1);else if(x==='='){try{let s=calc.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');if(!/^[0-9+*/().% -]+$/.test(s))throw 0;let n=Function('"use strict";return ('+s+')')();if(!Number.isFinite(n))throw 0;$('#prev').textContent=calc+' =';calc=String(n);S.data.calc=(S.data.calc||[]);S.data.calc.unshift($('#prev').textContent+' '+calc);S.data.calc=S.data.calc.slice(0,15);save()}catch(e){$('#out').textContent='エラー';return}}else calc+=x;$('#out').textContent=calc||'0';$('#ch').textContent=(S.data.calc||[]).slice(0,5).join(' / ')}
@@ -684,6 +690,20 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(hover:hover){.btn:hover,.tile:hover,.kbd button:hover{filter:brightness(.96)}.appicon:hover .glyph{transform:translateY(-1px)}}
 `;
 document.head.append(coreAppPolish);
+/* CORE v1.4: app launch screen instead of pretending remote sites are native */
+const coreNativeLaunchStyle=document.createElement('style');
+coreNativeLaunchStyle.textContent=`
+.nativeLaunch{min-height:100%;display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;gap:14px;padding:clamp(18px,5vw,38px) 8px}
+.nativeLaunchIcon{width:88px;height:88px;display:grid;place-items:center;border-radius:26px;background:var(--surface-raised);border:1px solid var(--line);box-shadow:var(--shadow);font-size:46px}
+.nativeLaunch h2{margin:2px 0;font-size:24px;overflow-wrap:anywhere}
+.nativeLaunch>p{max-width:440px;line-height:1.6}
+.nativeLaunchInfo{width:min(100%,440px);display:flex;align-items:center;gap:14px;text-align:left;padding:16px;border:1px solid var(--line);border-radius:18px;background:var(--surface-soft)}
+.nativeLaunchInfo>span:first-child{font-size:26px}
+.nativeLaunchButton{width:min(100%,440px);min-height:54px;border-radius:16px;font-size:16px}
+.nativeLaunchUrl{overflow-wrap:anywhere;font-size:11px}
+.nativeLaunch iframe{width:100%;height:60vh;border:1px solid var(--line);background:var(--surface-raised)}
+`;
+document.head.append(coreNativeLaunchStyle);
 
 function coreUpdateViewport(){const vv=window.visualViewport;const h=vv?.height||window.innerHeight;document.documentElement.style.setProperty('--core-vh',Math.max(240,Math.round(h))+'px')}
 coreUpdateViewport();window.addEventListener('resize',coreUpdateViewport,{passive:true});window.visualViewport?.addEventListener('resize',coreUpdateViewport,{passive:true});window.visualViewport?.addEventListener('scroll',coreUpdateViewport,{passive:true});
