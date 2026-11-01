@@ -331,6 +331,8 @@ document.querySelector('#nav').onclick=()=>{
 const CORE_VERSION='1.1.0';
 if(!base.some(a=>a[0]==='admin'))base.push(['admin','CORE管理センター','🛠️']);
 S.installed=Array.isArray(S.installed)?S.installed:[];
+/* 標準アプリは削除不可なので、保存データが空・欠落しても必ず復旧する */
+base.forEach(app=>{if(!S.installed.includes(app[0]))S.installed.push(app[0])});
 if(!S.installed.includes('admin'))S.installed.push('admin');
 S.errorLog=Array.isArray(S.errorLog)?S.errorLog:[];
 S.coreVersion=CORE_VERSION;
@@ -468,6 +470,8 @@ function coreEnsurePages(){
  S.homePages=S.homePages.filter(p=>Array.isArray(p));
  if(!S.homePages.length)S.homePages=[[]];
  homePage=Math.min(homePage,S.homePages.length-1);
+ /* 保存済みの現在ページが空なら、アプリのあるページへ自動復帰 */
+ if(!(S.homePages[homePage]||[]).some(id=>id.startsWith('folder:')||ids.includes(id))){const firstNonEmpty=S.homePages.findIndex(p=>p.some(id=>id.startsWith('folder:')||ids.includes(id)));if(firstNonEmpty>=0)homePage=firstNonEmpty;}
  S.dockOrder=S.dockOrder.filter(id=>apps().some(a=>a.id===id));
  ['browser','memo','store','settings'].forEach(id=>{if(apps().some(a=>a.id===id)&&!S.dockOrder.includes(id))S.dockOrder.push(id)});
 }
