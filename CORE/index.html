@@ -264,6 +264,46 @@ draw=function(id){
  }
 };
 
+
+/* CORE v9: app drawer live search and category filters */
+const drawerBox=document.querySelector('#drawer .drawerbox');
+const drawerSearch=document.querySelector('#search');
+const drawerGrid=document.querySelector('#allApps');
+const filterBar=document.createElement('div');
+filterBar.className='row';
+filterBar.style.cssText='gap:7px;margin:4px 0 10px;flex-wrap:wrap';
+filterBar.innerHTML='<button class="btn" data-filter="all">すべて</button><button class="btn secondary" data-filter="builtin">標準</button><button class="btn secondary" data-filter="custom">追加</button>';
+const drawerCount=document.createElement('div');
+drawerCount.className='muted';
+drawerCount.style.padding='0 4px 5px';
+drawerSearch.insertAdjacentElement('afterend',filterBar);
+filterBar.insertAdjacentElement('afterend',drawerCount);
+let drawerFilter='all';
+function updateDrawer(){
+ const q=drawerSearch.value.trim().toLocaleLowerCase('ja-JP');
+ const builtins=new Set(base.map(x=>x[0]));
+ const list=apps().filter(a=>{
+  const builtin=builtins.has(a.id);
+  const category=drawerFilter==='all'||(drawerFilter==='builtin'&&builtin)||(drawerFilter==='custom'&&!builtin);
+  return category&&(a.name+' '+a.icon).toLocaleLowerCase('ja-JP').includes(q);
+ });
+ drawerGrid.innerHTML=list.map(tile).join('');
+ drawerCount.textContent=list.length+'件のアプリ';
+ filterBar.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('secondary',b.dataset.filter!==drawerFilter));
+}
+drawerSearch.oninput=updateDrawer;
+filterBar.onclick=e=>{
+ const b=e.target.closest('[data-filter]');
+ if(!b)return;
+ drawerFilter=b.dataset.filter;
+ updateDrawer();
+};
+const oldDrawerOpen=document.querySelector('#nav').onclick;
+document.querySelector('#nav').onclick=()=>{
+ if(oldDrawerOpen)oldDrawerOpen();
+ updateDrawer();
+};
+
 theme();wall();render();tick();
 })();
 </script></body></html>
