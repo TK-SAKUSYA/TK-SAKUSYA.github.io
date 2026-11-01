@@ -447,12 +447,8 @@ const updateButton=document.createElement('button');
 updateButton.className='statusAction';updateButton.type='button';updateButton.textContent='↻';updateButton.title='COREを更新';updateButton.setAttribute('aria-label','COREを更新');
 updateButton.onclick=e=>{e.stopPropagation();if(confirm('COREを再読み込みして更新しますか？'))location.reload()};
 statusActions.append(updateButton,noticeButton);
-const quickOpenButton=document.createElement('button');
-quickOpenButton.className='statusAction';quickOpenButton.type='button';quickOpenButton.textContent='⚙';quickOpenButton.title='クイック設定';
-statusActions.append(quickOpenButton);
+/* クイック設定ボタンは削除。クイック設定は上端からのスワイプで開く */
 noticeButton.onclick=e=>{e.stopPropagation();S.notifications=(S.notifications||[]).map(n=>({...n,read:true}));save();renderNotificationCenter();notice.classList.add('show')};
-quickOpenButton.onclick=e=>{e.stopPropagation();$('#quick').classList.add('show')};
-$('#status').onclick=e=>{if(!e.target.closest('#statusActions'))$('#quick').classList.add('show')};
 
 /* Persistent home pages and dock. Long press an icon to move it. */
 S.homePages=Array.isArray(S.homePages)?S.homePages:[];
@@ -635,8 +631,6 @@ coreUpdateViewport();window.addEventListener('resize',coreUpdateViewport,{passiv
 function coreHideTransient(except){['quick','drawer','noticeOverlay','recentOverlay','folderModal'].forEach(id=>{if(id!==except)document.getElementById(id)?.classList.remove('show')})}
 const coreOpenV11=open;open=function(id){coreHideTransient();coreOpenV11(id)};
 noticeButton.onclick=e=>{e?.stopPropagation?.();coreHideTransient('noticeOverlay');S.notifications=(S.notifications||[]).map(n=>({...n,read:true}));save();renderNotificationCenter();notice.classList.add('show')};
-quickOpenButton.onclick=e=>{e.stopPropagation();coreHideTransient('quick');$('#quick').classList.add('show')};
-$('#status').onclick=e=>{if(e.target.closest('#statusActions'))return;coreHideTransient('quick');$('#quick').classList.add('show')};
 /* 下端から上スワイプでアプリ一覧を開く。旧ホームバー依存をなくす */
 $('#closeQuick').onclick=()=>$('#quick').classList.remove('show');$('#closeDrawer').onclick=()=>$('#drawer').classList.remove('show');
 $('#noticeClose').onclick=()=>notice.classList.remove('show');
