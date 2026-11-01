@@ -628,6 +628,7 @@ document.head.append(coreV11Style);
 function coreUpdateViewport(){const vv=window.visualViewport;const h=vv?.height||window.innerHeight;document.documentElement.style.setProperty('--core-vh',Math.max(240,Math.round(h))+'px')}
 coreUpdateViewport();window.addEventListener('resize',coreUpdateViewport,{passive:true});window.visualViewport?.addEventListener('resize',coreUpdateViewport,{passive:true});window.visualViewport?.addEventListener('scroll',coreUpdateViewport,{passive:true});
 function coreHideTransient(except){['quick','drawer','noticeOverlay','recentOverlay','folderModal'].forEach(id=>{if(id!==except)document.getElementById(id)?.classList.remove('show')})}
+const coreOpenV11=open;open=function(id){coreHideTransient();coreOpenV11(id)};
 noticeButton.onclick=e=>{e?.stopPropagation?.();coreHideTransient('noticeOverlay');S.notifications=(S.notifications||[]).map(n=>({...n,read:true}));save();renderNotificationCenter();notice.classList.add('show')};
 quickOpenButton.onclick=e=>{e.stopPropagation();coreHideTransient('quick');$('#quick').classList.add('show')};
 $('#status').onclick=e=>{if(e.target.closest('#statusActions'))return;coreHideTransient('quick');$('#quick').classList.add('show')};
