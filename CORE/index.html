@@ -49,7 +49,7 @@ function install(id){let x=(S.catalog||[]).find(a=>a.id===id);if(!x)return;if(S.
 function uninstall(id){if(base.some(x=>x[0]===id))return alert('標準アプリは削除できません');let a=apps().find(x=>x.id===id);if(!a||!confirm(a.name+' をアンインストールしますか？'))return;S.installed=S.installed.filter(x=>x!==id);if(current===id)close();save();render();if(current==='settings')draw('settings');else if(current==='store')draw('store')}
 document.addEventListener('click',click);
 $('#back').onclick=close;$('#more').onclick=()=>alert('CORE • '+current);
-$('#nav').onclick=()=>{notice.classList.remove('show');recents.classList.remove('show');$('#quick').classList.remove('show');$('#drawer').classList.add('show')};
+/* 旧ホームボタンは削除済み。ナビ要素へのイベント登録は行わない */
 $('#closeDrawer').onclick=()=>$('#drawer').classList.remove('show');
 $('#status').onclick=e=>{if(e.target.closest('#statusActions'))return;notice.classList.remove('show');recents.classList.remove('show');$('#drawer').classList.remove('show');$('#quick').classList.add('show')};
 $('#closeQuick').onclick=()=>$('#quick').classList.remove('show');$('#unlock').onclick=()=>$('#lock').classList.remove('show');
