@@ -1332,7 +1332,7 @@ if(a.id==='animals'||a.id==='animalsdx'){const fav=Array.isArray(d.animalFav)?d.
 function safeCalc(expr){if(!/^[0-9+\-*/().\s×÷]+$/.test(expr))return '0';const normalized=expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');if(!normalized.trim())return '0';try{const v=Function('"use strict";return ('+normalized+')')();return Number.isFinite(v)?String(Math.round(v*1e10)/1e10):'エラー'}catch(e){return '式を確認'}}
 function initMusicTrack(){const a=getApp(state.selected);if(!a)return;const d=storeData[a.id]||(storeData[a.id]={}),list=Array.isArray(d.playlist)?d.playlist:[],audio=$('musicAudio'),label=$('musicName');if(!audio||!list.length){if(label)label.textContent='再生可能な音源がありません。音声ファイルを追加してください。';return}d.trackIndex=((Number(d.trackIndex)||0)%list.length+list.length)%list.length;audio.src=list[d.trackIndex].data;audio.volume=Number(d.volume??0.8);if(label)label.textContent=(d.trackIndex+1)+' / '+list.length+' ・ '+list[d.trackIndex].name;audio.play().catch(()=>{if(label)label.textContent+='（再生ボタンを押してください）'})}
 function eventHandler(e){const t=e.target.closest('[data-store-exit],[data-store-screen],[data-store-tab],[data-store-category],[data-store-view],[data-store-detail],[data-store-action],[data-store-uninstall],[data-store-favorite],[data-store-back],[data-store-profile],[data-calc-key],[data-guess],[data-new-guess],[data-reaction-start],[data-reaction-hit],[data-note-save],[data-paint-clear],[data-paint-save],[data-animal],[data-planet],[data-brain-answer],[data-brain-next],[data-brain-start],[data-space-answer],[data-event-delete],[data-photo-delete],[data-money-edit],[data-money-delete],[data-mt-cancel],[data-mt-like],[data-mt-edit],[data-mt-delete],[data-dog-deploy],[data-dog-turn],[data-dog-upgrade],[data-dog-reset],[data-dog-next],[data-island-move],[data-island-gather],[data-island-eat],[data-island-craft],[data-island-camp],[data-king-select],[data-king-cell],[data-king-turn],[data-king-remove],[data-music-prev],[data-music-next],[data-music-play],[data-music-remove],[data-paint-undo],[data-paint-redo],[data-animal-fav],[data-star-move],[data-star-scan],[data-star-refuel],[data-star-cell],[data-dog-stage-start],[data-paint-project-save],[data-paint-project-load]');if(!t)return;
-if(t.hasAttribute('data-store-exit')){window.storeAppStandalone=false;activatePage('launcher');return}
+if(t.hasAttribute('data-store-exit')){window.storeAppStandalone=false;const home=$('page-launcher');document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p===home));document.body.classList.toggle('launcher-mode',!!home);window.scrollTo({top:0,behavior:'smooth'});return}
 if(t.dataset.storeScreen){setScreen(t.dataset.storeScreen);return}
 if(t.dataset.storeTab){state.gameTab=t.dataset.storeTab;state.category='すべて';state.screen='home';render();return}
 if(t.dataset.storeCategory!==undefined){state.category=t.dataset.storeCategory;state.screen='apps';render();return}
@@ -1397,22 +1397,24 @@ window.launchInstalledStoreApp=function(id){
  if(!installed(a)){console.warn('未インストールのアプリです:',a.id);return false}
  state.selected=a.id;state.screen='mini';window.storeAppStandalone=true;
  let page=$('page-storeapp');
- if(!page)page=createPage('storeapp','📱 '+a.name);
- if(!page){window.storeAppStandalone=false;return false}
+ if(!page){
+  page=document.createElement('section');page.className='page';page.id='page-storeapp';
+  page.innerHTML='<div class="module-page"><div id="storeappRoot"></div></div>';
+  const main=document.querySelector('main');
+  if(!main){window.storeAppStandalone=false;console.error('アプリ表示先のmain要素がありません');return false}
+  main.appendChild(page);
+ }
  let appRoot=$('storeappRoot');
  if(!appRoot){
-  appRoot=document.createElement('div');appRoot.id='storeappRoot';
-  let shell=page.querySelector('.module-page');
-  if(!shell){shell=document.createElement('div');shell.className='module-page';page.appendChild(shell)}
-  shell.appendChild(appRoot);
+  const shell=page.querySelector('.module-page')||page;
+  appRoot=document.createElement('div');appRoot.id='storeappRoot';shell.appendChild(appRoot);
  }
- document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
- page.classList.add('active');document.body.classList.remove('launcher-mode');
+ document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p===page));
+ document.body.classList.remove('launcher-mode');
  applyTheme();
  try{render()}catch(err){
   console.error('アプリの描画エラー:',err);
-  const rootEl=$('storeappRoot');
-  if(rootEl)rootEl.innerHTML='<div class="store-shell"><div class="store-standalone-head"><strong>'+esc(a.name)+'</strong><button class="btn" data-store-exit>⌂ ホーム画面へ戻る</button></div><section class="store-section"><h2>アプリを開けませんでした</h2><p>起動中にエラーが発生しました。ホームに戻って、もう一度開いてください。</p><p class="store-note">'+esc(err&&err.message?err.message:String(err))+'</p></section></div>';
+  appRoot.innerHTML='<div class="store-shell"><div class="store-standalone-head"><strong>'+esc(a.name)+'</strong><button class="btn" data-store-exit>⌂ ホーム画面へ戻る</button></div><section class="store-section"><h2>アプリを開けませんでした</h2><p>起動中にエラーが発生しました。ホームに戻って、もう一度開いてください。</p><p class="store-note">'+esc(err&&err.message?err.message:String(err))+'</p></section></div>';
  }
  window.scrollTo({top:0,behavior:'smooth'});
  return true;
