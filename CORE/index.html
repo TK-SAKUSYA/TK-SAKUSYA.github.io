@@ -321,7 +321,7 @@ document.querySelector('#nav').onclick=()=>{
 
 
 /* CORE v1.0.0 foundation: versioning, startup identity and management center */
-const CORE_VERSION='1.0.0';
+const CORE_VERSION='1.0.1';
 if(!base.some(a=>a[0]==='admin'))base.push(['admin','CORE管理センター','🛠️']);
 S.installed=Array.isArray(S.installed)?S.installed:[];
 if(!S.installed.includes('admin'))S.installed.push('admin');
@@ -346,7 +346,7 @@ function coreAdminDraw(){
  const usage=installed.map(a=>({name:a.name,icon:a.icon,time:Number((S.usage||{})[a.id])||0})).sort((a,b)=>b.time-a.time);
  const fmt=s=>{s=Math.max(0,Math.floor(s));return s>=3600?Math.floor(s/3600)+'時間'+Math.floor(s%3600/60)+'分':Math.floor(s/60)+'分'+s%60+'秒'};
  const logs=S.errorLog.slice(-15).reverse();
- $('#body').innerHTML='<div class="card"><h3>🛠️ CORE管理センター</h3><p class="muted">CORE OSの内部情報と保存データを確認します。</p><div class="gridapps" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:5px 0"><div class="adminMetric"><small>バージョン</small><b>1.0.0</b></div><div class="adminMetric"><small>インストール済み</small><b>'+installed.length+'本</b></div><div class="adminMetric"><small>CORE保存データ</small><b>'+storageText+'</b></div><div class="adminMetric"><small>記録エラー</small><b>'+S.errorLog.length+'件</b></div></div></div><div class="card"><h3>📱 システム情報</h3><div class="muted" id="coreAdminSystem"></div><button class="btn secondary" id="coreAdminRefresh">情報を更新</button></div><div class="card"><h3>⏱️ アプリ利用時間</h3>'+(usage.length?usage.map(a=>'<div class="listitem"><span>'+a.icon+' '+esc(a.name)+'</span><b>'+fmt(a.time)+'</b></div>').join(''):'<p class="muted">記録なし</p>')+'</div><div class="card"><h3>📦 アプリデータ</h3>'+(custom.length?custom.map(a=>'<div class="listitem"><span>'+esc(a.name)+'<br><small>'+esc(a.id)+' · '+coreFormatBytes(a.size)+'</small></span><button class="btn danger" data-admin-uninstall="'+esc(a.id)+'">削除</button></div>').join(''):'<p class="muted">追加アプリはありません。</p>')+'<p class="muted">標準アプリの内部データ容量は個別に分離されていないため、正確な個別容量は取得不可です。</p></div><div class="card"><h3>🧾 エラー履歴</h3>'+(logs.length?logs.map(x=>'<div class="adminLog"><b>'+esc(x.type)+'</b> · '+esc(x.time)+'<br>'+esc(x.message)+'</div>').join(''):'<p class="muted">記録されたエラーはありません。</p>')+'<button class="btn secondary" id="coreAdminClearLogs">エラー履歴を消去</button></div><div class="card"><h3>🗄️ ストレージ基盤</h3><p class="muted" id="coreStorageStatus">IndexedDBの状態を確認しています…</p><button class="btn secondary" id="coreStorageRefresh">状態を再確認</button></div><div class="card"><h3>💾 データ保護</h3><p class="muted">現在のCOREデータをJSON形式で書き出します。既存データは自動削除しません。</p><button class="btn" id="coreAdminBackup">バックアップを書き出す</button></div><div class="card"><h3>ℹ️ COREについて</h3><b>CORE OS ver.1.0.0</b><p class="muted">正式公開に向けた基盤アップデートを適用中です。クラウド同期・全機能の実装と総合テストはまだ完了していません。</p><p class="muted">更新内容：起動ロゴ、バージョン管理、管理センター、エラー記録。</p></div>';
+ $('#body').innerHTML='<div class="card"><h3>🛠️ CORE管理センター</h3><p class="muted">CORE OSの内部情報と保存データを確認します。</p><div class="gridapps" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:5px 0"><div class="adminMetric"><small>バージョン</small><b>1.0.0</b></div><div class="adminMetric"><small>インストール済み</small><b>'+installed.length+'本</b></div><div class="adminMetric"><small>CORE保存データ</small><b>'+storageText+'</b></div><div class="adminMetric"><small>記録エラー</small><b>'+S.errorLog.length+'件</b></div></div></div><div class="card"><h3>📱 システム情報</h3><div class="muted" id="coreAdminSystem"></div><button class="btn secondary" id="coreAdminRefresh">情報を更新</button></div><div class="card"><h3>⏱️ アプリ利用時間</h3>'+(usage.length?usage.map(a=>'<div class="listitem"><span>'+a.icon+' '+esc(a.name)+'</span><b>'+fmt(a.time)+'</b></div>').join(''):'<p class="muted">記録なし</p>')+'</div><div class="card"><h3>📦 アプリデータ</h3>'+(custom.length?custom.map(a=>'<div class="listitem"><span>'+esc(a.name)+'<br><small>'+esc(a.id)+' · '+coreFormatBytes(a.size)+'</small></span><button class="btn danger" data-admin-uninstall="'+esc(a.id)+'">削除</button></div>').join(''):'<p class="muted">追加アプリはありません。</p>')+'<p class="muted">標準アプリの内部データ容量は個別に分離されていないため、正確な個別容量は取得不可です。</p></div><div class="card"><h3>🧾 エラー履歴</h3>'+(logs.length?logs.map(x=>'<div class="adminLog"><b>'+esc(x.type)+'</b> · '+esc(x.time)+'<br>'+esc(x.message)+'</div>').join(''):'<p class="muted">記録されたエラーはありません。</p>')+'<button class="btn secondary" id="coreAdminClearLogs">エラー履歴を消去</button></div><div class="card"><h3>🗄️ ストレージ基盤</h3><p class="muted" id="coreStorageStatus">IndexedDBの状態を確認しています…</p><button class="btn secondary" id="coreStorageRefresh">状態を再確認</button></div><div class="card"><h3>💾 データ保護</h3><p class="muted">現在のCOREデータをJSON形式で書き出します。既存データは自動削除しません。</p><button class="btn" id="coreAdminBackup">バックアップを書き出す</button></div><div class="card"><h3>ℹ️ COREについて</h3><b>CORE OS ver.1.0.1</b><p class="muted">正式公開に向けた基盤アップデートを適用中です。クラウド同期・全機能の実装と総合テストはまだ完了していません。</p><p class="muted">更新内容：起動ロゴ、バージョン管理、管理センター、エラー記録。</p></div>';
  coreAdminSystem();
  coreStorageStatus();
  $('#coreStorageRefresh').onclick=coreStorageStatus;
@@ -426,6 +426,186 @@ async function coreStorageStatus(){
  }
 }
 coreMigrateLegacyWallpaper().then(()=>coreStorageStatus()).catch(()=>coreStorageStatus());
+
+
+/* CORE v1.0.1: Pixel-inspired UI, smooth transitions, drag placement, IndexedDB wallpaper and ChatAI client */
+const coreV101Style=document.createElement('style');
+coreV101Style.textContent=':root{--bg:#e8eaf2;--s:#f8f9ff;--s2:#e1e4ef;--ink:#191b22;--muted:#606574;--a:#5266a8;--line:#d5d9e5;--surface:#f4f5fb;--shadow:0 8px 28px #18213a20}body{background:#151923}.phone{background:var(--bg);box-shadow:0 24px 80px #0007,0 0 0 1px #ffffff20;border-radius:34px}.status{height:48px;padding:12px 18px 8px;align-items:center;gap:10px;color:var(--ink);font-size:13px;z-index:42}.statusActions{display:flex;align-items:center;gap:8px;margin-left:auto}.statusAction{height:34px;min-width:40px;padding:0 10px;border:0;border-radius:18px;background:#ffffff9c;color:var(--ink);font-size:15px;box-shadow:0 2px 8px #18213a12}.home{inset:48px 0 0;padding:25px 22px 12px;transition:opacity .2s ease,transform .24s cubic-bezier(.2,.8,.2,1)}#home.hide{display:flex!important;opacity:0;transform:scale(.985);pointer-events:none}.bigclock{font-size:70px;letter-spacing:-4.5px;font-weight:300}.widget,.dock{background:#ffffffa6;border:1px solid #ffffff90;box-shadow:0 8px 26px #24314a12;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}.appicon{min-width:0;transition:transform .16s ease,filter .16s ease;user-select:none;-webkit-user-select:none;touch-action:pan-y}.appicon:active,.btn:active,.tile:active,.statusAction:active{transform:scale(.94)}.glyph{width:54px;height:54px;border-radius:19px;background:linear-gradient(145deg,#fff,#edf0f9);box-shadow:0 4px 12px #1d294018,inset 0 1px #ffffff}.panel{display:flex!important;visibility:hidden;opacity:0;transform:translateY(12px) scale(.99);pointer-events:none;transition:opacity .2s ease,transform .24s cubic-bezier(.2,.8,.2,1),visibility .24s}.panel.show{visibility:visible;opacity:1;transform:none;pointer-events:auto}.apphead{height:64px;padding:0 20px;background:var(--s);border-bottom:1px solid var(--line)}.appbody{overscroll-behavior:contain;scrollbar-width:thin}.btn,.secondary,.danger{transition:transform .14s ease,filter .14s ease,background .14s ease}.btn{border-radius:22px;box-shadow:0 2px 7px #26345a16}.field,textarea,select{border-radius:16px;background:var(--surface)}.card{border:1px solid #ffffff35;box-shadow:0 3px 14px #1c294010}.drawer{display:flex!important;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .22s ease,visibility .22s}.drawer.show{visibility:visible;opacity:1;pointer-events:auto}.drawerbox{max-height:92%;border-radius:30px 30px 0 0;box-shadow:0 -12px 40px #11182722;transform:translateY(24px);transition:transform .24s cubic-bezier(.2,.8,.2,1)}.drawer.show .drawerbox{transform:translateY(0)}.quick{display:block!important;visibility:hidden;opacity:0;pointer-events:none;transform:translateY(-12px);transition:opacity .2s ease,transform .22s ease,visibility .2s;background:color-mix(in srgb,var(--bg) 91%,transparent);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:45}.quick.show{visibility:visible;opacity:1;pointer-events:auto;transform:none}.tile{border-radius:22px;min-height:68px;box-shadow:0 3px 12px #1c294012}.lock{visibility:hidden;opacity:0;transition:opacity .25s ease,visibility .25s}.lock.show{visibility:visible;opacity:1}.overlayExtra{visibility:hidden;opacity:0;display:block!important;pointer-events:none;transform:translateY(12px);transition:opacity .2s ease,transform .22s ease,visibility .2s}.overlayExtra.show{visibility:visible;opacity:1;pointer-events:auto;transform:none}.homeTools{align-items:center}.homeTools button{border-radius:18px;padding:8px 12px}#homeIcons{min-height:132px;align-content:start;grid-auto-rows:minmax(76px,auto)}#dock{min-height:84px;align-items:center;gap:4px}#dock .appicon .glyph{width:50px;height:50px}.dragging{opacity:.48;transform:scale(.92)!important}.dropTarget{outline:2px solid var(--a);outline-offset:3px;border-radius:18px}#corePageDots{display:flex;justify-content:center;gap:8px;padding:7px}#corePageDots button{border:0;background:var(--line);width:7px;height:7px;border-radius:9px;padding:0;transition:all .2s}#corePageDots button.active{width:22px;background:var(--a)}.chatShell{height:100%;min-height:430px;display:flex;flex-direction:column;gap:10px}.chatMessages{flex:1;min-height:250px;overflow:auto;display:flex;flex-direction:column;gap:9px;padding:6px 2px}.chatBubble{max-width:88%;padding:11px 14px;border-radius:18px;background:var(--s2);white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55}.chatBubble.user{align-self:flex-end;background:var(--a);color:white;border-bottom-right-radius:6px}.chatBubble.assistant{align-self:flex-start;border-bottom-left-radius:6px}.chatComposer{display:flex;gap:8px;align-items:flex-end}.chatComposer textarea{min-height:46px;max-height:120px;resize:vertical;margin:0}@media(max-width:500px){.phone{border-radius:0}.home{padding-left:20px;padding-right:20px}.bigclock{font-size:68px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}';
+document.head.append(coreV101Style);
+
+/* Separate status controls so notification clicks never bubble into quick settings */
+noticeButton.style.cssText='';
+noticeButton.className='statusAction';
+let statusActions=document.getElementById('statusActions');
+if(!statusActions){statusActions=document.createElement('div');statusActions.id='statusActions';statusActions.className='statusActions';$('#status').append(statusActions)}
+statusActions.append(noticeButton);
+const quickOpenButton=document.createElement('button');
+quickOpenButton.className='statusAction';quickOpenButton.type='button';quickOpenButton.textContent='⚙';quickOpenButton.title='クイック設定';
+statusActions.append(quickOpenButton);
+noticeButton.onclick=e=>{e.stopPropagation();S.notifications=(S.notifications||[]).map(n=>({...n,read:true}));save();renderNotificationCenter();notice.classList.add('show')};
+quickOpenButton.onclick=e=>{e.stopPropagation();$('#quick').classList.add('show')};
+$('#status').onclick=e=>{if(!e.target.closest('#statusActions'))$('#quick').classList.add('show')};
+
+/* Persistent home pages and dock. Long press an icon to move it. */
+S.homePages=Array.isArray(S.homePages)?S.homePages:[];
+S.dockOrder=Array.isArray(S.dockOrder)?S.dockOrder:['browser','memo','store','settings'];
+let homePage=Math.max(0,Math.min(Number(S.homePage)||0,Math.max(0,S.homePages.length-1)));
+function coreEnsurePages(){
+ const ids=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(a=>a.id);
+ if(!S.homePages.length)S.homePages=[ids.slice()];
+ const known=new Set(S.homePages.flat());
+ ids.forEach(id=>{if(!known.has(id))S.homePages[0].push(id)});
+ S.homePages=S.homePages.filter(p=>Array.isArray(p));
+ if(!S.homePages.length)S.homePages=[[]];
+ homePage=Math.min(homePage,S.homePages.length-1);
+ S.dockOrder=S.dockOrder.filter(id=>apps().some(a=>a.id===id));
+ ['browser','memo','store','settings'].forEach(id=>{if(apps().some(a=>a.id===id)&&!S.dockOrder.includes(id))S.dockOrder.push(id)});
+}
+function coreHomeTile(id,zone){
+ if(id.startsWith('folder:')){const ix=Number(id.slice(7)),f=(S.folders||[])[ix];return f?'<button class="appicon" data-folder="'+ix+'" data-zone="'+zone+'"><span class="glyph">📁</span>'+esc(f.name)+'</button>':''}
+ const a=apps().find(x=>x.id===id);return a?tile(a).replace('data-open="'+id+'"','data-open="'+id+'" data-zone="'+zone+'"'):'';
+}
+function coreRenderPlacement(){
+ coreEnsurePages();
+ $('#allApps').innerHTML=apps().map(tile).join('');
+ $('#homeIcons').innerHTML=(S.homePages[homePage]||[]).map(id=>coreHomeTile(id,'home')).join('');
+ $('#dock').innerHTML=S.dockOrder.map(id=>coreHomeTile(id,'dock')).join('');
+ let dots=document.getElementById('corePageDots');
+ if(!dots){dots=document.createElement('div');dots.id='corePageDots';$('#homeIcons').insertAdjacentElement('afterend',dots)}
+ dots.innerHTML=S.homePages.map((p,i)=>'<button type="button" data-page="'+i+'" class="'+(i===homePage?'active':'')+'" aria-label="ホームページ '+(i+1)+'"></button>').join('')+'<button type="button" data-page-add="1" aria-label="ページ追加" style="width:18px;height:18px;background:transparent;color:var(--muted)">＋</button>';
+ if(!document.getElementById('corePageHint')){const hint=document.createElement('div');hint.id='corePageHint';hint.className='muted';hint.style.cssText='text-align:center;font-size:10px';dots.after(hint)}
+ $('#corePageHint').textContent='長押しして移動 · '+(homePage+1)+' / '+S.homePages.length;
+}
+const coreOldRenderV101=render;
+render=function(){coreOldRenderV101();coreRenderPlacement()};
+document.addEventListener('click',e=>{
+ const p=e.target.closest('[data-page]');if(p){homePage=Number(p.dataset.page);S.homePage=homePage;save();coreRenderPlacement();return}
+ if(e.target.closest('[data-page-add]')){S.homePages.push([]);homePage=S.homePages.length-1;S.homePage=homePage;save();coreRenderPlacement();return}
+});
+let coreHold=null,coreDrag=null;
+document.addEventListener('pointerdown',e=>{
+ const el=e.target.closest('#homeIcons .appicon[data-open],#dock .appicon[data-open]');
+ if(!el||e.button>0)return;
+ const id=el.dataset.open,zone=el.dataset.zone||(el.closest('#dock')?'dock':'home');
+ coreHold={id,zone,el,x:e.clientX,y:e.clientY,timer:setTimeout(()=>{coreDrag={id,zone};el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(18)},420)};
+},{passive:true});
+document.addEventListener('pointermove',e=>{
+ if(!coreHold)return;
+ if(Math.hypot(e.clientX-coreHold.x,e.clientY-coreHold.y)>18&&!coreDrag){clearTimeout(coreHold.timer);coreHold=null}
+ if(coreDrag){const under=document.elementFromPoint(e.clientX,e.clientY)?.closest('#homeIcons .appicon,#dock .appicon');document.querySelectorAll('.dropTarget').forEach(x=>x.classList.remove('dropTarget'));if(under)under.classList.add('dropTarget')}
+},{passive:true});
+document.addEventListener('pointerup',e=>{
+ if(coreHold)clearTimeout(coreHold.timer);
+ if(!coreDrag){coreHold=null;return}
+ const source=coreDrag,target=document.elementFromPoint(e.clientX,e.clientY);
+ const targetIcon=target?.closest('#homeIcons .appicon[data-open],#dock .appicon[data-open]');
+ const inDock=!!target?.closest('#dock'),inHome=!!target?.closest('#homeIcons');
+ document.querySelectorAll('.dragging,.dropTarget').forEach(x=>x.classList.remove('dragging','dropTarget'));
+ const removeFrom=(arr,id)=>{const i=arr.indexOf(id);if(i>=0)arr.splice(i,1)};
+ if(targetIcon&&targetIcon.dataset.open!==source.id&&source.zone==='home'&&inHome){
+  const a=targetIcon.dataset.open;S.folders=S.folders||[];S.folders.push({name:'フォルダ',ids:[source.id,a]});
+  const fi=S.folders.length-1,pg=S.homePages[homePage];removeFrom(pg,source.id);removeFrom(pg,a);pg.push('folder:'+fi);
+ }else if(inDock&&source.zone!=='dock'){
+  S.homePages.forEach(p=>removeFrom(p,source.id));if(!S.dockOrder.includes(source.id))S.dockOrder.push(source.id);
+ }else if(inHome&&source.zone==='dock'){
+  removeFrom(S.dockOrder,source.id);if(!S.homePages[homePage].includes(source.id))S.homePages[homePage].push(source.id);
+ }else if(targetIcon&&source.zone===targetIcon.dataset.zone){
+  const arr=source.zone==='dock'?S.dockOrder:S.homePages[homePage],from=arr.indexOf(source.id),to=arr.indexOf(targetIcon.dataset.open);
+  if(from>=0&&to>=0){arr.splice(from,1);arr.splice(to,0,source.id)}
+ }
+ S.homePage=homePage;save();coreRenderPlacement();coreHold=null;coreDrag=null;
+});
+document.addEventListener('pointercancel',()=>{if(coreHold)clearTimeout(coreHold.timer);coreHold=null;coreDrag=null;document.querySelectorAll('.dragging,.dropTarget').forEach(x=>x.classList.remove('dragging','dropTarget'))});
+
+/* Store: add user-registered web apps and ChatAI */
+const coreChatCatalog={id:'chatai',name:'ChatAI',icon:'🤖',version:'1.0',desc:'バックエンド接続式の日本語AIチャット',backendRequired:true};
+const coreStoreDrawBefore=draw;
+draw=function(id){
+ coreStoreDrawBefore(id);
+ if(id==='store'){
+  S.storeApps=Array.isArray(S.storeApps)?S.storeApps:[];
+  S.catalog=[...(S.catalog||[]),coreChatCatalog,...S.storeApps.filter(x=>x.id!=='chatai')];
+  const extra=S.catalog.filter(x=>x.id==='chatai'||S.storeApps.some(y=>y.id===x.id));
+  const area=document.createElement('div');area.innerHTML='<div class="card" id="coreRegister"><h3>＋ Webアプリを登録</h3><input class="field" id="coreAppName" placeholder="アプリ名"><input class="field" id="coreAppUrl" type="url" placeholder="https://example.com"><input class="field" id="coreAppIcon" maxlength="4" placeholder="アイコン（例：🚀）"><button class="btn" id="coreRegisterApp">登録する</button><p class="muted">HTTPSの公開URLを登録できます。登録後にインストールするとホーム画面から起動できます。</p></div>';
+  $('#body').append(area);
+  extra.forEach(x=>{const installed=S.installed.includes(x.id),card=document.createElement('div');card.className='card';card.innerHTML='<div class="row"><span style="font-size:30px">'+x.icon+'</span><span style="flex:1"><b>'+esc(x.name)+'</b><br><small class="muted">'+esc(x.desc)+'</small></span><button class="btn" data-install="'+esc(x.id)+'">'+(installed?'起動':'インストール')+'</button></div>';$('#coreRegister').before(card)});
+  $('#coreRegisterApp').onclick=()=>{
+   const name=$('#coreAppName').value.trim(),url=$('#coreAppUrl').value.trim(),icon=$('#coreAppIcon').value.trim()||'🌐';
+   if(!name||!url)return alert('アプリ名とURLを入力してください');
+   let parsed;try{parsed=new URL(url)}catch(e){return alert('URLの形式を確認してください')}
+   if(parsed.protocol!=='https:')return alert('安全のためHTTPSのURLのみ登録できます');
+   const id='user-'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'-'+Date.now().toString(36);
+   const app={id,name,icon,version:'User',desc:'ユーザー登録アプリ',url:parsed.href};
+   S.storeApps.push(app);S.catalog.push(app);save();draw('store');
+  };
+ }
+};
+
+/* ChatAI: calls a real configured backend; never generates fake replies */
+function coreChatHistory(){S.chatHistory=Array.isArray(S.chatHistory)?S.chatHistory:[];if(!S.activeChatId||!S.chatHistory.some(c=>c.id===S.activeChatId)){const c={id:'chat-'+Date.now(),title:'新しい会話',messages:[]};S.chatHistory.unshift(c);S.activeChatId=c.id;save()}return S.chatHistory.find(c=>c.id===S.activeChatId)}
+function coreChatRender(){const chat=coreChatHistory(),el=$('#chatMessages');if(!el)return;el.innerHTML=chat.messages.map(m=>'<div class="chatBubble '+(m.role==='user'?'user':'assistant')+'">'+esc(m.content)+'</div>').join('');el.scrollTop=el.scrollHeight}
+function coreChatDraw(){
+ coreChatHistory();
+ $('#body').innerHTML='<div class="chatShell"><div class="row"><button class="btn secondary" id="chatNew">＋ 新しい会話</button><button class="btn secondary" id="chatHistory">履歴</button></div><div class="muted" id="chatStatus">バックエンド未設定。設定画面でAPIサーバーURLを登録してください。</div><div id="chatMessages" class="chatMessages"></div><div class="chatComposer"><textarea id="chatInput" class="field" rows="2" placeholder="メッセージを入力"></textarea><button class="btn" id="chatSend">送信</button></div><div id="chatHistoryPanel" class="card hide"></div><p class="muted">ChatAIは設定したバックエンドにのみ通信します。APIキーはCOREに保存しません。</p></div>';
+ coreChatRender();
+ $('#chatNew').onclick=()=>{const c={id:'chat-'+Date.now(),title:'新しい会話',messages:[]};S.chatHistory.unshift(c);S.activeChatId=c.id;save();coreChatDraw()};
+ $('#chatHistory').onclick=()=>{const p=$('#chatHistoryPanel');p.classList.toggle('hide');p.innerHTML=S.chatHistory.map(c=>'<div class="listitem"><button class="btn secondary" data-chat-open="'+esc(c.id)+'">'+esc(c.title||'新しい会話')+'</button><button class="btn danger" data-chat-delete="'+esc(c.id)+'">削除</button></div>').join('')||'履歴はありません'};
+ $('#chatHistoryPanel').onclick=e=>{const o=e.target.closest('[data-chat-open]'),d=e.target.closest('[data-chat-delete]');if(d){S.chatHistory=S.chatHistory.filter(c=>c.id!==d.dataset.chatDelete);if(S.activeChatId===d.dataset.chatDelete)S.activeChatId='';save();coreChatDraw()}else if(o){S.activeChatId=o.dataset.chatOpen;save();coreChatDraw()}};
+ $('#chatSend').onclick=coreChatSend;$('#chatInput').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();coreChatSend()}};
+}
+async function coreChatSend(){
+ const input=$('#chatInput'),status=$('#chatStatus'),textValue=input.value.trim();if(!textValue)return;
+ const endpoint=String(S.chatEndpoint||'').trim();if(!endpoint){status.textContent='通信先が未設定です。設定画面でバックエンドURLを登録してください。';return}
+ let url;try{url=new URL(endpoint)}catch(e){status.textContent='バックエンドURLの形式が正しくありません。';return}
+ if(url.protocol!=='https:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){status.textContent='公開環境ではHTTPSのバックエンドURLが必要です。';return}
+ const chat=coreChatHistory();chat.messages.push({role:'user',content:textValue});if(chat.messages.length===1)chat.title=textValue.slice(0,24);save();input.value='';coreChatRender();status.textContent='AIに接続中…';
+ try{
+  const response=await fetch(url.href,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chat.messages.filter(m=>m.role==='user'||m.role==='assistant').map(m=>({role:m.role,content:m.content}))})});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const data=await response.json(),reply=data.reply||data.message||data.text||data.choices?.[0]?.message?.content;
+  if(typeof reply!=='string'||!reply.trim())throw new Error('応答形式が不正です。{reply:"..."} またはOpenAI互換形式が必要です。');
+  chat.messages.push({role:'assistant',content:reply});save();coreChatRender();status.textContent='接続済み · '+url.host;
+ }catch(e){chat.messages.push({role:'system',content:'通信エラー：'+String(e.message||e)});save();coreChatRender();status.textContent='通信に失敗しました。URL・CORS・サーバー状態を確認してください。'}
+}
+const coreChatDrawBefore=draw;
+draw=function(id){if(id==='chatai'){coreChatDraw();return}coreChatDrawBefore(id)};
+
+/* Settings: light/dark/auto, backend endpoint, wallpaper modes and IndexedDB image blobs */
+const coreSettingsDrawBefore=draw;
+draw=function(id){
+ coreSettingsDrawBefore(id);
+ if(id==='settings'){
+  const box=document.createElement('div');box.className='card';box.innerHTML='<h3>🎨 テーマ</h3><label class="muted" for="coreThemeMode">表示モード</label><select id="coreThemeMode" class="field"><option value="dark">ダークモード</option><option value="light">ライトモード</option><option value="auto">自動（端末設定に連動）</option></select>';$('#body').prepend(box);
+  S.themeMode=S.themeMode||(S.dark?'dark':'light');$('#coreThemeMode').value=S.themeMode;$('#coreThemeMode').onchange=e=>{S.themeMode=e.target.value;save();theme()};
+  const chatbox=document.createElement('div');chatbox.className='card';chatbox.innerHTML='<h3>🤖 ChatAI 接続設定</h3><p class="muted">自分で用意したHTTPSバックエンドのURLを登録します。APIキーはここに入力しないでください。</p><input id="coreChatEndpoint" class="field" type="url" placeholder="https://your-server.example/chat"><button id="coreChatSave" class="btn">接続先を保存</button><p class="muted">サーバーはPOST /chat形式でJSONのmessagesを受け取り、{reply:"AIの返答"}またはOpenAI互換のchoices形式を返す必要があります。</p>';$('#body').append(chatbox);$('#coreChatEndpoint').value=S.chatEndpoint||'';
+  $('#coreChatSave').onclick=()=>{const v=$('#coreChatEndpoint').value.trim();if(v){try{const u=new URL(v);if(u.protocol!=='https:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1')throw 0}catch(e){return alert('有効なHTTPS URLを入力してください')}}S.chatEndpoint=v;save();alert('接続先を保存しました。通信テストはChatAIから行えます。')};
+  const wallbox=document.createElement('div');wallbox.className='card';wallbox.innerHTML='<h3>🖼️ 壁紙の表示方法</h3><select id="coreWallMode" class="field"><option value="cover">画面全体に合わせる</option><option value="contain">画像全体を表示</option><option value="stretch">画面に合わせて伸縮</option></select><p class="muted">新しい画像はIndexedDBに保存します。既存の壁紙データもそのまま利用できます。</p>';$('#body').append(wallbox);$('#coreWallMode').value=S.wallpaperMode||'cover';$('#coreWallMode').onchange=e=>{S.wallpaperMode=e.target.value;save();wall()};
+  const upload=$('#coreWallpaperFile');
+  if(upload)upload.onchange=async e=>{
+   const file=e.target.files?.[0];if(!file)return;if(!file.type.startsWith('image/'))return alert('画像ファイルを選択してください');
+   try{const bmp=await createImageBitmap(file),scale=Math.min(1,2000/Math.max(bmp.width,bmp.height)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bmp.width*scale));canvas.height=Math.max(1,Math.round(bmp.height*scale));const ctx=canvas.getContext('2d');ctx.drawImage(bmp,0,0,canvas.width,canvas.height);bmp.close?.();const blob=await new Promise((resolve,reject)=>canvas.toBlob(v=>v?resolve(v):reject(new Error('画像変換に失敗')),'image/webp',.86));await window.CORE.storage.set('customWallpaperBlob',blob);const preview=$('#coreWallpaperPreview');if(preview){if(window.coreWallpaperPreviewURL)URL.revokeObjectURL(window.coreWallpaperPreviewURL);window.coreWallpaperPreviewURL=URL.createObjectURL(blob);preview.style.backgroundImage='url("'+window.coreWallpaperPreviewURL+'")';preview.textContent=''}window.coreWallpaperPending=true;alert('画像をIndexedDBに保存しました。壁紙を適用を押してください。')}catch(err){alert('壁紙の保存に失敗しました：'+String(err.message||err))}
+  };
+  const apply=$('#applyCustomWallpaper');if(apply)apply.onclick=async()=>{try{const blob=await window.CORE.storage.get('customWallpaperBlob');if(!blob&&!S.customWallpaper)return alert('先に画像を選択してください');if(blob)window.coreWallpaperAppliedBlob=blob;save();wall();alert('壁紙を適用しました。')}catch(e){alert('壁紙を読み込めません：'+String(e.message||e))}};
+  const clear=$('#clearCustomWallpaper');if(clear)clear.onclick=async()=>{if(!confirm('カスタム壁紙を削除して標準壁紙に戻しますか？'))return;try{await window.CORE.storage.delete('customWallpaperBlob')}catch(e){}delete S.customWallpaper;window.coreWallpaperAppliedBlob=null;save();wall();const p=$('#coreWallpaperPreview');if(p){p.style.backgroundImage='';p.textContent='壁紙プレビュー'}};
+ }
+};
+
+/* Apply theme preference and restore IndexedDB wallpaper */
+const coreThemeLegacy=theme;
+theme=function(){
+ if(S.themeMode==='light')S.dark=false;else if(S.themeMode==='dark')S.dark=true;else if(S.themeMode==='auto')S.dark=!!window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+ coreThemeLegacy();document.documentElement.dataset.theme=S.dark?'dark':'light';
+};
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(S.themeMode==='auto'){theme();save()}})}catch(e){}
+$('#darkQuick').onclick=()=>{S.themeMode=S.dark?'light':'dark';S.dark=S.themeMode==='dark';save();theme()};
+const coreWallLegacy=wall;
+let coreWallpaperObjectURL='';
+wall=function(){
+ coreWallLegacy();const mode=S.wallpaperMode||'cover';$('#wall').style.backgroundSize=mode==='stretch'?'100% 100%':mode;$('#wall').style.backgroundPosition='center';
+ if(S.customWallpaper)$('#wall').style.backgroundImage='url("'+S.customWallpaper+'")';
+ if(window.coreWallpaperAppliedBlob){if(coreWallpaperObjectURL)URL.revokeObjectURL(coreWallpaperObjectURL);coreWallpaperObjectURL=URL.createObjectURL(window.coreWallpaperAppliedBlob);$('#wall').style.backgroundImage='url("'+coreWallpaperObjectURL+'")'}
+ else if(window.CORE?.storage)window.CORE.storage.get('customWallpaperBlob').then(blob=>{if(blob&&!window.coreWallpaperAppliedBlob){window.coreWallpaperAppliedBlob=blob;if(coreWallpaperObjectURL)URL.revokeObjectURL(coreWallpaperObjectURL);coreWallpaperObjectURL=URL.createObjectURL(blob);$('#wall').style.backgroundImage='url("'+coreWallpaperObjectURL+'")'}}).catch(()=>{});
+};
 
 theme();wall();render();tick();
 })();
