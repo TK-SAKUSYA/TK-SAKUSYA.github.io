@@ -96,8 +96,7 @@ window.CORE={notify:pushCoreNotification,open,lock:showLock};
 
 /* CORE v5: functional simulated quick settings, gestures and device info */
 S.quickState=Object.assign({wifi:true,bluetooth:true,airplane:false,brightness:100},S.quickState||{});
-const quickButtons=$('#quick .tiles .tile');
-function $(s){return [...document.querySelectorAll(s)]}
+const quickButtons=[...document.querySelectorAll('#quick .tiles .tile')];
 if(quickButtons[0]){quickButtons[0].id='wifiTile';quickButtons[0].textContent='◉ Wi-Fi '+(S.quickState.wifi?'ON':'OFF')}
 if(quickButtons[1]){quickButtons[1].id='btTile';quickButtons[1].textContent='ᛒ Bluetooth '+(S.quickState.bluetooth?'ON':'OFF')}
 $('#airplane').textContent='✈ 機内モード '+(S.quickState.airplane?'ON':'OFF');
