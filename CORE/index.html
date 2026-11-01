@@ -504,7 +504,9 @@ document.addEventListener('pointerup',e=>{
  const inDock=!!target?.closest('#dock'),inHome=!!target?.closest('#homeIcons');
  document.querySelectorAll('.dragging,.dropTarget').forEach(x=>x.classList.remove('dragging','dropTarget'));
  const removeFrom=(arr,id)=>{const i=arr.indexOf(id);if(i>=0)arr.splice(i,1)};
- if(targetIcon&&targetIcon.dataset.open!==source.id&&source.zone==='home'&&inHome){
+ const targetPageEl=target?.closest('[data-page]');
+ if(targetPageEl&&source.zone==='home'){const nextPage=Number(targetPageEl.dataset.page);if(nextPage!==homePage&&S.homePages[nextPage]){removeFrom(S.homePages[homePage],source.id);if(!S.homePages[nextPage].includes(source.id))S.homePages[nextPage].push(source.id)}}
+ else if(targetIcon&&targetIcon.dataset.open!==source.id&&source.zone==='home'&&inHome){
   const a=targetIcon.dataset.open;S.folders=S.folders||[];S.folders.push({name:'フォルダ',ids:[source.id,a]});
   const fi=S.folders.length-1,pg=S.homePages[homePage];removeFrom(pg,source.id);removeFrom(pg,a);pg.push('folder:'+fi);
  }else if(inDock&&source.zone!=='dock'){
