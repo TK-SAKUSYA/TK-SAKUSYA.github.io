@@ -451,7 +451,7 @@ S.homePages=Array.isArray(S.homePages)?S.homePages:[];
 S.dockOrder=Array.isArray(S.dockOrder)?S.dockOrder:['browser','memo','store','settings'];
 let homePage=Math.max(0,Math.min(Number(S.homePage)||0,Math.max(0,S.homePages.length-1)));
 function coreEnsurePages(){
- const ids=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(a=>a.id);
+ let ids=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(a=>a.id);if(S.homeOrder)ids.sort((x,y)=>{const i=S.homeOrder.indexOf(x),j=S.homeOrder.indexOf(y);return(i<0?999:i)-(j<0?999:j)});
  if(!S.homePages.length)S.homePages=[ids.slice()];
  const known=new Set(S.homePages.flat());
  ids.forEach(id=>{if(!known.has(id))S.homePages[0].push(id)});
@@ -576,7 +576,7 @@ draw=function(id){
  coreSettingsDrawBefore(id);
  if(id==='settings'){
   const box=document.createElement('div');box.className='card';box.innerHTML='<h3>🎨 テーマ</h3><label class="muted" for="coreThemeMode">表示モード</label><select id="coreThemeMode" class="field"><option value="dark">ダークモード</option><option value="light">ライトモード</option><option value="auto">自動（端末設定に連動）</option></select>';$('#body').prepend(box);
-  S.themeMode=S.themeMode||(S.dark?'dark':'light');$('#coreThemeMode').value=S.themeMode;$('#coreThemeMode').onchange=e=>{S.themeMode=e.target.value;save();theme()};
+  S.themeMode=S.themeMode||(S.dark?'dark':'light');$('#coreThemeMode').value=S.themeMode;$('#coreThemeMode').onchange=e=>{S.themeMode=e.target.value;save();theme()};const oldThemeButton=$('#theme');if(oldThemeButton)oldThemeButton.onclick=e=>{e.stopPropagation();S.themeMode=S.dark?'light':'dark';S.dark=S.themeMode==='dark';$('#coreThemeMode').value=S.themeMode;save();theme()};
   const chatbox=document.createElement('div');chatbox.className='card';chatbox.innerHTML='<h3>🤖 ChatAI 接続設定</h3><p class="muted">自分で用意したHTTPSバックエンドのURLを登録します。APIキーはここに入力しないでください。</p><input id="coreChatEndpoint" class="field" type="url" placeholder="https://your-server.example/chat"><button id="coreChatSave" class="btn">接続先を保存</button><p class="muted">サーバーはPOST /chat形式でJSONのmessagesを受け取り、{reply:"AIの返答"}またはOpenAI互換のchoices形式を返す必要があります。</p>';$('#body').append(chatbox);$('#coreChatEndpoint').value=S.chatEndpoint||'';
   $('#coreChatSave').onclick=()=>{const v=$('#coreChatEndpoint').value.trim();if(v){try{const u=new URL(v);if(u.protocol!=='https:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1')throw 0}catch(e){return alert('有効なHTTPS URLを入力してください')}}S.chatEndpoint=v;save();alert('接続先を保存しました。通信テストはChatAIから行えます。')};
   const wallbox=document.createElement('div');wallbox.className='card';wallbox.innerHTML='<h3>🖼️ 壁紙の表示方法</h3><select id="coreWallMode" class="field"><option value="cover">画面全体に合わせる</option><option value="contain">画像全体を表示</option><option value="stretch">画面に合わせて伸縮</option></select><p class="muted">新しい画像はIndexedDBに保存します。既存の壁紙データもそのまま利用できます。</p>';$('#body').append(wallbox);$('#coreWallMode').value=S.wallpaperMode||'cover';$('#coreWallMode').onchange=e=>{S.wallpaperMode=e.target.value;save();wall()};
@@ -591,10 +591,11 @@ draw=function(id){
 };
 
 /* Apply theme preference and restore IndexedDB wallpaper */
+S.themeMode=S.themeMode||(S.dark?'dark':'light');
 const coreThemeLegacy=theme;
 theme=function(){
  if(S.themeMode==='light')S.dark=false;else if(S.themeMode==='dark')S.dark=true;else if(S.themeMode==='auto')S.dark=!!window.matchMedia?.('(prefers-color-scheme: dark)').matches;
- coreThemeLegacy();document.documentElement.dataset.theme=S.dark?'dark':'light';
+ coreThemeLegacy();document.documentElement.dataset.theme=S.dark?'dark':'light';$('#darkQuick').classList.toggle('active',S.dark);$('#darkQuick').textContent=S.dark?'◐ ダークテーマ ON':'◐ ダークテーマ OFF';
 };
 try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(S.themeMode==='auto'){theme();save()}})}catch(e){}
 $('#darkQuick').onclick=()=>{S.themeMode=S.dark?'light':'dark';S.dark=S.themeMode==='dark';save();theme()};
