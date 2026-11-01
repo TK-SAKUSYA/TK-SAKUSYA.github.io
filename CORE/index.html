@@ -801,20 +801,32 @@ coreHomeSwipeArea.addEventListener('pointerup',e=>{
 });
 
 theme();wall();render();tick();
-/* CORE v1.4.1: recover home icons if saved page layout is empty or stale */
+/* CORE v1.4.2: hard recovery for blank home/dock */
 try{
- if(typeof coreEnsurePages==='function'&&typeof coreRenderPlacement==='function'){
-  coreEnsurePages();
-  if(!document.querySelector('#homeIcons .appicon')){
-   const fallbackIds=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(a=>a.id);
-   S.homePages=[fallbackIds];homePage=0;S.homePage=0;
-   S.dockOrder=['browser','memo','store','settings'].filter(id=>apps().some(a=>a.id===id));
-   save();coreRenderPlacement();
-  }
+ const validApps=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(a=>a.id);
+ const validFolders=(S.folders||[]).map((f,i)=>'folder:'+i);
+ let currentIds=Array.isArray(S.homePages?.[homePage])?S.homePages[homePage]:[];
+ const hasValid=currentIds.some(id=>validApps.includes(id)||validFolders.includes(id));
+ if(!hasValid&&validApps.length){
+  S.homePages=[validApps.concat(validFolders)];homePage=0;S.homePage=0;
+ }
+ if(!Array.isArray(S.dockOrder)||!S.dockOrder.some(id=>apps().some(a=>a.id===id))){
+  S.dockOrder=['browser','memo','store','settings'].filter(id=>apps().some(a=>a.id===id));
+ }
+ coreRenderPlacement();
+ if(!document.querySelector('#homeIcons .appicon')){
+  /* Last-resort render bypasses saved placement state entirely */
+  $('#homeIcons').innerHTML=validApps.map(id=>{const a=apps().find(x=>x.id===id);return a?tile(a).replace('data-open="'+id+'"','data-open="'+id+'" data-zone="home"'):''}).join('');
+  $('#dock').innerHTML=['browser','memo','store','settings'].map(id=>apps().find(a=>a.id===id)).filter(Boolean).map(tile).join('');
+  S.homePages=[validApps];homePage=0;S.homePage=0;save();
  }
 }catch(homeRecoveryError){
  console.error('CORE home recovery:',homeRecoveryError);
- try{$('#homeIcons').innerHTML=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(tile).join('');$('#dock').innerHTML=['browser','memo','store','settings'].map(id=>apps().find(a=>a.id===id)).filter(Boolean).map(tile).join('')}catch(e){}
+ try{
+  const validApps=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id));
+  $('#homeIcons').innerHTML=validApps.map(tile).join('');
+  $('#dock').innerHTML=['browser','memo','store','settings'].map(id=>apps().find(a=>a.id===id)).filter(Boolean).map(tile).join('');
+ }catch(e){console.error('CORE last resort render:',e)}
 }
 })();
 </script></body></html>
