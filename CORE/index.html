@@ -207,6 +207,63 @@ draw=function(id){
 };
 paintNotificationButton();
 
+
+/* CORE v8: custom wallpaper studio */
+const stockWall=wall;
+wall=function(){
+ stockWall();
+ if(S.customWallpaper)$('#wall').style.backgroundImage='url("'+S.customWallpaper+'")';
+};
+const wallpaperStudio=document.createElement('div');
+wallpaperStudio.className='card';
+wallpaperStudio.innerHTML='<h3>🖼️ オリジナル壁紙</h3><p class="muted">端末の画像をCOREの壁紙に設定できます。画像は縮小してこのブラウザ内に保存します。</p><input type="file" id="coreWallpaperFile" accept="image/*" class="field"><div id="coreWallpaperPreview" style="height:125px;border-radius:16px;background:var(--s2);background-size:cover;background-position:center;margin:10px 0;display:grid;place-items:center;color:var(--muted)">壁紙プレビュー</div><div class="row"><button class="btn secondary" id="applyCustomWallpaper">壁紙を適用</button><button class="btn danger" id="clearCustomWallpaper">削除</button></div><small class="muted">※画像は最大1200px程度に縮小してJPEG形式で保存します。大きな画像は画質が変わる場合があります。</small>';
+let pendingWallpaper='';
+const wallpaperDrawBase=draw;
+draw=function(id){
+ wallpaperDrawBase(id);
+ if(id==='settings'){
+  $('#body').append(wallpaperStudio);
+  const preview=$('#coreWallpaperPreview');
+  if(S.customWallpaper){preview.style.backgroundImage='url("'+S.customWallpaper+'")';preview.textContent=''}
+  $('#coreWallpaperFile').onchange=e=>{
+   const file=e.target.files&&e.target.files[0];if(!file)return;
+   if(!file.type.startsWith('image/')){alert('画像ファイルを選択してください');return}
+   const reader=new FileReader();
+   reader.onerror=()=>alert('画像を読み込めませんでした');
+   reader.onload=()=>{
+    const img=new Image();
+    img.onerror=()=>alert('この画像形式には対応できません');
+    img.onload=()=>{
+     const scale=Math.min(1,1200/Math.max(img.width,img.height));
+     const canvas=document.createElement('canvas');
+     canvas.width=Math.max(1,Math.round(img.width*scale));
+     canvas.height=Math.max(1,Math.round(img.height*scale));
+     const ctx=canvas.getContext('2d');
+     ctx.drawImage(img,0,0,canvas.width,canvas.height);
+     pendingWallpaper=canvas.toDataURL('image/jpeg',0.78);
+     preview.style.backgroundImage='url("'+pendingWallpaper+'")';
+     preview.textContent='';
+    };
+    img.src=reader.result;
+   };
+   reader.readAsDataURL(file);
+  };
+  $('#applyCustomWallpaper').onclick=()=>{
+   if(!pendingWallpaper&&!S.customWallpaper)return alert('先に画像を選択してください');
+   if(pendingWallpaper)S.customWallpaper=pendingWallpaper;
+   save();wall();alert('オリジナル壁紙を設定しました！');
+  };
+  $('#clearCustomWallpaper').onclick=()=>{
+   if(!S.customWallpaper&&!pendingWallpaper)return;
+   if(confirm('オリジナル壁紙を削除して標準壁紙に戻しますか？')){
+    delete S.customWallpaper;pendingWallpaper='';save();wall();
+    preview.style.backgroundImage='';preview.textContent='壁紙プレビュー';
+    $('#coreWallpaperFile').value='';
+   }
+  };
+ }
+};
+
 theme();wall();render();tick();
 })();
 </script></body></html>
