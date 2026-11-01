@@ -303,6 +303,55 @@ document.querySelector('#nav').onclick=()=>{
  updateDrawer();
 };
 
+
+/* CORE v1.0.0 foundation: versioning, startup identity and management center */
+const CORE_VERSION='1.0.0';
+if(!base.some(a=>a[0]==='admin'))base.push(['admin','CORE管理センター','🛠️']);
+S.installed=Array.isArray(S.installed)?S.installed:[];
+if(!S.installed.includes('admin'))S.installed.push('admin');
+S.errorLog=Array.isArray(S.errorLog)?S.errorLog:[];
+S.coreVersion=CORE_VERSION;
+save();
+document.title='CORE OS | ver.'+CORE_VERSION;
+const coreAdminStyle=document.createElement('style');
+coreAdminStyle.textContent='#coreBoot{position:absolute;inset:0;z-index:100;background:linear-gradient(145deg,#182848,#5369b5 58%,#d8b7dc);display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;transition:opacity .35s ease}#coreBoot.hide{opacity:0;pointer-events:none}.coreLogo{font-size:48px;font-weight:800;letter-spacing:8px}.coreBootSub{font-size:12px;letter-spacing:3px;opacity:.8;margin-top:8px}.coreVersionCard{border:1px solid var(--line)}.adminMetric{padding:12px;border-radius:15px;background:var(--s);min-width:0}.adminMetric b{display:block;font-size:21px;margin-top:5px;overflow-wrap:anywhere}.adminLog{padding:9px;border-bottom:1px solid var(--line);font-size:12px;overflow-wrap:anywhere}';
+document.head.append(coreAdminStyle);
+const coreBoot=document.createElement('section');
+coreBoot.id='coreBoot';
+coreBoot.innerHTML='<div class="coreLogo">CORE</div><div class="coreBootSub">CORE OS</div><small style="margin-top:24px;opacity:.8">ver.'+CORE_VERSION+'</small>';
+$('#phone').append(coreBoot);
+setTimeout(()=>{coreBoot.classList.add('hide');setTimeout(()=>coreBoot.remove(),400)},850);
+function coreBytes(value){try{return new Blob([JSON.stringify(value)]).size}catch(e){return 0}}
+function coreFormatBytes(n){if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(2)+' MB'}
+function coreAdminDraw(){
+ const installed=apps();
+ const storageText=(()=>{try{return coreFormatBytes(new Blob([localStorage.getItem(key)||'']).size)}catch(e){return '取得不可'}})();
+ const custom=(S.custom||[]).map(a=>({name:a.name||a.id,id:a.id,size:coreBytes(a.html||'')}));
+ const usage=installed.map(a=>({name:a.name,icon:a.icon,time:Number((S.usage||{})[a.id])||0})).sort((a,b)=>b.time-a.time);
+ const fmt=s=>{s=Math.max(0,Math.floor(s));return s>=3600?Math.floor(s/3600)+'時間'+Math.floor(s%3600/60)+'分':Math.floor(s/60)+'分'+s%60+'秒'};
+ const logs=S.errorLog.slice(-15).reverse();
+ $('#body').innerHTML='<div class="card"><h3>🛠️ CORE管理センター</h3><p class="muted">CORE OSの内部情報と保存データを確認します。</p><div class="gridapps" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:5px 0"><div class="adminMetric"><small>バージョン</small><b>1.0.0</b></div><div class="adminMetric"><small>インストール済み</small><b>'+installed.length+'本</b></div><div class="adminMetric"><small>CORE保存データ</small><b>'+storageText+'</b></div><div class="adminMetric"><small>記録エラー</small><b>'+S.errorLog.length+'件</b></div></div></div><div class="card"><h3>📱 システム情報</h3><div class="muted" id="coreAdminSystem"></div><button class="btn secondary" id="coreAdminRefresh">情報を更新</button></div><div class="card"><h3>⏱️ アプリ利用時間</h3>'+(usage.length?usage.map(a=>'<div class="listitem"><span>'+a.icon+' '+esc(a.name)+'</span><b>'+fmt(a.time)+'</b></div>').join(''):'<p class="muted">記録なし</p>')+'</div><div class="card"><h3>📦 アプリデータ</h3>'+(custom.length?custom.map(a=>'<div class="listitem"><span>'+esc(a.name)+'<br><small>'+esc(a.id)+' · '+coreFormatBytes(a.size)+'</small></span><button class="btn danger" data-admin-uninstall="'+esc(a.id)+'">削除</button></div>').join(''):'<p class="muted">追加アプリはありません。</p>')+'<p class="muted">標準アプリの内部データ容量は個別に分離されていないため、正確な個別容量は取得不可です。</p></div><div class="card"><h3>🧾 エラー履歴</h3>'+(logs.length?logs.map(x=>'<div class="adminLog"><b>'+esc(x.type)+'</b> · '+esc(x.time)+'<br>'+esc(x.message)+'</div>').join(''):'<p class="muted">記録されたエラーはありません。</p>')+'<button class="btn secondary" id="coreAdminClearLogs">エラー履歴を消去</button></div><div class="card"><h3>💾 データ保護</h3><p class="muted">現在のCOREデータをJSON形式で書き出します。既存データは自動削除しません。</p><button class="btn" id="coreAdminBackup">バックアップを書き出す</button></div><div class="card"><h3>ℹ️ COREについて</h3><b>CORE OS ver.1.0.0</b><p class="muted">正式公開に向けた基盤アップデートを適用中です。クラウド同期・全機能の実装と総合テストはまだ完了していません。</p><p class="muted">更新内容：起動ロゴ、バージョン管理、管理センター、エラー記録。</p></div>';
+ coreAdminSystem();
+ $('#coreAdminRefresh').onclick=coreAdminSystem;
+ $('#coreAdminClearLogs').onclick=()=>{if(confirm('記録されたエラー履歴を消去しますか？')){S.errorLog=[];save();coreAdminDraw()}};
+ $('#coreAdminBackup').onclick=()=>{const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='CORE-backup-'+CORE_VERSION+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ $('#body').onclick=e=>{const b=e.target.closest('[data-admin-uninstall]');if(b)uninstall(b.dataset.adminUninstall)};
+}
+function coreAdminSystem(){
+ const el=$('#coreAdminSystem');if(!el)return;
+ const memory=Number(navigator.deviceMemory);
+ const cores=Number(navigator.hardwareConcurrency);
+ el.innerHTML='<p>ブラウザ：'+esc(navigator.userAgent.slice(0,180))+'</p><p>画面解像度：'+screen.width+' × '+screen.height+'</p><p>表示領域：'+innerWidth+' × '+innerHeight+'</p><p>論理CPU数：'+(cores>0?cores+'（ブラウザ報告値）':'取得不可')+'</p><p>メモリ：'+(memory>0?memory+'GB（概算報告値）':'取得不可')+'</p><p>ネットワーク：'+(navigator.onLine?'オンライン':'オフライン')+'</p><p>バッテリー残量：取得不可</p><p>端末ストレージ総容量：取得不可</p>';
+}
+const coreDrawBeforeAdmin=draw;
+draw=function(id){coreDrawBeforeAdmin(id);if(id==='admin')coreAdminDraw()};
+window.addEventListener('error',e=>{
+ try{S.errorLog.push({type:'JavaScript',message:String(e.message||'不明なエラー').slice(0,300),time:new Date().toLocaleString('ja-JP')});S.errorLog=S.errorLog.slice(-50);save()}catch(_){}
+});
+window.addEventListener('unhandledrejection',e=>{
+ try{S.errorLog.push({type:'Promise',message:String(e.reason?.message||e.reason||'不明な非同期エラー').slice(0,300),time:new Date().toLocaleString('ja-JP')});S.errorLog=S.errorLog.slice(-50);save()}catch(_){}
+});
+
 theme();wall();render();tick();
 })();
 </script></body></html>
