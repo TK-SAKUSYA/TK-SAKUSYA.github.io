@@ -68,7 +68,7 @@ const originalOpen=open;
 open=function(id){recentApps=[id,...recentApps.filter(x=>x!==id)].slice(0,10);originalOpen(id)};
 const originalRender=render;
 render=function(){originalRender();if(homeEditing){document.querySelectorAll('#homeIcons .appicon').forEach((el,i)=>{let id=el.dataset.open;if(!id||el.nextElementSibling?.classList.contains('moveControls'))return;let wrap=document.createElement('span');wrap.className='moveControls';wrap.innerHTML='<button class="moveBtn" data-home-move="'+id+'" data-dir="-1">◀</button><button class="moveBtn" data-home-move="'+id+'" data-dir="1">▶</button>';el.after(wrap)})}if(S.folders?.length){let old=document.getElementById('savedFolders');if(old)old.remove();let box=document.createElement('div');box.id='savedFolders';box.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px';box.innerHTML=S.folders.map((f,i)=>'<button class="appicon" data-folder="'+i+'"><span class="glyph">📁</span>'+esc(f.name)+'</button>').join('');$('#allApps').after(box)}};
-document.addEventListener('click',e=>{let m=e.target.closest('[data-home-move]');if(m){let id=m.dataset.homeMove,order=S.homeOrder||apps().map(x=>x.id),i=order.indexOf(id),j=Math.max(0,Math.min(order.length-1,i+Number(m.dataset.dir)));if(i>=0){[order[i],order[j]]=[order[j],order[i]];S.homeOrder=order;save();render()}return}let folder=e.target.closest('[data-folder]');if(folder){let f=S.folders[Number(folder.dataset.folder)];alert(f.name+'\\n'+f.ids.map(id=>apps().find(a=>a.id===id)?.name||id).join(' ・ '));return}let detail=e.target.closest('[data-detail-app]');if(detail){let x=(S.catalog||[]).find(a=>a.id===detail.dataset.detailApp);if(x)alert(x.name+'\\n'+x.desc+'\\nVersion '+x.version);return}});
+document.addEventListener('click',e=>{let m=e.target.closest('[data-home-move]');if(m){let id=m.dataset.homeMove,order=S.homeOrder||apps().map(x=>x.id),i=order.indexOf(id),j=Math.max(0,Math.min(order.length-1,i+Number(m.dataset.dir)));if(i>=0){[order[i],order[j]]=[order[j],order[i]];S.homeOrder=order;save();render()}return}let folder=e.target.closest('[data-folder]');if(folder){showFolder(Number(folder.dataset.folder));return}let detail=e.target.closest('[data-detail-app]');if(detail){let x=(S.catalog||[]).find(a=>a.id===detail.dataset.detailApp);if(x)alert(x.name+'\\n'+x.desc+'\\nVersion '+x.version);return}});
 
 
 /* CORE v4: lock screen, usable folders, notification tools */
@@ -77,7 +77,7 @@ const folderModal=document.createElement('section');folderModal.id='folderModal'
 $('#phone').append(folderModal);
 let activeFolder=-1;
 $('#folderClose').onclick=()=>folderModal.classList.remove('show');
-document.addEventListener('click',e=>{if(e.target.closest('[data-folder]'))e.stopImmediatePropagation()},true);
+/* folder event propagation kept intact */
 $('#folderDelete').onclick=()=>{if(activeFolder<0)return;if(confirm('このフォルダを削除しますか？')){S.folders.splice(activeFolder,1);save();folderModal.classList.remove('show');render()}};
 $('#folderAppList').onclick=e=>{let b=e.target.closest('[data-folder-open]');if(b){folderModal.classList.remove('show');open(b.dataset.folderOpen)}};
 function showFolder(i){let f=(S.folders||[])[i];if(!f)return;activeFolder=i;$('#folderTitle').textContent='📁 '+f.name;$('#folderAppList').innerHTML=f.ids.map(id=>{let a=apps().find(x=>x.id===id);return a?'<button data-folder-open="'+a.id+'"><div style="font-size:27px">'+a.icon+'</div>'+esc(a.name)+'</button>':''}).join('')||'<p>このフォルダは空です。</p>';folderModal.classList.add('show')}
@@ -92,6 +92,31 @@ $('#lock').classList.add('lockPanel');
 if(S.lockEnabled){$('#unlock').onclick=()=>showLock();showLock()}
 function pushCoreNotification(title,body){S.notifications=S.notifications||[];S.notifications.unshift({title:String(title),body:String(body),time:new Date().toLocaleString('ja-JP')});S.notifications=S.notifications.slice(0,30);save()}
 window.CORE={notify:pushCoreNotification,open,lock:showLock};
+
+
+/* CORE v5: functional simulated quick settings, gestures and device info */
+S.quickState=Object.assign({wifi:true,bluetooth:true,airplane:false,brightness:100},S.quickState||{});
+const quickButtons=$('#quick .tiles .tile');
+function $(s){return [...document.querySelectorAll(s)]}
+if(quickButtons[0]){quickButtons[0].id='wifiTile';quickButtons[0].textContent='◉ Wi-Fi '+(S.quickState.wifi?'ON':'OFF')}
+if(quickButtons[1]){quickButtons[1].id='btTile';quickButtons[1].textContent='ᛒ Bluetooth '+(S.quickState.bluetooth?'ON':'OFF')}
+$('#airplane').textContent='✈ 機内モード '+(S.quickState.airplane?'ON':'OFF');
+$('#brightness').value=S.quickState.brightness;
+$('#phone').style.filter='brightness('+S.quickState.brightness/100+')';
+function paintQuick(){[['wifiTile','wifi','◉ Wi-Fi'],['btTile','bluetooth','ᛒ Bluetooth']].forEach(([id,key,label])=>{let b=$('#'+id);if(b){b.textContent=label+' '+(S.quickState[key]?'ON':'OFF');b.classList.toggle('active',S.quickState[key])}});$('#airplane').textContent='✈ 機内モード '+(S.quickState.airplane?'ON':'OFF');$('#airplane').classList.toggle('active',S.quickState.airplane)}
+$('#wifiTile').onclick=()=>{if(S.quickState.airplane)return alert('機内モード中は変更できません');S.quickState.wifi=!S.quickState.wifi;save();paintQuick()};
+$('#btTile').onclick=()=>{if(S.quickState.airplane)return alert('機内モード中は変更できません');S.quickState.bluetooth=!S.quickState.bluetooth;save();paintQuick()};
+$('#airplane').onclick=()=>{S.quickState.airplane=!S.quickState.airplane;if(S.quickState.airplane){S.quickState.wifi=false;S.quickState.bluetooth=false}save();paintQuick()};
+$('#brightness').oninput=e=>{S.quickState.brightness=Number(e.target.value);$('#phone').style.filter='brightness('+S.quickState.brightness/100+')';save()};
+paintQuick();
+const sysInfo=document.createElement('div');sysInfo.className='card';sysInfo.innerHTML='<h3>📱 デバイス情報</h3><div id="coreDeviceInfo" class="muted"></div><button class="btn secondary" id="refreshDeviceInfo">更新</button>';
+const drawV5=draw;
+draw=function(id){drawV5(id);if(id==='settings'){$('#body').append(sysInfo);showDeviceInfo();$('#refreshDeviceInfo').onclick=showDeviceInfo}};
+function showDeviceInfo(){let el=$('#coreDeviceInfo');if(!el)return;let ua=navigator.userAgent;el.innerHTML='<p>画面サイズ：'+screen.width+' × '+screen.height+'</p><p>表示領域：'+innerWidth+' × '+innerHeight+'</p><p>ブラウザ：'+esc(ua.slice(0,130))+'</p><p>言語：'+esc(navigator.language)+'</p><p>オンライン状態：'+(navigator.onLine?'オンライン':'オフライン')+'</p><p>保存領域：ブラウザのローカル保存を使用</p><small>※COREから実際のWi-Fi・Bluetooth・端末設定は変更できません。</small>'}
+const oldTouchStart=window.sy;
+let gestureStart=null;
+$('#phone').addEventListener('touchstart',e=>{let t=e.touches[0];gestureStart={x:t.clientX,y:t.clientY,time:Date.now()}},{passive:true});
+$('#phone').addEventListener('touchend',e=>{if(!gestureStart)return;let t=e.changedTouches[0],dx=t.clientX-gestureStart.x,dy=t.clientY-gestureStart.y;let g=gestureStart;gestureStart=null;if(Math.abs(dx)>90&&Math.abs(dx)>Math.abs(dy)*1.4&&current){if(dx>0)close();else{$('#recentOpenBtn').click()}return}if(dy< -110&&g.y>innerHeight-90){if(current)close();else $('#drawer').classList.add('show')}}, {passive:true});
 
 theme();wall();render();tick();
 })();
