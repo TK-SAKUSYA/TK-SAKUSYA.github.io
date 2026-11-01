@@ -320,11 +320,7 @@ filterBar.onclick=e=>{
  drawerFilter=b.dataset.filter;
  updateDrawer();
 };
-const oldDrawerOpen=document.querySelector('#nav').onclick;
-document.querySelector('#nav').onclick=()=>{
- if(oldDrawerOpen)oldDrawerOpen();
- updateDrawer();
-};
+/* 旧 #nav は削除済み。存在しない要素への参照で起動を止めない */
 
 
 /* CORE v1.0.0 foundation: versioning, startup identity and management center */
