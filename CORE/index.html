@@ -77,6 +77,7 @@ const folderModal=document.createElement('section');folderModal.id='folderModal'
 $('#phone').append(folderModal);
 let activeFolder=-1;
 $('#folderClose').onclick=()=>folderModal.classList.remove('show');
+document.addEventListener('click',e=>{if(e.target.closest('[data-folder]'))e.stopImmediatePropagation()},true);
 $('#folderDelete').onclick=()=>{if(activeFolder<0)return;if(confirm('このフォルダを削除しますか？')){S.folders.splice(activeFolder,1);save();folderModal.classList.remove('show');render()}};
 $('#folderAppList').onclick=e=>{let b=e.target.closest('[data-folder-open]');if(b){folderModal.classList.remove('show');open(b.dataset.folderOpen)}};
 function showFolder(i){let f=(S.folders||[])[i];if(!f)return;activeFolder=i;$('#folderTitle').textContent='📁 '+f.name;$('#folderAppList').innerHTML=f.ids.map(id=>{let a=apps().find(x=>x.id===id);return a?'<button data-folder-open="'+a.id+'"><div style="font-size:27px">'+a.icon+'</div>'+esc(a.name)+'</button>':''}).join('')||'<p>このフォルダは空です。</p>';folderModal.classList.add('show')}
