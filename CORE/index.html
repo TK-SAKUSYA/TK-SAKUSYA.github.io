@@ -161,6 +161,52 @@ draw=function(id){
 };
 setInterval(()=>{if(usageCurrent&&usageStarted){usageDashboard();if(Date.now()-usageLastSaved>10000){usageCommit();usageLastSaved=Date.now()}}},1000);
 
+
+/* CORE v7: notification center upgrade */
+function paintNotificationButton(){
+ const unread=(S.notifications||[]).filter(n=>!n.read).length;
+ noticeButton.textContent=unread?'🔔 '+unread+'件':'🔔';
+ noticeButton.title=unread+'件の未読通知';
+}
+function renderNotificationCenter(){
+ const ns=S.notifications||[];
+ $('#noticeContent').innerHTML=ns.length?ns.map((n,i)=>'<div class="extraCard" style="position:relative"><div class="row" style="justify-content:space-between;align-items:flex-start"><b>'+esc(n.title)+'</b><button class="btn secondary" data-notice-delete="'+i+'" style="padding:5px 9px">削除</button></div><p>'+esc(n.body)+'</p><small>'+esc(n.time||'')+'</small><div style="font-size:11px;color:var(--muted);margin-top:5px">'+(n.read?'既読':'🔵 未読')+'</div></div>').join(''):'<p class="muted">新しい通知はありません。</p>';
+ paintNotificationButton();
+}
+noticeButton.onclick=()=>{
+ S.notifications=(S.notifications||[]).map(n=>({...n,read:true}));
+ save();renderNotificationCenter();notice.classList.add('show');
+};
+$('#noticeClear').onclick=()=>{S.notifications=[];save();renderNotificationCenter()};
+$('#noticeContent').onclick=e=>{
+ const b=e.target.closest('[data-notice-delete]');
+ if(!b)return;
+ const i=Number(b.dataset.noticeDelete);
+ if(Number.isInteger(i)&&i>=0){S.notifications.splice(i,1);save();renderNotificationCenter()}
+};
+const pushNotificationV6=pushCoreNotification;
+pushCoreNotification=function(title,body){
+ pushNotificationV6(title,body);
+ if(S.notifications?.[0])S.notifications[0].read=false;
+ save();paintNotificationButton();
+};
+window.CORE.notify=pushCoreNotification;
+const notificationSettingsCard=document.createElement('div');
+notificationSettingsCard.className='card';
+notificationSettingsCard.innerHTML='<h3>🔔 通知の管理</h3><p class="muted">CORE内の通知を確認・テストできます。</p><div class="row"><button class="btn secondary" id="openNotificationsSettings">通知センターを開く</button><button class="btn secondary" id="sendTestNotification">テスト通知</button></div><p class="muted" id="notificationCountText"></p>';
+const notificationDrawBase=draw;
+draw=function(id){
+ notificationDrawBase(id);
+ if(id==='settings'){
+  $('#body').append(notificationSettingsCard);
+  const count=()=>{$('#notificationCountText').textContent='通知 '+(S.notifications||[]).length+'件 / 未読 '+(S.notifications||[]).filter(n=>!n.read).length+'件'};
+  count();
+  $('#openNotificationsSettings').onclick=()=>noticeButton.click();
+  $('#sendTestNotification').onclick=()=>{pushCoreNotification('COREからのお知らせ','これは通知機能のテストです。');count();};
+ }
+};
+paintNotificationButton();
+
 theme();wall();render();tick();
 })();
 </script></body></html>
