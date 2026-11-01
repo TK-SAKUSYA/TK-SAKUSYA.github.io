@@ -801,5 +801,20 @@ coreHomeSwipeArea.addEventListener('pointerup',e=>{
 });
 
 theme();wall();render();tick();
+/* CORE v1.4.1: recover home icons if saved page layout is empty or stale */
+try{
+ if(typeof coreEnsurePages==='function'&&typeof coreRenderPlacement==='function'){
+  coreEnsurePages();
+  if(!document.querySelector('#homeIcons .appicon')){
+   const fallbackIds=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(a=>a.id);
+   S.homePages=[fallbackIds];homePage=0;S.homePage=0;
+   S.dockOrder=['browser','memo','store','settings'].filter(id=>apps().some(a=>a.id===id));
+   save();coreRenderPlacement();
+  }
+ }
+}catch(homeRecoveryError){
+ console.error('CORE home recovery:',homeRecoveryError);
+ try{$('#homeIcons').innerHTML=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(tile).join('');$('#dock').innerHTML=['browser','memo','store','settings'].map(id=>apps().find(a=>a.id===id)).filter(Boolean).map(tile).join('')}catch(e){}
+}
 })();
 </script></body></html>
