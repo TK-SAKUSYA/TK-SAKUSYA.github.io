@@ -70,7 +70,7 @@ $('#darkQuick').onclick=()=>{S.dark=!S.dark;save();theme();$('#darkQuick').class
 setInterval(()=>{tick();if(current==='clock'&&$('#now'))$('#now').textContent=new Date().toLocaleTimeString('ja-JP');if(S.alarms&&S.alarms.includes(new Date().toTimeString().slice(0,5))&&new Date().getSeconds()===0)alert('アラーム '+new Date().toTimeString().slice(0,5))},1000);
 let coreTouchStart=null;
 $('#phone').addEventListener('touchstart',e=>{const t=e.touches[0];coreTouchStart={x:t.clientX,y:t.clientY,target:e.target}},{passive:true});
-$('#phone').addEventListener('touchend',e=>{if(!coreTouchStart)return;const t=e.changedTouches[0],dx=t.clientX-coreTouchStart.x,dy=t.clientY-coreTouchStart.y,start=coreTouchStart;coreTouchStart=null;if(Math.abs(dx)>65||Math.abs(dy)<70)return;if(dy>0&&start.y<42){$('#noticeOverlay').classList.remove('show');$('#recentOverlay').classList.remove('show');$('#quick').classList.add('show')}else if(dy<0&&!current&&start.target.closest('#home')&&!start.target.closest('button,a,input,textarea,select,[data-open]')){$('#quick').classList.remove('show');$('#drawer').classList.add('show')}},{passive:true});
+$('#phone').addEventListener('touchend',e=>{if(!coreTouchStart)return;const t=e.changedTouches[0],dx=t.clientX-coreTouchStart.x,dy=t.clientY-coreTouchStart.y,start=coreTouchStart;coreTouchStart=null;if(Math.abs(dx)>65||Math.abs(dy)<70)return;if(dy>0&&start.y<42){$('#noticeOverlay').classList.remove('show');$('#recentOverlay').classList.remove('show');$('#quick').classList.add('show');renderNotificationCenter()}else if(dy<0&&!current&&start.target.closest('#home')&&!start.target.closest('button,a,input,textarea,select,[data-open]')){$('#quick').classList.remove('show');$('#drawer').classList.add('show')}},{passive:true});
 
 /* CORE v3 extensions */
 let homeEditing=false,recentApps=[];
@@ -216,7 +216,7 @@ const pushNotificationV6=pushCoreNotification;
 pushCoreNotification=function(title,body){
  pushNotificationV6(title,body);
  if(S.notifications?.[0])S.notifications[0].read=false;
- save();paintNotificationButton();
+ save();paintNotificationButton();renderNotificationCenter();
 };
 window.CORE.notify=pushCoreNotification;
 const notificationSettingsCard=document.createElement('div');
