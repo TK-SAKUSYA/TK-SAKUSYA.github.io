@@ -459,12 +459,13 @@ S.homePages=Array.isArray(S.homePages)?S.homePages:[];
 S.dockOrder=Array.isArray(S.dockOrder)?S.dockOrder:['browser','memo','store','settings'];
 let homePage=Math.max(0,Math.min(Number(S.homePage)||0,Math.max(0,S.homePages.length-1)));
 function coreEnsurePages(){
- let ids=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(a=>a.id);if(S.homeOrder)ids.sort((x,y)=>{const i=S.homeOrder.indexOf(x),j=S.homeOrder.indexOf(y);return(i<0?999:i)-(j<0?999:j)});
+ let ids=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(a=>a.id);
+ if(S.homeOrder&&Array.isArray(S.homeOrder))ids.sort((x,y)=>{const i=S.homeOrder.indexOf(x),j=S.homeOrder.indexOf(y);return(i<0?999:i)-(j<0?999:j)});
+ /* Normalize malformed saved pages BEFORE calling .flat() or .push(). */
+ S.homePages=Array.isArray(S.homePages)?S.homePages.filter(p=>Array.isArray(p)):[];
  if(!S.homePages.length)S.homePages=[ids.slice()];
  const known=new Set(S.homePages.flat());
  ids.forEach(id=>{if(!known.has(id))S.homePages[0].push(id)});
- S.homePages=S.homePages.filter(p=>Array.isArray(p));
- if(!S.homePages.length)S.homePages=[[]];
  homePage=Math.min(homePage,S.homePages.length-1);
  /* 保存済みの現在ページが空なら、アプリのあるページへ自動復帰 */
  if(!(S.homePages[homePage]||[]).some(id=>id.startsWith('folder:')||ids.includes(id))){const firstNonEmpty=S.homePages.findIndex(p=>p.some(id=>id.startsWith('folder:')||ids.includes(id)));if(firstNonEmpty>=0)homePage=firstNonEmpty;}
