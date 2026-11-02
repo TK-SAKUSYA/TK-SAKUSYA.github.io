@@ -800,7 +800,31 @@ coreHomeSwipeArea.addEventListener('pointerup',e=>{
  homePage=next;S.homePage=homePage;save();coreRenderPlacement();
 });
 
-theme();wall();render();tick();
+/* CORE v1.4.3: normalize persisted state before any render can abort startup */
+try{
+ if(!Array.isArray(S.installed))S.installed=base.map(x=>x[0]);
+ if(!S.installed.some(id=>base.some(x=>x[0]===id)))S.installed=base.map(x=>x[0]);
+ if(!Array.isArray(S.custom))S.custom=[];
+ if(S.homeOrder!==undefined&&!Array.isArray(S.homeOrder))delete S.homeOrder;
+ if(!Array.isArray(S.folders))S.folders=[];
+ if(!Array.isArray(S.homePages))S.homePages=[];
+ if(!Array.isArray(S.dockOrder))S.dockOrder=['browser','memo','store','settings'];
+ if(!Array.isArray(S.notifications))S.notifications=[];
+ theme();wall();render();tick();
+}catch(coreStartupError){
+ console.error('CORE startup recovery:',coreStartupError);
+ try{
+  if(!Array.isArray(S.installed)||!S.installed.some(id=>base.some(x=>x[0]===id)))S.installed=base.map(x=>x[0]);
+  if(!Array.isArray(S.custom))S.custom=[];
+  if(!Array.isArray(S.homePages))S.homePages=[];
+  if(!Array.isArray(S.dockOrder))S.dockOrder=['browser','memo','store','settings'];
+  const safeApps=apps();
+  $('#allApps').innerHTML=safeApps.map(tile).join('');
+  $('#homeIcons').innerHTML=safeApps.filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(tile).join('');
+  $('#dock').innerHTML=['browser','memo','store','settings'].map(id=>safeApps.find(a=>a.id===id)).filter(Boolean).map(tile).join('');
+  tick();
+ }catch(coreLastChanceError){console.error('CORE startup last chance:',coreLastChanceError)}
+}
 /* CORE v1.4.2: hard recovery for blank home/dock */
 try{
  const validApps=apps().filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(a=>a.id);
