@@ -854,4 +854,44 @@ try{
  }catch(e){console.error('CORE last resort render:',e)}
 }
 })();
+</script>
+<script>
+/* CORE emergency renderer: independent of the main app script */
+(function(){
+ const home=document.getElementById('homeIcons'),dock=document.getElementById('dock');
+ if(!home||!dock)return;
+ const base=[
+  ['calculator','電卓','🧮'],['files','ファイル','📁'],['clock','時計','⏰'],
+  ['calendar','カレンダー','🗓️'],['drawing','お絵描き','🎨'],['music','音楽プレイヤー','🎵'],
+  ['memo','メモ帳','📝'],['settings','設定','⚙️'],['store','CORE Store','🛍️'],['browser','ブラウザ','🌐']
+ ];
+ function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+ function tile(a){return '<button type="button" class="appicon" data-open="'+esc(a.id)+'" style="display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important"><span class="glyph">'+esc(a.icon||'📱')+'</span>'+esc(a.name||a.id)+'</button>'}
+ function recover(){
+  try{
+   let state={};try{state=JSON.parse(localStorage.getItem('core-v1')||'{}')||{}}catch(e){}
+   let installed=Array.isArray(state.installed)?state.installed:[];
+   let list=base.filter(a=>installed.includes(a[0]));
+   if(!list.some(a=>!['settings','store','browser','memo'].includes(a[0])))list=base.filter(a=>!['settings','store','browser','memo'].includes(a[0])).concat(base.filter(a=>['settings','store','browser','memo'].includes(a[0])));
+   (Array.isArray(state.custom)?state.custom:[]).filter(a=>installed.includes(a.id)).forEach(a=>list.push({0:a.id,1:a.name||a.id,2:a.icon||'🌐',id:a.id,name:a.name||a.id,icon:a.icon||'🌐',url:a.url}));
+   list=list.map(a=>({id:a.id||a[0],name:a.name||a[1],icon:a.icon||a[2],url:a.url}));
+   const visible=home.querySelectorAll('.appicon');
+   if(!visible.length){
+    home.innerHTML=list.filter(a=>!['settings','store','browser','memo'].includes(a.id)).map(tile).join('');
+   }
+   if(!dock.querySelector('.appicon')){
+    dock.innerHTML=['browser','memo','store','settings'].map(id=>list.find(a=>a.id===id)||base.map(a=>({id:a[0],name:a[1],icon:a[2]})).find(a=>a.id===id)).filter(Boolean).map(tile).join('');
+   }
+   home.style.setProperty('display','grid','important');
+   home.style.setProperty('visibility','visible','important');
+   home.style.setProperty('opacity','1','important');
+   dock.style.setProperty('display','grid','important');
+   dock.style.setProperty('visibility','visible','important');
+   dock.style.setProperty('opacity','1','important');
+  }catch(e){console.error('CORE emergency renderer failed',e)}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',recover,{once:true});else recover();
+ setTimeout(recover,250);
+ setTimeout(recover,1200);
+})();
 </script></body></html>
