@@ -48,6 +48,41 @@ body{font-size:14px;letter-spacing:.005em}.topbar{height:76px;gap:24px;padding:1
 .info-list dt{color:var(--muted)}.info-list dd{margin:0;overflow-wrap:anywhere}
 @media(max-width:850px){.viewer-actions{gap:0}.viewer-actions button{padding:7px 8px!important}.viewer-zoom-controls button{font-size:12px}.feature-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.feature-cover{height:105px}}
 
+
+/* Mobile-first navigation and compact header */
+@media(max-width:850px){
+  .topbar{display:grid;grid-template-columns:auto minmax(0,1fr) 40px;align-items:center;gap:9px;min-height:58px;height:auto;padding:8px 10px;background:var(--bg)}
+  .brand{grid-column:1;min-width:0;font-size:18px;gap:7px}
+  .brandmark{width:32px;height:32px}
+  .build-badge{display:none}
+  .search{grid-column:2;grid-row:1;order:initial;flex:initial;min-width:0;width:100%;height:40px;padding:0 10px;gap:6px;border-radius:22px}
+  .search-icon{font-size:21px}
+  .search input{font-size:13px;min-width:0}
+  .top-actions{grid-column:3;grid-row:1;margin:0}
+  #addButton{width:40px;height:40px;min-height:40px;padding:0;font-size:0;border-radius:50%;display:grid;place-items:center}
+  #addButton::before{content:"＋";font-size:23px;line-height:1}
+  .layout{min-height:calc(100dvh - 58px)}
+  .main{padding:14px 7px calc(92px + env(safe-area-inset-bottom));}
+  .heading h1{font-size:23px}
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}
+  .media-card{aspect-ratio:1/1;border-radius:2px}
+  .mobile-nav{position:fixed;z-index:15;left:50%;right:auto;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(340px,calc(100vw - 28px));display:flex;justify-content:space-around;align-items:center;gap:5px;overflow:visible;padding:6px 8px;background:color-mix(in srgb,var(--panel) 94%,transparent);border:1px solid var(--line);border-radius:28px;box-shadow:0 5px 24px #0002;backdrop-filter:blur(18px)}
+  .mobile-nav .navbtn{flex:1 1 0!important;min-width:0!important;min-height:44px;display:flex;flex-direction:row;justify-content:center;align-items:center;gap:7px;padding:7px 9px;border-radius:22px;font-size:13px;white-space:nowrap;color:var(--text)}
+  .mobile-nav .navbtn span:first-child{font-size:18px;width:auto}
+  .mobile-nav .navbtn.active{background:var(--accent-soft);color:var(--accent);font-weight:650}
+  .feature-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .feature-cover{height:112px}
+  .memory-day-card .feature-cover{height:132px}
+}
+@media(max-width:380px){
+  .brand{font-size:16px}
+  .brandmark{width:29px;height:29px}
+  .search{height:38px;padding:0 8px}
+  .search input{font-size:12px}
+  #addButton{width:38px;height:38px;min-height:38px}
+  .mobile-nav .navbtn{font-size:12px;padding:6px}
+}
+
 </style>
 </head>
 <body>
@@ -72,16 +107,10 @@ body{font-size:14px;letter-spacing:.005em}.topbar{height:76px;gap:24px;padding:1
 </aside>
 <main class="main" id="main"></main>
 </div>
-<nav class="mobile-nav" id="mobileNav">
+<nav class="mobile-nav" id="mobileNav" aria-label="メインナビゲーション">
   <button class="navbtn active" data-page="photos"><span>📷</span><span>写真</span></button>
-  <button class="navbtn" data-page="highlights"><span>✨</span><span>ハイライト</span></button>
-  <button class="navbtn" data-page="memories"><span>🕰️</span><span>思い出</span></button>
   <button class="navbtn" data-page="collections"><span>📚</span><span>コレクション</span></button>
-  <button class="navbtn" data-page="albums"><span>📁</span><span>アルバム</span></button>
-  <button class="navbtn" data-page="favorites"><span>♡</span><span>お気に入り</span></button>
-  <button class="navbtn" data-page="videos"><span>🎬</span><span>動画</span></button>
-  <button class="navbtn" data-page="trash"><span>🗑️</span><span>ゴミ箱</span></button>
-  <button class="navbtn" data-page="settings"><span>⚙️</span><span>設定</span></button>
+  <button class="navbtn" data-page="create"><span>＋</span><span>作成</span></button>
 </nav>
 <input id="fileInput" type="file" accept="image/*,video/*" multiple><input id="folderInput" type="file" accept="image/*,video/*" webkitdirectory multiple><div id="importProgress" class="import-progress hidden" role="status" aria-live="polite"><div id="importProgressText">取り込み準備中…</div><progress id="importProgressBar" max="100" value="0"></progress></div>
 <input id="importInput" type="file" accept=".json,application/json">
@@ -415,7 +444,7 @@ function unarchive(id){const x=items.find(x=>x.id===id);if(!x)return;x.archived=
 
 
 document.addEventListener('click',async e=>{
- const feature=e.target.closest('[data-feature]');if(feature){const k=feature.dataset.feature;if(k==='memories'||k==='collections'||k==='albums'){navTo(k);return}if(k.startsWith('album:')){activeAlbum=k.slice(6);page='album-detail';render();return}if(k.startsWith('collection:')){collectionType=k.slice(11);page='collection-detail';render();return}}
+ const feature=e.target.closest('[data-feature]');if(feature){const k=feature.dataset.feature;if(k==='memories'||k==='highlights'||k==='collections'||k==='albums'){navTo(k);return}if(k.startsWith('album:')){activeAlbum=k.slice(6);page='album-detail';render();return}if(k.startsWith('collection:')){collectionType=k.slice(11);page='collection-detail';render();return}}
  const earlyUnarchive=e.target.closest('[data-unarchive]');if(earlyUnarchive){unarchive(earlyUnarchive.dataset.unarchive);return}
  const earlyLockedRestore=e.target.closest('[data-unlock-restore]');if(earlyLockedRestore){e.stopPropagation();await restoreLocked(earlyLockedRestore.dataset.unlockRestore);return}
  const actionEl=e.target.closest('[data-action]');if(!actionEl)return;const a=actionEl.dataset.action;
@@ -462,6 +491,94 @@ $('#main').addEventListener('change',e=>{if(e.target.id==='sortSetting'){sortMod
 if(window.matchMedia){matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.theme==='system')applyTheme()})}
 async function init(){loadMeta();try{db=await openDB();items=await getAll();items.forEach(x=>{if(!x.kind)x.kind=x.type?.startsWith('video/')?'video':'image';if(!x.date)x.date=null;else if(x.addedAt&&Math.abs(new Date(x.date).getTime()-new Date(x.addedAt).getTime())<5000)x.date=null;if(!Array.isArray(x.collections))x.collections=[];if(typeof x.archived!=='boolean')x.archived=false;if(typeof x.location!=='string')x.location='';});render()}catch(e){console.error(e);main.innerHTML=empty('⚠️','保存領域を開けません','このブラウザではIndexedDBが利用できないか、プライベート設定などで制限されています。通常のブラウザ環境で開き直してください。');}}
 window.addEventListener('pagehide',()=>{stopSlideshow();relockMemory()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){stopSlideshow();if($('#viewerBackdrop').classList.contains('open'))closeViewer();relockMemory();if(page==='collection-detail'&&collectionType==='locked')render()}});
+
+/* Daily automatic highlights and anniversary memories */
+function memoryDayKey(value){
+ const d=new Date(value);
+ if(!value||Number.isNaN(d.getTime()))return null;
+ return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+}
+function memoryDayGroups(){
+ const map=new Map();
+ visibleItems().forEach(x=>{
+  const stamp=captureDate(x)||x.addedAt;
+  const key=memoryDayKey(stamp);
+  if(!key)return;
+  if(!map.has(key))map.set(key,{key,date:stamp,items:[]});
+  map.get(key).items.push(x);
+ });
+ return [...map.values()].map(g=>({...g,items:g.items.sort((a,b)=>sortDate(a)-sortDate(b))}))
+  .sort((a,b)=>b.key.localeCompare(a.key));
+}
+function memoryDayCard(group,caption='自動ピックアップ'){
+ const cover=group.items[0];
+ return `<button class="feature-card memory-day-card" data-memory-date="${esc(group.key)}">
+  <div class="feature-cover">${cover?thumb(cover):'<span class="symbol">✨</span>'}</div>
+  <div class="feature-copy"><strong>${esc(dateLabel(group.date))}</strong><small>${group.items.length}件 ・ ${caption} ・ タップでスライドショー</small></div>
+ </button>`;
+}
+renderFeature=function(){
+ applyTheme();setActiveNav();
+ const groups=memoryDayGroups(), all=visibleItems().sort((a,b)=>sortDate(b)-sortDate(a));
+ if(page==='highlights'){
+  const todayKey=memoryDayKey(new Date());
+  const featured=groups.find(g=>g.key===todayKey)||groups[0];
+  const others=groups.filter(g=>g!==featured).slice(0,8);
+  main.innerHTML=heading('ハイライト','写真・動画の日付をもとに、その日のメディアを自動で選びます。')+
+   (featured?`<h2 class="section-date">✨ 今日のハイライト <small>${featured.items.length}件</small></h2>${memoryDayCard(featured,'今日の写真・動画')}${grid(featured.items)}`:
+    empty('✨','ハイライトはまだありません','写真・動画を追加すると、日付ごとに自動でまとめます。','<button class="primary empty-add" data-action="add">＋ 写真・動画を追加</button>'))+
+   (others.length?`<h2 class="section-date">📅 最近のハイライト</h2><div class="feature-cards">${others.map(g=>memoryDayCard(g)).join('')}</div>`:'')+
+   `<div class="inline-actions"><button class="smallbtn" data-feature="memories">🕰️ 過去の思い出を見る</button><button class="smallbtn" data-feature="collections">📚 コレクション</button></div>`;
+ }else if(page==='memories'){
+  const now=new Date();
+  const memories=groups.filter(g=>{const d=new Date(g.date);return d.getFullYear()<now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate()});
+  main.innerHTML=heading('思い出','過去の同じ日に撮影・追加した写真や動画を自動で集め、スライドショーにします。')+
+   (memories.length?`<h2 class="section-date">🕰️ 過去の今日 <small>${memories.reduce((n,g)=>n+g.items.length,0)}件</small></h2><div class="feature-cards">${memories.map(g=>memoryDayCard(g,'過去の同じ日')).join('')}</div>`:
+    empty('🕰️','今日はまだ思い出がありません','過去の今日と同じ月日で撮影・追加された写真や動画が見つかると、ここに自動表示します。'))+
+   `<h2 class="section-date">📷 写真の日付一覧</h2><div class="feature-cards">${groups.slice(0,12).map(g=>memoryDayCard(g,'日付別スライドショー')).join('')}</div>`;
+ }else if(page==='collections'){
+  const defs=[
+   ['アルバム','albums','📁'],['ドキュメント','documents','📄'],['スクリーンショットと録画','screenshots','📸'],['お気に入り','favorites','❤️'],['人物とペット','people','👥'],['場所','places','📍'],['動画','videos','🎬'],['最近','recent','🕒'],['アーカイブ','archive','📦'],['ロックされたフォルダ','locked','🔒'],['ゴミ箱','trash','🗑️']
+  ];
+  main.innerHTML=heading('コレクション','写真や動画を種類・目的ごとに整理します。')+
+   `<div class="feature-cards">${featureCard('ハイライト','日付ごとに自動ピックアップ','✨','highlights')}${featureCard('思い出','過去の同じ日の写真をスライドショー','🕰️','memories')}${defs.map(([name,key,ico])=>featureCard(name,collectionCount(key)+'件',ico,'collection:'+key)).join('')}</div>`;
+ }else if(page==='create'){
+  main.innerHTML=heading('作成','写真・動画から新しいコンテンツを作成します。')+
+   `<div class="feature-cards">
+    <button class="feature-card" data-action="add"><div class="feature-cover"><span class="symbol">＋</span></div><div class="feature-copy"><strong>写真・動画を追加</strong><small>端末からライブラリに取り込む</small></div></button>
+    <button class="feature-card" data-action="new-album"><div class="feature-cover"><span class="symbol">📁</span></div><div class="feature-copy"><strong>アルバムを作成</strong><small>写真や動画をまとめる</small></div></button>
+    <button class="feature-card" data-action="slideshow"><div class="feature-cover"><span class="symbol">🎞️</span></div><div class="feature-copy"><strong>ライブラリのスライドショー</strong><small>保存されている写真・動画を順番に再生</small></div></button>
+    <button class="feature-card" data-feature="highlights"><div class="feature-cover"><span class="symbol">✨</span></div><div class="feature-copy"><strong>今日のハイライト</strong><small>日付ごとに自動選択した写真を再生</small></div></button>
+   </div>`;
+ }else if(page==='collection-detail'){
+  const key=collectionType,title=collectionLabel(key);let arr=[];
+  if(key==='albums'){navTo('albums');return}
+  if(key==='favorites')arr=all.filter(x=>x.favorite);
+  else if(key==='videos')arr=all.filter(isVideo);
+  else if(key==='recent')arr=all.filter(isRecent);
+  else if(key==='archive')arr=items.filter(x=>x.archived&&!inTrash(x)&&!isLocked(x)).sort((a,b)=>sortDate(b)-sortDate(a));
+  else if(key==='trash')arr=items.filter(inTrash).sort((a,b)=>sortDate(b)-sortDate(a));
+  else if(key==='locked')arr=items.filter(isLocked);
+  else arr=all.filter(x=>collectionHas(x,key));
+  const actions=key==='locked'?'<button class="primary" data-action="unlock-folder">🔓 ロックを解除</button> <button class="smallbtn" data-action="lock-info">保護について</button>':key==='archive'?'<button class="smallbtn" data-action="restore-archive-all">すべて元に戻す</button>':key==='trash'&&arr.length?'<button class="smallbtn danger" data-action="empty-trash">ゴミ箱を空にする</button>':'';
+  main.innerHTML=heading(title,`${arr.length}件`,actions)+
+   (key==='locked'?'<div class="notice">ロックされたファイルは暗号化して保存します。解除すると、このタブを開いている間だけ表示できます。</div>':'')+
+   (key==='documents'||key==='screenshots'||key==='people'||key==='places'?'<div class="inline-actions"><button class="primary" data-action="classify-current" data-key="'+esc(key)+'">＋ 写真を追加</button>'+(key==='places'?'<button class="smallbtn" data-action="edit-location">場所を入力</button>':'')+'</div>':'')+
+   (arr.length?`<div class="grid">${arr.map(x=>key==='locked'&&!unlockedIds.has(x.id)?'<article class="media-card"><div class="placeholder">🔒</div><div class="card-name" style="opacity:1">暗号化されたファイル</div></article>':key==='trash'?'<article class="media-card">'+thumb(x)+'<div class="card-name" style="opacity:1">'+esc(x.name)+'</div><div class="trash-actions"><button class="smallbtn" data-restore="'+esc(x.id)+'">復元</button><button class="smallbtn danger" data-purge="'+esc(x.id)+'">完全削除</button></div></article>':key==='archive'?'<article class="media-card" data-open="'+esc(x.id)+'" tabindex="0" role="button">'+thumb(x)+'<div class="card-name" style="opacity:1">'+esc(x.name)+'</div><button class="smallbtn" data-unarchive="'+esc(x.id)+'" style="position:absolute;left:5px;right:5px;bottom:5px;background:var(--panel)">元に戻す</button></article>':card(x)).join('')}</div>`:empty(key==='locked'?'🔒':'▧',key==='locked'?'ロックされた写真はありません':title+'はまだありません',key==='locked'?'写真ビューアーの「その他」からロックされたフォルダへ移動できます。':'写真を選択し、その他のオプションからこのコレクションに追加できます。'));
+ }else{baseRender();return}
+};
+const originalRender=render;
+render=function(){if(['highlights','memories','collections','collection-detail','create'].includes(page))renderFeature();else baseRender()};
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-memory-date]');
+ if(!b)return;
+ const group=memoryDayGroups().find(g=>g.key===b.dataset.memoryDate);
+ if(!group||!group.items.length){toast('この日の写真・動画は見つかりませんでした');return}
+ const ids=group.items.map(x=>x.id);
+ openViewer(ids[0],ids);
+ startSlideshow();
+});
+
 init().then(()=>restoreFolderHandle());
 })();
 </script>
