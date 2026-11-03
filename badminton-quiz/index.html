@@ -16,7 +16,7 @@
 <div id="home">
 <section class="hero"><h1>知らないルールを、<br>ひとつずつ覚えよう。</h1><p>説明を読んでから問題に挑戦。未学習の用語をいきなり出題しないよ！</p><div class="stats"><span class="stat">📖 学習 <b id="learned">0</b>/6</span><span class="stat">🎯 正解 <b id="correctCount">0</b>問</span><span class="stat">📈 正答率 <b id="rate">—</b></span></div></section>
 <section class="section"><h2>📚 学習メニュー</h2><div class="grid" id="lessons"></div></section>
-<section class="section"><h2>📌 すぐ確認</h2><div class="grid"><button type="button" class="tile" id="summaryBtn"><span class="ico">📋</span><strong>ルールまとめ</strong><span>試合前に要点を確認</span></button></div></section>
+<section class="section"><h2>📌 すぐ確認</h2><div class="grid"><button type="button" class="tile" id="summaryBtn" onclick="document.getElementById('home').classList.add('hidden');document.getElementById('summary').classList.remove('hidden');window.scrollTo(0,0)"><span class="ico">📋</span><strong>ルールまとめ</strong><span>試合前に要点を確認</span></button></div></section>
 <section class="section"><h2>🎯 復習・記録</h2><div class="grid"><button class="tile" id="weakBtn"><span class="ico">💪</span><strong>苦手克服！</strong><span id="weakDesc">間違えた問題を集中練習</span></button><button class="tile" id="historyBtn"><span class="ico">🕘</span><strong>履歴</strong><span id="historyDesc">過去のテスト結果を確認</span></button></div></section>
 <section class="section panel"><h2>📝 まとめテスト</h2><p class="muted">各レッスンを読んでから挑戦しよう。学習済みの内容から出題するよ。</p><div class="progress"><i id="progress"></i></div><p class="muted" id="progressText">まずはレッスンを1つ読もう。</p><button class="btn" id="startAll">学習済みからテスト</button></section>
 </div>
