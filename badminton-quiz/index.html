@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#176b55"><title>バドミントン問題集</title>
+<style>
+:root{color-scheme:light dark;--bg:#f3f6f4;--card:#fff;--text:#17231e;--muted:#63736b;--line:#dce6df;--accent:#167653;--soft:#e4f3eb;--shadow:0 5px 22px #163d2910}
+@media(prefers-color-scheme:dark){:root{--bg:#101713;--card:#1a241e;--text:#edf5ef;--muted:#a5b6aa;--line:#334239;--accent:#72d4a4;--soft:#243c30;--shadow:0 5px 22px #0004}}
+:root[data-theme="light"]{color-scheme:light;--bg:#f3f6f4;--card:#fff;--text:#17231e;--muted:#63736b;--line:#dce6df;--accent:#167653;--soft:#e4f3eb;--shadow:0 5px 22px #163d2910}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#101713;--card:#1a241e;--text:#edf5ef;--muted:#a5b6aa;--line:#334239;--accent:#72d4a4;--soft:#243c30;--shadow:0 5px 22px #0004}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;line-height:1.65}button,select{font:inherit}button{cursor:pointer}.wrap{max-width:850px;margin:auto;padding:16px 16px 90px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0 20px}.brand{font-weight:850;font-size:1.2rem}.brand small{display:block;color:var(--muted);font-size:.75rem;font-weight:500}.theme{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);padding:8px}.hero{background:linear-gradient(135deg,#176b55,#26946b);color:white;border-radius:24px;padding:24px;box-shadow:var(--shadow)}.hero h1{font-size:clamp(1.55rem,5vw,2.15rem);line-height:1.25;margin:0 0 8px}.hero p{margin:0;color:#e5fff1}.stats{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}.stat{background:#ffffff20;border:1px solid #ffffff30;border-radius:12px;padding:7px 12px;font-size:.9rem}.section{margin-top:24px}.section h2{font-size:1.15rem;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tile,.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.tile{color:var(--text);text-align:left;min-height:115px}.tile strong{display:block;font-size:1rem;margin:5px 0}.tile span{font-size:.86rem;color:var(--muted)}.ico{font-size:1.6rem}.muted{color:var(--muted)}.btn{border:0;background:var(--accent);color:white;border-radius:13px;padding:11px 16px;font-weight:700}.btn.secondary{background:var(--soft);color:var(--text);border:1px solid var(--line)}.btn:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.back{margin:10px 0 16px}.lesson h2{margin-top:20px}.lesson p{margin:8px 0}.callout{padding:12px 14px;background:var(--soft);border-radius:13px;margin:14px 0}.diagram{background:var(--soft);border-radius:16px;padding:12px;margin:14px 0;overflow:hidden}.diagram svg{width:100%;height:auto;display:block;max-height:340px}.diagram figcaption{font-size:.82rem;color:var(--muted);margin-top:6px}.quiz-option{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:13px;padding:13px;margin:9px 0}.quiz-option:focus,.btn:focus,.tile:focus,select:focus{outline:3px solid #55b78a;outline-offset:2px}.quiz-option.correct{border-color:#21965e;background:var(--soft)}.quiz-option.wrong{border-color:#d66;background:#c44a4a12}.feedback{padding:13px;border-radius:13px;margin:12px 0;background:var(--soft)}.hidden{display:none!important}.progress{height:9px;border-radius:99px;background:var(--line);overflow:hidden}.progress>i{display:block;height:100%;background:var(--accent);width:0}.footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:30px}@media(max-width:520px){.wrap{padding:10px 12px 80px}.grid{grid-template-columns:1fr 1fr;gap:9px}.tile{padding:13px;min-height:120px}.hero{padding:20px}.top{padding-top:8px}}@media(max-width:360px){.grid{grid-template-columns:1fr}.theme{max-width:132px}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="top"><div class="brand">🏸 バドミントン問題集<small>試合と審判のための学習アプリ</small></div><select class="theme" id="theme" aria-label="テーマ"><option value="system">デバイスのテーマに合わせる</option><option value="light">ライト</option><option value="dark">ダーク</option></select></header>
+<div id="home">
+<section class="hero"><h1>知らないルールを、<br>ひとつずつ覚えよう。</h1><p>説明を読んでから問題に挑戦。未学習の用語をいきなり出題しないよ！</p><div class="stats"><span class="stat">📖 学習 <b id="learned">0</b>/6</span><span class="stat">🎯 正解 <b id="correctCount">0</b>問</span><span class="stat">📈 正答率 <b id="rate">—</b></span></div></section>
+<section class="section"><h2>📚 学習メニュー</h2><div class="grid" id="lessons"></div></section>
+<section class="section panel"><h2>📝 まとめテスト</h2><p class="muted">各レッスンを読んでから挑戦しよう。学習済みの内容から出題するよ。</p><div class="progress"><i id="progress"></i></div><p class="muted" id="progressText">まずはレッスンを1つ読もう。</p><button class="btn" id="startAll">学習済みからテスト</button></section>
+</div>
+<section id="content" class="hidden"><button class="btn secondary back" id="back">← メニューへ</button><div id="contentBody"></div></section>
+<section id="quiz" class="hidden"><button class="btn secondary back" id="quizBack">← メニューへ</button><div class="panel"><div class="muted" id="qNumber"></div><div class="progress"><i id="qProgress"></i></div><h2 id="question"></h2><div id="options"></div><div id="feedback" class="feedback hidden" aria-live="polite"></div><div class="row"><button class="btn hidden" id="next">次の問題 →</button></div></div></section>
+<div class="footer">学習用アプリです。大会では顧問・大会要項・公式競技規則の指示を優先してください。</div>
+</main>
+<script>
+const lessons=[
+{id:"score",icon:"🔢",title:"得点とゲーム",desc:"21点制・20対20・30点上限",body:`
+<h2>1ゲームは21点先取</h2><p>バドミントンはラリーに勝った側に1点が入る「ラリーポイント制」。通常は3ゲーム中2ゲームを先取した側が試合に勝つよ。</p>
+<figure class="diagram"><svg viewBox="0 0 320 145" role="img" aria-label="得点例"><rect x="8" y="8" width="304" height="129" rx="12" fill="none" stroke="currentColor" opacity=".3"/><text x="160" y="34" text-anchor="middle" font-size="14" fill="currentColor">得点の例</text><text x="83" y="82" text-anchor="middle" font-size="34" font-weight="bold" fill="#16845a">21</text><text x="160" y="82" text-anchor="middle" font-size="22" fill="currentColor">－</text><text x="237" y="82" text-anchor="middle" font-size="34" font-weight="bold" fill="#16845a">18</text><text x="160" y="115" text-anchor="middle" font-size="12" fill="currentColor">21点に先に到達してゲーム獲得</text></svg><figcaption>通常のゲーム終了の例</figcaption></figure>
+<div class="callout"><b>20対20になったら？</b><br>2点差がつくまで続く。29対29になったら、次の1点（30点目）を取った側が勝ち。</div>
+<h2>覚えよう</h2><ul><li>ラリーに勝つと1点。</li><li>通常21点先取。</li><li>20対20からは2点差が必要。</li><li>30点が上限。</li></ul>`},
+{id:"court",icon:"📐",title:"シングルスのコート",desc:"使う範囲とラインの見方",body:`
+<h2>シングルスは横幅が狭い</h2><p>シングルスでは、コートの左右の内側のサイドラインを使う。奥行きは一番奥のバックバウンダリーラインまで使うよ。</p>
+<figure class="diagram"><svg viewBox="0 0 320 250" role="img" aria-label="シングルスコートの上から見た図"><rect x="48" y="12" width="224" height="226" rx="2" fill="#d9f0df" stroke="#16845a" stroke-width="2"/><rect x="64" y="12" width="192" height="226" fill="none" stroke="#16845a" stroke-width="2"/><line x1="48" y1="125" x2="272" y2="125" stroke="#16845a" stroke-width="2"/><line x1="64" y1="76" x2="256" y2="76" stroke="#16845a"/><line x1="64" y1="174" x2="256" y2="174" stroke="#16845a"/><line x1="160" y1="76" x2="160" y2="174" stroke="#16845a"/><text x="160" y="24" text-anchor="middle" font-size="10" fill="#14583e">奥のライン</text><text x="160" y="121" text-anchor="middle" font-size="11" fill="#14583e">ネット</text><text x="160" y="246" text-anchor="middle" font-size="10" fill="currentColor">シングルスのサイドライン＝内側</text><path d="M48 48 L64 48 M48 44 L48 52 M64 44 L64 52" stroke="#c44" stroke-width="2"/><text x="8" y="43" font-size="9" fill="#c44">外側は</text><text x="8" y="54" font-size="9" fill="#c44">使わない</text></svg><figcaption>簡略図。シングルスの左右の境界は内側のサイドライン。</figcaption></figure>
+<h2>イン・アウト</h2><p>シャトルがラインに触れて落ちたら「イン」。ラインの外に落ちたら「アウト」。線の上もインだよ。</p>
+<div class="callout">線審は自分に割り当てられたラインを集中して見る。担当外のラインまで勝手に判定しない。</div>`},
+{id:"serve",icon:"🏸",title:"サーブの基本",desc:"右・左の位置と対角線",body:`
+<h2>得点でサーブ位置が変わる</h2><p>シングルスでは、サーブを打つ側の得点が偶数なら右サービスコート、奇数なら左サービスコートから打つ。相手の対角線側に入れるよ。</p>
+<figure class="diagram"><svg viewBox="0 0 320 190" role="img" aria-label="サーブ位置の左右"><rect x="18" y="10" width="284" height="170" rx="8" fill="#d9f0df" stroke="#16845a" stroke-width="2"/><line x1="160" y1="10" x2="160" y2="180" stroke="#16845a" stroke-width="2"/><line x1="18" y1="95" x2="302" y2="95" stroke="#16845a" stroke-width="3"/><text x="88" y="48" text-anchor="middle" font-size="13" fill="#14583e">左</text><text x="232" y="48" text-anchor="middle" font-size="13" fill="#14583e">右</text><text x="88" y="145" text-anchor="middle" font-size="13" fill="#14583e">左</text><text x="232" y="145" text-anchor="middle" font-size="13" fill="#14583e">右</text><path d="M232 150 L88 40" stroke="#d06a24" stroke-width="3" stroke-dasharray="5 4"/><text x="160" y="91" text-anchor="middle" font-size="10" fill="currentColor">ネット</text></svg><figcaption>サービスコートの概念図。サーブは対角線のサービスコートへ。</figcaption></figure>
+<ul><li>サーブ側の得点が0・2・4…なら右。</li><li>1・3・5…なら左。</li><li>サーブは対角線上の相手コートへ。</li></ul>
+<div class="callout"><b>例：</b>サーブ側が5点なら奇数なので左。8点なら偶数なので右。</div>`},
+{id:"fault",icon:"⚠️",title:"フォルト（反則）",desc:"よくある反則を知ろう",body:`
+<h2>フォルト＝反則</h2><p>フォルトが起きると、そのラリーは相手側の得点になるよ。</p>
+<h2>よくある例</h2><ul><li>シャトルがコートの外に落ちる。</li><li>シャトルがネットを越えず、自分側に落ちる。</li><li>ラリー中にプレーヤーの体やラケットがネットに触れる。</li><li>シャトルを同じ側の選手が続けて2回打つ。</li><li>サーブのときに規則に反する打ち方をする。</li></ul>
+<div class="callout">「フォルト」は反則を知らせる言葉。どの反則かを正しく見分けるには、細かい規則も必要。迷ったら大会の主審・顧問に確認しよう。</div>`},
+{id:"umpire",icon:"🎤",title:"主審の仕事",desc:"試合進行・得点・コール",body:`
+<h2>主審は試合を進行する人</h2><p>主審（アンパイア）は、試合の進行、得点の確認、選手へのコール、ルールに基づく判定などを担当するよ。大会によって補助審判の配置や手順が違うこともある。</p>
+<h2>基本の流れ</h2><ol><li>選手・コート・スコアシートを確認。</li><li>トスなど大会所定の開始手順を行う。</li><li>試合開始を宣言する。</li><li>ラリーごとに得点を確認してコールする。</li><li>ゲーム終了・試合終了を宣言し、結果を記録する。</li></ol>
+<div class="callout"><b>覚えておきたい：</b>「ラブ」は0のこと。「ラブオール」は0対0。得点はサーバー側の点数を先に言う。実際のコールの順序や言い方は大会の説明に従おう。</div>
+<h2>得点コールの例</h2><p>サーバー側が3点、相手が2点なら「スリー・ツー」の順でコールする（英語での基本例）。</p>
+`},
+{id:"line",icon:"🚩",title:"線審の仕事",desc:"イン・アウトの合図",body:`
+<h2>線審は担当ラインを見る</h2><p>線審（ラインズパーソン）は、シャトルが担当ラインの内側に落ちたか、外側に落ちたかを判定して主審に知らせるよ。</p>
+<figure class="diagram"><svg viewBox="0 0 320 150" role="img" aria-label="線審のインとアウトの合図"><rect x="10" y="10" width="145" height="130" rx="12" fill="#d9f0df"/><rect x="165" y="10" width="145" height="130" rx="12" fill="#f8e5e3"/><g stroke="#16845a" stroke-width="8" stroke-linecap="round"><path d="M82 48 L82 88 M82 88 L55 119 M82 88 L109 119"/></g><g stroke="#b94c42" stroke-width="8" stroke-linecap="round"><path d="M238 87 L205 87 M238 87 L271 87"/></g><text x="82" y="29" text-anchor="middle" font-size="14" fill="#14583e">IN</text><text x="238" y="29" text-anchor="middle" font-size="14" fill="#963b34">OUT</text><text x="82" y="134" text-anchor="middle" font-size="10" fill="#14583e">両腕を下に向ける</text><text x="238" y="134" text-anchor="middle" font-size="10" fill="#963b34">両腕を横に広げる</text></svg><figcaption>線審の基本的なハンドシグナルのイメージ図。大会で事前説明を確認しよう。</figcaption></figure>
+<ul><li><b>イン：</b>両腕を下に向ける。</li><li><b>アウト：</b>両腕を横に広げる。</li></ul>
+<div class="callout">見えなかった・判断できなかった場合に、勝手に推測してはいけない。大会で教わった「見えない」合図や主審への伝え方に従おう。</div>`}
+];
+const questions=[
+{l:"score",q:"通常の1ゲームは何点先取？",a:["11点","15点","21点"],c:2,e:"通常は21点先取。試合は通常3ゲーム中2ゲーム先取だよ。"},
+{l:"score",q:"20対20になったらどうなる？",a:["そこで終了","2点差がつくまで続く","必ず30点まで続く"],c:1,e:"20対20からは2点差が必要。29対29なら次の1点で終了。"},
+{l:"court",q:"シングルスの左右の境界に使うのは？",a:["外側のサイドライン","内側のサイドライン","どちらも使う"],c:1,e:"シングルスは左右の内側のサイドラインを使うよ。"},
+{l:"court",q:"シャトルがラインに触れて落ちた。判定は？",a:["イン","アウト"],c:0,e:"ラインに触れていればイン！"},
+{l:"serve",q:"サーブ側の得点が5点。どちらからサーブ？",a:["右","左"],c:1,e:"5は奇数なので左サービスコート。"},
+{l:"serve",q:"サーブ側の得点が8点。どちらからサーブ？",a:["右","左"],c:0,e:"8は偶数なので右サービスコート。"},
+{l:"fault",q:"「フォルト」の意味は？",a:["得点","反則","休憩"],c:1,e:"フォルトは反則のこと。フォルトをした側はラリーを失うよ。"},
+{l:"fault",q:"ラリー中にプレーヤーのラケットがネットに触れた。基本的な判定は？",a:["フォルト","必ず続行","レット"],c:0,e:"ラリー中にプレーヤーやラケットがネットに触れるのはフォルト。"},
+{l:"umpire",q:"主審の主な役割は？",a:["観客の案内","試合の進行と得点管理","シャトルを販売する"],c:1,e:"主審は試合を進行し、得点や判定を管理するよ。"},
+{l:"umpire",q:"「ラブ」は何点を表す？",a:["0点","1点","15点"],c:0,e:"ラブは0。ラブオールは0対0。"},
+{l:"line",q:"線審の主な仕事は？",a:["得点を決める","担当ラインのイン・アウト判定","選手に作戦を教える"],c:1,e:"線審は担当ラインに落ちたシャトルのイン・アウトを判定するよ。"},
+{l:"line",q:"線審がアウトと判定するときの基本合図は？",a:["両腕を横に広げる","両腕を頭の上に上げる","拍手する"],c:0,e:"アウトは両腕を横に広げて示す。大会で合図を確認してね。"}
+];
+const $=id=>document.getElementById(id);let learned=JSON.parse(localStorage.getItem("bq-learned")||"[]"),correct=Number(localStorage.getItem("bq-correct")||0),answered=Number(localStorage.getItem("bq-answered")||0),queue=[],qi=0,score=0;
+function save(){localStorage.setItem("bq-learned",JSON.stringify(learned));localStorage.setItem("bq-correct",correct);localStorage.setItem("bq-answered",answered);renderStats()}
+function renderStats(){$("learned").textContent=learned.length;$("correctCount").textContent=correct;$("rate").textContent=answered?Math.round(correct/answered*100)+"%":"—";$("progress").style.width=learned.length/6*100+"%";$("progressText").textContent=learned.length===6?"全レッスン学習済み！まとめテストに挑戦しよう。": "あと"+(6-learned.length)+"レッスンで全部学習！"}
+function renderLessons(){$("lessons").innerHTML=lessons.map(x=>'<button class="tile" data-id="'+x.id+'"><span class="ico">'+x.icon+'</span><strong>'+x.title+(learned.includes(x.id)?" ✓":"")+'</strong><span>'+x.desc+'</span></button>').join("");document.querySelectorAll(".tile").forEach(b=>b.onclick=()=>openLesson(b.dataset.id))}
+function show(which){["home","content","quiz"].forEach(id=>$(id).classList.toggle("hidden",id!==which))}
+function openLesson(id){const x=lessons.find(v=>v.id===id);$("contentBody").innerHTML='<div class="panel lesson"><div class="muted">'+x.icon+' レッスン</div><h1>'+x.title+'</h1>'+x.body+'<div class="row" style="margin-top:22px"><button class="btn" id="mark">学習完了！</button><button class="btn secondary" id="practice">この範囲の問題</button></div></div>';show("content");$("mark").onclick=()=>{if(!learned.includes(id))learned.push(id);save();renderLessons();$("mark").textContent="学習済み ✓"};$("mark").textContent=learned.includes(id)?"学習済み ✓":"学習完了！";$("mark").disabled=learned.includes(id);$("practice").onclick=()=>startQuiz(questions.filter(q=>q.l===id))}
+function startQuiz(qs){if(!qs.length){alert("先にレッスンを読んで「学習完了！」を押してね。");return}queue=qs.slice().sort(()=>Math.random()-.5);qi=0;score=0;show("quiz");drawQ()}
+function drawQ(){const q=queue[qi];$("qNumber").textContent="第"+(qi+1)+"問 / "+queue.length;$("qProgress").style.width=(qi/queue.length*100)+"%";$("question").textContent=q.q;$("options").innerHTML="";$("feedback").classList.add("hidden");$("next").classList.add("hidden");q.a.forEach((a,i)=>{const b=document.createElement("button");b.className="quiz-option";b.textContent=(i+1)+". "+a;b.onclick=()=>answer(i);$("options").append(b)})}
+function answer(i){const q=queue[qi],buttons=[...$("options").children];buttons.forEach((b,n)=>{b.disabled=true;if(n===q.c)b.classList.add("correct");if(n===i&&i!==q.c)b.classList.add("wrong")});const ok=i===q.c;if(ok){score++;correct++}answered++;save();$("feedback").classList.remove("hidden");$("feedback").innerHTML=(ok?"⭕ 正解！":"❌ ざんねん。正解は「"+q.a[q.c]+"」") +"<br>"+q.e;$("next").classList.remove("hidden");$("next").textContent=qi===queue.length-1?"結果を見る":"次の問題 →"}
+$("next").onclick=()=>{qi++;if(qi<queue.length)drawQ();else finish()};function finish(){$("qNumber").textContent="テスト終了";$("qProgress").style.width="100%";$("question").textContent="結果："+score+" / "+queue.length+"問 正解！";$("options").innerHTML='<p class="muted">間違えた問題は、レッスンを読み返して再挑戦しよう。</p>'; $("feedback").classList.add("hidden");$("next").classList.add("hidden");const b=document.createElement("button");b.className="btn";b.textContent="メニューへ戻る";b.onclick=()=>{show("home");renderLessons()};$("options").append(b)}
+$("back").onclick=()=>{show("home");renderLessons()};$("quizBack").onclick=()=>{show("home");renderLessons()};$("startAll").onclick=()=>startQuiz(questions.filter(q=>learned.includes(q.l)));
+$("theme").value=localStorage.getItem("bq-theme")||"system";function setTheme(v){if(v==="system")document.documentElement.removeAttribute("data-theme");else document.documentElement.dataset.theme=v;localStorage.setItem("bq-theme",v)}$("theme").onchange=e=>setTheme(e.target.value);setTheme($("theme").value);renderStats();renderLessons();
+</script></body></html>
