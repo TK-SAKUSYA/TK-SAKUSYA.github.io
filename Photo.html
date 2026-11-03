@@ -150,6 +150,81 @@ body{font-size:14px;letter-spacing:.005em}.topbar{height:76px;gap:24px;padding:1
   .feature-cover{height:125px!important}
 }
 
+
+/* Larger Google Photos-inspired UI */
+body{font-size:16px;line-height:1.5}
+.topbar{min-height:82px;padding:14px 30px;gap:26px}
+.brand{font-size:24px;gap:12px}
+.brandmark{width:42px;height:42px;font-size:24px}
+.search{height:54px;padding-inline:20px}
+.search input{font-size:17px}
+.top-actions{gap:10px}
+.iconbtn,.smallbtn{min-height:46px;padding:10px 16px;font-size:15px}
+.iconbtn{width:46px;padding:0;font-size:20px}
+.primary{min-height:46px;padding:12px 20px;font-size:15px}
+.layout{grid-template-columns:244px minmax(0,1fr)}
+.sidebar{padding:22px 14px}
+.navbtn{min-height:52px;padding:12px 20px;font-size:15px;gap:17px}
+.navbtn span:first-child{font-size:21px}
+.main{padding:28px clamp(22px,3vw,46px) 100px}
+.heading{margin-bottom:20px}
+.heading h1{font-size:32px}
+.subtext{font-size:15px}
+.section-date{font-size:17px;margin:30px 0 14px}
+.section-date small{font-size:13px}
+.grid{grid-template-columns:repeat(auto-fill,minmax(var(--tile-size,176px),1fr));gap:6px}
+.media-card{border-radius:7px}
+.fav{width:34px;height:34px;font-size:18px}
+.badge{font-size:13px;padding:5px 8px}
+.albums-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+.album-info{padding:16px}
+.album-title{font-size:16px}
+.album-count{font-size:14px}
+.setting-card{padding:20px 22px}
+.setting-card h3{font-size:18px}
+.setting-row{padding:14px 0;font-size:15px}
+.setting-row small{font-size:13px}
+.mobile-nav{padding:9px 7px calc(9px + env(safe-area-inset-bottom))}
+.mobile-nav .navbtn{min-height:58px;min-width:72px;padding:7px 6px;font-size:12px;gap:4px}
+.mobile-nav .navbtn span:first-child{font-size:22px}
+.dialog{padding:26px}
+.dialog h2{font-size:23px}
+@media(min-width:1400px){.grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:7px}}
+@media(max-width:850px){
+ .topbar{min-height:0;padding:12px 15px 10px;gap:12px}
+ .brand{font-size:21px}
+ .brandmark{width:38px;height:38px}
+ .search{height:50px;padding-inline:16px}
+ .search input{font-size:16px}
+ .top-actions .primary{min-height:44px;font-size:14px;padding:10px 14px}
+ .top-actions .iconbtn{width:42px;min-height:42px}
+ .main{padding:22px 12px 112px}
+ .heading{margin-bottom:16px}
+ .heading h1{font-size:28px}
+ .subtext{font-size:14px}
+ .section-date{font-size:16px;margin:25px 0 12px}
+ .grid{grid-template-columns:repeat(var(--mobile-cols,3),minmax(0,1fr));gap:4px}
+ .media-card{border-radius:4px}
+ .fav{width:30px;height:30px;font-size:17px;opacity:1}
+ .albums-grid{gap:12px}
+ .album-info{padding:13px}
+ .album-title{font-size:15px}
+ .setting-card{padding:17px}
+ .setting-row{font-size:14px;gap:12px}
+ .mobile-nav{padding:9px 5px calc(9px + env(safe-area-inset-bottom))}
+ .mobile-nav .navbtn{min-width:68px;min-height:58px;font-size:12px}
+ .mobile-nav .navbtn span:first-child{font-size:22px}
+ .empty{padding:35px 18px}
+ .empty h2{font-size:22px}
+ .empty p{font-size:15px}
+}
+@media(max-width:390px){
+ .main{padding-left:9px;padding-right:9px}
+ .heading h1{font-size:26px}
+ .top-actions .primary{font-size:13px;padding:9px 11px}
+ .mobile-nav .navbtn{min-width:62px}
+}
+
 </style>
 </head>
 <body>
