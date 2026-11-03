@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>BLOCKCRAFT - TK EDITION</title>
+<style>
+:root{color-scheme:dark;--glass:#101b2ddd;--line:#ffffff30;--accent:#70e6ff}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#87c9ef;font-family:system-ui,"Segoe UI",sans-serif;color:#fff;touch-action:none}
+#game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%}
+#top{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;gap:10px}
+.panel{background:var(--glass);border:1px solid var(--line);border-radius:13px;padding:9px 12px;box-shadow:0 5px 20px #0003;backdrop-filter:blur(8px);font-size:12px}
+#brand{font-weight:1000;letter-spacing:1px;font-size:15px}#brand span{color:var(--accent)}#stats{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+#crosshair{position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);pointer-events:none}
+#crosshair:before,#crosshair:after{content:"";position:absolute;background:#fff;box-shadow:0 1px 3px #000}#crosshair:before{width:2px;height:18px;left:8px}#crosshair:after{height:2px;width:18px;top:8px}
+#hotbar{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:5px;padding:6px;background:#0b1426c9;border:1px solid #ffffff40;border-radius:12px;max-width:96vw}
+.slot{width:54px;height:54px;border:2px solid #ffffff35;border-radius:7px;background:#ffffff12;display:grid;place-items:center;position:relative;font-size:25px;cursor:pointer}
+.slot.active{border:3px solid #fff;background:#ffffff30;transform:translateY(-5px);box-shadow:0 0 12px #fff8}
+.slot small{position:absolute;left:4px;top:1px;font-size:9px;color:#ddd}.slot b{position:absolute;right:4px;bottom:1px;font-size:10px;text-shadow:0 1px 3px #000}
+#hint{position:absolute;bottom:88px;left:50%;transform:translateX(-50%);background:#101b2dcc;border:1px solid #ffffff30;padding:7px 12px;border-radius:9px;font-size:11px;white-space:nowrap;text-align:center}
+#menu{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(#07132377,#071323bb);padding:18px}
+#menu.hidden{display:none}.card{width:min(510px,100%);padding:25px;border-radius:20px;background:linear-gradient(145deg,#1c3450f5,#0b1729f5);border:1px solid #ffffff45;box-shadow:0 25px 80px #0008;text-align:center}
+h1{margin:0;font-size:clamp(32px,8vw,55px);line-height:1.05;letter-spacing:-2px;text-shadow:0 5px 15px #0007}h1 span{color:#78eaff}
+.subtitle{color:#c8d8e8;line-height:1.65;font-size:13px;margin:13px 0 20px}
+button{font:inherit;cursor:pointer}.start{width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(135deg,#8df1ff,#39b8e5);color:#082036;font-size:17px;font-weight:1000;box-shadow:0 5px 0 #16769c}.start:active{transform:translateY(3px);box-shadow:0 2px 0 #16769c}
+.secondary{margin-top:10px;width:100%;padding:10px;border-radius:10px;border:1px solid #ffffff40;background:#ffffff12;color:#fff;font-weight:800}
+#toast{position:absolute;top:18%;left:50%;transform:translateX(-50%);background:#0b172bdc;padding:9px 14px;border-radius:10px;font-weight:800;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+#mobile{display:none;position:absolute;inset:auto 12px 105px;justify-content:space-between;align-items:end;pointer-events:none}
+.pad{display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:48px 48px 48px;gap:4px;pointer-events:auto}
+.mbtn{border:1px solid #ffffff66;border-radius:12px;background:#0c1a30b8;color:white;font-size:19px;font-weight:900;touch-action:none;user-select:none}
+.pad .up{grid-column:2}.pad .left{grid-column:1;grid-row:2}.pad .down{grid-column:2;grid-row:2}.pad .right{grid-column:3;grid-row:2}
+.actions{display:flex;gap:8px;pointer-events:auto;align-items:end}.actions .mbtn{width:57px;height:57px;font-size:12px}
+#look{position:absolute;inset:0 0 105px 36%;pointer-events:none}
+@media(pointer:coarse){#mobile{display:flex}#hint{bottom:170px;white-space:normal;max-width:90vw}#hotbar{bottom:10px}.slot{width:43px;height:47px;font-size:21px}#top{top:8px;left:8px;right:8px}#brand{font-size:12px}.panel{padding:7px 9px}}
+@media(max-width:390px){.slot{width:37px;height:43px}.pad{grid-template-columns:42px 42px 42px;grid-template-rows:42px 42px 42px}.actions .mbtn{width:49px;height:49px}}
+</style>
+</head>
+<body>
+<div id="game"></div>
+<div id="top"><div class="panel" id="brand">⛏️ BLOCK<span>CRAFT</span> <small>TK EDITION</small></div><div id="stats"><div class="panel">🌍 <b id="coords">0, 0</b></div><div class="panel">🧱 <b id="count">0</b></div><button class="panel" id="saveBtn" style="pointer-events:auto;color:white">💾 保存</button></div></div>
+<div id="crosshair"></div><div id="hint">クリックで開始・視点操作　WASDで移動 / Spaceでジャンプ / 左クリックで破壊 / 右クリックで設置</div>
+<div id="hotbar"></div><div id="toast"></div>
+<div id="mobile"><div class="pad"><button class="mbtn up" data-move="forward">▲</button><button class="mbtn left" data-move="left">◀</button><button class="mbtn down" data-move="back">▼</button><button class="mbtn right" data-move="right">▶</button></div><div class="actions"><button class="mbtn" id="breakBtn">⛏️<br>破壊</button><button class="mbtn" id="placeBtn">🧱<br>設置</button><button class="mbtn" id="jumpBtn">⬆️<br>ジャンプ</button></div></div>
+<div id="menu"><div class="card"><h1>BLOCK<span>CRAFT</span></h1><div style="font-weight:900;letter-spacing:3px;color:#9cefff;font-size:11px;margin-top:8px">TK EDITION</div><p class="subtitle">自由に掘って、積んで、自分だけの世界を作ろう！🌳<br>ブロックを壊して素材を集め、好きな場所に設置できる3Dサンドボックス。</p><button class="start" id="start">▶ ワールドに入る</button><button class="secondary" id="reset">🗑️ ワールドを初期化</button><p class="subtitle" style="font-size:11px;margin-bottom:0">PC：WASD移動・Spaceジャンプ・左クリック破壊・右クリック設置<br>スマホ：画面ドラッグで視点操作・画面下のボタンで移動</p></div></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(()=>{'use strict';
+const root=document.getElementById('game'),menu=document.getElementById('menu'),hotbar=document.getElementById('hotbar'),toastEl=document.getElementById('toast');
+if(!window.THREE){toast('3Dエンジンを読み込めません。通信環境を確認してください。');return}
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x8acdf2);scene.fog=new THREE.Fog(0x8acdf2,22,65);
+const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,100);camera.position.set(0,3,7);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;root.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xd9f3ff,0x52613d,2));const sun=new THREE.DirectionalLight(0xfff0d0,2.1);sun.position.set(-15,25,12);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+const mats={grass:new THREE.MeshLambertMaterial({color:0x65ad45}),dirt:new THREE.MeshLambertMaterial({color:0x8b603c}),stone:new THREE.MeshLambertMaterial({color:0x858b91}),wood:new THREE.MeshLambertMaterial({color:0x986638}),leaves:new THREE.MeshLambertMaterial({color:0x398b42}),sand:new THREE.MeshLambertMaterial({color:0xd9c27b}),brick:new THREE.MeshLambertMaterial({color:0xb45e4b}),glass:new THREE.MeshLambertMaterial({color:0x9ce9ef,transparent:true,opacity:.48})};
+const types=Object.keys(mats),icons={grass:'🟩',dirt:'🟫',stone:'🪨',wood:'🪵',leaves:'🌿',sand:'🟨',brick:'🧱',glass:'🔷'};
+const geo=new THREE.BoxGeometry(1,1,1),blocks=new Map(),meshes=[],inventory={grass:24,dirt:12,stone:8,wood:4,leaves:4,sand:0,brick:0,glass:0};
+const key=(x,y,z)=>x+','+y+','+z;
+function addBlock(x,y,z,type,save=true){const id=key(x,y,z);if(blocks.has(id))return false;const m=new THREE.Mesh(geo,mats[type]||mats.grass);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;m.userData={x,y,z,type};scene.add(m);blocks.set(id,m);meshes.push(m);if(save)persist();return true}
+function removeBlock(m){const d=m.userData;scene.remove(m);blocks.delete(key(d.x,d.y,d.z));const i=meshes.indexOf(m);if(i>=0)meshes.splice(i,1);inventory[d.type]=(inventory[d.type]||0)+1;renderBar();persist()}
+function tree(x,z){for(let y=1;y<=4;y++)addBlock(x,y,z,'wood',false);for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++)for(let dy=3;dy<=6;dy++){if(Math.abs(dx)+Math.abs(dz)+(dy===6?1:0)<5&&Math.random()>.08)addBlock(x+dx,dy,z+dz,'leaves',false)}}
+function generate(){for(let x=-18;x<=18;x++)for(let z=-18;z<=18;z++){let h=Math.floor(Math.sin(x*.28)*.6+Math.cos(z*.25)*.5);for(let y=-3;y<=h;y++)addBlock(x,y,z,y===h?'grass':y>-2?'dirt':'stone',false);if(Math.random()<.035&&Math.abs(x)>3&&Math.abs(z)>3)tree(x,z)}for(let x=-18;x<=18;x++)for(let z=-18;z<=18;z++)if(Math.random()<.018)addBlock(x,0,z,'sand',false)}
+function persist(){try{localStorage.setItem('blockcraftTKWorld',JSON.stringify({blocks:[...blocks.values()].map(m=>[m.userData.x,m.userData.y,m.userData.z,m.userData.type]),inventory,player:[camera.position.x,camera.position.y,camera.position.z,camera.rotation.y,camera.rotation.x]}))}catch(e){toast('保存容量が足りません')}}
+function load(){let raw;try{raw=JSON.parse(localStorage.getItem('blockcraftTKWorld')||'null')}catch{}if(!raw||!Array.isArray(raw.blocks)){generate();return}for(const b of raw.blocks)addBlock(...b,false);Object.assign(inventory,raw.inventory||{});if(raw.player){camera.position.set(raw.player[0],raw.player[1],raw.player[2]);camera.rotation.order='YXZ';camera.rotation.y=raw.player[3];camera.rotation.x=raw.player[4]}}
+function renderBar(){hotbar.innerHTML='';types.forEach((t,i)=>{const el=document.createElement('div');el.className='slot'+(i===selected?' active':'');el.innerHTML='<small>'+(i+1)+'</small>'+icons[t]+'<b>'+(inventory[t]||0)+'</b>';el.onclick=()=>{selected=i;renderBar()};hotbar.appendChild(el)});document.getElementById('count').textContent=meshes.length}
+let selected=0,started=false,locked=false;renderBar();load();renderBar();
+const keys={},touch={};let velocityY=0,onGround=false,yaw=0,pitch=0;camera.rotation.order='YXZ';
+const ray=new THREE.Raycaster();function target(){ray.setFromCamera(new THREE.Vector2(0,0),camera);return ray.intersectObjects(meshes,false).find(h=>h.distance<6)}
+function action(place){const hit=target();if(!hit)return;const d=hit.object.userData;if(place){const n=hit.face.normal.clone();const x=d.x+Math.round(n.x),y=d.y+Math.round(n.y),z=d.z+Math.round(n.z);const p=new THREE.Vector3(x,y,z);if(p.distanceTo(camera.position)<1.6)return;const type=types[selected];if(inventory[type]>0&&addBlock(x,y,z,type)){inventory[type]--;renderBar()}}else removeBlock(hit.object)}
+function toast(t){toastEl.textContent=t;toastEl.style.opacity=1;clearTimeout(toastEl._timer);toastEl._timer=setTimeout(()=>toastEl.style.opacity=0,1700)}
+function start(){started=true;menu.classList.add('hidden');if(renderer.domElement.requestPointerLock&&!matchMedia('(pointer:coarse)').matches)renderer.domElement.requestPointerLock();toast('世界へようこそ！ ⛏️')}
+document.getElementById('start').onclick=start;
+document.getElementById('reset').onclick=()=>{if(!confirm('ワールドを初期化しますか？保存データも消えます。'))return;for(const m of [...meshes])scene.remove(m);blocks.clear();meshes.length=0;Object.keys(inventory).forEach(k=>inventory[k]=0);Object.assign(inventory,{grass:24,dirt:12,stone:8,wood:4,leaves:4});camera.position.set(0,3,7);camera.rotation.set(0,0,0);localStorage.removeItem('blockcraftTKWorld');generate();renderBar();toast('新しいワールドを作成しました')};
+document.getElementById('saveBtn').onclick=()=>{persist();toast('💾 ワールドを保存しました')};
+document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===renderer.domElement});
+renderer.domElement.addEventListener('click',()=>{if(started&&!matchMedia('(pointer:coarse)').matches&&!locked)renderer.domElement.requestPointerLock()});
+document.addEventListener('mousemove',e=>{if(!locked)return;yaw-=e.movementX*.0022;pitch-=e.movementY*.0022;pitch=Math.max(-1.48,Math.min(1.48,pitch));camera.rotation.set(pitch,yaw,0,'YXZ')});
+renderer.domElement.addEventListener('mousedown',e=>{if(!started)return;if(e.button===0)action(false);if(e.button===2)action(true)});renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code.startsWith('Digit')){const n=Number(e.code.slice(5))-1;if(n>=0&&n<types.length){selected=n;renderBar()}}if(e.code==='Space')e.preventDefault()});document.addEventListener('keyup',e=>keys[e.code]=false);
+let lastTouch=null;renderer.domElement.addEventListener('touchstart',e=>{if(!started||e.touches.length!==1)return;lastTouch={x:e.touches[0].clientX,y:e.touches[0].clientY}},{passive:true});renderer.domElement.addEventListener('touchmove',e=>{if(!lastTouch||e.touches.length!==1)return;const t=e.touches[0];yaw-=(t.clientX-lastTouch.x)*.006;pitch-=(t.clientY-lastTouch.y)*.006;pitch=Math.max(-1.45,Math.min(1.45,pitch));camera.rotation.set(pitch,yaw,0,'YXZ');lastTouch={x:t.clientX,y:t.clientY}},{passive:true});renderer.domElement.addEventListener('touchend',()=>lastTouch=null);
+document.querySelectorAll('[data-move]').forEach(b=>{const k=b.dataset.move;b.addEventListener('pointerdown',e=>{e.preventDefault();touch[k]=true});['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev,()=>touch[k]=false))});
+function hold(id,fn){const b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();fn()})}hold('breakBtn',()=>action(false));hold('placeBtn',()=>action(true));hold('jumpBtn',()=>{if(onGround)velocityY=7.8});
+function tick(){requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.04);if(started){const forward=(keys.KeyW||keys.ArrowUp||touch.forward?1:0)-(keys.KeyS||keys.ArrowDown||touch.back?1:0),side=(keys.KeyD||keys.ArrowRight||touch.right?1:0)-(keys.KeyA||keys.ArrowLeft||touch.left?1:0);const dir=new THREE.Vector3(side,0,-forward);if(dir.lengthSq()>0){dir.normalize().applyAxisAngle(new THREE.Vector3(0,1,0),camera.rotation.y);camera.position.x+=dir.x*5*dt;camera.position.z+=dir.z*5*dt}if((keys.Space||keys.ShiftLeft)&&onGround){velocityY=7.8;onGround=false}velocityY-=19*dt;camera.position.y+=velocityY*dt;if(camera.position.y<2.65){camera.position.y=2.65;velocityY=0;onGround=true}camera.position.x=Math.max(-18,Math.min(18,camera.position.x));camera.position.z=Math.max(-18,Math.min(18,camera.position.z));document.getElementById('coords').textContent=Math.floor(camera.position.x)+', '+Math.floor(camera.position.z)}renderer.render(scene,camera)}
+const clock=new THREE.Clock();tick();addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+})();
+</script>
+</body>
+</html>
