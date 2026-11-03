@@ -16,7 +16,7 @@
 <div id="home">
 <section class="hero"><h1>知らないルールを、<br>ひとつずつ覚えよう。</h1><p>説明を読んでから問題に挑戦。未学習の用語をいきなり出題しないよ！</p><div class="stats"><span class="stat">📖 学習 <b id="learned">0</b>/6</span><span class="stat">🎯 正解 <b id="correctCount">0</b>問</span><span class="stat">📈 正答率 <b id="rate">—</b></span></div></section>
 <section class="section"><h2>📚 学習メニュー</h2><div class="grid" id="lessons"></div></section>
-<section class="section"><h2>📌 すぐ確認</h2><div class="grid"><button type="button" class="tile" id="summaryBtn" onclick="openSummary()"><span class="ico">📋</span><strong>ルールまとめ</strong><span>試合前に要点を確認</span></button></div></section>
+<section class="section"><h2>📌 すぐ確認</h2><div class="grid"><button type="button" class="tile" id="summaryBtn"><span class="ico">📋</span><strong>ルールまとめ</strong><span>試合前に要点を確認</span></button></div></section>
 <section class="section"><h2>🎯 復習・記録</h2><div class="grid"><button class="tile" id="weakBtn"><span class="ico">💪</span><strong>苦手克服！</strong><span id="weakDesc">間違えた問題を集中練習</span></button><button class="tile" id="historyBtn"><span class="ico">🕘</span><strong>履歴</strong><span id="historyDesc">過去のテスト結果を確認</span></button></div></section>
 <section class="section panel"><h2>📝 まとめテスト</h2><p class="muted">各レッスンを読んでから挑戦しよう。学習済みの内容から出題するよ。</p><div class="progress"><i id="progress"></i></div><p class="muted" id="progressText">まずはレッスンを1つ読もう。</p><button class="btn" id="startAll">学習済みからテスト</button></section>
 </div>
@@ -71,8 +71,7 @@ const questions=[
 {l:"umpire",q:"主審の主な役割は？",a:["観客の案内","試合の進行と得点管理","シャトルを販売する"],c:1,e:"主審は試合を進行し、得点や判定を管理するよ。"},
 {l:"umpire",q:"「ラブ」は何点を表す？",a:["0点","1点","15点"],c:0,e:"ラブは0。ラブオールは0対0。"},
 {l:"line",q:"線審の主な仕事は？",a:["得点を決める","担当ラインのイン・アウト判定","選手に作戦を教える"],c:1,e:"線審は担当ラインに落ちたシャトルのイン・アウトを判定するよ。"},
-{l:"line",q:"線審がアウトと判定するときの基本合図は？",a:["両腕を横に広げる","両腕を頭の上に上げる","拍手する"],c:0,e:"アウトは両腕を横に広げて示す。大会で合図を確認してね。"}
-
+{l:"line",q:"線審がアウトと判定するときの基本合図は？",a:["両腕を横に広げる","両腕を頭の上に上げる","拍手する"],c:0,e:"アウトは両腕を横に広げて示す。大会で合図を確認してね。"},
 {l:"score",q:"ラリーに勝った側には何点入る？",a:["1点","2点","サーブ側だけ1点"],c:0,e:"ラリーポイント制では、ラリーに勝った側に1点入るよ。"},
 {l:"score",q:"通常の試合は何ゲーム先取？",a:["1ゲーム","2ゲーム","3ゲーム"],c:1,e:"通常は3ゲーム中2ゲームを先取した側が勝ち。"},
 {l:"score",q:"29対29になったらどうなる？",a:["2点差まで続く","次の1点を取った側が勝ち","30点を超えて続く"],c:1,e:"30点が上限なので、29対29の次の1点でゲーム終了。"},
