@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>SANTA IS COMING</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;900&family=Noto+Sans+JP:wght@400;600;800&display=swap');
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#06101a;color:#f5f8ff;font-family:'Noto Sans JP',sans-serif}canvas{display:block}
+#hud{position:fixed;inset:0;pointer-events:none;display:none;text-shadow:0 2px 8px #000}
+#top{position:absolute;top:18px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.panel{background:#06111dcc;border:1px solid #ffffff30;border-radius:12px;padding:10px 14px;backdrop-filter:blur(8px)}
+.small{font-size:11px;letter-spacing:2px;color:#b6c9da}.big{font-weight:800;font-size:17px}
+.bar{width:160px;height:8px;background:#ffffff26;border-radius:8px;overflow:hidden;margin-top:5px}.fill{height:100%;width:100%;transition:width .15s;background:#6ee7b7}
+#objective{position:absolute;top:104px;left:20px;max-width:260px;font-size:13px;line-height:1.7}
+#message{position:absolute;top:22%;left:50%;transform:translateX(-50%);font-size:clamp(18px,3vw,30px);font-weight:800;text-align:center;opacity:0;transition:opacity .25s;max-width:90%;color:#fff}
+#cross{position:absolute;left:50%;top:50%;width:8px;height:8px;border:1px solid #ffffff90;border-radius:50%;transform:translate(-50%,-50%)}
+#hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);background:#07111dcc;padding:9px 16px;border-radius:9px;font-size:12px;text-align:center;white-space:nowrap}
+#bottom{position:absolute;bottom:18px;left:18px;display:flex;gap:8px;align-items:end}
+#threat{position:absolute;right:20px;bottom:22px;text-align:right;font-size:11px;letter-spacing:2px;color:#ffb5b5}
+#overlay{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,#071321b8,#02070deF),radial-gradient(ellipse at center,#24445c 0%,#07111c 70%);z-index:5;padding:20px}
+#menu{width:min(620px,94vw);text-align:center;padding:clamp(20px,5vw,44px);border:1px solid #ffffff25;background:#081522d9;box-shadow:0 25px 90px #0009;border-radius:18px}
+h1{font:900 clamp(40px,9vw,76px)/.9 'Barlow Condensed',sans-serif;letter-spacing:2px;margin:0;color:#f5f8fc}
+h1 span{color:#e34b50}.sub{letter-spacing:5px;color:#9db5c8;font-size:11px;margin:14px 0 26px}
+.desc{font-size:13px;line-height:1.9;color:#c5d2dc;margin:0 auto 20px;max-width:470px}
+button{border:0;border-radius:9px;padding:13px 20px;background:#d83c45;color:white;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 5px 0 #81212a;transition:.15s}
+button:hover{filter:brightness(1.15);transform:translateY(-1px)}button:active{transform:translateY(3px);box-shadow:0 2px 0 #81212a}
+.modes{display:flex;justify-content:center;gap:10px;margin:20px 0}.mode{background:#1c2b3a;box-shadow:none;border:1px solid #ffffff25}.mode.active{background:#36536b;border-color:#b9e5ff}
+#start{width:min(300px,100%);font-size:16px;padding:15px}
+.foot{font-size:10px;color:#71899d;margin-top:20px;line-height:1.7}
+#touch{display:none;position:fixed;inset:0;pointer-events:none;z-index:3}
+#stick{position:absolute;bottom:35px;left:28px;width:118px;height:118px;border:1px solid #ffffff55;border-radius:50%;background:#07111c66;pointer-events:auto;touch-action:none}
+#nub{position:absolute;width:42px;height:42px;left:37px;top:37px;border-radius:50%;background:#d9e7f0aa}
+#look{position:absolute;right:0;bottom:0;width:55%;height:58%;pointer-events:auto;touch-action:none}
+#action{position:absolute;right:25px;bottom:38px;pointer-events:auto;border-radius:50%;width:68px;height:68px;padding:0;background:#e1eaf2;color:#14202c;box-shadow:0 4px 0 #71899d}
+@media(pointer:coarse){#touch{display:block}#hint{bottom:165px}#bottom{bottom:15px}}
+</style>
+</head>
+<body>
+<div id="overlay"><div id="menu">
+<h1>SANTA <span>IS</span><br>COMING</h1><div class="sub">CHRISTMAS NIGHT • CANADA</div>
+<p class="desc" id="intro">クリスマスイブの夜。雪に閉ざされた住宅街で、サンタが動き始めた。<br>街に散らばった通信パーツを3つ集め、非常用ビーコンを起動して脱出しよう。<br><b>サンタに見つからないこと。走り続けないこと。</b></p>
+<div class="modes"><button class="mode active" id="normal">NORMAL</button><button class="mode" id="nightmare">NIGHTMARE</button></div>
+<button id="start">ゲームスタート</button>
+<div class="foot">WASD 移動 / マウス 視点 / Shift 走る / Space ジャンプ / E 調べる<br>スマホ・タブレットは左スティックで移動、右側をスワイプして視点操作</div>
+</div></div>
+<div id="hud">
+<div id="top">
+<div class="panel"><div class="small">CHRISTMAS EVE • 23:47</div><div class="big" id="clock">23:47</div><div class="small">通信パーツ <b id="parts">0 / 3</b></div></div>
+<div class="panel"><div class="small">HEALTH</div><div class="bar"><div class="fill" id="health"></div></div><div class="small" style="margin-top:8px">STAMINA</div><div class="bar"><div class="fill" id="stamina" style="background:#80c9ff"></div></div></div>
+</div>
+<div id="objective" class="panel">目的：通信パーツを3つ集める<br>ビーコンの場所：街の北側</div>
+<div id="message"></div><div id="cross"></div><div id="hint">WASD：移動　｜　Shift：走る　｜　E：調べる</div>
+<div id="bottom"><div class="panel small">WIND: NORTH<br>SNOW: HEAVY</div></div>
+<div id="threat">SANTA STATUS<br><b id="threatText">ROAMING</b></div>
+</div>
+<div id="touch"><div id="stick"><div id="nub"></div></div><div id="look"></div><button id="action">E</button></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+let scene,camera,renderer,clock,player,santa,reindeer,beacon,parts=[],hides=[],snow,trees=[],houses=[],mode='normal',running=false,health=100,stamina=100,got=0,alert=0,gameTime=0,lastHit=0,invuln=0,noise=0,ending=false,near=null,keys={},yaw=0,pitch=0,velocityY=0,onGround=true,footstep=0,moveX=0,moveZ=0,mouseDown=false,lastX=0,lastY=0,msgTimer=0,nightmare=false,foundReindeer=false;
+const rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function say(t,d=2400){$('message').textContent=t;$('message').style.opacity=1;clearTimeout(msgTimer);msgTimer=setTimeout(()=>$('message').style.opacity=0,d)}
+function mat(c,rough=1,em=0){return new THREE.MeshStandardMaterial({color:c,roughness:rough,emissive:em?c:0,emissiveIntensity:em})}
+function box(w,h,d,m,x,y,z){let o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;scene.add(o);return o}
+function cylinder(rt,rb,h,m,x,y,z,n=8){let o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,n),m);o.position.set(x,y,z);o.castShadow=true;scene.add(o);return o}
+function makeTree(x,z,s=1){let g=new THREE.Group();g.position.set(x,0,z);g.add(cylinder(.22*s,.3*s,1.1*s,mat('#493a31'),0,.55*s,0));for(let i=0;i<3;i++){let c=new THREE.Mesh(new THREE.ConeGeometry((1.25-i*.25)*s,1.65*s,7),mat(i===1?'#173b35':'#1b493d'));c.position.y=(1.25+i*.7)*s;c.castShadow=true;g.add(c)}scene.add(g);trees.push(g)}
+function makeHouse(x,z,color){let g=new THREE.Group();g.position.set(x,0,z);let body=new THREE.Mesh(new THREE.BoxGeometry(5,3.2,4.4),mat(color));body.position.y=1.6;body.castShadow=true;body.receiveShadow=true;g.add(body);let roof=new THREE.Mesh(new THREE.ConeGeometry(3.8,2.1,4),mat('#263644'));roof.rotation.y=Math.PI/4;roof.position.y=4.15;roof.scale.set(1,1,.82);roof.castShadow=true;g.add(roof);let door=new THREE.Mesh(new THREE.BoxGeometry(.9,1.8,.12),mat('#553a32'));door.position.set(0,.9,2.26);g.add(door);for(let wx of [-1.5,1.5]){let win=new THREE.Mesh(new THREE.BoxGeometry(.85,.9,.1,1),new THREE.MeshStandardMaterial({color:'#b9e7ff',emissive:'#6da8ce',emissiveIntensity:.8}));win.position.set(wx,2,2.26);g.add(win)}scene.add(g);houses.push(g)}
+function build(){
+scene=new THREE.Scene();scene.background=new THREE.Color('#9bb5c7');scene.fog=new THREE.FogExp2('#9bb5c7',.012);
+camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,180);camera.rotation.order='YXZ';
+renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight('#dceeff','#26313a',1.4));let moon=new THREE.DirectionalLight('#d7e8ff',2.2);moon.position.set(-20,35,15);moon.castShadow=true;moon.shadow.mapSize.set(1024,1024);scene.add(moon);
+let ground=new THREE.Mesh(new THREE.PlaneGeometry(180,180),mat('#dce6eb'));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+let road=box(13,.06,180,mat('#39434b'),0,.04,0);let road2=box(180,.06,13,mat('#39434b'),0,.05,-35);
+for(let z=-70;z<75;z+=17){box(.12,.07,7,mat('#e8edf0'),0,.09,z)}
+// Residential blocks, yards, fences and lights
+for(let side of [-1,1])for(let z=-62;z<=55;z+=19){makeHouse(side*18,z,side===-1?'#7d8f9d':'#8c7770');for(let k=0;k<4;k++)makeTree(side*(8+rand(0,4)),z+rand(-7,7),rand(.7,1.15));for(let j=0;j<7;j++){let f=box(.18,.7,.18,mat('#d9e1e7'),side*10,z-7+j*2,0);f.position.y=.35}}
+// Street lamps
+for(let z=-60;z<70;z+=24){for(let x of [-6.5,6.5]){cylinder(.11,.15,5,mat('#26313a'),x,2.5,z);let arm=box(1,.1,.1,mat('#26313a'),x+(x<0?.4:-.4),4.9,z);let bulb=new THREE.PointLight('#d9edff',1.8,15);bulb.position.set(x,4.65,z);scene.add(bulb);box(.4,.14,.4,mat('#fff0bd',.4,.7),x,4.7,z)}}
+// Snow particles
+let pts=[];for(let i=0;i<1400;i++)pts.push(rand(-75,75),rand(0,28),rand(-85,85));let geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));snow=new THREE.Points(geo,new THREE.PointsMaterial({color:'#fff',size:.12,transparent:true,opacity:.8}));scene.add(snow);
+// Player and Santa
+player={pos:new THREE.Vector3(0,1.65,57),radius:.55};camera.position.copy(player.pos);
+santa=new THREE.Group();let coat=mat('#8f1724'),black=mat('#20252c'),skin=mat('#d5a18a'),white=mat('#e6e9ec');let torso=new THREE.Mesh(new THREE.BoxGeometry(.9,1.25,.5),coat);torso.position.y=1.15;santa.add(torso);let head=new THREE.Mesh(new THREE.SphereGeometry(.34,12,10),skin);head.position.y=2;santa.add(head);let hat=new THREE.Mesh(new THREE.ConeGeometry(.38,.8,10),coat);hat.position.set(0,2.55,0);hat.rotation.z=-.18;santa.add(hat);let beard=new THREE.Mesh(new THREE.ConeGeometry(.3,.65,8),white);beard.position.set(0,1.65,.22);santa.add(beard);for(let x of [-.25,.25]){let leg=new THREE.Mesh(new THREE.BoxGeometry(.27,.75,.3),black);leg.position.set(x,.38,0);santa.add(leg)}santa.position.set(0,0,-45);scene.add(santa);
+if(nightmare){reindeer=new THREE.Group();let brown=mat('#79543a'),ant=mat('#e6d4b4');let body=new THREE.Mesh(new THREE.BoxGeometry(1.25,.65,.55),brown);body.position.y=1;reindeer.add(body);let neck=new THREE.Mesh(new THREE.BoxGeometry(.28,.8,.3),brown);neck.position.set(0,1.5,.4);neck.rotation.x=-.25;reindeer.add(neck);let head2=new THREE.Mesh(new THREE.SphereGeometry(.28,10,8),brown);head2.position.set(0,1.95,.55);reindeer.add(head2);let nose=new THREE.PointLight('#ff1d26',0,12);nose.position.set(0,1.95,.82);reindeer.add(nose);reindeer.userData.nose=nose;for(let x of [-.4,.4])for(let z of [-.18,.18]){let leg=new THREE.Mesh(new THREE.BoxGeometry(.13,.65,.13),brown);leg.position.set(x,.35,z);reindeer.add(leg)}for(let x of [-.17,.17]){let a=new THREE.Mesh(new THREE.CylinderGeometry(.025,.07,.55,5),ant);a.position.set(x,2.35,.48);a.rotation.z=x<0?-.5:.5;reindeer.add(a)}reindeer.position.set(30,0,-25);scene.add(reindeer)}
+// Collectible radio components
+const spots=[[-22,20],[23,-5],[-18,-43],[29,45],[0,-62]];
+for(let i=0;i<spots.length;i++){let [x,z]=spots[i];let group=new THREE.Group();let orb=new THREE.Mesh(new THREE.OctahedronGeometry(.42),new THREE.MeshStandardMaterial({color:'#7be8ff',emissive:'#36bfe9',emissiveIntensity:1.5}));orb.position.y=.85;group.add(orb);let ring=new THREE.Mesh(new THREE.TorusGeometry(.58,.035,6,20),mat('#b8f6ff',.3,1));ring.position.y=.85;group.add(ring);group.position.set(x,0,z);group.userData={kind:'part',taken:false};scene.add(group);parts.push(group)}
+// Hiding spots: snow sheds / parked vehicles as simple shelters
+for(let [x,z] of [[-12,8],[13,-30],[-28,-12],[10,50]]){let h=new THREE.Group();let shell=new THREE.Mesh(new THREE.BoxGeometry(2.4,1.8,2.4),mat('#526574'));shell.position.y=.9;h.add(shell);let hole=new THREE.Mesh(new THREE.BoxGeometry(1,1.3,.1),mat('#111a22'));hole.position.set(0,.65,1.22);h.add(hole);h.position.set(x,0,z);scene.add(h);hides.push(h)}
+// Beacon and exit road
+beacon=new THREE.Group();let base=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.4,.5,12),mat('#354d5e'));base.position.y=.25;beacon.add(base);let pole=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,3,8),mat('#9ab7c7'));pole.position.y=1.9;beacon.add(pole);let lamp=new THREE.PointLight('#48d9ff',2,24);lamp.position.y=3.5;beacon.add(lamp);let cap=new THREE.Mesh(new THREE.SphereGeometry(.35,12,8),mat('#75e8ff',.3,1.5));cap.position.y=3.5;beacon.add(cap);beacon.position.set(0,0,-78);scene.add(beacon);
+}
+function reset(){health=100;stamina=100;got=0;alert=0;gameTime=0;lastHit=0;invuln=0;noise=0;ending=false;foundReindeer=false;parts.forEach(p=>{p.userData.taken=false;p.visible=true});player.pos.set(0,1.65,57);camera.position.copy(player.pos);santa.position.set(0,0,-45);if(reindeer)reindeer.position.set(30,0,-25);yaw=0;pitch=0;updateHud()}
+function updateHud(){$('health').style.width=health+'%';$('stamina').style.width=stamina+'%';$('parts').textContent=got+' / 3';$('threatText').textContent=alert>70?'HUNTING':alert>25?'SEARCHING':'ROAMING';$('threatText').style.color=alert>70?'#ff6262':'#f1d28a';$('objective').innerHTML=got<3?'目的：通信パーツを3つ集める<br>青く光るパーツを探そう':'目的：北側のビーコンを起動する<br>ビーコンに近づいて E を押す';}
+function nearest(){near=null;let best=2.6;for(let p of parts)if(!p.userData.taken){let d=player.pos.distanceTo(p.position.clone().add(new THREE.Vector3(0,1,0)));if(d<best){best=d;near=p}}let db=player.pos.distanceTo(beacon.position);if(db<3.5){best=db;near=beacon}for(let h of hides){let d=player.pos.distanceTo(h.position);if(d<best){best=d;near=h}}}
+function interact(){if(!running)return;nearest();if(!near){say('近くに調べられるものはない');return}if(near.userData.kind==='part'){near.userData.taken=true;near.visible=false;got++;noise=12;say('通信パーツを入手！ ('+got+'/3)');updateHud()}else if(near===beacon){if(got<3){say('まだパーツが足りない… ('+got+'/3)')}else finish(foundReindeer?'救難信号エンド':'雪の街から脱出',foundReindeer?'トナカイの警報をかわし、救難信号を送った。':'ビーコンが点灯した。遠くから救助のライトが近づいてくる。')}else{say('身を隠す…');player.hidden=4;alert=Math.max(0,alert-25)}}
+function finish(title,body){ending=true;running=false;document.exitPointerLock?.();$('overlay').style.display='grid';$('menu').innerHTML='<h1 style="font-size:54px">'+title+'</h1><div class="sub">ENDING UNLOCKED</div><p class="desc">'+body+'</p><p class="desc">通信パーツ '+got+'/3　｜　'+(nightmare?'NIGHTMARE':'NORMAL')+'</p><button id="again">もう一度プレイ</button><div class="foot">SANTA IS COMING</div>';$('again').onclick=()=>location.reload()}
+function hit(){if(invuln>0||player.hidden>0)return;health=Math.max(0,health-28);invuln=2.2;alert=100;player.pos.x+=rand(-1,1)*7;player.pos.z+=rand(1,2)*7;camera.position.copy(player.pos);say('サンタに見つかった！ 距離を取れ！');if(health<=0)finish('GAME OVER','サンタに追いつかれてしまった。街の夜はまだ終わらない…')}
+function update(dt){
+if(!running||ending)return;gameTime+=dt;invuln=Math.max(0,invuln-dt);player.hidden=Math.max(0,(player.hidden||0)-dt);noise=Math.max(0,noise-dt*8);
+let forward=0,side=0;if(keys.KeyW||keys.ArrowUp)forward++;if(keys.KeyS||keys.ArrowDown)forward--;if(keys.KeyA||keys.ArrowLeft)side--;if(keys.KeyD||keys.ArrowRight)side++;
+let len=Math.hypot(forward,side);if(len){forward/=len;side/=len}
+let touchMove=Math.hypot(moveX,moveZ);if(touchMove>.1){forward=-moveZ;side=moveX;let l=Math.hypot(forward,side);forward/=l;side/=l}
+let sprint=(keys.ShiftLeft||keys.ShiftRight)&&stamina>1&&len+touchMove>.1;let speed=sprint?8.2:4.2;if(sprint){stamina=Math.max(0,stamina-28*dt);noise=30}else stamina=Math.min(100,stamina+17*dt);
+let dir=new THREE.Vector3(Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,Math.sin(yaw));let velocity=dir.multiplyScalar(forward*speed).add(right.multiplyScalar(side*speed));player.pos.addScaledVector(velocity,dt);
+player.pos.x=clamp(player.pos.x,-42,42);player.pos.z=clamp(player.pos.z,-82,70);
+if(velocity.length()>.2){footstep+=dt*(sprint?1.7:1);if(footstep>1){footstep=0;noise=Math.max(noise,sprint?22:5)}}
+if(keys.Space&&onGround){velocityY=6;onGround=false}velocityY-=17*dt;player.pos.y+=velocityY*dt;if(player.pos.y<1.65){player.pos.y=1.65;velocityY=0;onGround=true}
+camera.position.copy(player.pos);camera.rotation.set(pitch,yaw,0,'YXZ');
+// Santa senses noise and visible player, searches recent position
+let target=player.pos.clone();target.y=0;let sp=santa.position.clone();let dist=sp.distanceTo(target);let sees=dist<23&&Math.abs(yaw-Math.atan2(sp.x-player.pos.x,sp.z-player.pos.z))<1.1;
+if(player.hidden>0){sees=false;target.set(player.pos.x+rand(-8,8),0,player.pos.z+rand(-8,8))}
+if(sees)alert=Math.min(100,alert+(nightmare?28:18)*dt);else if(noise>5&&dist<55)alert=Math.min(100,alert+10*dt);else alert=Math.max(0,alert-(nightmare?1.2:2.3)*dt);
+let chase=alert>28||dist<10;let santaSpeed=nightmare?3.6:2.7;if(chase){let dx=target.x-santa.position.x,dz=target.z-santa.position.z,d=Math.hypot(dx,dz)||1;santa.position.x+=dx/d*santaSpeed*dt;santa.position.z+=dz/d*santaSpeed*dt;santa.rotation.y=Math.atan2(dx,dz)}else{santa.position.x+=Math.sin(gameTime*.28)*.8*dt;santa.position.z+=Math.cos(gameTime*.23)*.5*dt}
+if(dist<1.65)hit();
+// Nightmare reindeer: detects player and alerts Santa with glowing nose and flash
+if(reindeer){let rd=reindeer.position.distanceTo(target);let detected=rd<17;if(detected){reindeer.userData.nose.intensity=2.5+Math.sin(gameTime*12)*1.4;if(!foundReindeer){foundReindeer=true;say('赤い光が点滅している…警報に注意！',2600)}if(Math.floor(gameTime*2)%3===0)alert=Math.min(100,alert+5*dt);let dx=target.x-reindeer.position.x,dz=target.z-reindeer.position.z,d=Math.hypot(dx,dz)||1;reindeer.position.x+=dx/d*1.4*dt;reindeer.position.z+=dz/d*1.4*dt}else reindeer.userData.nose.intensity=.12;reindeer.rotation.y=Math.atan2(target.x-reindeer.position.x,target.z-reindeer.position.z)}
+for(let p of parts)if(!p.userData.taken)p.rotation.y+=dt*.8;
+snow.rotation.y+=dt*.003;let a=snow.geometry.attributes.position;for(let i=1;i<a.count;i++){let y=a.getY(i)-dt*3.2;if(y<0)y=28;a.setY(i,y)}a.needsUpdate=true;
+if(health<100&&gameTime-lastHit>1.5)health=Math.min(100,health+5*dt);
+if(Math.floor(gameTime)!==Math.floor(gameTime-dt)){$('clock').textContent='23:'+String(47+Math.floor(gameTime/12)%13).padStart(2,'0')}
+updateHud();nearest();$('hint').textContent=near?(near.userData.kind==='part'?'E：通信パーツを拾う':near===beacon?'E：ビーコンを起動': 'E：身を隠す'):'WASD：移動　｜　Shift：走る　｜　Space：ジャンプ　｜　E：調べる';
+}
+function animate(){requestAnimationFrame(animate);let dt=Math.min(clock.getDelta(),.04);update(dt);if(renderer&&scene)renderer.render(scene,camera)}
+function start(){nightmare=mode==='nightmare';$('overlay').style.display='none';$('hud').style.display='block';build();clock=new THREE.Clock();reset();running=true;say(nightmare?'NIGHTMARE：赤鼻のトナカイが街を巡回している…':'サンタが街にいる。静かに進もう。',3200);if(matchMedia('(pointer:fine)').matches)renderer.domElement.requestPointerLock?.();animate()}
+$('normal').onclick=()=>{mode='normal';$('normal').classList.add('active');$('nightmare').classList.remove('active')};$('nightmare').onclick=()=>{mode='nightmare';$('nightmare').classList.add('active');$('normal').classList.remove('active')};$('start').onclick=start;
+addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyE')interact();if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault()});addEventListener('keyup',e=>keys[e.code]=false);
+addEventListener('mousemove',e=>{if(document.pointerLockElement){yaw-=e.movementX*.0024;pitch=clamp(pitch-e.movementY*.002,-1.2,1.2)}});
+$('look').addEventListener('touchstart',e=>{lastX=e.touches[0].clientX;lastY=e.touches[0].clientY},{passive:true});$('look').addEventListener('touchmove',e=>{let t=e.touches[0];yaw-=(t.clientX-lastX)*.006;pitch=clamp(pitch-(t.clientY-lastY)*.004,-1.1,1.1);lastX=t.clientX;lastY=t.clientY},{passive:true});
+let stick=$('stick'),nub=$('nub');stick.addEventListener('touchmove',e=>{let r=stick.getBoundingClientRect(),t=e.touches[0],dx=t.clientX-(r.left+r.width/2),dy=t.clientY-(r.top+r.height/2),d=Math.min(42,Math.hypot(dx,dy)),a=Math.atan2(dy,dx);moveX=Math.cos(a)*d/42;moveZ=Math.sin(a)*d/42;nub.style.transform='translate('+moveX*38+'px,'+moveZ*38+'px)'},{passive:true});stick.addEventListener('touchend',()=>{moveX=moveZ=0;nub.style.transform='translate(0,0)'});
+$('action').onclick=interact;addEventListener('resize',()=>{if(camera&&renderer){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}});
+})();
+</script>
+</body></html>
