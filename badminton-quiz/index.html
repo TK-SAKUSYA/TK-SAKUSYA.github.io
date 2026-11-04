@@ -95,19 +95,10 @@ const knowledge=[["得点・試合","通常は3ゲーム中2ゲームを先取�
 
 // 100項目を独立リストではなく、学習メニュー内の各レッスン本文に組み込む
 const knowledgeLessonMap={
-"得点・試合":"score","コート・ライン":"court","サーブ":"serve","ダブルス":"doubles",
-"フォルト":"fault","レット・中断":"let","主審":"umpire","線審・マナー":"line",
-"用具・会場":"equipment","試合マナー":"manners"
+"得点・試合":"score","コート・ライン":"court","サーブ":"serve","ダブルス":"serve",
+"フォルト":"fault","レット・中断":"fault","主審":"umpire","線審・マナー":"line",
+"用具・会場":"court","試合マナー":"umpire"
 };
-const knowledgeLessonInfo={
-"doubles":{icon:"👥",title:"ダブルスのルール",desc:"サーブ順・立ち位置・ラリーの動き",intro:"ダブルスでは、サーブの順番と立ち位置を正しく把握することが大切。ラリー中は2人の動き方にも注目しよう。"},
-"let":{icon:"🔁",title:"レット・試合中断",desc:"やり直し・妨害・中断時の対応",intro:"レットはラリーをやり直すための宣告。フォルトとの違いや、予期しない出来事が起きたときの対応を学ぼう。"},
-"equipment":{icon:"🏟️",title:"用具・会場の確認",desc:"シャトル・ラケット・コートの注意点",intro:"試合前には用具やコートの状態を確認。会場ごとの取り決めがある場合は大会役員の説明を優先しよう。"},
-"manners":{icon:"🤝",title:"試合マナー",desc:"選手・審判の行動と公平さ",intro:"選手も審判も、互いを尊重して試合を進めることが大切。困ったときは自己判断せず、役員に確認しよう。"}
-};
-Object.entries(knowledgeLessonInfo).forEach(([id,info])=>{
-  lessons.push({id,icon:info.icon,title:info.title,desc:info.desc,body:'<h2>'+info.title+'</h2><p>'+info.intro+'</p>'});
-});
 const knowledgeIntros={
 "得点・試合":"点数の数え方、ゲームの進み方、休憩とエンド交代を整理しよう。",
 "コート・ライン":"シングルスとダブルスのコートの違い、ライン判定の基本を確認しよう。",
