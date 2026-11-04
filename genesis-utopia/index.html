@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#101827">
+<title>Genesis Utopia | ジェネピア</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#172338;--line:#2c405c;--text:#f4f7ff;--muted:#9eafc8;--gold:#ffd66b;--cyan:#55d9ee}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}button{font:inherit;color:inherit;border:1px solid var(--line);background:#21334d;border-radius:13px;padding:11px 15px;font-weight:800;cursor:pointer}button:active{transform:scale(.97)}button:disabled{opacity:.4}
+#app{height:100%;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% -20%,#263b5b 0%,#101827 55%,#090f1a 100%)}
+header{display:flex;align-items:center;justify-content:space-between;padding:13px 17px;border-bottom:1px solid #ffffff16;gap:10px}
+.brand{font-size:19px;font-weight:1000;letter-spacing:.5px}.brand span{color:var(--gold)}.sub{font-size:10px;color:var(--muted);letter-spacing:2px}
+main{flex:1;min-height:0;overflow:auto;padding:16px;max-width:980px;width:100%;margin:auto}
+.view{display:none}.view.active{display:block}.eyebrow{color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:2px}.hero{padding:24px 4px 18px}.hero h1{font-size:clamp(34px,8vw,62px);line-height:1.02;margin:8px 0}.hero h1 em{font-style:normal;color:var(--gold)}.hero p{color:var(--muted);max-width:560px;line-height:1.7}
+.panel{background:linear-gradient(145deg,#1b2b42,#111c2d);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 14px 35px #0003}.section-title{display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px;font-weight:900}.muted{color:var(--muted);font-size:13px}
+.mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mode{min-height:95px;text-align:left;background:linear-gradient(145deg,#263d5a,#18263b);display:flex;flex-direction:column;justify-content:space-between}.mode strong{font-size:16px}.mode small{color:#b3c2d7}
+#roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:9px}.char{padding:12px;text-align:left;min-height:112px;background:#17263a}.char.selected{border:2px solid var(--gold);background:#35415a}.avatar{font-size:28px;display:block;margin-bottom:5px}.char b{display:block}.char small{color:var(--muted)}
+.stats{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.pill{font-size:11px;padding:5px 8px;border-radius:30px;background:#263951;color:#cbd9eb}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.primary{background:linear-gradient(110deg,#f6c95e,#ee9c45);color:#1c2430;border:0}.ghost{background:#17263a}
+#gameView{height:100%;display:none;flex-direction:column;padding:0;overflow:hidden}#gameView.active{display:flex}
+.hud{padding:9px 12px;display:flex;align-items:center;gap:10px;justify-content:space-between;background:#101b2c;border-bottom:1px solid #ffffff18;z-index:2}.barwrap{flex:1;min-width:70px}.barlabel{font-size:11px;display:flex;justify-content:space-between;margin-bottom:4px}.bar{height:9px;border-radius:20px;background:#344258;overflow:hidden}.fill{height:100%;width:100%;background:linear-gradient(90deg,#54df9a,#a6ee83);transition:width .15s}.specialfill{background:linear-gradient(90deg,#51c9f0,#9b83ff)}
+#arenaWrap{position:relative;flex:1;min-height:0;background:#172b32;overflow:hidden}canvas{width:100%;height:100%;display:block;touch-action:none}
+#gameOverlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}.result{display:none;text-align:center;padding:22px 28px;background:#0c1726ed;border:1px solid #ffffff30;border-radius:20px;pointer-events:auto;max-width:90%}.result.show{display:block}.result h2{font-size:32px;margin:0 0 8px}
+.controls{display:flex;align-items:center;justify-content:space-between;padding:12px 15px max(12px,env(safe-area-inset-bottom));background:#101b2c;gap:12px;z-index:3}.stick{width:104px;height:104px;border-radius:50%;border:2px solid #a6bdd455;background:#ffffff0c;position:relative;touch-action:none;flex:none}.knob{position:absolute;width:43px;height:43px;border-radius:50%;background:#9fb9d9aa;border:2px solid #d8e7ff;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}.control-right{display:flex;align-items:center;gap:10px}.actionbtn{width:70px;height:70px;border-radius:50%;font-size:12px;padding:5px;background:#24415a;border:2px solid #5a7d9d}.actionbtn.special{background:#563b85;border-color:#b49bff}.actionbtn span{display:block;font-size:22px}
+footer{padding:8px;text-align:center;color:#71839e;font-size:10px;border-top:1px solid #ffffff10}
+@media(min-width:700px){.hero{padding-top:40px}.mode-grid{grid-template-columns:repeat(4,1fr)}.controls{justify-content:center;gap:60px}.stick{width:115px;height:115px}}
+@media(max-height:620px){.stick{width:80px;height:80px}.knob{width:35px;height:35px}.actionbtn{width:60px;height:60px}.hero{padding-top:10px}.hero h1{font-size:36px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header><div><div class="brand">GENESIS <span>UTOPIA</span></div><div class="sub">ジェネシス・ユートピア</div></div><button id="homeBtn" class="ghost">⌂ ホーム</button></header>
+<main id="menuMain">
+<section id="homeView" class="view active">
+<div class="hero"><div class="eyebrow">A NEW WORLD IS WAITING</div><h1>CREATE YOUR<br><em>UTOPIA.</em></h1><p>キャラクターを選び、能力を使いこなし、戦場を駆け抜けろ。<br>ここから、ジェネピアの物語が始まる。</p><div class="stats"><span class="pill">⚔️ 12 CHARACTERS</span><span class="pill">📱 TOUCH READY</span><span class="pill">🌌 2100 A.D.（仮）</span></div></div>
+<div class="panel"><div class="section-title">🎮 モード選択 <span class="muted">第1版</span></div><div class="mode-grid">
+<button class="mode" data-mode="story"><strong>📖 ストーリー</strong><small>物語の世界へ</small></button>
+<button class="mode" data-mode="battle"><strong>👑 バトルロイヤル</strong><small>最後まで生き残れ</small></button>
+<button class="mode" data-mode="boss"><strong>💀 ボスラッシュ</strong><small>ボスに連続挑戦</small></button>
+<button class="mode" data-mode="training"><strong>🎯 トレーニング</strong><small>操作を練習しよう</small></button>
+</div></div>
+<div class="section-title">🧑‍🚀 キャラクター選択 <span class="muted">タップして選択</span></div><div id="roster"></div>
+<div class="panel" style="margin-top:14px"><div class="section-title">選択中のキャラクター</div><div id="selectedInfo"></div><div class="actions"><button id="startBtn" class="primary">バトル開始 ⚔️</button></div></div>
+</section>
+</main>
+<section id="gameView" class="view">
+<div class="hud"><button id="quitBtn" style="padding:8px 10px">✕</button><div class="barwrap"><div class="barlabel"><b id="hpName">HP</b><span id="hpText">0 / 0</span></div><div class="bar"><div class="fill" id="hpFill"></div></div></div><div class="barwrap"><div class="barlabel"><b>スペシャル</b><span id="spText">0%</span></div><div class="bar"><div class="fill specialfill" id="spFill" style="width:0%"></div></div></div><span id="modeLabel" class="pill">BATTLE</span></div>
+<div id="arenaWrap"><canvas id="arena"></canvas><div id="gameOverlay"><div class="result" id="result"><h2 id="resultTitle">VICTORY!</h2><p id="resultText">バトル終了</p><button id="againBtn" class="primary">もう一度</button> <button id="backBtn">ホームへ</button></div></div></div>
+<div class="controls"><div class="stick" id="stick"><div class="knob" id="knob"></div></div><div class="control-right"><button class="actionbtn" id="attackBtn"><span>✦</span>攻撃</button><button class="actionbtn special" id="specialBtn"><span>⚡</span>SP</button></div></div>
+</section>
+<footer>GENESIS UTOPIA · FIRST PLAYABLE BUILD</footer>
+</div>
+<script>
+const chars=[
+{id:'good',name:'グッド',role:'アタッカー（仮）',rarity:'レア',hp:250,damage:120,emoji:'👍',color:'#f6cb63',ability:'サムズアップ',special:'ピースビーム',desc:'世界を良いことで溢れるよう奮闘する、気のいいおじさん。'},
+{id:'tarou',name:'タロウ',role:'アタッカー',rarity:'ノーマル',hp:500,damage:100,emoji:'🥊',color:'#a8b5c8',ability:'パンチ',special:'キック',desc:'「え、僕参戦してたんですか？」唯一参戦を知らなかった男。公式最弱。'},
+{id:'deca',name:'デカブレット',role:'タンク',rarity:'レア',hp:4000,damage:1000,emoji:'🤖',color:'#58b8db',ability:'デジタルボム',special:'デジタルラッシュ',desc:'電子機器好きすぎて、いつしか自分がロボットになっていた。'},
+{id:'todoroki',name:'トドロキ',role:'アタッカー',rarity:'レジェンダリー',hp:1500,damage:2000,emoji:'⚡',color:'#f3dc68',ability:'エンライ',special:'エンドボルト',desc:'雷に打たれ、力が覚醒した和風の青年。'},
+{id:'efraim',name:'エフレイム',role:'アタッカー',rarity:'エピック',hp:3500,damage:500,emoji:'🔥',color:'#ff885a',ability:'ヘルフレイム',special:'レンゴク',desc:'勝ち気で燃え上がる情熱の女性。'},
+{id:'cold',name:'コールド',role:'トリッキー',rarity:'エピック',hp:5000,damage:600,emoji:'❄️',color:'#7ce3f3',ability:'カンタイフリーズ',special:'ブルブルオーラ',desc:'氷の大地生まれ。いつも悪寒がしている。'},
+{id:'gravity',name:'グラビティ',role:'アサシン',rarity:'エピック',hp:3000,damage:700,emoji:'🪐',color:'#c18bff',ability:'スーパー重力',special:'無重力',desc:'木の上のリンゴが欲しくて能力が開花した神童。'},
+{id:'james',name:'ジェームズ',role:'シューター',rarity:'レア',hp:800,damage:500,emoji:'🤠',color:'#e6b47b',ability:'バンバン！',special:'ダダダダ！',desc:'引退した元保安官。西部劇に憧れるイカした人物。'},
+{id:'sonic',name:'ソニック',role:'アサシン',rarity:'スペシャル',hp:2500,damage:700,emoji:'🦔',color:'#438cff',ability:'スピンダッシュ',special:'スピンアタック',desc:'青いハリネズミ。高速で駆け抜け、敵を狩る。'},
+{id:'kim',name:'キム',role:'タンク',rarity:'レア',hp:2500,damage:1000,emoji:'🚀',color:'#e58a8a',ability:'ミサイル',special:'ノースジェネラル',desc:'ダイエットのため外へ出たら、いつしか戦場へ。'},
+{id:'cola',name:'コーラー',role:'シューター',rarity:'レア',hp:2000,damage:800,emoji:'🥤',color:'#d98b66',ability:'コーラバレット',special:'コーラパワー',desc:'コーラが好きすぎて武器にした男。'},
+{id:'bask',name:'バースク',role:'タンク',rarity:'レア',hp:6700,damage:1000,emoji:'🧀',color:'#d8a56c',ability:'おデブの力',special:'ファットタイム',desc:'好物はバスクチーズケーキ。おいしいものが大好き。'}
+];
+let selected=chars[1],mode='battle',game=null,raf=0,last=0,keys={},stick={x:0,y:0,active:false},attackHeld=false;
+const $=id=>document.getElementById(id);
+function renderRoster(){ $('roster').innerHTML='';chars.forEach(c=>{const b=document.createElement('button');b.className='char'+(selected.id===c.id?' selected':'');b.innerHTML='<span class="avatar">'+c.emoji+'</span><b>'+c.name+'</b><small>'+c.role+' · '+c.rarity+'</small>';b.onclick=()=>{selected=c;renderRoster();renderInfo()};$('roster').appendChild(b)});renderInfo()}
+function renderInfo(){const c=selected;$('selectedInfo').innerHTML='<div style="display:flex;gap:13px;align-items:center"><div style="font-size:48px">'+c.emoji+'</div><div><b style="font-size:20px">'+c.name+'</b><div class="muted">'+c.role+' / '+c.rarity+'</div><div class="muted">HP '+c.hp.toLocaleString()+' · 能力 '+c.ability+' · SP '+c.special+'</div></div></div><p class="muted">'+c.desc+'</p>'}
+function showHome(){$('menuMain').style.display='block';$('gameView').classList.remove('active');$('homeView').classList.add('active');cancelAnimationFrame(raf);game=null}
+function startGame(){mode=mode||'battle';$('menuMain').style.display='none';$('gameView').classList.add('active');$('modeLabel').textContent=mode.toUpperCase();$('result').classList.remove('show');const canvas=$('arena'),rect=canvas.getBoundingClientRect();canvas.width=Math.max(320,Math.floor(rect.width*devicePixelRatio));canvas.height=Math.max(240,Math.floor(rect.height*devicePixelRatio));const w=canvas.width,h=canvas.height;const scale=Math.min(w/900,h/600);const c=selected;game={w,h,scale,player:{x:w*.5,y:h*.52,r:Math.max(13,22*scale),hp:c.hp,max:c.hp,sp:0,angle:0,ifr:0},enemies:[],shots:[],particles:[],time:0,over:false,wave:0,score:0};const count=mode==='training'?1:mode==='boss'?1:7;for(let i=0;i<count;i++){let a=i*Math.PI*2/count;game.enemies.push({x:w*.5+Math.cos(a)*w*.32,y:h*.5+Math.sin(a)*h*.32,r:mode==='boss'?30*scale:18*scale,hp:mode==='boss'?6500:Math.max(650,c.hp*.65),max:mode==='boss'?6500:Math.max(650,c.hp*.65),speed:(.55+Math.random()*.35)*scale,cd:0,boss:mode==='boss',color:['#ff6f7e','#e6a34f','#a78bfa','#63d4a8'][i%4]})}updateHud();last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+function updateHud(){if(!game)return;let p=game.player;$('hpName').textContent=selected.name;$('hpText').textContent=Math.max(0,Math.ceil(p.hp)).toLocaleString()+' / '+p.max.toLocaleString();$('hpFill').style.width=Math.max(0,p.hp/p.max*100)+'%';$('spText').textContent=Math.floor(p.sp)+'%';$('spFill').style.width=p.sp+'%'}
+function loop(now){if(!game||game.over)return;let dt=Math.min(.035,(now-last)/1000);last=now;update(dt);draw();raf=requestAnimationFrame(loop)}
+function update(dt){const g=game,p=g.player;g.time+=dt;const speed=210*g.scale;let ix=stick.x+(keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0),iy=stick.y+(keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0);let len=Math.hypot(ix,iy);if(len>1){ix/=len;iy/=len}if(len>.08){p.x+=ix*speed*dt;p.y+=iy*speed*dt;p.angle=Math.atan2(iy,ix)}p.x=Math.max(p.r,Math.min(g.w-p.r,p.x));p.y=Math.max(p.r,Math.min(g.h-p.r,p.y));p.hp=Math.min(p.max,p.hp+Math.max(1,p.max*.018)*dt);
+g.enemies.forEach(e=>{if(e.hp<=0)return;let dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1;e.x+=dx/d*e.speed*75*dt;e.y+=dy/d*e.speed*75*dt;e.cd-=dt;if(d<e.r+p.r+5&&e.cd<=0){p.hp-=Math.max(35,p.max*.055);p.ifr=.35;e.cd=.75;g.particles.push({x:p.x,y:p.y,t:.25,color:'#ff536c'})}if(e.boss&&d<e.r+p.r+20&&e.cd<=0){p.hp-=120;e.cd=1.1}});p.ifr=Math.max(0,p.ifr-dt);
+g.shots.forEach(s=>{s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;for(const e of g.enemies){if(e.hp<=0)continue;if(Math.hypot(e.x-s.x,e.y-s.y)<e.r+s.r){e.hp-=s.damage;s.life=0;p.sp=Math.min(100,p.sp+Math.max(3,s.damage/120));g.particles.push({x:s.x,y:s.y,t:.2,color:'#ffe28a'});if(e.hp<=0)g.score++ ;break}}});g.shots=g.shots.filter(s=>s.life>0);g.particles.forEach(a=>a.t-=dt);g.particles=g.particles.filter(a=>a.t>0);
+if(p.hp<=0){finish(false);return}if(g.enemies.every(e=>e.hp<=0)){finish(true);return}updateHud()}
+function nearest(){let p=game.player;return game.enemies.filter(e=>e.hp>0).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0]}
+function shoot(special=false){if(!game||game.over)return;const p=game.player,e=nearest();if(!e)return;let dx=e.x-p.x,dy=e.y-p.y,d=Math.hypot(dx,dy)||1;let dmg=selected.damage;if(special){if(p.sp<100)return;p.sp=0;dmg*=2.5;const count=selected.id==='deca'?5:selected.id==='james'?4:3;for(let i=0;i<count;i++){let a=Math.atan2(dy,dx)+(i-(count-1)/2)*.16;game.shots.push({x:p.x,y:p.y,vx:Math.cos(a)*650*game.scale,vy:Math.sin(a)*650*game.scale,damage:dmg/count,life:1.5,r:7*game.scale})}}else{game.shots.push({x:p.x,y:p.y,vx:dx/d*550*game.scale,vy:dy/d*550*game.scale,damage:dmg,life:1.5,r:6*game.scale})}updateHud()}
+function finish(win){game.over=true;$('resultTitle').textContent=win?'VICTORY! 🏆':'GAME OVER';$('resultText').textContent=win?'敵を全員倒した！ スコア：'+game.score:'スコア：'+game.score+' · もう一度挑戦しよう';$('result').classList.add('show')}
+function draw(){const c=$('arena').getContext('2d'),g=game,p=g.player,w=g.w,h=g.h;c.clearRect(0,0,w,h);c.fillStyle='#1b3438';c.fillRect(0,0,w,h);let step=48*g.scale;c.strokeStyle='#ffffff0c';c.lineWidth=1;for(let x=0;x<w;x+=step){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke()}for(let y=0;y<h;y+=step){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}
+for(let i=0;i<9;i++){let x=(i*173+55)%w,y=(i*239+80)%h;c.fillStyle='#34564a';c.beginPath();c.roundRect(x,y,25*g.scale,18*g.scale,5);c.fill()}
+g.shots.forEach(s=>{c.fillStyle='#ffe18a';c.beginPath();c.arc(s.x,s.y,s.r,0,Math.PI*2);c.fill()});
+g.enemies.forEach(e=>{if(e.hp<=0)return;c.fillStyle=e.color;c.beginPath();c.arc(e.x,e.y,e.r,0,Math.PI*2);c.fill();c.fillStyle='#17202b';c.fillRect(e.x-e.r,e.y-e.r-10,e.r*2,5);c.fillStyle='#ff7182';c.fillRect(e.x-e.r,e.y-e.r-10,e.r*2*Math.max(0,e.hp/e.max),5);c.fillStyle='#fff';c.font=(e.boss?20:15)*g.scale+'px sans-serif';c.textAlign='center';c.fillText(e.boss?'👹':'●',e.x,e.y+6*g.scale)});
+g.particles.forEach(a=>{c.globalAlpha=Math.max(0,a.t*4);c.fillStyle=a.color;c.beginPath();c.arc(a.x,a.y,12*g.scale,0,Math.PI*2);c.fill();c.globalAlpha=1});
+c.fillStyle=p.ifr>0?'#ffffff':selected.color;c.beginPath();c.arc(p.x,p.y,p.r,0,Math.PI*2);c.fill();c.strokeStyle='#fff';c.lineWidth=3*g.scale;c.stroke();c.font=22*g.scale+'px sans-serif';c.textAlign='center';c.fillText(selected.emoji,p.x,p.y+8*g.scale);
+c.fillStyle='#fff';c.font='bold 12px system-ui';c.fillText('敵 '+g.enemies.filter(e=>e.hp>0).length+'体',70,25)}
+function setMode(m){mode=m;document.querySelectorAll('.mode').forEach(b=>b.style.borderColor=b.dataset.mode===m?'#ffd66b':'')}
+document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+$('startBtn').onclick=startGame;$('homeBtn').onclick=()=>{if(game)showHome()};$('quitBtn').onclick=showHome;$('againBtn').onclick=startGame;$('backBtn').onclick=showHome;$('attackBtn').onpointerdown=e=>{e.preventDefault();shoot(false)};$('specialBtn').onpointerdown=e=>{e.preventDefault();shoot(true)};
+const stickEl=$('stick'),knob=$('knob');function stickMove(e){const r=stickEl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=r.width*.34,d=Math.hypot(dx,dy)||1,k=Math.min(1,max/d);stick.x=dx/d*k;stick.y=dy/d*k;knob.style.left=(50+stick.x*34)+'%';knob.style.top=(50+stick.y*34)+'%'}stickEl.addEventListener('pointerdown',e=>{stick.active=true;stickEl.setPointerCapture(e.pointerId);stickMove(e)});stickEl.addEventListener('pointermove',e=>{if(stick.active)stickMove(e)});function stickEnd(){stick.active=false;stick.x=stick.y=0;knob.style.left='50%';knob.style.top='50%'}stickEl.addEventListener('pointerup',stickEnd);stickEl.addEventListener('pointercancel',stickEnd);window.addEventListener('keydown',e=>{keys[e.key]=true;if(e.key===' '){e.preventDefault();shoot(false)}if(e.key==='Shift')shoot(true)});window.addEventListener('keyup',e=>keys[e.key]=false);window.addEventListener('resize',()=>{if(game&&!game.over){const r=$('arena').getBoundingClientRect();const oldW=game.w,oldH=game.h;$('arena').width=Math.max(320,Math.floor(r.width*devicePixelRatio));$('arena').height=Math.max(240,Math.floor(r.height*devicePixelRatio));game.w=$('arena').width;game.h=$('arena').height;const sx=game.w/oldW,sy=game.h/oldH;[game.player,...game.enemies,...game.shots].forEach(o=>{o.x*=sx;o.y*=sy})}});
+renderRoster();setMode('battle');
+</script>
+</body></html>
