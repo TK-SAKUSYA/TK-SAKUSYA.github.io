@@ -66,19 +66,19 @@ function mat(c,rough=1,em=0){return new THREE.MeshStandardMaterial({color:c,roug
 function box(w,h,d,m,x,y,z){let o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;scene.add(o);return o}
 function cylinder(rt,rb,h,m,x,y,z,n=8){let o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,n),m);o.position.set(x,y,z);o.castShadow=true;scene.add(o);return o}
 function makeTree(x,z,s=1){let g=new THREE.Group();g.position.set(x,0,z);g.add(cylinder(.22*s,.3*s,1.1*s,mat('#493a31'),0,.55*s,0));for(let i=0;i<3;i++){let c=new THREE.Mesh(new THREE.ConeGeometry((1.25-i*.25)*s,1.65*s,7),mat(i===1?'#173b35':'#1b493d'));c.position.y=(1.25+i*.7)*s;c.castShadow=true;g.add(c)}scene.add(g);trees.push(g)}
-function makeHouse(x,z,color){let g=new THREE.Group();g.position.set(x,0,z);let body=new THREE.Mesh(new THREE.BoxGeometry(5,3.2,4.4),mat(color));body.position.y=1.6;body.castShadow=true;body.receiveShadow=true;g.add(body);let roof=new THREE.Mesh(new THREE.ConeGeometry(3.8,2.1,4),mat('#263644'));roof.rotation.y=Math.PI/4;roof.position.y=4.15;roof.scale.set(1,1,.82);roof.castShadow=true;g.add(roof);let door=new THREE.Mesh(new THREE.BoxGeometry(.9,1.8,.12),mat('#553a32'));door.position.set(0,.9,2.26);g.add(door);for(let wx of [-1.5,1.5]){let win=new THREE.Mesh(new THREE.BoxGeometry(.85,.9,.1,1),new THREE.MeshStandardMaterial({color:'#b9e7ff',emissive:'#6da8ce',emissiveIntensity:.8}));win.position.set(wx,2,2.26);g.add(win)}scene.add(g);houses.push(g)}
+function makeHouse(x,z,color){let g=new THREE.Group();g.position.set(x,0,z);let body=new THREE.Mesh(new THREE.BoxGeometry(5,3.2,4.4),mat(color));body.position.y=1.6;body.castShadow=true;body.receiveShadow=true;g.add(body);let roof=new THREE.Mesh(new THREE.ConeGeometry(3.8,2.1,4),mat('#263644'));roof.rotation.y=Math.PI/4;roof.position.y=4.15;roof.scale.set(1,1,.82);roof.castShadow=true;g.add(roof);let door=new THREE.Mesh(new THREE.BoxGeometry(.9,1.8,.12),mat('#553a32'));door.position.set(0,.9,2.26);g.add(door);for(let wx of [-1.5,1.5]){let win=new THREE.Mesh(new THREE.BoxGeometry(.85,.9,.1,1),new THREE.MeshStandardMaterial({color:'#ffdca0',emissive:'#ffb94f',emissiveIntensity:1.25}));win.position.set(wx,2,2.26);g.add(win)}scene.add(g);houses.push(g)}
 function build(){
-scene=new THREE.Scene();scene.background=new THREE.Color('#9bb5c7');scene.fog=new THREE.FogExp2('#9bb5c7',.012);
+scene=new THREE.Scene();scene.background=new THREE.Color('#030914');scene.fog=new THREE.FogExp2('#081321',.017);
 camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,180);camera.rotation.order='YXZ';
 renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;document.body.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight('#dceeff','#26313a',1.4));let moon=new THREE.DirectionalLight('#d7e8ff',2.2);moon.position.set(-20,35,15);moon.castShadow=true;moon.shadow.mapSize.set(1024,1024);scene.add(moon);
-let ground=new THREE.Mesh(new THREE.PlaneGeometry(180,180),mat('#dce6eb'));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+scene.add(new THREE.HemisphereLight('#53647f','#101722',.42));let moon=new THREE.DirectionalLight('#9bb8e8',.72);moon.position.set(-20,35,15);moon.castShadow=true;moon.shadow.mapSize.set(1024,1024);scene.add(moon);
+let ground=new THREE.Mesh(new THREE.PlaneGeometry(180,180),mat('#8997a5'));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
 let road=box(13,.06,180,mat('#39434b'),0,.04,0);let road2=box(180,.06,13,mat('#39434b'),0,.05,-35);
 for(let z=-70;z<75;z+=17){box(.12,.07,7,mat('#e8edf0'),0,.09,z)}
 // Residential blocks, yards, fences and lights
 for(let side of [-1,1])for(let z=-62;z<=55;z+=19){makeHouse(side*18,z,side===-1?'#7d8f9d':'#8c7770');for(let k=0;k<4;k++)makeTree(side*(8+rand(0,4)),z+rand(-7,7),rand(.7,1.15));for(let j=0;j<7;j++){let f=box(.18,.7,.18,mat('#d9e1e7'),side*10,z-7+j*2,0);f.position.y=.35}}
 // Street lamps
-for(let z=-60;z<70;z+=24){for(let x of [-6.5,6.5]){cylinder(.11,.15,5,mat('#26313a'),x,2.5,z);let arm=box(1,.1,.1,mat('#26313a'),x+(x<0?.4:-.4),4.9,z);let bulb=new THREE.PointLight('#d9edff',1.8,15);bulb.position.set(x,4.65,z);scene.add(bulb);box(.4,.14,.4,mat('#fff0bd',.4,.7),x,4.7,z)}}
+for(let z=-60;z<70;z+=24){for(let x of [-6.5,6.5]){cylinder(.11,.15,5,mat('#26313a'),x,2.5,z);let arm=box(1,.1,.1,mat('#26313a'),x+(x<0?.4:-.4),4.9,z);let bulb=new THREE.PointLight('#ffe0a1',3.2,19);bulb.position.set(x,4.65,z);scene.add(bulb);box(.4,.14,.4,mat('#fff0bd',.4,.7),x,4.7,z)}}
 // Snow particles
 let pts=[];for(let i=0;i<1400;i++)pts.push(rand(-75,75),rand(0,28),rand(-85,85));let geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));snow=new THREE.Points(geo,new THREE.PointsMaterial({color:'#fff',size:.12,transparent:true,opacity:.8}));scene.add(snow);
 // Player and Santa
@@ -105,7 +105,8 @@ let forward=0,side=0;if(keys.KeyW||keys.ArrowUp)forward++;if(keys.KeyS||keys.Arr
 let len=Math.hypot(forward,side);if(len){forward/=len;side/=len}
 let touchMove=Math.hypot(moveX,moveZ);if(touchMove>.1){forward=-moveZ;side=moveX;let l=Math.hypot(forward,side);forward/=l;side/=l}
 let sprint=(keys.ShiftLeft||keys.ShiftRight)&&stamina>1&&len+touchMove>.1;let speed=sprint?8.2:4.2;if(sprint){stamina=Math.max(0,stamina-28*dt);noise=30}else stamina=Math.min(100,stamina+17*dt);
-let dir=new THREE.Vector3(Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,Math.sin(yaw));let velocity=dir.multiplyScalar(forward*speed).add(right.multiplyScalar(side*speed));player.pos.addScaledVector(velocity,dt);
+// カメラが向いている方向を基準に前後左右へ移動（W/Sは視線方向と完全に一致）
+let dir=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));let velocity=dir.multiplyScalar(forward*speed).add(right.multiplyScalar(side*speed));player.pos.addScaledVector(velocity,dt);
 player.pos.x=clamp(player.pos.x,-42,42);player.pos.z=clamp(player.pos.z,-82,70);
 if(velocity.length()>.2){footstep+=dt*(sprint?1.7:1);if(footstep>1){footstep=0;noise=Math.max(noise,sprint?22:5)}}
 if(keys.Space&&onGround){velocityY=6;onGround=false}velocityY-=17*dt;player.pos.y+=velocityY*dt;if(player.pos.y<1.65){player.pos.y=1.65;velocityY=0;onGround=true}
