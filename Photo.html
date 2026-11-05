@@ -304,7 +304,7 @@ function isLocked(x){return !!x.locked}
 function visibleItems(){return items.filter(x=>!inTrash(x)&&!x.archived&&!isLocked(x))}
 function collectionHas(x,key){return Array.isArray(x.collections)&&x.collections.includes(key)}
 function setCollection(x,key,on=true){x.collections=Array.isArray(x.collections)?x.collections:[];x.collections=on?[...new Set([...x.collections,key])]:x.collections.filter(k=>k!==key)}
-function captureDate(x){return x.date||x.exifDate||null}
+function captureDate(x){return x.date||x.exifDate||x.fileDate||null}
 // JPEG EXIFから撮影日時とGPSを読み取る。取得できない場合は推測せず null にする。
 async function extractImageMetadata(file){
  const result={date:null,location:''};
@@ -393,6 +393,37 @@ async function extractImageMetadata(file){
  }catch(e){console.warn('Image metadata could not be read',file?.name,e)}
  return result;
 }
+async function extractVideoMetadata(file){
+ const result={date:null};
+ if(!file)return result;
+ try{
+  const b=await file.slice(0,Math.min(file.size,32*1024*1024)).arrayBuffer(),v=new DataView(b);
+  // ISO-BMFF/MP4: read the movie-header creation timestamp (seconds since 1904-01-01 UTC).
+  for(let p=4;p+16<=v.byteLength;p++){
+   if(v.getUint8(p)!==109||v.getUint8(p+1)!==118||v.getUint8(p+2)!==104||v.getUint8(p+3)!==100)continue;
+   const start=p-4,size=v.getUint32(start,false);
+   if(size<20||start+size>v.byteLength)continue;
+   const version=v.getUint8(p+4);
+   let seconds;
+   if(version===1&&p+16<=v.byteLength){seconds=Number(v.getBigUint64(p+8,false))}
+   else if(version===0){seconds=v.getUint32(p+8,false)}
+   if(Number.isFinite(seconds)&&seconds>0){
+    const d=new Date((seconds-2082844800)*1000);
+    if(!Number.isNaN(d.getTime())&&d.getUTCFullYear()>=1970&&d.getUTCFullYear()<=2100){result.date=d.toISOString();return result}
+   }
+  }
+ }catch(e){console.warn('Video metadata could not be read',file?.name,e)}
+ return result;
+}
+async function extractMediaMetadata(file,kind){
+ let result={date:null,location:''};
+ if(kind==='image')result=await extractImageMetadata(file);
+ else if(kind==='video')result=await extractVideoMetadata(file);
+ // Keep file-system modified time separate; it is NOT claimed to be the capture date.
+ const fileDate=file?.lastModified?new Date(file.lastModified).toISOString():null;
+ return {...result,fileDate};
+}
+
 function isRecent(x){return Date.now()-new Date(x.addedAt||0).getTime()<30*86400000}
 function collectionLabel(k){return ({albums:'アルバム',documents:'ドキュメント',screenshots:'スクリーンショットと録画',favorites:'お気に入り',people:'人物とペット',places:'場所',videos:'動画',recent:'最近',archive:'アーカイブ',locked:'ロックされたフォルダ',trash:'ゴミ箱'})[k]||k}
 function activeItems(){let arr=visibleItems();const q=$('#searchInput').value.trim().toLowerCase();if(q){arr=arr.filter(x=>x.name.toLowerCase().includes(q)||(x.location||'').toLowerCase().includes(q)||albums.some(a=>a.name.toLowerCase().includes(q)&&a.ids.includes(x.id))||dateLabel(captureDate(x)).toLowerCase().includes(q));}return arr.sort((a,b)=>sortMode==='oldest'?sortDate(a)-sortDate(b):sortMode==='name'?a.name.localeCompare(b.name,'ja'):sortDate(b)-sortDate(a))}
@@ -403,7 +434,7 @@ function empty(icon,title,desc,button=''){return `<div class="empty"><div class=
 function thumb(x){if(isVideo(x)&&!settings.showVideoThumbs)return `<div class="placeholder">▶</div>`;if(isVideo(x))return `<video muted preload="metadata" src="${mediaUrl(x)}"></video>`;if(isImage(x))return `<img loading="lazy" src="${mediaUrl(x)}" alt="">`;return `<div class="placeholder document-thumb"><span>${documentIcon(x)}</span><small>${esc((x.name.split(".").pop()||"FILE").toUpperCase().slice(0,8))}</small></div>`}
 function card(x, removableAlbum=null){return `<article class="media-card" data-open="${esc(x.id)}" tabindex="0" role="button" aria-label="${esc(x.name)}">${thumb(x)}${isVideo(x)?'<span class="badge">▶ 動画</span>':''}<button class="fav ${x.favorite?'on':''}" data-fav="${esc(x.id)}" title="お気に入り" aria-label="お気に入り">${x.favorite?'♥':'♡'}</button><div class="card-name">${esc(x.name)}</div>${removableAlbum?`<button class="badge" style="top:auto;bottom:7px;left:7px;right:auto" data-remove-album="${esc(x.id)}" data-album="${esc(removableAlbum)}">アルバムから外す</button><button class="badge" style="top:7px;left:auto;right:7px" data-cover-album="${esc(x.id)}" data-album="${esc(removableAlbum)}">表紙に設定</button>`:''}</article>`}
 function grid(arr){return `<div class="grid" style="--tile-size:${settings.density==='compact'?'112px':settings.density==='large'?'190px':'132px'};--mobile-cols:${settings.density==='large'?2:settings.density==='compact'?4:3}">${arr.map(x=>card(x)).join('')}</div>`}
-function groupedGrid(arr){if(!arr.length)return empty('▧','写真はまだありません','写真や動画を追加すると、ここに撮影日ごとに並びます。','<button class="primary empty-add" data-action="add">＋ 写真・動画を追加</button><div class="empty-hint">JPG、PNG、GIF、MP4 などのファイルを選べます。</div>');const groups=new Map();arr.forEach(x=>{const d=captureDate(x),k=d?dateLabel(d):'撮影日不明';if(!groups.has(k))groups.set(k,{date:d,items:[]});groups.get(k).items.push(x)});return [...groups.entries()].sort((a,b)=>{if(!a[1].date)return 1;if(!b[1].date)return -1;return new Date(b[1].date)-new Date(a[1].date)}).map(([d,g])=>`<div class="section-date">${esc(d)} <small>${g.items.length}件</small></div>${grid(g.items)}`).join('')}
+function groupedGrid(arr){if(!arr.length)return empty('▧','写真はまだありません','写真や動画を追加すると、ここに撮影日ごとに並びます。','<button class="primary empty-add" data-action="add">＋ 写真・動画を追加</button><div class="empty-hint">JPG、PNG、GIF、MP4 などのファイルを選べます。</div>');const groups=new Map();arr.forEach(x=>{const d=captureDate(x),actual=!!(x.date||x.exifDate),k=d?(actual?dateLabel(d):'ファイル日時（撮影日未確認）：'+dateLabel(d)):'撮影日不明';if(!groups.has(k))groups.set(k,{date:d,items:[]});groups.get(k).items.push(x)});return [...groups.entries()].sort((a,b)=>{if(!a[1].date)return 1;if(!b[1].date)return -1;return new Date(b[1].date)-new Date(a[1].date)}).map(([d,g])=>`<div class="section-date">${esc(d)} <small>${g.items.length}件</small></div>${grid(g.items)}`).join('')}
 function render(){applyTheme();setActiveNav();const q=$('#searchInput').value.trim();if(q&&page!=='albums'&&page!=='settings'&&page!=='trash'){} 
  if(page==='photos'){const arr=activeItems();main.innerHTML=heading('写真',`${arr.length} 件の写真・動画`,`<label class="sort-label">並べ替え<select id="sortSetting" aria-label="並べ替え"><option value="newest">新しい順</option><option value="oldest">古い順</option><option value="name">名前順</option></select></label>`)+groupedGrid(arr);}
  else if(page==='favorites'){const arr=activeItems().filter(x=>x.favorite);main.innerHTML=heading('お気に入り',`${arr.length} 件`)+ (arr.length?grid(arr):empty('♡','お気に入りはまだありません','写真や動画の♡を押すと、ここに表示されます。'))}
@@ -497,10 +528,10 @@ async function handleFiles(files){
    try{
     const exists=items.some(x=>!isLocked(x)&&x.name===f.name&&x.size===f.size&&x.lastModified===f.lastModified);
     if(exists){dupes++;bar.value=i+1;continue}
-    const metadata=mime.startsWith('image/')?await extractImageMetadata(f):{date:null,location:''};
     const kind=mime.startsWith('video/')?'video':mime.startsWith('image/')?'image':'document';
+    const metadata=(kind==='image'||kind==='video')?await extractMediaMetadata(f,kind):{date:null,fileDate:f.lastModified?new Date(f.lastModified).toISOString():null,location:''};
     const collections=[...(metadata.location?['places']:[])];if(kind==='document')collections.push('documents');
-    const x={id:uid(),name:f.name,type:mime,kind,size:f.size,lastModified:f.lastModified,addedAt:new Date().toISOString(),date:metadata.date||null,favorite:false,trashedAt:null,archived:false,collections,location:metadata.location||'',blob:f};
+    const x={id:uid(),name:f.name,type:mime,kind,size:f.size,lastModified:f.lastModified,addedAt:new Date().toISOString(),date:metadata.date||null,fileDate:metadata.fileDate||null,favorite:false,trashedAt:null,archived:false,collections,location:metadata.location||'',blob:f};
     await putItem(x);items.push(x);added++;
    }catch(e){failed++;console.error('Failed to import file',f.name,e)}
    bar.value=i+1;
@@ -579,7 +610,7 @@ function formatSize(n){if(!Number.isFinite(n))return'不明';if(n<1024)return n+
 async function refreshStorage(){try{const est=await navigator.storage?.estimate?.();const el=$('#storageInfo');if(el)el.textContent=est?`${formatSize(est.usage||0)} / ${formatSize(est.quota||0)}`:'取得できません';}catch(e){const el=$('#storageInfo');if(el)el.textContent='取得できません'}}
 function blobToDataURL(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.readAsDataURL(blob)})}
 function dataURLToBlob(url){const [head,data]=url.split(',');const mime=(head.match(/data:(.*?);base64/)||[])[1]||'application/octet-stream';const bin=atob(data);const bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return new Blob([bytes],{type:mime})}
-async function scanExistingMetadata(){let checked=0,updated=0;const candidates=items.filter(x=>!isLocked(x)&&isImage(x)&&(!x.date||!x.location));if(!candidates.length){toast('撮影日時・GPSの再確認が必要な画像はありません');return}toast(`画像メタデータを再確認中：${candidates.length}件`);for(let i=0;i<candidates.length;i++){const x=candidates[i];try{const m=await extractImageMetadata(x.blob);let changed=false;if(!x.date&&m.date){x.date=m.date;changed=true}if(!x.location&&m.location){x.location=m.location;setCollection(x,'places',true);changed=true}if(changed){await putItem(x);updated++}}catch(e){console.warn('metadata rescan failed',x.name,e)}checked++;if(i%5===0){render();await new Promise(r=>setTimeout(r,0))}}render();toast(`メタデータ再確認完了：${checked}件確認、${updated}件更新。未対応形式や撮影情報がない画像は不明のままです。`)}
+async function scanExistingMetadata(){let checked=0,updated=0;const candidates=items.filter(x=>!isLocked(x)&&(isImage(x)||isVideo(x))&&(!x.date||!x.fileDate||(!x.location&&isImage(x))));if(!candidates.length){toast('再確認が必要な画像・動画はありません');return}toast(`画像・動画の日時情報を再確認中：${candidates.length}件`);for(let i=0;i<candidates.length;i++){const x=candidates[i];try{const m=await extractMediaMetadata(x.blob,isVideo(x)?'video':'image');let changed=false;if(!x.date&&m.date){x.date=m.date;changed=true}if(!x.fileDate&&m.fileDate){x.fileDate=m.fileDate;changed=true}if(!x.location&&m.location){x.location=m.location;setCollection(x,'places',true);changed=true}if(changed){await putItem(x);updated++}}catch(e){console.warn('metadata rescan failed',x.name,e)}checked++;if(i%5===0){render();await new Promise(r=>setTimeout(r,0))}}render();toast(`再確認完了：${checked}件確認、${updated}件更新。撮影情報がないファイルはファイル更新日時で仮分類します。`)}
 async function exportData(){try{toast('バックアップを準備中…');const media=[];for(const x of items){if(isLocked(x))continue;media.push({id:x.id,name:x.name,type:x.type,kind:x.kind,size:x.size,lastModified:x.lastModified,addedAt:x.addedAt,date:x.date,favorite:x.favorite,trashedAt:x.trashedAt,archived:!!x.archived,collections:x.collections||[],location:x.location||'',data:await blobToDataURL(x.blob)})}const pack={format:'photo-local-backup',version:1,exportedAt:new Date().toISOString(),albums,settings,media};const blob=new Blob([JSON.stringify(pack)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`Photo-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('バックアップを書き出しました')}catch(e){console.error(e);alert('エクスポートに失敗しました。容量が大きすぎる可能性があります。')}}
 async function importData(file){if(!file)return;try{const pack=JSON.parse(await file.text());if(pack.format!=='photo-local-backup'||!Array.isArray(pack.media)||pack.version!==1)throw new Error('対応するフォトのバックアップではありません');if(!confirm(`${pack.media.length}件のメディアを追加します。既存データは上書きしません。続行しますか？`))return;let count=0,skip=0;for(const raw of pack.media){if(!raw.data||!raw.name) {skip++;continue}const duplicate=items.some(x=>x.name===raw.name&&x.size===raw.size&&x.lastModified===raw.lastModified);if(duplicate){skip++;continue}const x={...raw,id:uid(),blob:dataURLToBlob(raw.data),date:raw.date||null,archived:!!raw.archived,collections:raw.collections||[],location:raw.location||''};delete x.data;delete x._url;try{await putItem(x);items.push(x);count++}catch(e){skip++}}if(Array.isArray(pack.albums)){for(const a0 of pack.albums){const a={...a0,id:uid(),ids:(a0.ids||[]).map(old=>{const src=pack.media.find(m=>m.id===old);const found=src&&items.find(x=>x.name===src.name&&x.size===src.size);return found?.id}).filter(Boolean)};albums.push(a)}}if(pack.settings&&confirm('バックアップの表示設定も取り込みますか？'))settings={...settings,...pack.settings};saveMeta();render();toast(`インポート完了：${count}件追加、${skip}件スキップ`)}catch(e){console.error(e);alert('インポートできませんでした。ファイルが壊れているか、形式が違います。')}}
 function resetAll(){if(!confirm('写真・動画・アルバム・設定をこのブラウザからすべて削除します。バックアップはありますか？'))return;if(!confirm('本当にすべて削除しますか？この操作は取り消せません。'))return;const r=indexedDB.deleteDatabase(DB_NAME);r.onsuccess=()=>{revokeUrls();items=[];albums=[];settings={theme:'system',density:'comfortable',showVideoThumbs:true,sortMode:'newest'};sortMode='newest';saveMeta();location.reload()};r.onerror=()=>alert('データベースを削除できませんでした。')}
