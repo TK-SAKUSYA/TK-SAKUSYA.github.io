@@ -315,12 +315,12 @@ async function extractImageMetadata(file){
     if(v.getUint8(pos)!==0xff)break;
     const marker=v.getUint8(pos+1),len=v.getUint16(pos+2,false);
     if(len<2||pos+2+len>v.byteLength)break;
-    if(marker===0xe1&&len>=8&&ascii(pos+4,6)==='Exif\\0\\0'){tiff=pos+10;break}
+    if(marker===0xe1&&len>=8&&ascii(pos+4,6)==='Exif\0\0'){tiff=pos+10;break}
     pos+=2+len;
    }
   }
   // PNG: eXIf chunk contains a TIFF header
-  else if(v.byteLength>=8&&ascii(0,8)==='\\x89PNG\\r\\n\\x1a\\n'){
+  else if(v.byteLength>=8&&ascii(0,8)==='\x89PNG\r\n\x1a\n'){
    let pos=8;
    while(pos+12<=v.byteLength){
     const len=v.getUint32(pos,false),type=ascii(pos+4,4);
@@ -330,13 +330,13 @@ async function extractImageMetadata(file){
     if(type==='IEND')break;
    }
   }
-  // WebP: EXIF chunk (may include an optional Exif\\0\\0 prefix)
+  // WebP: EXIF chunk (may include an optional Exif\0\0 prefix)
   else if(v.byteLength>=12&&ascii(0,4)==='RIFF'&&ascii(8,4)==='WEBP'){
    let pos=12;
    while(pos+8<=v.byteLength){
     const type=ascii(pos,4),len=v.getUint32(pos+4,true),data=pos+8;
     if(len>v.byteLength-data)break;
-    if(type==='EXIF'){tiff=data+(ascii(data,6)==='Exif\\0\\0'?6:0);break}
+    if(type==='EXIF'){tiff=data+(ascii(data,6)==='Exif\0\0'?6:0);break}
     pos=data+len+(len%2);
    }
   }
@@ -376,7 +376,7 @@ async function extractImageMetadata(file){
   const exif=exifPtr?entries(base+u32(exifPtr.value)):new Map();
   const dt=textValue(exif.get(0x9003))||textValue(exif.get(0x9004))||textValue(root.get(0x0132));
   if(dt){
-   const m=dt.match(/^(\\d{4}):(\\d{2}):(\\d{2})\\s+(\\d{2}):(\\d{2}):(\\d{2})/);
+   const m=dt.match(/^(\d{4}):(\d{2}):(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
    if(m){const d=new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+m[6]);if(!Number.isNaN(d.getTime()))result.date=`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`}
   }
   if(gpsPtr){
