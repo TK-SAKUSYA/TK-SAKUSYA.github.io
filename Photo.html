@@ -234,6 +234,12 @@ body{font-size:16px;line-height:1.5}
 @media (max-aspect-ratio: 4/5){.main{padding-top:clamp(12px,2.5vh,24px)}.section-date{margin-top:clamp(18px,3vh,30px)}}
 @media (min-aspect-ratio: 5/4) and (max-width: 850px){.layout{min-height:calc(100dvh - 68px)}.main{padding-bottom:24px}.mobile-nav{left:auto!important;right:12px!important;bottom:12px!important;width:auto!important;min-width:260px;max-width:calc(100vw - 24px)}}
 @media (min-aspect-ratio: 2/1){.topbar{min-height:58px}.main{padding-top:12px}}
+/* Highlights and memories sit directly below the search header */
+.top-feature-nav{display:flex;align-items:center;gap:8px;padding:0 28px 12px 244px;background:var(--bg)}
+.feature-nav-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 17px;border:1px solid var(--line);border-radius:22px;background:var(--panel);color:var(--text);font-weight:550;white-space:nowrap}
+.feature-nav-btn:hover{background:var(--accent-soft)}
+.feature-nav-btn.active{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:650}
+@media(max-width:850px){.top-feature-nav{padding:2px 12px 10px;gap:7px;overflow-x:auto}.feature-nav-btn{padding:8px 14px;font-size:13px}.layout{min-height:calc(100dvh - 106px)}}
 </style>
 </head>
 <body>
@@ -243,11 +249,13 @@ body{font-size:16px;line-height:1.5}
   <label class="search" aria-label="写真やアルバムを検索"><span class="search-icon" aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="写真やアルバムを検索" autocomplete="off"><button id="clearSearch" class="hidden" aria-label="検索をクリア">✕</button></label>
   <div class="top-actions"><button class="smallbtn" id="urlAddButton" title="URLからファイルを追加">🔗 URLから追加</button><button class="primary" id="addButton">＋ ファイルを追加</button></div>
 </header>
+<nav class="top-feature-nav" aria-label="写真の特集">
+  <button class="feature-nav-btn" data-page="highlights"><span>✨</span> ハイライト</button>
+  <button class="feature-nav-btn" data-page="memories"><span>🕰️</span> 思い出</button>
+</nav>
 <div class="layout">
 <aside class="sidebar" id="sidebar">
   <button class="navbtn active" data-page="photos"><span>📷</span><span>写真</span></button>
-  <button class="navbtn" data-page="highlights"><span>✨</span><span>ハイライト</span></button>
-  <button class="navbtn" data-page="memories"><span>🕰️</span><span>思い出</span></button>
   <button class="navbtn" data-page="collections"><span>📚</span><span>コレクション</span></button>
   <button class="navbtn" data-page="albums"><span>📁</span><span>アルバム</span></button>
   <button class="navbtn" data-page="favorites"><span>♡</span><span>お気に入り</span></button>
