@@ -240,6 +240,48 @@ body{font-size:16px;line-height:1.5}
 .feature-nav-btn:hover{background:var(--accent-soft)}
 .feature-nav-btn.active{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:650}
 @media(max-width:850px){.top-feature-nav{padding:2px 12px 10px;gap:7px;overflow-x:auto}.feature-nav-btn{padding:8px 14px;font-size:13px}.layout{min-height:calc(100dvh - 106px)}}
+
+/* Google Photos-inspired media viewer controls */
+#viewerBackdrop{padding:0;background:rgba(0,0,0,.94);backdrop-filter:blur(8px)}
+#viewerBackdrop .viewer{width:100%;height:100dvh;max-height:none;border-radius:0;background:#101114;color:#f1f3f4;box-shadow:none}
+#viewerBackdrop .viewer-top{position:absolute;z-index:3;top:0;left:0;right:0;min-height:68px;padding:10px 18px 10px 72px;gap:16px;background:linear-gradient(#101114d9,transparent);justify-content:space-between}
+#viewerBackdrop .filename{font-size:15px;font-weight:500;color:#f1f3f4;min-width:0}
+#viewerBackdrop .viewer-actions{display:flex;align-items:center;gap:7px;flex-wrap:nowrap}
+#viewerBackdrop .viewer-actions button{width:42px;height:42px;min-width:42px;padding:0!important;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:#e8eaed;font-size:19px;transition:background .15s,transform .15s}
+#viewerBackdrop .viewer-actions button:hover{background:#ffffff20}
+#viewerBackdrop .viewer-actions button:active{transform:scale(.93)}
+#viewerBackdrop #viewerClose{position:absolute;left:14px;top:12px;background:#ffffff12;font-size:21px}
+#viewerBackdrop #viewerClose:hover{background:#ffffff28}
+#viewerBackdrop #viewerTrash:hover{background:#8b2525}
+#viewerBackdrop .viewer-stage{position:absolute;inset:0;padding:76px 64px 112px;min-height:0}
+#viewerBackdrop .viewer-stage img,#viewerBackdrop .viewer-stage video{max-width:100%;max-height:100%;object-fit:contain}
+#viewerBackdrop .view-nav{width:46px;height:46px;padding:0!important;border:1px solid #ffffff22;border-radius:50%;background:#202124aa!important;color:#fff;font-size:28px!important;display:grid;place-items:center}
+#viewerBackdrop .view-nav:hover{background:#3c4043!important}
+#viewerBackdrop .view-prev{left:18px}#viewerBackdrop .view-next{right:18px}
+#viewerBackdrop .viewer-bottom{position:absolute;z-index:3;left:0;right:0;min-height:48px;padding:8px 16px;background:linear-gradient(transparent,#101114d9);color:#bdc1c6}
+#viewerBackdrop #viewerMeta{bottom:52px;justify-content:center;font-size:13px}
+#viewerBackdrop .viewer-zoom-controls{bottom:0;min-height:58px;gap:8px;justify-content:center;background:#101114e8;border-top:1px solid #ffffff14}
+#viewerBackdrop .viewer-zoom-controls button,#viewerBackdrop #slideshowControls button{min-height:38px;padding:7px 14px!important;border:1px solid #ffffff25;border-radius:22px;background:#25272c;color:#e8eaed;font-size:13px}
+#viewerBackdrop .viewer-zoom-controls button:hover,#viewerBackdrop #slideshowControls button:hover{background:#3c4043}
+#viewerBackdrop #zoomLabel{min-width:48px;text-align:center;color:#e8eaed;font-size:13px}
+#viewerBackdrop #viewerEdit{background:#d3e3fd;color:#174ea6;border-color:transparent;font-weight:650}
+#viewerBackdrop #viewerEdit:hover{background:#e8f0fe}
+#viewerBackdrop #slideshowControls{bottom:0;min-height:58px;gap:10px;justify-content:center;background:#101114e8;border-top:1px solid #ffffff14}
+#viewerBackdrop #slideshowControls select{color:#e8eaed!important;background:#25272c!important;border:1px solid #ffffff25!important;border-radius:18px!important}
+@media(max-width:700px){
+ #viewerBackdrop .viewer-top{min-height:58px;padding:8px 8px 8px 58px;gap:6px}
+ #viewerBackdrop .filename{font-size:13px;max-width:27vw}
+ #viewerBackdrop .viewer-actions{gap:1px}
+ #viewerBackdrop .viewer-actions button{width:36px;height:36px;min-width:36px;font-size:17px}
+ #viewerBackdrop #viewerClose{left:9px;top:9px}
+ #viewerBackdrop .viewer-stage{padding:64px 6px 112px}
+ #viewerBackdrop .view-nav{width:38px;height:38px;font-size:24px!important}
+ #viewerBackdrop .view-prev{left:5px}#viewerBackdrop .view-next{right:5px}
+ #viewerBackdrop .viewer-zoom-controls{gap:5px;padding:7px 5px}
+ #viewerBackdrop .viewer-zoom-controls button{min-height:35px;padding:6px 9px!important;font-size:12px}
+ #viewerBackdrop #viewerMeta{bottom:50px;font-size:12px}
+}
+
 </style>
 </head>
 <body>
