@@ -229,6 +229,11 @@ body{font-size:16px;line-height:1.5}
  .mobile-nav .navbtn{min-width:62px}
 }
 
+/* Aspect-ratio-aware layout */
+.grid{grid-template-columns:repeat(var(--photo-grid-columns,3),minmax(0,1fr))!important}
+@media (max-aspect-ratio: 4/5){.main{padding-top:clamp(12px,2.5vh,24px)}.section-date{margin-top:clamp(18px,3vh,30px)}}
+@media (min-aspect-ratio: 5/4) and (max-width: 850px){.layout{min-height:calc(100dvh - 68px)}.main{padding-bottom:24px}.mobile-nav{left:auto!important;right:12px!important;bottom:12px!important;width:auto!important;min-width:260px;max-width:calc(100vw - 24px)}}
+@media (min-aspect-ratio: 2/1){.topbar{min-height:58px}.main{padding-top:12px}}
 </style>
 </head>
 <body>
@@ -276,18 +281,20 @@ const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll
 let db, items=[], albums=[], settings={theme:'system',density:'comfortable',showVideoThumbs:true,sortMode:'newest'}, page='photos', activeAlbum=null, viewerId=null, viewerList=[], pendingPickerIds=[], sortMode='newest';
 let collectionType=null, zoomLevel=1, slideshowTimer=null, slideshowPaused=false, slideshowMs=4000, editState=null, folderHandle=null, folderScanTimer=null, folderScanBusy=false, lockPassphrase=null, unlockedIds=new Set();
 const main=$('#main');
+ function updateResponsiveLayout(){const w=Math.max(320,window.innerWidth||document.documentElement.clientWidth),h=Math.max(320,window.innerHeight||document.documentElement.clientHeight),ratio=w/h;let cols;if(w<600)cols=ratio>1.15?4:3;else if(w<900)cols=ratio>1.2?5:4;else if(w<1300)cols=ratio>1.25?6:5;else cols=Math.min(9,Math.max(5,Math.floor(w/190)));document.documentElement.style.setProperty('--photo-grid-columns',String(cols));document.documentElement.style.setProperty('--photo-screen-ratio',ratio.toFixed(3));}
+ updateResponsiveLayout();window.addEventListener('resize',updateResponsiveLayout,{passive:true});
 const uid=()=>Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dateLabel=d=>{if(!d)return'日付不明';let x=new Date(d);if(Number.isNaN(x.getTime()))return'日付不明';return `${x.getFullYear()}年${x.getMonth()+1}月${x.getDate()}日`};
 const sortDate=x=>new Date(captureDate(x)||x.addedAt||0).getTime()||0;
-function openDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,DB_VERSION);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'id'});if(!d.objectStoreNames.contains(META_STORE))d.createObjectStore(META_STORE,{keyPath:'key'});};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
+function openDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,DB_VERSION);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'id'});if(!d.objectStoreNames.contains(META_STORE))d.createObjectStore(META_STORE,{keyPath:'key'});};r.onsuccess=()=>{const d=r.result;d.onversionchange=()=>d.close();resolve(d)};r.onerror=()=>reject(r.error||new Error('IndexedDB open failed'));r.onblocked=()=>reject(new Error('IndexedDB upgrade blocked'));});}
 function tx(mode='readonly'){return db.transaction(STORE,mode).objectStore(STORE)}
 function metaTx(mode='readonly'){return db.transaction(META_STORE,mode).objectStore(META_STORE)}
 function getMeta(key){return new Promise((resolve,reject)=>{const r=metaTx().get(key);r.onsuccess=()=>resolve(r.result?.value);r.onerror=()=>reject(r.error)})}
 function putMeta(key,value){return new Promise((resolve,reject)=>{const r=metaTx('readwrite').put({key,value});r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error)})}
-function getAll(){return new Promise((resolve,reject)=>{const r=tx().getAll();r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
-function putItem(x){return new Promise((resolve,reject)=>{const record=(x.locked && x._encryptedRecord)?x._encryptedRecord:x;const r=tx('readwrite').put(record);r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error)})}
-function deleteItem(id){return new Promise((resolve,reject)=>{const r=tx('readwrite').delete(id);r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error)})}
+function getAll(){return new Promise((resolve,reject)=>{let t;try{t=db.transaction(STORE,'readonly');const r=t.objectStore(STORE).getAll();let result=[];r.onsuccess=()=>{result=r.result||[]};r.onerror=()=>reject(r.error||new Error('読み込みに失敗しました'));t.oncomplete=()=>resolve(result);t.onerror=()=>reject(t.error||new Error('読み込みトランザクション失敗'));t.onabort=()=>reject(t.error||new Error('読み込みが中断されました'))}catch(e){reject(e)}})}
+function putItem(x){return new Promise((resolve,reject)=>{let t;try{t=db.transaction(STORE,'readwrite');const record=(x.locked && x._encryptedRecord)?x._encryptedRecord:x;const r=t.objectStore(STORE).put(record);r.onerror=()=>reject(r.error||new Error('保存要求に失敗しました'));t.oncomplete=()=>resolve();t.onerror=()=>reject(t.error||new Error('保存に失敗しました'));t.onabort=()=>reject(t.error||new Error('保存が中断されました'))}catch(e){reject(e)}})}
+function deleteItem(id){return new Promise((resolve,reject)=>{let t;try{t=db.transaction(STORE,'readwrite');const r=t.objectStore(STORE).delete(id);r.onerror=()=>reject(r.error||new Error('削除要求に失敗しました'));t.oncomplete=()=>resolve();t.onerror=()=>reject(t.error||new Error('削除に失敗しました'));t.onabort=()=>reject(t.error||new Error('削除が中断されました'))}catch(e){reject(e)}})}
 function saveMeta(){try{settings.sortMode=sortMode;localStorage.setItem('photo-albums',JSON.stringify(albums));localStorage.setItem('photo-settings',JSON.stringify(settings));}catch(e){toast('設定の保存に失敗しました。ブラウザの保存領域を確認してください。')}}
 function loadMeta(){try{albums=JSON.parse(localStorage.getItem('photo-albums')||'[]');settings={...settings,...JSON.parse(localStorage.getItem('photo-settings')||'{}')};sortMode=settings.sortMode||'newest';}catch(e){albums=[];}}
 function effectiveTheme(){if(settings.theme==='system')return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';return settings.theme}
@@ -741,7 +748,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-action="vi
 document.addEventListener('keydown',e=>{if($('#viewerBackdrop').classList.contains('open')){if(e.key==='Escape')closeViewer();if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1)}else if(e.key==='Escape')closeModal();if(e.key==='Enter'&&e.target.matches('.media-card'))e.target.click()});
 $('#main').addEventListener('change',e=>{if(e.target.id==='sortSetting'){sortMode=e.target.value;settings.sortMode=sortMode;saveMeta();render()}if(e.target.id==='settingsSort'){sortMode=e.target.value;settings.sortMode=sortMode;saveMeta();render()}if(e.target.id==='themeSetting'){settings.theme=e.target.value;saveMeta();applyTheme()}if(e.target.id==='densitySetting'){settings.density=e.target.value;saveMeta();render()}if(e.target.id==='videoThumbSetting'){settings.showVideoThumbs=e.target.checked;saveMeta();render()}});
 if(window.matchMedia){matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.theme==='system')applyTheme()})}
-async function init(){loadMeta();try{db=await openDB();items=await getAll();items.forEach(x=>{if(!x.kind)x.kind=x.type?.startsWith('video/')?'video':isVideo(x)?'video':isImage(x)?'image':'document';if(!x.date)x.date=null;else if(x.addedAt&&Math.abs(new Date(x.date).getTime()-new Date(x.addedAt).getTime())<5000)x.date=null;if(!Array.isArray(x.collections))x.collections=[];if(typeof x.archived!=='boolean')x.archived=false;if(typeof x.location!=='string')x.location='';});render();scanExistingMetadata({silent:true}).catch(e=>console.warn('Automatic date migration failed',e))}catch(e){console.error(e);main.innerHTML=empty('⚠️','保存領域を開けません','このブラウザではIndexedDBが利用できないか、プライベート設定などで制限されています。通常のブラウザ環境で開き直してください。');}}
+async function init(){loadMeta();try{db=await openDB();if(navigator.storage?.persist){try{await navigator.storage.persist()}catch(e){console.warn('Persistent storage request was not granted',e)}}items=await getAll();items.forEach(x=>{if(!x.kind)x.kind=x.type?.startsWith('video/')?'video':isVideo(x)?'video':isImage(x)?'image':'document';if(!x.date)x.date=null;else if(x.addedAt&&Math.abs(new Date(x.date).getTime()-new Date(x.addedAt).getTime())<5000)x.date=null;if(!Array.isArray(x.collections))x.collections=[];if(typeof x.archived!=='boolean')x.archived=false;if(typeof x.location!=='string')x.location='';});render();scanExistingMetadata({silent:true}).catch(e=>console.warn('Automatic date migration failed',e))}catch(e){console.error(e);main.innerHTML=empty('⚠️','保存領域を開けません','このブラウザではIndexedDBが利用できないか、プライベート設定などで制限されています。通常のブラウザ環境で開き直してください。');}}
 window.addEventListener('pagehide',()=>{stopSlideshow();relockMemory()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){stopSlideshow();if($('#viewerBackdrop').classList.contains('open'))closeViewer();relockMemory();if(page==='collection-detail'&&collectionType==='locked')render()}});
 
 /* Daily automatic highlights and anniversary memories */
