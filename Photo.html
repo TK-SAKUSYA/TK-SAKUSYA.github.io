@@ -604,6 +604,29 @@ function createAlbum(){openModal(`<h2>新しいアルバム</h2><input id="album
 function renameAlbum(id){const a=albums.find(x=>x.id===id);if(!a)return;openModal(`<h2>アルバム名を変更</h2><input id="albumNameInput" type="text" maxlength="80" value="${esc(a.name)}"><div class="dialog-actions"><button class="smallbtn" data-action="cancel-modal">キャンセル</button><button class="primary" data-action="rename-confirm" data-id="${esc(id)}">保存</button></div>`);$('#albumNameInput').focus()}
 function pickAlbum(id){const a=albums.find(x=>x.id===id);if(!a)return;const candidates=visibleItems();openModal(`<h2>アルバムに追加</h2><p class="muted">「${esc(a.name)}」に追加する写真・動画を選択してください。</p><div class="album-picker-list">${candidates.length?candidates.map(x=>`<label class="picker-item"><input type="checkbox" value="${esc(x.id)}" ${a.ids.includes(x.id)?'checked':''}><span>${isVideo(x)?'🎬':'🖼️'} ${esc(x.name)}</span></label>`).join(''):'<p>追加できる写真・動画がありません。</p>'}</div><div class="dialog-actions"><button class="smallbtn" data-action="cancel-modal">キャンセル</button><button class="primary" data-action="pick-confirm" data-id="${esc(id)}">保存</button></div>`)}
 
+// ファイル内容のSHA-256で重複を判定（名前や更新日時が違っても同じ内容なら検出）
+const fingerprintCache=new WeakMap();
+async function fingerprintFile(file){
+ if(!file||!crypto?.subtle||typeof file.arrayBuffer!=='function')return null;
+ if(fingerprintCache.has(file))return fingerprintCache.get(file);
+ const digest=await crypto.subtle.digest('SHA-256',await file.arrayBuffer());
+ const hash=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+ fingerprintCache.set(file,hash);return hash;
+}
+async function isDuplicateFile(file){
+ const hash=await fingerprintFile(file);
+ if(!hash)return items.some(x=>!isLocked(x)&&x.name===file.name&&x.size===file.size&&x.lastModified===file.lastModified);
+ for(const x of items){
+  if(isLocked(x)||x.size!==file.size)continue;
+  let savedHash=x.fingerprint||null;
+  if(!savedHash&&x.blob instanceof Blob){
+   savedHash=await fingerprintFile(x.blob);
+   if(savedHash){x.fingerprint=savedHash;await putItem(x)}
+  }
+  if(savedHash&&savedHash===hash)return true;
+ }
+ return false;
+}
 async function handleFiles(files){
  if(!files?.length)return;
  const list=Array.from(files);let added=0,failed=0,dupes=0,unsupported=0;
@@ -614,12 +637,13 @@ async function handleFiles(files){
    const f=list[i];txt.textContent=`取り込み中 ${i+1}/${list.length}：${f.name}`;
    const mime=f.type||'application/octet-stream';
    try{
-    const exists=items.some(x=>!isLocked(x)&&x.name===f.name&&x.size===f.size&&x.lastModified===f.lastModified);
+    const fingerprint=await fingerprintFile(f);
+    const exists=fingerprint?await isDuplicateFile(f):items.some(x=>!isLocked(x)&&x.name===f.name&&x.size===f.size&&x.lastModified===f.lastModified);
     if(exists){dupes++;bar.value=i+1;continue}
-    const nameLower=(f.name||'').toLowerCase();const kind=(mime.startsWith('video/')||isVideo({name:f.name,type:mime}))?'video':(mime.startsWith('image/')||isImage({name:f.name,type:mime}))?'image':'document';
+    const kind=(mime.startsWith('video/')||isVideo({name:f.name,type:mime}))?'video':(mime.startsWith('image/')||isImage({name:f.name,type:mime}))?'image':'document';
     const metadata=(kind==='image'||kind==='video')?await extractMediaMetadata(f,kind):{date:null,fileDate:f.lastModified?new Date(f.lastModified).toISOString():null,location:''};
     const collections=[...(metadata.location?['places']:[])];if(kind==='document')collections.push('documents');
-    const x={id:uid(),name:f.name,type:mime,kind,size:f.size,lastModified:f.lastModified,addedAt:new Date().toISOString(),date:metadata.date||null,fileDate:metadata.fileDate||null,favorite:false,trashedAt:null,archived:false,collections,location:metadata.location||'',blob:f};
+    const x={id:uid(),name:f.name,type:mime,kind,size:f.size,lastModified:f.lastModified,fingerprint,addedAt:new Date().toISOString(),date:metadata.date||null,fileDate:metadata.fileDate||null,favorite:false,trashedAt:null,archived:false,collections,location:metadata.location||'',blob:f};
     await putItem(x);items.push(x);added++;
    }catch(e){failed++;console.error('Failed to import file',f.name,e)}
    bar.value=i+1;
@@ -653,7 +677,7 @@ async function scanFolder(){
  try{
   const perm=await folderHandle.queryPermission({mode:'read'});
   if(perm!=='granted'){toast('フォルダへのアクセス権限が失効しました。設定から再許可してください。');return}
-  const found=[];for await(const f of walkDirectory(folderHandle)){const known=items.some(x=>!isLocked(x)&&x.name===f.name&&x.size===f.size&&x.lastModified===f.lastModified);if(!known)found.push(f)}
+  const found=[];for await(const f of walkDirectory(folderHandle)){if(!(await isDuplicateFile(f)))found.push(f)}
   if(found.length)await handleFiles(found);
   if(page==='settings')render();
  }catch(e){console.error(e);toast('フォルダを再スキャンできませんでした。権限を確認してください。')}
