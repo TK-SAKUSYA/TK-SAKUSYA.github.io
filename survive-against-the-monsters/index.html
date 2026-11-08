@@ -65,35 +65,6 @@ function roomFloor(y){box(0,y,0,30,.35,24,mats.floor,false);box(0,y+.19,-12,30,.
 function wall(x,y,z,w,h,d){box(x,y,z,w,h,d,mats.wall,true)}
 function lamp(x,y,z){const l=new THREE.PointLight(0xffd19a,22,13,2);l.position.set(x,y,z);scene.add(l);const s=new THREE.Mesh(new THREE.SphereGeometry(.13,12,8),mats.lamp);s.position.copy(l.position);scene.add(s)}
 function furniture(x,y,z,w,h,d,mat=mats.wood){box(x,y,z,w,h,d,mat,true)}
-const floors=[0,4.2,8.4];
-for(let f=0;f<3;f++){
- const y=floors[f];roomFloor(y);
- wall(0,y+1.7,-12,30,3.4,.35);wall(-15,y+1.7,0,.35,3.4,24);wall(15,y+1.7,0,.35,3.4,24);
- // divided rooms with broad openings
- wall(-5,y+1.7,-3,.25,3.4,17);wall(5,y+1.7,3,.25,3.4,17);
- wall(0,y+1.7,2,9.5,3.4,.25);
- // stairwell opening and balcony rails
- if(f<2){box(11,y+.1,8,6,.18,6,mats.dark,false);for(let i=0;i<12;i++){const step=box(8.8+i*.48,y+.22+i*.31,8,2.2,.28,5,mats.wood,true);step.rotation.z=-.04}box(11,y+2.1,5,.18,3,.18,mats.metal,true)}
- for(const x of [-10,0,10])lamp(x,y+3.05,-7);
- // windows
- for(const x of [-10,0,10]){const win=box(x,y+1.9,-11.78,2.5,1.8,.08,mats.glass,false);box(x,y+1.9,-11.7,.08,1.9,.13,mats.white,false);box(x,y+1.9,-11.7,2.6,.08,.13,mats.white,false)}
-}
-function addDoor(x,y,z){const d=box(x,y,z,1.25,2.5,.16,mats.wood,true);interactables.push({mesh:d,label:'ドア',action:()=>{d.visible=false;d.userData.open=true;toast('ドアを開けた')}})}
-// Stairwell landings and room props
-for(let f=0;f<3;f++){let y=floors[f];furniture(-10,y+.65,-7,3.5,1.3,1.8);furniture(0,y+.45,7,4,.9,2.2,mats.white);furniture(10,y+.6,-5,2.4,1.2,1.3);furniture(-10,y+.8,6,1.5,1.6,1.5,mats.dark);addDoor(-5,y+1.25,5);}
-// stairs connecting levels: visible switchback stair flights
-for(let f=0;f<2;f++){let y=floors[f];for(let i=0;i<13;i++){const s=box(11,y+.18+i*.32,8-i*.18,3,.28,1.05,mats.wood,true);s.position.x=10.8;s.position.z=8-i*.42}box(10.8,y+2.2,3,3,.25,4,mats.wood,true)}
-// Decorative ceiling beams, rugs, shelves
-for(let f=0;f<3;f++){let y=floors[f];for(let x=-12;x<=12;x+=6)box(x,y+3.42,0,.12,.12,23,mats.wood,false);box(-9,y+.04,0,4,.08,5,new THREE.MeshStandardMaterial({color:0x7b3430}),false);for(let k=0;k<4;k++)furniture(13,y+.35+k*.55,-7,1.2,.08,2,mats.wood)}
-// Exterior grounds and front door
-box(0,-.35,0,34,.3,28,new THREE.MeshStandardMaterial({color:0x343b35}),false);wall(0,1.7,12,30,3.4,.35); // front wall
-const front=box(0,1.25,11.75,2.2,2.5,.18,mats.wood,true);interactables.push({mesh:front,label:'玄関ドア',action:()=>toast('外はまだ安全ではなさそうだ')});
-// Items to discover
-const notes=[];
-for(let i=0;i<6;i++){let f=i%3,y=floors[f],x=[-10,0,10,-10,0,10][i],z=[0,-8,5,8,4,-2][i];const m=new THREE.Mesh(new THREE.BoxGeometry(.34,.045,.25),new THREE.MeshStandardMaterial({color:0xe8dfb8}));m.position.set(x,y+.9,z);scene.add(m);notes.push(m);interactables.push({mesh:m,label:'メモを読む',action:()=>{if(!m.userData.found){m.userData.found=true;m.material.color.set(0x6e9f74);found++;document.querySelector('#objective').textContent='手がかり '+found+'/6';toast(['「足音がしたら、明かりのある部屋へ」','「階段の先にも部屋がある」','「この家には誰かがいる」','「物音を立てすぎないこと」','「3階を調べて」','「まだ終わっていない」'][i])}}})}
-let found=0;
-// Monster: eerie shadow-like creature, non-graphic
-const monster=new THREE.Group();const body=new THREE.Mesh(new THREE.CapsuleGeometry(.48,1.25,5,8),new THREE.MeshStandardMaterial({color:0x111318,roughness:1}));body.position.y=1.05;monster.add(body);const head=new THREE.Mesh(new THREE.SphereGeometry(.38,12,10),new THREE.MeshStandardMaterial({color:0x08090c}));head.position.y=2;monster.add(head);for(const x of [-.15,.15]){const eye=new THREE.Mesh(new THREE.SphereGeometry(.055,8,8),new THREE.MeshBasicMaterial({color:0xc8e5ff}));eye.position.set(x,2.04,.33);monster.add(eye)}monster.position.set(-10,0,0);scene.add(monster);
 const player={x:0,y:1.65,z:14,yaw:Math.PI,pitch:0,speed:4.4};camera.position.set(player.x,player.y,player.z);
 const keys={};let started=false,locked=false,run=false,toastTimer=0,last=performance.now();
 function toast(s){toastEl.textContent=s;toastEl.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('show'),2200)}
