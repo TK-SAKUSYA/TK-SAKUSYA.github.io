@@ -434,6 +434,19 @@ button{white-space:normal;overflow-wrap:anywhere}
  .notification-card{padding:11px}
 }
 
+
+/* Comfortable Google Photos-scale controls without breaking compact screens */
+:root{--photo-control-size:46px}
+button,.navbtn,.smallbtn,.iconbtn,.primary,.toolbar select,.setting-row select{min-height:var(--photo-control-size)}
+.navbtn{font-size:15px;padding:13px 18px;gap:15px}
+.toolbar button,.inline-actions button,.album-actions button{padding:11px 16px;font-size:14px}
+.viewer-actions button,.viewer-zoom-controls button,#slideshowControls button{min-height:44px;padding:9px 15px!important}
+.media-card .fav{width:36px;height:36px;font-size:19px}
+#viewerStage{overflow:hidden}
+#viewerStage .viewer-file-preview{will-change:transform,opacity}
+@media(max-width:850px){:root{--photo-control-size:44px}.main{padding-left:clamp(12px,3vw,22px);padding-right:clamp(12px,3vw,22px)}.navbtn{padding:10px 13px}.mobile-nav .navbtn{min-height:54px;padding:7px 12px;font-size:12px}.top-actions .iconbtn{min-width:42px}.toolbar button,.inline-actions button{min-height:44px}}
+@media(max-width:390px){:root{--photo-control-size:42px}.mobile-nav .navbtn{padding:6px 9px}.viewer-actions button{min-height:40px;padding:7px 10px!important}}
+@media(prefers-reduced-motion:no-preference){#viewerStage .viewer-file-preview{transition:filter .18s ease}}
 </style>
 </head>
 <body>
@@ -765,22 +778,30 @@ async function handleFiles(files){
  const list=Array.from(files);let added=0,failed=0,dupes=0,unsupported=0;
  const prog=$('#importProgress'),bar=$('#importProgressBar'),txt=$('#importProgressText');
  prog.classList.remove('hidden');bar.value=0;bar.max=list.length;
+ const seenHashes=new Set();
  try{
   for(let i=0;i<list.length;i++){
    const f=list[i];txt.textContent=`取り込み中 ${i+1}/${list.length}：${f.name}`;
    const mime=f.type||'application/octet-stream';
    try{
-    const fingerprint=await fingerprintFile(f);
-    const exists=fingerprint?await isDuplicateFile(f):items.some(x=>!isLocked(x)&&x.name===f.name&&x.size===f.size&&x.lastModified===f.lastModified);
-    if(exists){dupes++;bar.value=i+1;continue}
     const kind=(mime.startsWith('video/')||isVideo({name:f.name,type:mime}))?'video':(mime.startsWith('image/')||isImage({name:f.name,type:mime}))?'image':'document';
-    const metadata=(kind==='image'||kind==='video')?await extractMediaMetadata(f,kind):{date:null,fileDate:f.lastModified?new Date(f.lastModified).toISOString():null,location:''};
+    const [fingerprint,metadata]=await Promise.all([
+     fingerprintFile(f),
+     (kind==='image'||kind==='video')?extractMediaMetadata(f,kind):Promise.resolve({date:null,fileDate:f.lastModified?new Date(f.lastModified).toISOString():null,location:''})
+    ]);
+    let exists=false;
+    if(fingerprint){
+     exists=seenHashes.has(fingerprint);
+     if(!exists)exists=await isDuplicateFile(f);
+     seenHashes.add(fingerprint);
+    }else exists=items.some(x=>!isLocked(x)&&x.name===f.name&&x.size===f.size&&x.lastModified===f.lastModified);
+    if(exists){dupes++;bar.value=i+1;continue}
     const collections=[...(metadata.location?['places']:[])];if(kind==='document')collections.push('documents');
     const x={id:uid(),name:f.name,type:mime,kind,size:f.size,lastModified:f.lastModified,fingerprint,addedAt:new Date().toISOString(),date:metadata.date||null,fileDate:metadata.fileDate||null,favorite:false,trashedAt:null,archived:false,collections,location:metadata.location||'',blob:f};
     await putItem(x);items.push(x);added++;
    }catch(e){failed++;console.error('Failed to import file',f.name,e)}
    bar.value=i+1;
-   if(i%12===0)await new Promise(r=>setTimeout(r,0));
+   if(i%4===0)await new Promise(r=>setTimeout(r,0));
   }
  }finally{setTimeout(()=>prog.classList.add('hidden'),900)}
  render();
@@ -838,7 +859,7 @@ function downloadCurrent(){const x=items.find(x=>x.id===viewerId);if(!x)return;c
 async function shareCurrent(){const x=items.find(x=>x.id===viewerId);if(!x)return;try{const file=new File([x.blob],x.name,{type:x.type||x.blob.type});if(navigator.canShare?.({files:[file]})&&navigator.share)await navigator.share({files:[file],title:x.name});else if(navigator.share)await navigator.share({title:x.name,text:'フォトから共有'});else downloadCurrent()}catch(e){if(e.name!=='AbortError'){downloadCurrent();toast('共有に対応していないため、ファイルをダウンロードしました。')}}}
 async function showInfo(){const x=items.find(x=>x.id===viewerId);if(!x)return;let dims='不明';if(isImage(x)){try{const img=new Image();img.src=mediaUrl(x);await img.decode();dims=`${img.naturalWidth} × ${img.naturalHeight}`}catch(e){}}const albumNames=albums.filter(a=>a.ids.includes(x.id)).map(a=>a.name).join('、')||'なし';openModal(`<h2>写真の情報</h2><dl class="info-list"><dt>ファイル名</dt><dd>${esc(x.name)}</dd><dt>形式</dt><dd>${esc(x.type||'不明')}</dd><dt>ファイルサイズ</dt><dd>${formatSize(x.size)}</dd><dt>幅・高さ</dt><dd>${dims}</dd><dt>撮影日時</dt><dd>${captureDate(x)?esc(new Date(captureDate(x)).toLocaleString()):'不明'}</dd><dt>取り込み日時</dt><dd>${x.addedAt?esc(new Date(x.addedAt).toLocaleString()):'不明'}</dd><dt>場所</dt><dd>${esc(x.location||'取得できません（場所の手動登録はコレクションから行えます）')}</dd><dt>アルバム</dt><dd>${esc(albumNames)}</dd><dt>コレクション</dt><dd>${esc((x.collections||[]).map(collectionLabel).join('、')||'なし')}</dd><dt>お気に入り</dt><dd>${x.favorite?'登録済み':'未登録'}</dd></dl><div class="dialog-actions"><button class="primary" data-action="cancel-modal">閉じる</button></div>`)}
 function openMoreMenu(){const x=items.find(x=>x.id===viewerId);if(!x)return;openModal(`<h2>その他のオプション</h2><div class="inline-actions"><button class="smallbtn" data-action="slideshow">▶ スライドショー</button><button class="smallbtn" data-action="download">📥 ダウンロード</button><button class="smallbtn" data-action="rotate-left">↶ 左に回転</button><button class="smallbtn" data-action="add-album-current">📁 アルバムに追加</button><button class="smallbtn" data-action="add-document">📄 ドキュメントに追加</button><button class="smallbtn" data-action="add-screenshot">📸 スクリーンショットと録画に追加</button><button class="smallbtn" data-action="archive-current">${x.archived?'アーカイブから戻す':'📦 アーカイブ'}</button><button class="smallbtn" data-action="move-locked">🔒 ロックされたフォルダに移動</button><button class="smallbtn" data-action="edit-current">✏️ 編集</button><button class="smallbtn" data-action="info-current">ℹ️ 情報</button></div><div class="dialog-actions"><button class="primary" data-action="cancel-modal">閉じる</button></div>`)}
-function slideshowTick(){if(!slideshowPaused){if(viewerList.indexOf(viewerId)>=viewerList.length-1){stopSlideshow();toast('スライドショーが終了しました')}else moveViewer(1)}}
+function slideshowTick(){if(!slideshowPaused){if(viewerList.indexOf(viewerId)>=viewerList.length-1){stopSlideshow();toast('スライドショーが終了しました')}else swipeMoveViewer(1)}}
 function scheduleSlideshow(){if(slideshowTimer)clearInterval(slideshowTimer);slideshowTimer=setInterval(slideshowTick,slideshowMs)}
 function startSlideshow(){if(!viewerList.length){toast('スライドショーに表示できる写真・動画がありません');return}stopSlideshow();slideshowPaused=false;$('#slideshowControls').classList.remove('hidden');const speed=$('#slideshowSpeed');if(speed)speed.value=String(slideshowMs);scheduleSlideshow();toast('スライドショーを開始しました')}
 function getPageSlideshowItems(){if(page==='memories'){const now=new Date();return visibleItems().filter(x=>{const d=captureDate(x);if(!d)return false;const date=new Date(d);return date.getFullYear()<now.getFullYear()&&date.getMonth()===now.getMonth()}).sort((a,b)=>new Date(captureDate(b))-new Date(captureDate(a)))}if(page==='favorites')return activeItems().filter(x=>x.favorite);if(page==='videos')return activeItems().filter(isVideo);if(page==='collection-detail'){const k=collectionType;if(k==='archive')return items.filter(x=>x.archived&&!inTrash(x)&&!isLocked(x));if(k==='trash')return items.filter(inTrash);if(k==='locked')return items.filter(x=>isLocked(x)&&unlockedIds.has(x.id));if(k==='favorites')return visibleItems().filter(x=>x.favorite);if(k==='videos')return visibleItems().filter(isVideo);if(k==='recent')return visibleItems().filter(isRecent);return visibleItems().filter(x=>collectionHas(x,k))}return activeItems()}
