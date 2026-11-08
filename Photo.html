@@ -293,7 +293,33 @@ body{font-size:16px;line-height:1.5}
 #viewerBackdrop .view-nav{width:48px;height:48px;font-size:29px!important}
 #viewerBackdrop .viewer-zoom-controls button,#viewerBackdrop #slideshowControls button{min-height:42px;padding:8px 15px!important;font-size:14px}
 #viewerBackdrop .viewer-stage{touch-action:pan-y}
+/* Google Photos inspired layout refresh */
+.topbar{background:var(--bg);border:0;padding:14px 28px}
+.brand{font-size:22px;min-width:190px}
+.brandmark{border-radius:50%;background:linear-gradient(145deg,#4285f4 0 32%,#34a853 32% 53%,#fbbc05 53% 76%,#ea4335 76%);color:#fff}
+.search{background:var(--tile);border:0;height:50px;max-width:800px}
+.top-actions .smallbtn{border:0;background:transparent}
+.layout{grid-template-columns:250px minmax(0,1fr)}
+.sidebar{border:0;padding:18px 14px 20px 12px}
+.navbtn{padding:13px 20px;border-radius:0 28px 28px 0;gap:18px}
+.navbtn.active{background:#d3e3fd;color:#174ea6}
+[data-theme="dark"] .navbtn.active{background:#394b66;color:#d3e3fd}
+.main{padding:28px clamp(18px,3.4vw,48px) 100px}
+.grid{gap:4px}
+.media-card{border-radius:4px}
+.sidebar [data-page="create"]{margin:0;min-height:0;border-radius:0 28px 28px 0;background:transparent;color:var(--muted);font-weight:400}
+.sidebar [data-page="create"].active{background:#d3e3fd;color:#174ea6;font-weight:650}
+[data-theme="dark"] .sidebar [data-page="create"].active{background:#394b66;color:#d3e3fd}
+.navbtn:focus:not(:focus-visible){outline:none}
+.notification-entry{border:0;background:var(--tile);border-radius:50%;width:44px;height:44px}
+.notification-list{display:grid;gap:12px;max-width:850px}
+.notification-card{display:flex;align-items:flex-start;gap:16px;padding:18px 20px;background:var(--panel);border:1px solid var(--line);border-radius:18px}
+.notification-icon{width:44px;height:44px;flex:0 0 44px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);font-size:21px}
+.notification-card strong{display:block;margin:1px 0 5px;font-size:15px}
+.notification-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.65}
+.notification-card time{display:block;margin-top:8px;color:var(--muted);font-size:12px}
 @media(max-width:850px){
+ .topbar{padding:10px 12px}.brand{min-width:auto}
  .top-feature-nav{gap:7px;padding:7px 10px 2px;overflow-x:auto}
  .top-feature-nav .feature-nav-btn{min-height:38px;padding:7px 13px;font-size:13px;white-space:nowrap}
  #viewerBackdrop .viewer-actions button{width:40px;height:40px;min-width:40px;font-size:18px}
@@ -318,7 +344,7 @@ body{font-size:16px;line-height:1.5}
 <header class="topbar">
   <div class="brand"><div class="brandmark">✿</div><span>フォト</span><span class="build-badge" aria-label="第3回大型アップデート版">3rd</span></div>
   <label class="search" aria-label="写真やアルバムを検索"><span class="search-icon" aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="写真やアルバムを検索" autocomplete="off"><button id="clearSearch" class="hidden" aria-label="検索をクリア">✕</button></label>
-  <div class="top-actions"><button class="smallbtn" id="urlAddButton" title="URLからファイルを追加">🔗 URLから追加</button><button class="primary" id="addButton">＋ ファイルを追加</button></div>
+  <div class="top-actions"><button class="iconbtn notification-entry" data-page="notifications" aria-label="通知" title="通知">🔔</button><button class="smallbtn" id="urlAddButton" title="URLからファイルを追加">🔗 URLから追加</button><button class="primary" id="addButton">＋ ファイルを追加</button></div>
 </header>
 <nav class="top-feature-nav" aria-label="写真の特集">
   <button class="feature-nav-btn" data-page="highlights"><span>✨</span> ハイライト</button>
@@ -329,6 +355,7 @@ body{font-size:16px;line-height:1.5}
   <button class="navbtn active" data-page="photos"><span>📷</span><span>写真</span></button>
   <button class="navbtn" data-page="collections"><span>📚</span><span>コレクション</span></button>
   <button class="navbtn" data-page="create"><span>＋</span><span>作成</span></button>
+  <button class="navbtn" data-page="notifications"><span>🔔</span><span>通知</span></button>
   <button class="navbtn" data-page="albums"><span>📁</span><span>アルバム</span></button>
   <button class="navbtn" data-page="favorites"><span>♡</span><span>お気に入り</span></button>
   <button class="navbtn" data-page="videos"><span>🎬</span><span>動画</span></button>
@@ -342,6 +369,7 @@ body{font-size:16px;line-height:1.5}
   <button class="navbtn active" data-page="photos"><span>📷</span><span>写真</span></button>
   <button class="navbtn" data-page="collections"><span>📚</span><span>コレクション</span></button>
   <button class="navbtn" data-page="create"><span>＋</span><span>作成</span></button>
+  <button class="navbtn" data-page="notifications"><span>🔔</span><span>通知</span></button>
 </nav>
 <input id="fileInput" type="file" accept="*/*" multiple><input id="folderInput" type="file" accept="*/*" webkitdirectory multiple><div id="importProgress" class="import-progress hidden" role="status" aria-live="polite"><div id="importProgressText">取り込み準備中…</div><progress id="importProgressBar" max="100" value="0"></progress></div>
 <input id="importInput" type="file" accept=".json,application/json">
@@ -918,6 +946,14 @@ renderFeature=function(){
    (memories.length?`<h2 class="section-date">🕰️ 過去の今日 <small>${memories.reduce((n,g)=>n+g.items.length,0)}件</small></h2><div class="feature-cards">${memories.map(g=>memoryDayCard(g,'過去の同じ日')).join('')}</div>`:
     empty('🕰️','今日はまだ思い出がありません','過去の今日と同じ月日で撮影・追加された写真や動画が見つかると、ここに自動表示します。'))+
    `<h2 class="section-date">📷 写真の日付一覧</h2><div class="feature-cards">${groups.slice(0,12).map(g=>memoryDayCard(g,'日付別スライドショー')).join('')}</div>`;
+ }else if(page==='notifications'){
+  main.innerHTML=heading('通知','フォトのアップデート情報やお知らせを確認できます。')+
+   `<div class="notification-list">
+    <article class="notification-card"><div class="notification-icon">✨</div><div><strong>フォトをアップデートしました！</strong><p>Googleフォトをイメージしたデザインに刷新。写真一覧やナビゲーションを見やすく調整しました。</p><time>今回のアップデート</time></div></article>
+    <article class="notification-card"><div class="notification-icon">🔔</div><div><strong>通知ページを追加</strong><p>これからのアップデート情報やアプリからのお知らせを、このページで確認できます。</p><time>今回のアップデート</time></div></article>
+    <article class="notification-card"><div class="notification-icon">🛠️</div><div><strong>表示の不具合を修正</strong><p>「作成」を選んだあとに紫色の枠が残る表示を修正しました。</p><time>今回のアップデート</time></div></article>
+    <article class="notification-card"><div class="notification-icon">📷</div><div><strong>写真・動画の管理について</strong><p>写真や動画は引き続き、このブラウザ内に保存されます。大切なデータは定期的にバックアップしてください。</p><time>お知らせ</time></div></article>
+   </div>`;
  }else if(page==='collections'){
   const defs=[
    ['アルバム','albums','📁'],['ドキュメント','documents','📄'],['スクリーンショットと録画','screenshots','📸'],['お気に入り','favorites','❤️'],['人物とペット','people','👥'],['場所','places','📍'],['動画','videos','🎬'],['最近','recent','🕒'],['アーカイブ','archive','📦'],['ロックされたフォルダ','locked','🔒'],['ゴミ箱','trash','🗑️']
@@ -950,7 +986,7 @@ renderFeature=function(){
  }else{baseRender();return}
 };
 const originalRender=render;
-render=function(){if(['highlights','memories','collections','collection-detail','create'].includes(page))renderFeature();else baseRender()};
+render=function(){if(['highlights','memories','collections','collection-detail','create','notifications'].includes(page))renderFeature();else baseRender()};
 document.addEventListener('click',e=>{
  const b=e.target.closest('[data-memory-date]');
  if(!b)return;
