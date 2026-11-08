@@ -18,7 +18,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 const root=document.querySelector('#game'), overlay=document.querySelector('#overlay'),toastEl=document.querySelector('#toast');
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x87939a);scene.fog=new THREE.Fog(0x87939a,22,72);
-const camera=new THREE.PerspectiveCamera(76,innerWidth/innerHeight,.08,120);camera.rotation.order='YXZ';
+const camera=new THREE.PerspectiveCamera(76,innerWidth/innerHeight,.08,120);camera.rotation.order='YXZ';scene.add(camera);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;root.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xcbd9e8,0x33291f,1.15));
 const sun=new THREE.DirectionalLight(0xffe2bd,2.0);sun.position.set(-12,25,12);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
@@ -39,7 +39,7 @@ function bed(x,y,z){furn(x,y+.28,z,2.8,.45,4);furn(x,y+.57,z,2.65,.2,3.8,mats.cr
 function bookshelf(x,y,z){furn(x,y+1.2,z,2.4,2.4,.55);for(let k=0;k<4;k++){furn(x,y+.35+k*.55,z-.3,2.25,.07,.5,mats.white);for(let j=0;j<5;j++){const colors=[0x8e4e42,0x55718b,0xb49a65,0x54745d,0x9b789e];furn(x-.88+j*.43,y+.55+k*.55,z-.33,.28,.35+(j%2)*.1,.32,new THREE.MeshStandardMaterial({color:colors[(j+k)%5]}))}}}
 function kitchen(x,y,z){furn(x,y+.48,z,6,.95,.8,mats.white);furn(x,y+1.02,z,6,.12,.86,mats.metal);for(let i=0;i<4;i++)furn(x-2.25+i*1.5,y+.48,z-.43,1.35,.72,.04,mats.cream);furn(x+2.5,y+1.3,z-.1,1.25,2.6,1.3,mats.white);furn(x+2.5,y+2.55,z-.1,1.25,.08,1.3,mats.metal);cyl(x-1.7,y+1.1,z-.2,.25,.25,.05,mats.metal)}
 function bathroom(x,y,z){rug(x,y+.02,z,5,5,0x9baba9);furn(x,y+.52,z,4,.12,4,mats.tile);furn(x+1.2,y+.45,z-1,1.7,.85,2.2,mats.white);furn(x-1.2,y+.4,z+1,1.1,.8,1.4,mats.white);cyl(x-1.2,y+.9,z+1,.18,.18,.3,mats.metal);furn(x-1.1,y+.8,z-1.4,1.2,1.5,.15,mats.glass);furn(x+1.2,y+1,z-1,.45,.12,.45,mats.white);furn(x-1.2,y+.9,z+1,.3,.12,.3,mats.white)}
-function roomFloor(y){box(0,y-.175,0,44,.35,34,mats.floor,false);for(let x=-20;x<=20;x+=4)box(x,y+.002,0,.018,.012,33.8,mats.wood,false)}
+function roomFloor(y){box(0,y-.175,0,44,.35,34,mats.floor,false)}
 const floors=[0,4.2,8.4];
 const doors=[];
 function makeDoor(axis,x,y,z,label){
@@ -51,8 +51,8 @@ function makeDoor(axis,x,y,z,label){
  interactables.push({mesh:g,label,action:()=>{d.open=!d.open;d.target=d.open?(axis==='z'?-Math.PI/2:Math.PI/2):0;collider.open=d.open;toast(label+(d.open?'を開けた':'を閉めた'))}});
  return d;
 }
-function partitionZ(x,y,z1,z2,doorZ,label){const width=1.12;const lo=Math.min(z1,z2),hi=Math.max(z1,z2),a=doorZ-width/2,b=doorZ+width/2;wall(x,y+1.7,(lo+a)/2,.22,3.4,a-lo);wall(x,y+1.7,(b+hi)/2,.22,3.4,hi-b);makeDoor('z',x-.02,y,lo,label)}
-function partitionX(x1,x2,y,z,doorX,label){const width=1.12;const lo=Math.min(x1,x2),hi=Math.max(x1,x2),a=doorX-width/2,b=doorX+width/2;wall((lo+a)/2,y+1.7,z,a-lo,3.4,.22);wall((b+hi)/2,y+1.7,z,hi-b,3.4,.22);makeDoor('x',lo,y,z-.02,label)}
+function partitionZ(x,y,z1,z2,doorZ,label){const width=1.12;const lo=Math.min(z1,z2),hi=Math.max(z1,z2),a=doorZ-width/2,b=doorZ+width/2;wall(x,y+1.7,(lo+a)/2,.22,3.4,a-lo);wall(x,y+1.7,(b+hi)/2,.22,3.4,hi-b);makeDoor('z',x-.02,y,a,label)}
+function partitionX(x1,x2,y,z,doorX,label){const width=1.12;const lo=Math.min(x1,x2),hi=Math.max(x1,x2),a=doorX-width/2,b=doorX+width/2;wall((lo+a)/2,y+1.7,z,a-lo,3.4,.22);wall((b+hi)/2,y+1.7,z,hi-b,3.4,.22);makeDoor('x',a,y,z-.02,label)}
 for(let f=0;f<3;f++){
  const y=floors[f];roomFloor(y);
  wall(0,y+1.7,-17,44,3.4,.35);wall(-22,y+1.7,0,.35,3.4,34);wall(22,y+1.7,0,.35,3.4,34);wall(0,y+1.7,17,44,3.4,.35);
@@ -94,7 +94,8 @@ function update(dt){if(!started)return;
  const forward=(keys.KeyS?1:0)-(keys.KeyW?1:0),side=(keys.KeyD?1:0)-(keys.KeyA?1:0);const sp=player.speed*(run?1.55:1);const dx=(Math.sin(player.yaw)*forward+Math.cos(player.yaw)*side)*sp*dt,dz=(Math.cos(player.yaw)*forward-Math.sin(player.yaw)*side)*sp*dt;
  if(!blocked(player.x+dx,player.z))player.x+=dx;if(!blocked(player.x,player.z+dz))player.z+=dz;
  // stair zones connect the floors
- if(player.x>15.6&&player.x<19.2&&player.z>2.4&&player.z<10.8){if(stairLevel<0&&Math.abs(dz)>.0001){const current=Math.max(0,Math.min(2,Math.round((player.y-1.65)/4.2)));stairLevel=dz<0?current:current-1;if(stairLevel<0||stairLevel>1)stairLevel=-1}if(stairLevel>=0){const t=Math.max(0,Math.min(1,(10.2-player.z)/7.2));player.y=1.65+stairLevel*4.2+t*4.2;if(player.z<=2.9){player.y=1.65+(stairLevel+1)*4.2;stairLevel=-1}else if(player.z>=10.25){player.y=1.65+stairLevel*4.2;stairLevel=-1}}}else stairLevel=-1;
+ if(stairLevel<0&&player.x>15.6&&player.x<19.2&&player.z>2.4&&player.z<10.8&&Math.abs(dz)>.0001){const current=Math.max(0,Math.min(2,Math.round((player.y-1.65)/4.2)));const candidate=dz<0?current:current-1;if(candidate>=0&&candidate<=1)stairLevel=candidate}
+ if(stairLevel>=0){const t=Math.max(0,Math.min(1,(10.2-player.z)/7.2));player.y=1.65+stairLevel*4.2+t*4.2;if(player.z<=2.9){player.y=1.65+(stairLevel+1)*4.2;player.z=2.35;stairLevel=-1}else if(player.z>=10.25){player.y=1.65+stairLevel*4.2;player.z=10.85;stairLevel=-1}}else stairLevel=-1;
  for(const d of doors){const diff=d.target-d.angle;d.angle+=diff*Math.min(1,dt*5.5);d.group.rotation.y=d.angle;}
  camera.position.set(player.x,player.y,player.z);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');hand.rotation.x=Math.sin(performance.now()*.006)*(Math.abs(keys.KeyW||keys.KeyS||keys.KeyA||keys.KeyD)?.045:.012);hand.rotation.z=Math.sin(performance.now()*.004)*.025;
  document.querySelector('#floor').textContent='🏠 '+(floorIndex()+1)+'F';
