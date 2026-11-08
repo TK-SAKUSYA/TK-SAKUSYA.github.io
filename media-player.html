@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101116">
+<title>PLAYBOX — Media Player</title>
+<style>
+:root{color-scheme:dark;--bg:#0d0e13;--panel:#171922;--panel2:#20232e;--line:#303442;--muted:#9ba1b2;--text:#f5f6fb;--accent:#8b7cff;--accent2:#b3aaff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#282346 0,#11121a 42%,var(--bg) 75%);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+button,input{font:inherit}button{color:inherit;border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:10px 14px;cursor:pointer;transition:.16s}button:hover{border-color:var(--accent);background:#29283a}button:active{transform:scale(.97)}button:disabled{opacity:.4;cursor:not-allowed}
+.top{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(14px,4vw,42px);border-bottom:1px solid #ffffff12;background:#101116bb;backdrop-filter:blur(16px);position:sticky;top:0;z-index:5}.brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:.12em}.logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#a99cff,#6251db);display:grid;place-items:center;color:#100e20;font-size:18px}.top small{color:var(--muted);letter-spacing:0}
+main{max-width:1100px;margin:30px auto;padding:0 18px 60px}.intro{margin-bottom:22px}.eyebrow{color:var(--accent2);font-size:11px;letter-spacing:.2em;font-weight:800}.intro h1{font-size:clamp(26px,5vw,42px);margin:7px 0 6px;letter-spacing:-.04em}.intro p{margin:0;color:var(--muted);font-size:14px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px}.player-card,.side-card{background:linear-gradient(160deg,#1b1e29,#14161e);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 18px 60px #0005}
+.screen{aspect-ratio:16/9;background:#050609;position:relative;display:grid;place-items:center;overflow:hidden}.screen video{width:100%;height:100%;object-fit:contain;background:#050609}.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;padding:20px;background:radial-gradient(circle at 50% 45%,#27233d,#090a0f 65%)}.empty .big{font-size:54px;filter:drop-shadow(0 8px 20px #8b7cff66)}.empty strong{font-size:18px}.empty span{font-size:12px;color:var(--muted)}.screen.loaded .empty{display:none}
+.controls{padding:16px 18px 18px}.now{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}.track{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.type{font-size:10px;color:var(--accent2);border:1px solid #8b7cff55;border-radius:20px;padding:4px 8px;flex-shrink:0}
+input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}.seek{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}.seek input{flex:1}.buttons{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:12px;flex-wrap:wrap}.buttons button{min-width:42px}.buttons .play{width:54px;height:48px;background:linear-gradient(135deg,#a99cff,#7564ef);color:#100e20;border:0;font-size:19px;font-weight:900}.buttons .pip{border-color:#8b7cff88;color:#c5bcff}.bottom-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px;flex-wrap:wrap}.volume{display:flex;align-items:center;gap:8px;max-width:170px;flex:1}.volume input{min-width:50px}.toolset{display:flex;gap:7px;flex-wrap:wrap}.toolset button{font-size:12px;padding:8px 10px}
+.side-card{padding:17px;height:fit-content}.side-card h2{font-size:14px;margin:0 0 13px}.pick{display:flex;flex-direction:column;gap:9px}.pick button{width:100%;text-align:left;display:flex;align-items:center;gap:10px}.pick .primary{background:#302b51;border-color:#6558b7}.pick .ico{font-size:18px;width:24px;text-align:center}.urlbox{margin-top:17px;padding-top:16px;border-top:1px solid var(--line)}.urlbox label{display:block;font-size:11px;color:var(--muted);margin-bottom:8px}.urlrow{display:flex;gap:6px}.urlrow input{min-width:0;width:100%;background:#0e1017;border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--text);outline:none}.urlrow input:focus{border-color:var(--accent)}.urlrow button{padding:9px 11px}.hint{font-size:11px;color:var(--muted);line-height:1.6;margin:9px 0 0}.playlist{margin-top:17px;padding-top:16px;border-top:1px solid var(--line)}.playlist-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.playlist-head h2{margin:0}.count{font-size:11px;color:var(--muted)}.list{display:flex;flex-direction:column;gap:6px;max-height:245px;overflow:auto}.item{display:flex;align-items:center;gap:8px;padding:9px;border-radius:10px;background:#11131a;border:1px solid transparent;cursor:pointer;min-width:0}.item.active{border-color:var(--accent);background:#28243d}.item .num{color:var(--muted);font-size:10px;width:18px}.item .name{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.item .remove{padding:3px 7px;border:0;background:transparent;color:var(--muted)}
+.drop{margin-top:16px;border:1px dashed #625a88;border-radius:14px;padding:15px;text-align:center;color:var(--muted);font-size:11px;transition:.2s}.drop.over{background:#282342;border-color:var(--accent);color:white}
+.notice{min-height:18px;margin-top:9px;font-size:11px;color:#c0b8ff;text-align:center}.footer{text-align:center;color:#707687;font-size:11px;margin-top:22px}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.side-card{order:2}.screen{aspect-ratio:16/9}.top{height:58px}main{margin-top:22px}.side-card{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.side-card>h2{grid-column:1/-1}.urlbox{margin-top:0;padding-top:0;border-top:0}.playlist{grid-column:1/-1}}
+@media(max-width:520px){main{padding:0 11px 36px}.player-card,.side-card{border-radius:15px}.controls{padding:13px}.buttons{gap:6px}.buttons button{padding:9px 11px;min-width:38px}.buttons .play{width:49px;height:45px}.bottom-tools{align-items:flex-start}.toolset{justify-content:flex-end}.side-card{display:block}.urlbox{margin-top:17px;padding-top:16px;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand"><div class="logo">▶</div>PLAYBOX</div><small>YOUR MEDIA. YOUR WINDOW.</small></header>
+<main>
+<section class="intro"><div class="eyebrow">PERSONAL MEDIA PLAYER</div><h1>再生を、もっと自由に。</h1><p>動画も音楽も。好きなファイルを開いて、ピクチャー イン ピクチャーでながら見。</p></section>
+<div class="layout">
+<section class="player-card">
+<div class="screen" id="screen">
+<video id="video" playsinline preload="metadata"></video>
+<div class="empty" id="empty"><div class="big">▶</div><strong>メディアを選択してください</strong><span>動画・音声ファイルに対応</span></div>
+</div>
+<div class="controls">
+<div class="now"><div class="track" id="track">再生するメディアがありません</div><span class="type" id="kind">READY</span></div>
+<div class="seek"><span id="current">0:00</span><input id="seek" type="range" min="0" max="1000" value="0" aria-label="再生位置"><span id="duration">0:00</span></div>
+<div class="buttons">
+<button id="back" title="10秒戻る">↶ 10</button><button class="play" id="play" title="再生">▶</button><button id="forward" title="10秒進む">10 ↷</button><button id="pip" class="pip" title="ピクチャー イン ピクチャー">▣ PiP</button>
+</div>
+<div class="bottom-tools"><div class="volume"><span id="volIcon">🔊</span><input id="volume" type="range" min="0" max="1" step=".01" value="1" aria-label="音量"></div><div class="toolset"><button id="speed">速度 1.0×</button><button id="fullscreen">⛶ 全画面</button></div></div>
+<div class="notice" id="notice" role="status"></div>
+</div>
+</section>
+<aside class="side-card">
+<h2>メディアを開く</h2>
+<div class="pick">
+<button class="primary" id="pickFiles"><span class="ico">📁</span><span>ファイルを選択</span></button>
+<button id="pickVideo"><span class="ico">🎬</span><span>動画ファイル</span></button>
+<button id="pickAudio"><span class="ico">🎵</span><span>音声ファイル</span></button>
+</div>
+<input id="files" type="file" accept="video/*,audio/*" multiple hidden>
+<input id="videos" type="file" accept="video/*" multiple hidden>
+<input id="audios" type="file" accept="audio/*" multiple hidden>
+<div class="urlbox"><label for="url">動画・音声のURL</label><div class="urlrow"><input id="url" type="url" placeholder="https://example.com/video.mp4"><button id="loadUrl">開く</button></div><p class="hint">URL再生は配信元が外部サイトからの再生（CORS）を許可している必要があります。</p></div>
+<div class="playlist"><div class="playlist-head"><h2>再生リスト</h2><span class="count" id="count">0 件</span></div><div class="list" id="list"><div class="hint">選択したファイルがここに表示されます。</div></div></div>
+<div class="drop" id="drop">ここにファイルをドロップして追加</div>
+</aside>
+</div>
+<div class="footer">PLAYBOX · ブラウザ内で動作します。ファイルはサーバーへアップロードされません。</div>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const v=$('video'),screen=$('screen'),files=$('files'),videos=$('videos'),audios=$('audios');
+let queue=[],index=-1,speedIndex=2,objectUrls=[];
+const speeds=[.5,.75,1,1.25,1.5,1.75,2];
+const fmt=n=>{if(!Number.isFinite(n)||n<0)return'0:00';const h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=Math.floor(n%60).toString().padStart(2,'0');return h? h+':'+m.toString().padStart(2,'0')+':'+s:m+':'+s};
+function say(t){$('notice').textContent=t;clearTimeout(say.timer);say.timer=setTimeout(()=>$('notice').textContent='',4500)}
+function addFiles(fileList){const arr=[...fileList].filter(f=>f.type.startsWith('video/')||f.type.startsWith('audio/'));if(!arr.length){say('対応している動画・音声ファイルがありません');return}arr.forEach(file=>{const src=URL.createObjectURL(file);objectUrls.push(src);queue.push({name:file.name,src,type:file.type, file})});render();if(index<0)playAt(0);else say(arr.length+'件をリストに追加しました')}
+function render(){$('count').textContent=queue.length+' 件';const list=$('list');list.innerHTML='';if(!queue.length){list.innerHTML='<div class="hint">選択したファイルがここに表示されます。</div>';return}queue.forEach((item,i)=>{const row=document.createElement('div');row.className='item'+(i===index?' active':'');const num=document.createElement('span');num.className='num';num.textContent=String(i+1).padStart(2,'0');const name=document.createElement('span');name.className='name';name.textContent=item.name;const del=document.createElement('button');del.className='remove';del.textContent='×';del.title='リストから削除';del.onclick=e=>{e.stopPropagation();removeAt(i)};row.onclick=()=>playAt(i);row.append(num,name,del);list.append(row)})}
+function playAt(i){if(i<0||i>=queue.length)return;index=i;const item=queue[i];v.src=item.src;v.load();$('track').textContent=item.name;$('kind').textContent=item.type.startsWith('audio/')?'AUDIO':'VIDEO';screen.classList.add('loaded');render();v.play().then(()=>$('play').textContent='Ⅱ').catch(()=>{$('play').textContent='▶';say('再生できない場合は、ファイル形式を確認してください')})}
+function removeAt(i){const was=i===index;queue.splice(i,1);if(i<index)index--;else if(was)index=-1;if(!queue.length){v.pause();v.removeAttribute('src');v.load();$('track').textContent='再生するメディアがありません';$('kind').textContent='READY';screen.classList.remove('loaded')}else if(was)playAt(Math.min(i,queue.length-1));render()}
+function toggle(){if(!v.src){say('先にメディアを選択してください');return}if(v.paused)v.play().catch(()=>say('再生できませんでした'));else v.pause()}
+$('pickFiles').onclick=()=>files.click();$('pickVideo').onclick=()=>videos.click();$('pickAudio').onclick=()=>audios.click();
+[files,videos,audios].forEach(el=>el.addEventListener('change',()=>{addFiles(el.files);el.value=''}));
+$('play').onclick=toggle;v.addEventListener('play',()=>$('play').textContent='Ⅱ');v.addEventListener('pause',()=>$('play').textContent='▶');
+v.addEventListener('timeupdate',()=>{if(v.duration){$('seek').value=v.currentTime/v.duration*1000;$('current').textContent=fmt(v.currentTime);$('duration').textContent=fmt(v.duration)}});
+$('seek').addEventListener('input',()=>{if(v.duration)v.currentTime=Number($('seek').value)/1000*v.duration});
+$('back').onclick=()=>{v.currentTime=Math.max(0,v.currentTime-10)};$('forward').onclick=()=>{if(Number.isFinite(v.duration))v.currentTime=Math.min(v.duration,v.currentTime+10);else v.currentTime+=10};
+$('volume').oninput=()=>{v.volume=Number($('volume').value);v.muted=v.volume===0;$('volIcon').textContent=v.muted?'🔇':'🔊'};
+$('volIcon').onclick=()=>{v.muted=!v.muted;$('volIcon').textContent=v.muted?'🔇':'🔊'};
+$('speed').onclick=()=>{speedIndex=(speedIndex+1)%speeds.length;v.playbackRate=speeds[speedIndex];$('speed').textContent='速度 '+speeds[speedIndex].toFixed(1)+'×'};
+$('pip').onclick=async()=>{try{if(!document.pictureInPictureEnabled||!v.requestPictureInPicture)throw new Error('このブラウザはPiPに対応していません');if(!v.src)throw new Error('先にメディアを選択してください');if(document.pictureInPictureElement)await document.exitPictureInPicture();else await v.requestPictureInPicture()}catch(e){say(e.message||'PiPを開始できませんでした')}};
+document.addEventListener('enterpictureinpicture',()=>say('PiPを開始しました。ほかのアプリを使いながら視聴できます。'));
+$('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await screen.requestFullscreen()}catch(e){say('全画面表示を開始できませんでした')}};
+$('loadUrl').onclick=()=>{const src=$('url').value.trim();if(!src){say('URLを入力してください');return}try{const u=new URL(src);if(!['http:','https:'].includes(u.protocol))throw 0;queue.push({name:u.pathname.split('/').pop()||u.hostname,src:u.href,type:''});render();playAt(queue.length-1)}catch(e){say('有効なHTTPまたはHTTPSのURLを入力してください')}};
+v.addEventListener('ended',()=>{if(index<queue.length-1)playAt(index+1);else $('play').textContent='▶'});
+v.addEventListener('error',()=>{if(v.src)say('このメディアを読み込めません。形式やURLの公開設定を確認してください')});
+const drop=$('drop');['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));drop.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
+document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName))return;if(e.code==='Space'){e.preventDefault();toggle()}if(e.code==='ArrowLeft')v.currentTime=Math.max(0,v.currentTime-5);if(e.code==='ArrowRight')v.currentTime+=5});
+window.addEventListener('beforeunload',()=>objectUrls.forEach(URL.revokeObjectURL));
+})();
+</script>
+</body>
+</html>
