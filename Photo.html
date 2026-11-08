@@ -282,6 +282,35 @@ body{font-size:16px;line-height:1.5}
  #viewerBackdrop #viewerMeta{bottom:50px;font-size:12px}
 }
 
+
+/* Google Photos-style finishing pass */
+.top-feature-nav{display:flex;align-items:center;gap:10px;padding:10px 28px 4px;background:var(--bg)}
+.top-feature-nav .feature-nav-btn{min-height:42px;padding:8px 16px;border-radius:22px;background:var(--tile);color:var(--text);font-size:14px}
+.top-feature-nav .feature-nav-btn:hover{background:var(--accent-soft)}
+.sidebar [data-page="create"]{margin:8px 0 12px;min-height:48px;border-radius:14px;background:var(--accent-soft);color:var(--accent);font-weight:650}
+.sidebar [data-page="create"] span:first-child{font-size:23px}
+#viewerBackdrop .viewer-actions button{width:44px;height:44px;min-width:44px;font-size:20px}
+#viewerBackdrop .view-nav{width:48px;height:48px;font-size:29px!important}
+#viewerBackdrop .viewer-zoom-controls button,#viewerBackdrop #slideshowControls button{min-height:42px;padding:8px 15px!important;font-size:14px}
+#viewerBackdrop .viewer-stage{touch-action:pan-y}
+@media(max-width:850px){
+ .top-feature-nav{gap:7px;padding:7px 10px 2px;overflow-x:auto}
+ .top-feature-nav .feature-nav-btn{min-height:38px;padding:7px 13px;font-size:13px;white-space:nowrap}
+ #viewerBackdrop .viewer-actions button{width:40px;height:40px;min-width:40px;font-size:18px}
+ #viewerBackdrop .view-nav{width:42px;height:42px;font-size:26px!important}
+ #viewerBackdrop .viewer-zoom-controls button,#viewerBackdrop #slideshowControls button{min-height:39px;padding:7px 11px!important;font-size:13px}
+}
+@media(max-width:420px){
+ #viewerBackdrop .viewer-top{padding-right:5px}
+ #viewerBackdrop .viewer-actions{gap:0}
+ #viewerBackdrop .viewer-actions button{width:36px;height:38px;min-width:36px;font-size:17px}
+ #viewerBackdrop #viewerClose{left:7px;top:9px}
+ #viewerBackdrop .filename{max-width:20vw}
+ #viewerBackdrop .viewer-stage{padding-left:2px;padding-right:2px}
+ #viewerBackdrop .viewer-zoom-controls{gap:4px}
+ #viewerBackdrop .viewer-zoom-controls button{padding:6px 8px!important;font-size:12px}
+}
+
 </style>
 </head>
 <body>
@@ -299,6 +328,7 @@ body{font-size:16px;line-height:1.5}
 <aside class="sidebar" id="sidebar">
   <button class="navbtn active" data-page="photos"><span>📷</span><span>写真</span></button>
   <button class="navbtn" data-page="collections"><span>📚</span><span>コレクション</span></button>
+  <button class="navbtn" data-page="create"><span>＋</span><span>作成</span></button>
   <button class="navbtn" data-page="albums"><span>📁</span><span>アルバム</span></button>
   <button class="navbtn" data-page="favorites"><span>♡</span><span>お気に入り</span></button>
   <button class="navbtn" data-page="videos"><span>🎬</span><span>動画</span></button>
@@ -786,6 +816,25 @@ $('#folderInput').addEventListener('change',e=>{handleFiles(e.target.files);e.ta
 $('#importInput').addEventListener('change',e=>{importData(e.target.files[0]);e.target.value=''});
 $('#modalBackdrop').addEventListener('click',e=>{if(e.target.id==='modalBackdrop')closeModal()});
 $('#viewerClose').addEventListener('click',closeViewer);$('#viewerPrev').addEventListener('click',()=>moveViewer(-1));$('#viewerNext').addEventListener('click',()=>moveViewer(1));
+
+/* Swipe left/right in the viewer to change media */
+(()=>{
+ const stage=$('#viewerStage');let startX=0,startY=0,startAt=0;
+ stage.addEventListener('touchstart',e=>{
+  if(!$('#viewerBackdrop').classList.contains('open')||e.touches.length!==1)return;
+  const target=e.target;
+  if(target.closest('button,video,audio,iframe,input,select'))return;
+  startX=e.touches[0].clientX;startY=e.touches[0].clientY;startAt=Date.now();
+ },{passive:true});
+ stage.addEventListener('touchend',e=>{
+  if(!startAt||!$('#viewerBackdrop').classList.contains('open')||e.changedTouches.length!==1)return;
+  const dx=e.changedTouches[0].clientX-startX,dy=e.changedTouches[0].clientY-startY;
+  const elapsed=Date.now()-startAt;startAt=0;
+  if(Math.abs(dx)<55||Math.abs(dx)<Math.abs(dy)*1.25||elapsed>800||zoomLevel>1.01)return;
+  moveViewer(dx<0?1:-1);
+ },{passive:true});
+})();
+
 $('#viewerFav').addEventListener('click',()=>viewerId&&toggleFavorite(viewerId));$('#viewerTrash').addEventListener('click',()=>{if(viewerId&&confirm('この写真・動画をゴミ箱に移動しますか？'))trashItem(viewerId)});
 if($('#viewerShare'))$('#viewerShare').addEventListener('click',shareCurrent);
 if($('#viewerInfo'))$('#viewerInfo').addEventListener('click',showInfo);
