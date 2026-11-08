@@ -311,7 +311,10 @@ body{font-size:16px;line-height:1.5}
 .sidebar [data-page="create"].active{background:#d3e3fd;color:#174ea6;font-weight:650}
 [data-theme="dark"] .sidebar [data-page="create"].active{background:#394b66;color:#d3e3fd}
 .navbtn:focus:not(:focus-visible){outline:none}
-.notification-entry{border:0;background:var(--tile);border-radius:50%;width:44px;height:44px}
+.notification-entry{position:relative;border:0;background:var(--tile);border-radius:50%;width:44px;height:44px}
+.notification-entry .notification-dot,.sidebar [data-page="notifications"] .notification-dot{position:absolute;right:7px;top:6px;width:11px;height:11px;border-radius:50%;background:#ea4335;border:2px solid var(--bg);display:block}
+.sidebar [data-page="notifications"]{position:relative}
+.notification-dot.is-hidden{display:none!important}
 .notification-list{display:grid;gap:12px;max-width:850px}
 .notification-card{display:flex;align-items:flex-start;gap:16px;padding:18px 20px;background:var(--panel);border:1px solid var(--line);border-radius:18px}
 .notification-icon{width:44px;height:44px;flex:0 0 44px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);font-size:21px}
@@ -344,7 +347,7 @@ body{font-size:16px;line-height:1.5}
 <header class="topbar">
   <div class="brand"><div class="brandmark">✿</div><span>フォト</span><span class="build-badge" aria-label="第3回大型アップデート版">3rd</span></div>
   <label class="search" aria-label="写真やアルバムを検索"><span class="search-icon" aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="写真やアルバムを検索" autocomplete="off"><button id="clearSearch" class="hidden" aria-label="検索をクリア">✕</button></label>
-  <div class="top-actions"><button class="iconbtn notification-entry" data-page="notifications" aria-label="通知" title="通知">🔔</button><button class="smallbtn" id="urlAddButton" title="URLからファイルを追加">🔗 URLから追加</button><button class="primary" id="addButton">＋ ファイルを追加</button></div>
+  <div class="top-actions"><button class="iconbtn notification-entry" data-page="notifications" aria-label="通知" title="通知">🔔<span class="notification-dot" aria-hidden="true"></span></button><button class="smallbtn" id="urlAddButton" title="URLからファイルを追加">🔗 URLから追加</button><button class="primary" id="addButton">＋ ファイルを追加</button></div>
 </header>
 <nav class="top-feature-nav" aria-label="写真の特集">
   <button class="feature-nav-btn" data-page="highlights"><span>✨</span> ハイライト</button>
@@ -355,7 +358,7 @@ body{font-size:16px;line-height:1.5}
   <button class="navbtn active" data-page="photos"><span>📷</span><span>写真</span></button>
   <button class="navbtn" data-page="collections"><span>📚</span><span>コレクション</span></button>
   <button class="navbtn" data-page="create"><span>＋</span><span>作成</span></button>
-  <button class="navbtn" data-page="notifications"><span>🔔</span><span>通知</span></button>
+  <button class="navbtn" data-page="notifications"><span>🔔</span><span>通知</span><span class="notification-dot" aria-hidden="true"></span></button>
   <button class="navbtn" data-page="albums"><span>📁</span><span>アルバム</span></button>
   <button class="navbtn" data-page="favorites"><span>♡</span><span>お気に入り</span></button>
   <button class="navbtn" data-page="videos"><span>🎬</span><span>動画</span></button>
@@ -369,7 +372,6 @@ body{font-size:16px;line-height:1.5}
   <button class="navbtn active" data-page="photos"><span>📷</span><span>写真</span></button>
   <button class="navbtn" data-page="collections"><span>📚</span><span>コレクション</span></button>
   <button class="navbtn" data-page="create"><span>＋</span><span>作成</span></button>
-  <button class="navbtn" data-page="notifications"><span>🔔</span><span>通知</span></button>
 </nav>
 <input id="fileInput" type="file" accept="*/*" multiple><input id="folderInput" type="file" accept="*/*" webkitdirectory multiple><div id="importProgress" class="import-progress hidden" role="status" aria-live="polite"><div id="importProgressText">取り込み準備中…</div><progress id="importProgressBar" max="100" value="0"></progress></div>
 <input id="importInput" type="file" accept=".json,application/json">
@@ -388,6 +390,11 @@ const DB_NAME='photo-local-db', DB_VERSION=2, STORE='media', META_STORE='appMeta
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 let db, items=[], albums=[], settings={theme:'system',density:'comfortable',showVideoThumbs:true,sortMode:'newest'}, page='photos', activeAlbum=null, viewerId=null, viewerList=[], pendingPickerIds=[], sortMode='newest';
 let collectionType=null, zoomLevel=1, slideshowTimer=null, slideshowPaused=false, slideshowMs=4000, editState=null, folderHandle=null, folderScanTimer=null, folderScanBusy=false, lockPassphrase=null, unlockedIds=new Set();
+const NOTIFICATION_VERSION='2026-11-09-update-1',NOTIFICATION_READ_KEY='photo-notifications-read';
+let notificationsUnread=localStorage.getItem(NOTIFICATION_READ_KEY)!==NOTIFICATION_VERSION;
+function syncNotificationBadge(){
+ document.querySelectorAll('.notification-dot').forEach(dot=>dot.classList.toggle('is-hidden',!notificationsUnread));
+}
 const main=$('#main');
  function updateResponsiveLayout(){const w=Math.max(320,window.innerWidth||document.documentElement.clientWidth),h=Math.max(320,window.innerHeight||document.documentElement.clientHeight),ratio=w/h;let cols;if(w<600)cols=ratio>1.35?4:3;else if(w<900)cols=ratio>1.35?5:4;else if(w<1300)cols=ratio>1.35?6:5;else cols=Math.min(9,Math.max(5,Math.floor(w/190)));const tile=w<850?Math.max(88,Math.min(220,Math.floor((w-24-(cols-1)*4)/cols))):Math.max(120,Math.min(230,Math.floor((w-280)/Math.max(1,cols))));document.documentElement.style.setProperty('--photo-grid-columns',String(cols));document.documentElement.style.setProperty('--mobile-cols',String(cols));document.documentElement.style.setProperty('--tile-size',tile+'px');document.documentElement.style.setProperty('--photo-screen-ratio',ratio.toFixed(3));}
  updateResponsiveLayout();window.addEventListener('resize',updateResponsiveLayout,{passive:true});
@@ -543,7 +550,11 @@ async function extractMediaMetadata(file,kind){
 function isRecent(x){return Date.now()-new Date(x.addedAt||0).getTime()<30*86400000}
 function collectionLabel(k){return ({albums:'アルバム',documents:'ドキュメント',screenshots:'スクリーンショットと録画',favorites:'お気に入り',people:'人物とペット',places:'場所',videos:'動画',recent:'最近',archive:'アーカイブ',locked:'ロックされたフォルダ',trash:'ゴミ箱'})[k]||k}
 function activeItems(){let arr=visibleItems();const q=$('#searchInput').value.trim().toLowerCase();if(q){arr=arr.filter(x=>x.name.toLowerCase().includes(q)||(x.location||'').toLowerCase().includes(q)||albums.some(a=>a.name.toLowerCase().includes(q)&&a.ids.includes(x.id))||dateLabel(captureDate(x)).toLowerCase().includes(q));}return arr.sort((a,b)=>sortMode==='oldest'?sortDate(a)-sortDate(b):sortMode==='name'?a.name.localeCompare(b.name,'ja'):sortDate(b)-sortDate(a))}
-function navTo(p){page=p;activeAlbum=null;render();window.scrollTo(0,0)}
+function navTo(p){
+ page=p;activeAlbum=null;
+ if(p==='notifications'){notificationsUnread=false;localStorage.setItem(NOTIFICATION_READ_KEY,NOTIFICATION_VERSION)}
+ render();syncNotificationBadge();window.scrollTo(0,0)
+}
 function setActiveNav(){const active=page==='collection-detail'?'collections':page==='album-detail'?'albums':page;$$('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===active))}
 function heading(title,sub='',actions=''){return `<div class="heading"><div><h1>${title}</h1>${sub?`<div class="subtext">${sub}</div>`:''}</div><div class="toolbar">${actions}</div></div>`}
 function empty(icon,title,desc,button=''){return `<div class="empty"><div class="empty-art" aria-hidden="true"><span>${icon}</span><i></i><b></b></div><h2>${title}</h2><p>${desc}</p>${button}</div>`}
@@ -997,6 +1008,7 @@ document.addEventListener('click',e=>{
  startSlideshow();
 });
 
+syncNotificationBadge();
 init().then(()=>restoreFolderHandle());
 })();
 </script>
