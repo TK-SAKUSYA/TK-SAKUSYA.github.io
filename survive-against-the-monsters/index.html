@@ -75,10 +75,10 @@ document.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;b.addE
 document.querySelector('#run').addEventListener('pointerdown',()=>run=true);['pointerup','pointerleave','pointercancel'].forEach(ev=>document.querySelector('#run').addEventListener(ev,()=>run=false));document.querySelector('#use').addEventListener('click',interact);
 document.querySelector('#start').onclick=()=>{overlay.style.display='none';started=true;toast('探索開始！広い家を見て回ろう');};
 function update(dt){if(!started)return;
- const forward=(keys.KeyW?1:0)-(keys.KeyS?1:0),side=(keys.KeyD?1:0)-(keys.KeyA?1:0);const sp=player.speed*(run?1.55:1);const dx=(Math.sin(player.yaw)*forward+Math.cos(player.yaw)*side)*sp*dt,dz=(Math.cos(player.yaw)*forward-Math.sin(player.yaw)*side)*sp*dt;
+ const forward=(keys.KeyS?1:0)-(keys.KeyW?1:0),side=(keys.KeyD?1:0)-(keys.KeyA?1:0);const sp=player.speed*(run?1.55:1);const dx=(Math.sin(player.yaw)*forward+Math.cos(player.yaw)*side)*sp*dt,dz=(Math.cos(player.yaw)*forward-Math.sin(player.yaw)*side)*sp*dt;
  if(!blocked(player.x+dx,player.z))player.x+=dx;if(!blocked(player.x,player.z+dz))player.z+=dz;
  // stair zones connect the floors
- if(player.x>15.2&&player.x<21.2&&player.z>-1&&player.z<12){const climb=(forward>0||side!==0)?1:-1;player.y=Math.max(1.65,Math.min(10.05,player.y+climb*dt*1.25))}
+ if(player.x>15.2&&player.x<21.2&&player.z>-1&&player.z<12){const climb=keys.KeyW?1:keys.KeyS?-1:0;player.y=Math.max(1.65,Math.min(10.05,player.y+climb*dt*1.25))}
  camera.position.set(player.x,player.y,player.z);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');
  document.querySelector('#floor').textContent='🏠 '+(floorIndex()+1)+'F';
  const near=interactables.some(it=>it.mesh.visible&&!it.mesh.userData.found&&!it.mesh.userData.open&&Math.hypot(it.mesh.position.x-player.x,it.mesh.position.z-player.z)<2.7);document.querySelector('#prompt').textContent=near?'[ E ] 調べる':'';
