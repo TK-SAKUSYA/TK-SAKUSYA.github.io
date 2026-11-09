@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#101522">
+<title>PHYSICS LAB — 物理演算サンドボックス</title>
+<style>
+:root{color-scheme:dark;--bg:#101522;--panel:#1a2233;--line:#303c52;--text:#edf3ff;--muted:#9eacc4;--accent:#79d7ff;--purple:#b79cff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,"Noto Sans JP",sans-serif;overflow:hidden}
+header{height:58px;display:flex;align-items:center;gap:12px;padding:0 18px;border-bottom:1px solid var(--line);background:#141c2a}
+.logo{font-weight:900;letter-spacing:2px}.logo span{color:var(--accent)}.sub{font-size:12px;color:var(--muted)}
+main{height:calc(100dvh - 58px);display:grid;grid-template-columns:270px 1fr}
+aside{background:var(--panel);border-right:1px solid var(--line);padding:14px;overflow:auto}
+section{margin-bottom:18px}h3{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin:4px 0 10px}
+button,select,input{font:inherit}button{border:1px solid var(--line);background:#26334a;color:var(--text);border-radius:10px;padding:10px 12px;cursor:pointer;transition:.15s}
+button:hover{border-color:var(--accent);background:#30425d}button:active{transform:scale(.97)}button.active{background:#1e536a;border-color:var(--accent);color:#fff}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tools button{min-height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:12px}.tools b{font-size:22px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0;font-size:13px;color:var(--muted)}
+input[type=range]{width:120px;accent-color:var(--accent)}input[type=color]{width:42px;height:32px;padding:2px;border:1px solid var(--line);border-radius:8px;background:transparent}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions button{font-size:12px}
+#stage{position:relative;min-width:0;min-height:0;background-color:#0d1320;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:24px 24px}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:absolute;left:14px;top:12px;pointer-events:none;background:#101522bb;border:1px solid #ffffff20;border-radius:10px;padding:8px 11px;font-size:12px;color:#bdc9dd;backdrop-filter:blur(8px)}
+.hud strong{color:white}.hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:12px;color:#aab7cc;background:#101522bb;padding:8px 12px;border-radius:99px;white-space:nowrap;pointer-events:none}
+#toast{position:absolute;right:14px;top:14px;background:#24364b;padding:10px 14px;border-radius:10px;font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none}
+@media(max-width:720px){header{height:52px}.sub{display:none}main{height:calc(100dvh - 52px);grid-template-columns:1fr;grid-template-rows:1fr auto}#stage{grid-row:1;min-height:0}aside{grid-row:2;border-right:0;border-top:1px solid var(--line);padding:9px;max-height:36dvh;display:grid;grid-template-columns:1fr 1fr;gap:10px}section{margin:0}.tools button{min-height:48px;flex-direction:row}.tools b{font-size:18px}.row{margin:6px 0}h3{margin:2px 0 6px}.hint{bottom:8px;font-size:10px}}
+</style>
+</head>
+<body>
+<header><div class="logo">✦ PHYSICS <span>LAB</span></div><div class="sub">物理演算サンドボックス</div><div style="margin-left:auto;font-size:12px;color:#9eacc4">BUILD • 1.0</div></header>
+<main>
+<aside>
+<section><h3>オブジェクトを追加</h3><div class="tools">
+<button data-add="circle"><b>⚪</b>ボール</button><button data-add="box"><b>🟦</b>四角</button>
+<button data-add="triangle"><b>🔺</b>三角形</button><button data-add="wall"><b>🧱</b>壁</button>
+<button data-add="bomb"><b>💥</b>爆発ボール</button><button data-add="domino"><b>▯</b>ドミノ</button>
+</div></section>
+<section><h3>ワールド設定</h3>
+<div class="row"><label for="gravity">重力</label><span id="gravityVal">1.0</span></div><input id="gravity" type="range" min="-1" max="2" step=".1" value="1" style="width:100%">
+<div class="row"><label for="bounce">反発係数</label><span id="bounceVal">0.7</span></div><input id="bounce" type="range" min="0" max="1.2" step=".1" value=".7" style="width:100%">
+<div class="row"><label for="friction">摩擦</label><span id="frictionVal">0.2</span></div><input id="friction" type="range" min="0" max="1" step=".05" value=".2" style="width:100%">
+<div class="row"><label for="size">サイズ</label><span id="sizeVal">1.0×</span></div><input id="size" type="range" min=".5" max="2" step=".1" value="1" style="width:100%">
+<div class="row"><label for="color">色</label><input id="color" type="color" value="#79d7ff"></div>
+</section>
+<section><h3>シミュレーション</h3><div class="actions">
+<button id="pause">Ⅱ 一時停止</button><button id="clear">⌫ 全消去</button>
+<button id="reset">↺ リセット</button><button id="save">↓ 保存</button>
+</div></section>
+<section><h3>操作</h3><div style="font-size:12px;line-height:1.8;color:var(--muted)">• オブジェクトをドラッグして移動<br>• 空いている場所をドラッグして投げる<br>• 追加した物体同士は自動で衝突！<br>• 保存データはJSONで書き出せる</div></section>
+</aside>
+<div id="stage"><div class="hud"><strong id="count">0</strong> 個のオブジェクト　·　<span id="state">▶ 動作中</span></div><div id="toast"></div><div class="hint">物体をつかんで動かそう！　空中に投げることもできるよ</div></div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js"></script>
+<script>
+(()=> {
+const {Engine,Render,Runner,World,Bodies,Body,Mouse,MouseConstraint,Composite,Events}=Matter;
+const stage=document.getElementById('stage');
+const engine=Engine.create({enableSleeping:true});
+engine.gravity.y=1;
+const render=Render.create({element:stage,engine,options:{width:800,height:600,wireframes:false,background:'transparent',pixelRatio:Math.min(devicePixelRatio||1,2),showAngleIndicator:false}});
+const runner=Runner.create();
+let W=800,H=600,paused=false,selected='circle',objects=[],walls=[],mouseConstraint;
+const color=()=>document.getElementById('color').value;
+const count=()=>document.getElementById('count').textContent=objects.length;
+const toast=(s)=>{const t=document.getElementById('toast');t.textContent=s;t.style.opacity=1;clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.style.opacity=0,1500)};
+function makeWalls(){walls.forEach(w=>World.remove(engine.world,w));walls=[Bodies.rectangle(W/2,H+30,W+100,60,{isStatic:true,render:{fillStyle:'#52647e'}}),Bodies.rectangle(-30,H/2,60,H+100,{isStatic:true,render:{fillStyle:'#52647e'}}),Bodies.rectangle(W+30,H/2,60,H+100,{isStatic:true,render:{fillStyle:'#52647e'}})];World.add(engine.world,walls)}
+function resize(){const r=stage.getBoundingClientRect();W=Math.max(320,r.width);H=Math.max(260,r.height);render.canvas.width=W*(render.options.pixelRatio||1);render.canvas.height=H*(render.options.pixelRatio||1);render.canvas.style.width=W+'px';render.canvas.style.height=H+'px';render.bounds.max.x=W;render.bounds.max.y=H;render.options.width=W;render.options.height=H;makeWalls()}
+function add(type,x=W*.5,y=65){const s=Number(document.getElementById('size').value),c=color(),opts={restitution:Number(document.getElementById('bounce').value),friction:Number(document.getElementById('friction').value),density:.001,render:{fillStyle:c,strokeStyle:'#ffffffaa',lineWidth:2}};
+let b;
+if(type==='circle'||type==='bomb')b=Bodies.circle(x,y,(type==='bomb'?25:22)*s,{...opts,render:{...opts.render,fillStyle:type==='bomb'?'#ff7a70':c}});
+else if(type==='triangle')b=Bodies.polygon(x,y,3,30*s,opts);
+else if(type==='wall')b=Bodies.rectangle(x,y,110*s,18*s,{...opts,isStatic:true,render:{...opts.render,fillStyle:'#9ba9c1'}});
+else if(type==='domino')b=Bodies.rectangle(x,y,17*s,78*s,opts);
+else b=Bodies.rectangle(x,y,48*s,48*s,opts);
+b.plugin={kind:type};objects.push(b);World.add(engine.world,b);count();return b}
+function clear(){objects.forEach(o=>World.remove(engine.world,o));objects=[];count()}
+function start(){Runner.run(runner,engine);Render.run(render)}
+function stop(){Runner.stop(runner);Render.stop(render)}
+const mouse=Mouse.create(render.canvas);mouse.pixelRatio=render.options.pixelRatio||1;
+mouseConstraint=MouseConstraint.create(engine,{mouse,constraint:{stiffness:.18,damping:.12,render:{visible:false}}});
+World.add(engine.world,mouseConstraint);render.mouse=mouse;
+Events.on(mouseConstraint,'mousedown',e=>{const p=e.mouse.position;const hit=objects.find(b=>Matter.Bounds.contains(b.bounds,p)&&Matter.Vertices.contains(b.vertices,p));if(!hit){const b=add('circle',p.x,p.y);Body.setVelocity(b,{x:0,y:0})}});
+Events.on(engine,'afterUpdate',()=>{objects=objects.filter(b=>{if(b.position.y>H+500){World.remove(engine.world,b);return false}return true});count()});
+document.querySelectorAll('[data-add]').forEach(btn=>btn.addEventListener('click',()=>{add(btn.dataset.add);toast('オブジェクトを追加！')}));
+['gravity','bounce','friction','size'].forEach(id=>document.getElementById(id).addEventListener('input',e=>{document.getElementById(id+'Val').textContent=Number(e.target.value).toFixed(1)+(id==='size'?'×':'');if(id==='gravity')engine.gravity.y=Number(e.target.value);if(id==='bounce'||id==='friction')objects.forEach(b=>{b.restitution=Number(document.getElementById('bounce').value);b.friction=Number(document.getElementById('friction').value)})}));
+document.getElementById('pause').onclick=()=>{paused=!paused;if(paused){stop();document.getElementById('pause').textContent='▶ 再開';document.getElementById('state').textContent='Ⅱ 停止中'}else{start();document.getElementById('pause').textContent='Ⅱ 一時停止';document.getElementById('state').textContent='▶ 動作中'}};
+document.getElementById('clear').onclick=()=>{clear();toast('すべて消去しました')};
+document.getElementById('reset').onclick=()=>{clear();engine.gravity.y=1;document.getElementById('gravity').value=1;document.getElementById('gravityVal').textContent='1.0';toast('ワールドをリセット！')};
+document.getElementById('save').onclick=()=>{const data={version:1,gravity:engine.gravity.y,objects:objects.map(b=>({x:b.position.x,y:b.position.y,angle:b.angle,shape:b.plugin?.kind||'box',color:b.render.fillStyle}))};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='physics-lab-world.json';a.click();URL.revokeObjectURL(a.href);toast('ワールドを保存しました')};
+makeWalls();start();new ResizeObserver(resize).observe(stage);resize();
+})();
+</script>
+</body></html>
