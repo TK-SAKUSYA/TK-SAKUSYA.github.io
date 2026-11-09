@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fb">
-<title>フォト - 第3回大型アップデート</title>
+<title>フォト</title>
 <style>
 :root{color-scheme:light;--bg:#f7f8fc;--panel:#fff;--text:#202124;--muted:#6b7280;--line:#e5e7eb;--accent:#5267df;--accent-soft:#e9edff;--tile:#eef0f5;--danger:#c62828;--shadow:0 8px 30px #16204412}
 [data-theme="dark"]{color-scheme:dark;--bg:#15171b;--panel:#202329;--text:#f1f3f4;--muted:#a6abb5;--line:#373b44;--accent:#aab8ff;--accent-soft:#303858;--tile:#2a2e36;--danger:#ff8585;--shadow:0 8px 30px #0005}
@@ -447,12 +447,17 @@ button,.navbtn,.smallbtn,.iconbtn,.primary,.toolbar select,.setting-row select{m
 @media(max-width:850px){:root{--photo-control-size:44px}.main{padding-left:clamp(12px,3vw,22px);padding-right:clamp(12px,3vw,22px)}.navbtn{padding:10px 13px}.mobile-nav .navbtn{min-height:54px;padding:7px 12px;font-size:12px}.top-actions .iconbtn{min-width:42px}.toolbar button,.inline-actions button{min-height:44px}}
 @media(max-width:390px){:root{--photo-control-size:42px}.mobile-nav .navbtn{padding:6px 9px}.viewer-actions button{min-height:40px;padding:7px 10px!important}}
 @media(prefers-reduced-motion:no-preference){#viewerStage .viewer-file-preview{transition:filter .18s ease}}
+
+/* Pinch zoom rendering polish */
+#viewerStage img{transform:scale(1);transform-origin:center center;backface-visibility:hidden;will-change:transform;touch-action:pan-y;}
+#viewerStage{contain:layout paint;}
+@media(prefers-reduced-motion:reduce){#viewerStage img{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="app" id="app">
 <header class="topbar">
-  <div class="brand"><div class="brandmark">✿</div><span>フォト</span><span class="build-badge" aria-label="第3回大型アップデート版">3rd</span></div>
+  <div class="brand"><div class="brandmark">✿</div><span>フォト</span></div>
   <label class="search" aria-label="写真やアルバムを検索"><span class="search-icon" aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="写真やアルバムを検索" autocomplete="off"><button id="clearSearch" class="hidden" aria-label="検索をクリア">✕</button></label>
   <div class="top-actions"><button class="iconbtn notification-entry" data-page="notifications" aria-label="通知" title="通知">🔔<span class="notification-dot" aria-hidden="true"></span></button><button class="smallbtn" id="urlAddButton" title="URLからファイルを追加">🔗 URLから追加</button><button class="primary" id="addButton">＋ ファイルを追加</button></div>
 </header>
@@ -852,7 +857,7 @@ function openViewer(id,list){viewerList=list||activeItems().map(x=>x.id);viewerI
 document.addEventListener('change',e=>{if(e.target?.id==='slideshowSpeed'){const n=Number(e.target.value);if([2000,4000,6000,8000].includes(n)){slideshowMs=n;if(slideshowTimer)scheduleSlideshow()}}});
 function updateViewer(){const x=items.find(x=>x.id===viewerId);if(!x)return;$('#viewerName').textContent=x.name;$('#viewerFav').textContent=x.favorite?'♥':'♡';$('#viewerFav').style.color=x.favorite?'#ff7394':'white';const stage=$('#viewerStage');stage.querySelectorAll('.viewer-file-preview,video').forEach(el=>el.remove());let el;const url=mediaUrl(x);if(isVideo(x)){el=document.createElement('video');el.controls=true;el.playsInline=true;el.preload='metadata';el.src=url;el.addEventListener('error',()=>{el.replaceWith(Object.assign(document.createElement('div'),{className:'viewer-file-preview',textContent:'動画を読み込めません。ファイルが破損しているか、この形式に対応していない可能性があります。'}))},{once:true})}else if(isImage(x)){el=document.createElement('img');el.alt=x.name;el.style.maxWidth='100%';el.style.maxHeight='100%';el.addEventListener('error',()=>{el.replaceWith(Object.assign(document.createElement('div'),{className:'viewer-file-preview',textContent:'画像を読み込めません。保存データがないか、この画像形式に対応していない可能性があります。'}))},{once:true});if(url)el.src=url;else{el=document.createElement('div');el.textContent='画像データがありません'}}else if(x.type==='application/pdf'||x.name.toLowerCase().endsWith('.pdf')){el=document.createElement('iframe');el.title=x.name;el.src=url;el.style.cssText='width:100%;height:100%;border:0;background:white'}else if(x.type.startsWith('audio/')){el=document.createElement('audio');el.controls=true;el.src=url;el.style.cssText='width:min(90%,650px)'}else if(x.type.startsWith('text/')||/\.(txt|md|csv|json|xml|log)$/i.test(x.name)){el=document.createElement('pre');el.textContent='読み込み中…';el.style.cssText='max-width:90%;max-height:90%;overflow:auto;white-space:pre-wrap;text-align:left;background:#fff;color:#222;padding:20px;border-radius:8px';x.blob.text().then(v=>{if(el.isConnected)el.textContent=v.slice(0,500000)})}else{el=document.createElement('div');el.style.cssText='text-align:center;padding:30px;color:white';el.innerHTML='<div style="font-size:64px">'+documentIcon(x)+'</div><h2>'+esc(x.name)+'</h2><p>この形式はブラウザ内でプレビューできません。ダウンロードして対応アプリで開いてください。</p><button class="smallbtn" data-action="download" style="border:1px solid #ffffff55">📥 ダウンロード</button>'}el.classList.add('viewer-file-preview');stage.insertBefore(el,$('#viewerPrev'));$('#viewerMeta').textContent=`${captureDate(x)?dateLabel(captureDate(x)):'撮影日時不明'} ・ ${formatSize(x.size)} ・ ${Math.max(0,viewerList.indexOf(x.id)+1)} / ${viewerList.length}`;$('#viewerPrev').disabled=viewerList.indexOf(x.id)<=0;$('#viewerNext').disabled=viewerList.indexOf(x.id)>=viewerList.length-1;zoomLevel=1;applyZoom();}
 function closeViewer(){stopSlideshow();$('#viewerBackdrop').classList.remove('open');document.body.style.overflow='';$('#viewerStage').querySelectorAll('.viewer-file-preview,video').forEach(el=>{if(el.tagName==='VIDEO')el.pause();el.remove()});viewerId=null;editState=null}
-function applyZoom(){const img=$('#viewerStage img');if(img)img.style.transform=`scale(${zoomLevel})`;const label=$('#zoomLabel');if(label)label.textContent=`${Math.round(zoomLevel*100)}%`}
+function applyZoom(){const img=$('#viewerStage img');if(img){img.style.transition=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'none':'transform 220ms cubic-bezier(.2,.75,.25,1)';img.style.transform=`scale(${zoomLevel})`}const label=$('#zoomLabel');if(label)label.textContent=`${Math.round(zoomLevel*100)}%`}
 function openUrlImport(){openModal(`<h2>🔗 URLからファイルを追加</h2><p class="muted">画像・動画・PDF・文書などのファイルURLを入力してください。</p><input id="importUrlInput" type="url" placeholder="https://example.com/file.pdf" style="width:100%;box-sizing:border-box"><p class="muted" style="font-size:12px">※公開URLで、配信元がブラウザからの取得を許可している必要があります。ログインが必要なURLや一部の共有リンクは取り込めません。</p><div class="dialog-actions"><button class="smallbtn" data-action="cancel-modal">キャンセル</button><button class="primary" data-action="url-import-confirm">取り込む</button></div>`);$('#importUrlInput').focus()}
 async function importFromUrl(){const input=$('#importUrlInput');const raw=input?.value.trim();if(!raw){toast('URLを入力してください');return}let url;try{url=new URL(raw);if(!['http:','https:'].includes(url.protocol))throw new Error('protocol')}catch(e){toast('http:// または https:// で始まる正しいURLを入力してください');return}const btn=$('[data-action="url-import-confirm"]');if(btn){btn.disabled=true;btn.textContent='取得中…'}try{const response=await fetch(url.href,{mode:'cors',credentials:'omit',redirect:'follow'});if(!response.ok)throw new Error('HTTP '+response.status);const blob=await response.blob();if(!blob.size)throw new Error('empty');const disposition=response.headers.get('content-disposition')||'';const match=disposition.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);let name=match?(match[1]?decodeURIComponent(match[1]):match[2]):decodeURIComponent(new URL(response.url).pathname.split('/').pop()||'');if(!name||!name.includes('.')){const ext=(blob.type.split('/')[1]||'bin').split(';')[0].replace('jpeg','jpg');name=(name||'download')+'.'+ext}const serverModified=response.headers.get('last-modified');const parsedModified=serverModified?Date.parse(serverModified):NaN;const file=new File([blob],name,{type:blob.type||'application/octet-stream',lastModified:Number.isFinite(parsedModified)?parsedModified:0});closeModal();await handleFiles([file]);}catch(e){console.error('URL import failed',e);if(btn){btn.disabled=false;btn.textContent='取り込む'}toast('URLから取得できませんでした。公開URLか、配信元が外部取得を許可しているか確認してください。ファイルを一度ダウンロードして追加する方法もあります。')}}
 function downloadCurrent(){const x=items.find(x=>x.id===viewerId);if(!x)return;const a=document.createElement('a');a.href=mediaUrl(x);a.download=x.name||'photo';document.body.append(a);a.click();a.remove()}
@@ -880,20 +885,23 @@ function swipeMoveViewer(dir){
  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){moveViewer(dir);return}
  swipeAnimationBusy=true;
  const distance=Math.max(90,Math.min(stage.clientWidth*.38,240));
+ const outgoingX=dir>0?-distance:distance;
+ const incomingX=-outgoingX;
  const out=current.animate([
-  {transform:'translateX(0)',opacity:1},
-  {transform:`translateX(${dir<0?'-':'+'}${distance}px)`,opacity:0}
- ],{duration:150,easing:'cubic-bezier(.4,0,.8,1)',fill:'forwards'});
+  {transform:'translate3d(0,0,0)',opacity:1},
+  {transform:`translate3d(${outgoingX}px,0,0)`,opacity:0}
+ ],{duration:190,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
  out.onfinish=()=>{
   moveViewer(dir);
   const incoming=stage.querySelector('.viewer-file-preview');
   if(incoming&&incoming.animate){
-   incoming.animate([
-    {transform:`translateX(${dir<0?'+':'-'}${distance}px)`,opacity:0},
-    {transform:'translateX(0)',opacity:1}
-   ],{duration:210,easing:'cubic-bezier(.2,.7,.2,1)'});
-  }
-  swipeAnimationBusy=false;
+   const enter=incoming.animate([
+    {transform:`translate3d(${incomingX}px,0,0)`,opacity:0},
+    {transform:'translate3d(0,0,0)',opacity:1}
+   ],{duration:240,easing:'cubic-bezier(.16,1,.3,1)'});
+   enter.onfinish=()=>{swipeAnimationBusy=false};
+   enter.oncancel=()=>{swipeAnimationBusy=false};
+  }else swipeAnimationBusy=false;
  };
  out.oncancel=()=>{swipeAnimationBusy=false};
 }
@@ -1023,20 +1031,43 @@ $('#viewerClose').addEventListener('click',closeViewer);$('#viewerPrev').addEven
 
 /* Swipe left/right in the viewer to change media */
 (()=>{
- const stage=$('#viewerStage');let startX=0,startY=0,startAt=0;
+ const stage=$('#viewerStage');let startX=0,startY=0,startAt=0,pinchStart=0,pinchZoom=1,pinching=false;
+ const distance=(a,b)=>Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);
  stage.addEventListener('touchstart',e=>{
-  if(!$('#viewerBackdrop').classList.contains('open')||e.touches.length!==1)return;
-  const target=e.target;
-  if(target.closest('button,video,audio,iframe,input,select'))return;
+  if(!$('#viewerBackdrop').classList.contains('open'))return;
+  if(e.touches.length===2){
+   const img=stage.querySelector('img');if(!img)return;
+   pinching=true;startAt=0;pinchStart=distance(e.touches[0],e.touches[1]);pinchZoom=zoomLevel;
+   const rect=img.getBoundingClientRect(),midX=(e.touches[0].clientX+e.touches[1].clientX)/2,midY=(e.touches[0].clientY+e.touches[1].clientY)/2;
+   img.style.transition='none';img.style.transformOrigin=`${midX-rect.left}px ${midY-rect.top}px`;
+   return;
+  }
+  if(e.touches.length!==1)return;
+  const target=e.target;if(target.closest('button,video,audio,iframe,input,select'))return;
   startX=e.touches[0].clientX;startY=e.touches[0].clientY;startAt=Date.now();
  },{passive:true});
+ stage.addEventListener('touchmove',e=>{
+  if(!pinching||e.touches.length!==2)return;
+  e.preventDefault();
+  const img=stage.querySelector('img');if(!img||!pinchStart)return;
+  zoomLevel=Math.max(.5,Math.min(5,pinchZoom*distance(e.touches[0],e.touches[1])/pinchStart));
+  img.style.transform=`scale(${zoomLevel})`;
+  const label=$('#zoomLabel');if(label)label.textContent=`${Math.round(zoomLevel*100)}%`;
+ },{passive:false});
+ const finishPinch=()=>{
+  if(!pinching)return;pinching=false;
+  const img=stage.querySelector('img');if(img)img.style.transition=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'none':'transform 240ms cubic-bezier(.2,.75,.25,1)';
+  applyZoom();
+ };
  stage.addEventListener('touchend',e=>{
+  if(pinching){if(e.touches.length<2)finishPinch();return}
   if(!startAt||!$('#viewerBackdrop').classList.contains('open')||e.changedTouches.length!==1)return;
   const dx=e.changedTouches[0].clientX-startX,dy=e.changedTouches[0].clientY-startY;
   const elapsed=Date.now()-startAt;startAt=0;
   if(Math.abs(dx)<55||Math.abs(dx)<Math.abs(dy)*1.25||elapsed>800||zoomLevel>1.01)return;
   swipeMoveViewer(dx<0?1:-1);
  },{passive:true});
+ stage.addEventListener('touchcancel',finishPinch,{passive:true});
 })();
 
 $('#viewerFav').addEventListener('click',()=>viewerId&&toggleFavorite(viewerId));$('#viewerTrash').addEventListener('click',()=>{if(viewerId&&confirm('この写真・動画をゴミ箱に移動しますか？'))trashItem(viewerId)});
