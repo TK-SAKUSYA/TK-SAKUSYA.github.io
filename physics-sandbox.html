@@ -1,94 +1,80 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#101522">
-<title>PHYSICS LAB — 物理演算サンドボックス</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#f3f6fb"><title>PHYSICS LAB — 物理演算サンドボックス</title>
 <style>
-:root{color-scheme:dark;--bg:#101522;--panel:#1a2233;--line:#303c52;--text:#edf3ff;--muted:#9eacc4;--accent:#79d7ff;--purple:#b79cff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,"Noto Sans JP",sans-serif;overflow:hidden}
-header{height:58px;display:flex;align-items:center;gap:12px;padding:0 18px;border-bottom:1px solid var(--line);background:#141c2a}
-.logo{font-weight:900;letter-spacing:2px}.logo span{color:var(--accent)}.sub{font-size:12px;color:var(--muted)}
-main{height:calc(100dvh - 58px);display:grid;grid-template-columns:270px 1fr}
-aside{background:var(--panel);border-right:1px solid var(--line);padding:14px;overflow:auto}
-section{margin-bottom:18px}h3{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin:4px 0 10px}
-button,select,input{font:inherit}button{border:1px solid var(--line);background:#26334a;color:var(--text);border-radius:10px;padding:10px 12px;cursor:pointer;transition:.15s}
-button:hover{border-color:var(--accent);background:#30425d}button:active{transform:scale(.97)}button.active{background:#1e536a;border-color:var(--accent);color:#fff}
-.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tools button{min-height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:12px}.tools b{font-size:22px}
-.row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0;font-size:13px;color:var(--muted)}
-input[type=range]{width:120px;accent-color:var(--accent)}input[type=color]{width:42px;height:32px;padding:2px;border:1px solid var(--line);border-radius:8px;background:transparent}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions button{font-size:12px}
-#stage{position:relative;min-width:0;min-height:0;background-color:#0d1320;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:24px 24px}
-canvas{display:block;width:100%;height:100%;touch-action:none}
-.hud{position:absolute;left:14px;top:12px;pointer-events:none;background:#101522bb;border:1px solid #ffffff20;border-radius:10px;padding:8px 11px;font-size:12px;color:#bdc9dd;backdrop-filter:blur(8px)}
-.hud strong{color:white}.hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:12px;color:#aab7cc;background:#101522bb;padding:8px 12px;border-radius:99px;white-space:nowrap;pointer-events:none}
-#toast{position:absolute;right:14px;top:14px;background:#24364b;padding:10px 14px;border-radius:10px;font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none}
-@media(max-width:720px){header{height:52px}.sub{display:none}main{height:calc(100dvh - 52px);grid-template-columns:1fr;grid-template-rows:1fr auto}#stage{grid-row:1;min-height:0}aside{grid-row:2;border-right:0;border-top:1px solid var(--line);padding:9px;max-height:36dvh;display:grid;grid-template-columns:1fr 1fr;gap:10px}section{margin:0}.tools button{min-height:48px;flex-direction:row}.tools b{font-size:18px}.row{margin:6px 0}h3{margin:2px 0 6px}.hint{bottom:8px;font-size:10px}}
-</style>
-</head>
+:root{color-scheme:light;--bg:#f3f6fb;--panel:#fff;--line:#d9e0eb;--text:#1c2738;--muted:#64748b;--accent:#087da8;--button:#eaf0f7;--hud:#ffffffd9}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#101522;--panel:#1a2233;--line:#303c52;--text:#edf3ff;--muted:#9eacc4;--accent:#79d7ff;--button:#26334a;--hud:#101522cc}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,"Noto Sans JP",sans-serif;overflow:hidden}header{height:56px;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid var(--line);background:var(--panel)}.logo{font-weight:900;letter-spacing:2px}.logo span{color:var(--accent)}.sub{font-size:12px;color:var(--muted)}main{height:calc(100dvh - 56px);display:grid;grid-template-columns:260px 1fr}aside{background:var(--panel);border-right:1px solid var(--line);padding:12px;overflow:auto}section{margin-bottom:16px}h3{font-size:12px;letter-spacing:1px;color:var(--muted);margin:4px 0 9px}button,select,input{font:inherit}button,select{border:1px solid var(--line);background:var(--button);color:var(--text);border-radius:9px;padding:9px;cursor:pointer}button:hover{border-color:var(--accent)}button:active{transform:scale(.97)}.tools{display:grid;grid-template-columns:1fr 1fr;gap:7px}.tools button{min-height:54px;display:flex;align-items:center;gap:9px;justify-content:center;font-size:12px}.tools b{font-size:20px}.row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0;font-size:13px;color:var(--muted)}input[type=range]{width:100%;accent-color:var(--accent)}input[type=color]{width:40px;height:30px;border:0;background:none}.actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}#stage{position:relative;min-width:0;min-height:0;overflow:hidden;background:#75c9f4;background-image:linear-gradient(#ffffff20 1px,transparent 1px),linear-gradient(90deg,#ffffff20 1px,transparent 1px);background-size:28px 28px}#stage.normal{background:linear-gradient(180deg,#62b9f0 0%,#b8e6ff 72%,#b8e6ff 100%)}#stage.space{background:radial-gradient(ellipse at 50% 120%,#29245d 0%,#10132e 48%,#050817 100%);background-image:radial-gradient(2px 2px at 12% 22%,#fff 50%,transparent 55%),radial-gradient(1px 1px at 72% 18%,#fff 50%,transparent 55%),radial-gradient(2px 2px at 88% 64%,#fff 50%,transparent 55%),radial-gradient(1px 1px at 38% 72%,#fff 50%,transparent 55%),radial-gradient(1px 1px at 56% 42%,#fff 50%,transparent 55%),linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px),radial-gradient(ellipse at 50% 120%,#29245d 0%,#10132e 48%,#050817 100%);background-size:auto,auto,auto,auto,auto,28px 28px,28px 28px,auto}canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:absolute;z-index:2;left:12px;top:10px;pointer-events:none;background:var(--hud);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12px;color:var(--text)}.hint{position:absolute;z-index:2;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;color:#fff;background:#111a2bbb;padding:7px 12px;border-radius:99px;white-space:nowrap;pointer-events:none}#toast{position:absolute;z-index:3;right:12px;top:10px;background:var(--panel);border:1px solid var(--line);padding:9px 12px;border-radius:9px;font-size:12px;opacity:0;transition:.2s;pointer-events:none}.world-select{width:100%}
+@media(max-width:720px){header{height:50px}.sub{display:none}main{height:calc(100dvh - 50px);grid-template-columns:1fr;grid-template-rows:minmax(180px,1fr) auto}#stage{grid-row:1}aside{grid-row:2;border:0;border-top:1px solid var(--line);padding:8px;max-height:42dvh;display:grid;grid-template-columns:1fr 1fr;gap:8px}section{margin:0}.tools button{min-height:42px}.tools b{font-size:17px}.hint{font-size:9px;bottom:6px}}
+</style></head>
 <body>
-<header><div class="logo">✦ PHYSICS <span>LAB</span></div><div class="sub">物理演算サンドボックス</div><div style="margin-left:auto;font-size:12px;color:#9eacc4">BUILD • 1.0</div></header>
-<main>
-<aside>
-<section><h3>オブジェクトを追加</h3><div class="tools">
-<button data-add="circle"><b>⚪</b>ボール</button><button data-add="box"><b>🟦</b>四角</button>
-<button data-add="triangle"><b>🔺</b>三角形</button><button data-add="wall"><b>🧱</b>壁</button>
-<button data-add="bomb"><b>💥</b>爆発ボール</button><button data-add="domino"><b>▯</b>ドミノ</button>
+<header><div class="logo">✦ PHYSICS <span>LAB</span></div><div class="sub">物理演算サンドボックス</div><div style="margin-left:auto;font-size:11px;color:var(--muted)">BUILD • 2.0</div></header>
+<main><aside>
+<section><h3>ステージ</h3><select id="world" class="world-select"><option value="normal">☀️ 通常 — 青空と茶色い地面</option><option value="space">🌌 無重力 — 宇宙</option></select></section>
+<section><h3>オブジェクト</h3><div class="tools">
+<button data-add="circle"><b>⚪</b>丸</button><button data-add="box"><b>🟦</b>四角</button>
+<button data-add="triangle"><b>🔺</b>三角形</button><button data-add="dynamite"><b>🧨</b>ダイナマイト</button>
+<button data-add="human"><b>🏃</b>人間</button><button data-add="water"><b>💧</b>水</button>
 </div></section>
-<section><h3>ワールド設定</h3>
-<div class="row"><label for="gravity">重力</label><span id="gravityVal">1.0</span></div><input id="gravity" type="range" min="-1" max="2" step=".1" value="1" style="width:100%">
-<div class="row"><label for="bounce">反発係数</label><span id="bounceVal">0.7</span></div><input id="bounce" type="range" min="0" max="1.2" step=".1" value=".7" style="width:100%">
-<div class="row"><label for="friction">摩擦</label><span id="frictionVal">0.2</span></div><input id="friction" type="range" min="0" max="1" step=".05" value=".2" style="width:100%">
-<div class="row"><label for="size">サイズ</label><span id="sizeVal">1.0×</span></div><input id="size" type="range" min=".5" max="2" step=".1" value="1" style="width:100%">
-<div class="row"><label for="color">色</label><input id="color" type="color" value="#79d7ff"></div>
+<section><h3>オブジェクト設定</h3>
+<div class="row"><label for="size">大きさ</label><span id="sizeVal">1.0×</span></div><input id="size" type="range" min=".5" max="2.5" step=".1" value="1">
+<div class="row"><label for="color">色（丸・四角・三角形）</label><input id="color" type="color" value="#36a9e8"></div>
+<div class="row"><label for="gravity">重力</label><span id="gravityVal">1.0</span></div><input id="gravity" type="range" min="0" max="2" step=".1" value="1">
+<div class="row"><label for="bounce">反発</label><span id="bounceVal">0.5</span></div><input id="bounce" type="range" min="0" max="1.1" step=".1" value=".5">
 </section>
-<section><h3>シミュレーション</h3><div class="actions">
-<button id="pause">Ⅱ 一時停止</button><button id="clear">⌫ 全消去</button>
-<button id="reset">↺ リセット</button><button id="save">↓ 保存</button>
-</div></section>
-<section><h3>操作</h3><div style="font-size:12px;line-height:1.8;color:var(--muted)">• オブジェクトをドラッグして移動<br>• 空いている場所をドラッグして投げる<br>• 追加した物体同士は自動で衝突！<br>• 保存データはJSONで書き出せる</div></section>
+<section><h3>シミュレーション</h3><div class="actions"><button id="pause">Ⅱ 一時停止</button><button id="clear">⌫ 全消去</button><button id="reset">↺ リセット</button><button id="save">↓ 保存</button></div></section>
+<section style="font-size:11px;line-height:1.8;color:var(--muted)">物体をドラッグして動かせるよ。水は粒子で表現。人間は走り続ける！</section>
 </aside>
-<div id="stage"><div class="hud"><strong id="count">0</strong> 個のオブジェクト　·　<span id="state">▶ 動作中</span></div><div id="toast"></div><div class="hint">物体をつかんで動かそう！　空中に投げることもできるよ</div></div>
+<div id="stage" class="normal"><div class="hud"><b id="count">0</b> オブジェクト　·　<span id="state">▶ 動作中</span></div><div id="toast"></div><div class="hint">物体をドラッグ！ 空いている場所をドラッグするとボールを追加</div></div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js"></script>
 <script>
 (()=> {
-const {Engine,Render,Runner,World,Bodies,Body,Mouse,MouseConstraint,Composite,Events}=Matter;
-const stage=document.getElementById('stage');
-const engine=Engine.create({enableSleeping:true});
+const {Engine,Render,Runner,World,Bodies,Body,Mouse,MouseConstraint,Constraint,Events,Composite}=Matter;
+const stage=document.getElementById('stage'),engine=Engine.create({enableSleeping:false});
 engine.gravity.y=1;
 const render=Render.create({element:stage,engine,options:{width:800,height:600,wireframes:false,background:'transparent',pixelRatio:Math.min(devicePixelRatio||1,2),showAngleIndicator:false}});
-const runner=Runner.create();
-let W=800,H=600,paused=false,selected='circle',objects=[],walls=[],mouseConstraint;
-const color=()=>document.getElementById('color').value;
-const count=()=>document.getElementById('count').textContent=objects.length;
-const toast=(s)=>{const t=document.getElementById('toast');t.textContent=s;t.style.opacity=1;clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.style.opacity=0,1500)};
-function makeWalls(){walls.forEach(w=>World.remove(engine.world,w));walls=[Bodies.rectangle(W/2,H+30,W+100,60,{isStatic:true,render:{fillStyle:'#52647e'}}),Bodies.rectangle(-30,H/2,60,H+100,{isStatic:true,render:{fillStyle:'#52647e'}}),Bodies.rectangle(W+30,H/2,60,H+100,{isStatic:true,render:{fillStyle:'#52647e'}})];World.add(engine.world,walls)}
-function resize(){const r=stage.getBoundingClientRect();W=Math.max(320,r.width);H=Math.max(260,r.height);render.canvas.width=W*(render.options.pixelRatio||1);render.canvas.height=H*(render.options.pixelRatio||1);render.canvas.style.width=W+'px';render.canvas.style.height=H+'px';render.bounds.max.x=W;render.bounds.max.y=H;render.options.width=W;render.options.height=H;makeWalls()}
-function add(type,x=W*.5,y=65){const s=Number(document.getElementById('size').value),c=color(),opts={restitution:Number(document.getElementById('bounce').value),friction:Number(document.getElementById('friction').value),density:.001,render:{fillStyle:c,strokeStyle:'#ffffffaa',lineWidth:2}};
-let b;
-if(type==='circle'||type==='bomb')b=Bodies.circle(x,y,(type==='bomb'?25:22)*s,{...opts,render:{...opts.render,fillStyle:type==='bomb'?'#ff7a70':c}});
-else if(type==='triangle')b=Bodies.polygon(x,y,3,30*s,opts);
-else if(type==='wall')b=Bodies.rectangle(x,y,110*s,18*s,{...opts,isStatic:true,render:{...opts.render,fillStyle:'#9ba9c1'}});
-else if(type==='domino')b=Bodies.rectangle(x,y,17*s,78*s,opts);
-else b=Bodies.rectangle(x,y,48*s,48*s,opts);
-b.plugin={kind:type};objects.push(b);World.add(engine.world,b);count();return b}
-function clear(){objects.forEach(o=>World.remove(engine.world,o));objects=[];count()}
-function start(){Runner.run(runner,engine);Render.run(render)}
-function stop(){Runner.stop(runner);Render.stop(render)}
-const mouse=Mouse.create(render.canvas);mouse.pixelRatio=render.options.pixelRatio||1;
-mouseConstraint=MouseConstraint.create(engine,{mouse,constraint:{stiffness:.18,damping:.12,render:{visible:false}}});
-World.add(engine.world,mouseConstraint);render.mouse=mouse;
-Events.on(mouseConstraint,'mousedown',e=>{const p=e.mouse.position;const hit=objects.find(b=>Matter.Bounds.contains(b.bounds,p)&&Matter.Vertices.contains(b.vertices,p));if(!hit){const b=add('circle',p.x,p.y);Body.setVelocity(b,{x:0,y:0})}});
-Events.on(engine,'afterUpdate',()=>{objects=objects.filter(b=>{if(b.position.y>H+500){World.remove(engine.world,b);return false}return true});count()});
-document.querySelectorAll('[data-add]').forEach(btn=>btn.addEventListener('click',()=>{add(btn.dataset.add);toast('オブジェクトを追加！')}));
-['gravity','bounce','friction','size'].forEach(id=>document.getElementById(id).addEventListener('input',e=>{document.getElementById(id+'Val').textContent=Number(e.target.value).toFixed(1)+(id==='size'?'×':'');if(id==='gravity')engine.gravity.y=Number(e.target.value);if(id==='bounce'||id==='friction')objects.forEach(b=>{b.restitution=Number(document.getElementById('bounce').value);b.friction=Number(document.getElementById('friction').value)})}));
-document.getElementById('pause').onclick=()=>{paused=!paused;if(paused){stop();document.getElementById('pause').textContent='▶ 再開';document.getElementById('state').textContent='Ⅱ 停止中'}else{start();document.getElementById('pause').textContent='Ⅱ 一時停止';document.getElementById('state').textContent='▶ 動作中'}};
-document.getElementById('clear').onclick=()=>{clear();toast('すべて消去しました')};
-document.getElementById('reset').onclick=()=>{clear();engine.gravity.y=1;document.getElementById('gravity').value=1;document.getElementById('gravityVal').textContent='1.0';toast('ワールドをリセット！')};
-document.getElementById('save').onclick=()=>{const data={version:1,gravity:engine.gravity.y,objects:objects.map(b=>({x:b.position.x,y:b.position.y,angle:b.angle,shape:b.plugin?.kind||'box',color:b.render.fillStyle}))};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='physics-lab-world.json';a.click();URL.revokeObjectURL(a.href);toast('ワールドを保存しました')};
-makeWalls();start();new ResizeObserver(resize).observe(stage);resize();
+const runner=Runner.create();let W=800,H=600,paused=false,objects=[],walls=[],humans=[],waterParticles=[],ground=null,worldMode='normal',blastLock=new WeakSet();
+const $=id=>document.getElementById(id),scale=() => Number($('size').value),color=()=>$('color').value;
+function toast(s){const t=$('toast');t.textContent=s;t.style.opacity=1;clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.style.opacity=0,1600)}
+function updateCount(){$('count').textContent=objects.length}
+function addObj(b,type){b.plugin={kind:type};objects.push(b);World.add(engine.world,b);updateCount();return b}
+function rebuildStage(){walls.forEach(b=>World.remove(engine.world,b));walls=[];if(ground)World.remove(engine.world,ground);ground=null;
+if(worldMode==='normal'){stage.className='normal';ground=Bodies.rectangle(W/2,H+45,W+300,90,{isStatic:true,friction:.9,render:{fillStyle:'#98602f',strokeStyle:'#75451f',lineWidth:2}});World.add(engine.world,ground);engine.gravity.y=Number($('gravity').value)}
+else{stage.className='space';engine.gravity.y=0}
+walls=[Bodies.rectangle(-35,H/2,70,H+300,{isStatic:true,render:{visible:false}}),Bodies.rectangle(W+35,H/2,70,H+300,{isStatic:true,render:{visible:false}})];World.add(engine.world,walls)}
+function resize(){const r=stage.getBoundingClientRect();W=Math.max(300,r.width);H=Math.max(220,r.height);const d=render.options.pixelRatio;render.canvas.width=W*d;render.canvas.height=H*d;render.canvas.style.width=W+'px';render.canvas.style.height=H+'px';render.bounds.max.x=W;render.bounds.max.y=H;render.options.width=W;render.options.height=H;rebuildStage()}
+function clear(){objects.forEach(b=>World.remove(engine.world,b));objects=[];humans=[];waterParticles=[];updateCount()}
+function add(type,x=W/2,y=55){const s=scale(),c=color(),base={density:.001,restitution:Number($('bounce').value),friction:.35,render:{fillStyle:c,strokeStyle:'#ffffffaa',lineWidth:2}};let b;
+if(type==='circle')b=Bodies.circle(x,y,22*s,base);
+else if(type==='box')b=Bodies.rectangle(x,y,46*s,46*s,base);
+else if(type==='triangle')b=Bodies.polygon(x,y,3,29*s,base);
+else if(type==='dynamite'){b=Bodies.rectangle(x,y,18*s,58*s,{...base,density:.002,friction:.5,render:{fillStyle:'#df443d',strokeStyle:'#ffb0a8',lineWidth:2}});b.plugin={kind:type};}
+else if(type==='water'){for(let row=0;row<5;row++)for(let col=0;col<6;col++){const p=Bodies.circle(x+(col-2.5)*10*s,y+row*10*s,5*s,{density:.00045,friction:.02,restitution:.03,render:{fillStyle:'#45b9f5',strokeStyle:'#b6eaff',lineWidth:.5}});addObj(p,'water');waterParticles.push(p)}toast('水の粒子を追加！');return}
+else if(type==='human'){createHuman(x,y,s);return}
+return addObj(b,type)}
+function createHuman(x,y,s){const parts=[],head=Bodies.circle(x,y-31*s,9*s,{density:.001,friction:.4,render:{fillStyle:'#ffd2a1'}}),torso=Bodies.rectangle(x,y-10*s,17*s,31*s,{density:.001,render:{fillStyle:'#2c8bd5'}}),arm1=Bodies.rectangle(x-13*s,y-12*s,7*s,23*s,{render:{fillStyle:'#ffd2a1'}}),arm2=Bodies.rectangle(x+13*s,y-12*s,7*s,23*s,{render:{fillStyle:'#ffd2a1'}}),leg1=Bodies.rectangle(x-6*s,y+15*s,8*s,24*s,{render:{fillStyle:'#263b65'}}),leg2=Bodies.rectangle(x+6*s,y+15*s,8*s,24*s,{render:{fillStyle:'#263b65'}});
+parts.push(head,torso,arm1,arm2,leg1,leg2);const links=[[head,torso,0, -17*s],[torso,arm1,-10*s,-8*s],[torso,arm2,10*s,-8*s],[torso,leg1,-5*s,15*s],[torso,leg2,5*s,15*s]];
+const cons=links.map(([a,b,ax,ay])=>Constraint.create({bodyA:a,bodyB:b,pointA:{x:ax,y:ay},length:0,stiffness:.85,damping:.15,render:{visible:false}}));
+const comp=Composite.create();Composite.add(comp,[...parts,...cons]);World.add(engine.world,comp);const group={parts,comp,torso,legs:[leg1,leg2],phase:Math.random()*6.28,dir:1};humans.push(group);objects.push(...parts);updateCount()}
+function explode(b){if(blastLock.has(b))return;blastLock.add(b);const center=b.position,radius=190,force=0.00016;objects.forEach(o=>{if(o===b||!o.position||o.isStatic)return;const dx=o.position.x-center.x,dy=o.position.y-center.y,d=Math.hypot(dx,dy);if(d<radius&&d>1){const power=force*(1-d/radius);Body.applyForce(o,o.position,{x:dx/d*power,y:dy/d*power})}});Body.setStatic(b,true);b.render.fillStyle='#555';toast('💥 ドカーン！！');setTimeout(()=>{World.remove(engine.world,b);objects=objects.filter(o=>o!==b);blastLock.delete(b);updateCount()},220)}
+Events.on(engine,'collisionStart',event=>{for(const pair of event.pairs){for(const b of [pair.bodyA,pair.bodyB])if(b.plugin?.kind==='dynamite')explode(b)}});
+Events.on(engine,'beforeUpdate',()=>{const dt=engine.timing.lastDelta||16.67;humans.forEach(h=>{h.phase+=dt*.012;const vx=h.dir*1.6;Body.setVelocity(h.torso,{x:vx,y:h.torso.velocity.y});h.legs.forEach((leg,i)=>Body.setAngle(leg,Math.sin(h.phase+i*Math.PI)*.42));if(h.torso.position.x<30)h.dir=1;if(h.torso.position.x>W-30)h.dir=-1});});
+Events.on(engine,'afterUpdate',()=>{for(const b of [...objects]){if(b.plugin?.kind==='dynamite'&&(b.speed>.6||b.position.y>H-65&&worldMode==='normal'))explode(b);if(b.position.y>H+450||b.position.x<-500||b.position.x>W+500){World.remove(engine.world,b);objects=objects.filter(o=>o!==b);waterParticles=waterParticles.filter(o=>o!==b)}}updateCount()});
+const mouse=Mouse.create(render.canvas);mouse.pixelRatio=render.options.pixelRatio;const mc=MouseConstraint.create(engine,{mouse,constraint:{stiffness:.18,damping:.12,render:{visible:false}}});World.add(engine.world,mc);render.mouse=mouse;
+Events.on(mc,'mousedown',e=>{const p=e.mouse.position;const hit=objects.some(b=>Matter.Bounds.contains(b.bounds,p)&&Matter.Vertices.contains(b.vertices,p));if(!hit)add('circle',p.x,p.y)});
+function start(){Runner.run(runner,engine);Render.run(render)}function stop(){Runner.stop(runner);Render.stop(render)}
+document.querySelectorAll('[data-add]').forEach(btn=>btn.onclick=()=>{add(btn.dataset.add);toast('追加しました！')});
+$('world').onchange=()=>{worldMode=$('world').value;rebuildStage();toast(worldMode==='space'?'無重力ステージ':'通常ステージ')};
+$('gravity').oninput=()=>{$('gravityVal').textContent=Number($('gravity').value).toFixed(1);if(worldMode==='normal')engine.gravity.y=Number($('gravity').value)};
+$('bounce').oninput=()=>{$('bounceVal').textContent=Number($('bounce').value).toFixed(1);objects.forEach(b=>b.restitution=Number($('bounce').value))};
+$('size').oninput=()=>$('sizeVal').textContent=scale().toFixed(1)+'×';
+$('pause').onclick=()=>{paused=!paused;if(paused){stop();$('pause').textContent='▶ 再開';$('state').textContent='Ⅱ 停止中'}else{start();$('pause').textContent='Ⅱ 一時停止';$('state').textContent='▶ 動作中'}};
+$('clear').onclick=()=>{clear();toast('全消去しました')};
+$('reset').onclick=()=>{clear();$('world').value='normal';worldMode='normal';$('gravity').value=1;$('gravityVal').textContent='1.0';$('bounce').value=.5;$('bounceVal').textContent='0.5';rebuildStage();toast('ステージをリセット！')};
+$('save').onclick=()=>{const data={version:2,world:worldMode,gravity:engine.gravity.y,objects:objects.filter(b=>!['human','water'].includes(b.plugin?.kind)).map(b=>({x:b.position.x,y:b.position.y,angle:b.angle,shape:b.plugin?.kind,color:b.render.fillStyle}))};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='physics-lab-world.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('JSONで保存しました')};
+new ResizeObserver(resize).observe(stage);resize();start();
 })();
-</script>
-</body></html>
+</script></body></html>
