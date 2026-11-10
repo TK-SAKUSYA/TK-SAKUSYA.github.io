@@ -41,7 +41,9 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id), KEY='centi-prototype-v1';
 const seed={me:{name:'あなた',id:'you',emoji:'🙂'},friends:[],groups:[],active:null,messages:{},theme:'system'};
-let data;try{data=JSON.parse(localStorage.getItem(KEY))||seed}catch{data=seed}\n// 以前の試作用サンプル人物だけを移行時に除去\nif(data.friends?.some(f=>['taro','yuki','kenta'].includes(f.id))){data.friends=data.friends.filter(f=>!['taro','yuki','kenta'].includes(f.id));delete data.messages?.taro;delete data.messages?.yuki;delete data.messages?.kenta;data.groups=(data.groups||[]).filter(g=>g.id!=='grp1');if(['taro','yuki','kenta'].includes(data.active))data.active=null;save();}
+let data;try{data=JSON.parse(localStorage.getItem(KEY))||seed}catch{data=seed}
+// 以前の試作用サンプル人物だけを移行時に除去
+if(data.friends?.some(f=>['taro','yuki','kenta'].includes(f.id))){data.friends=data.friends.filter(f=>!['taro','yuki','kenta'].includes(f.id));delete data.messages?.taro;delete data.messages?.yuki;delete data.messages?.kenta;data.groups=(data.groups||[]).filter(g=>g.id!=='grp1');if(['taro','yuki','kenta'].includes(data.active))data.active=null;save();}
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function theme(){let t=data.theme==='system'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):data.theme;document.documentElement.dataset.theme=t}
