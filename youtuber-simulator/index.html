@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f0f0f">
+<title>YouTuber Simulator</title>
+<style>
+:root{color-scheme:dark;--bg:#0f0f0f;--panel:#181818;--panel2:#272727;--line:#303030;--text:#f1f1f1;--muted:#aaa;--red:#f03;--blue:#3ea6ff;--green:#2ba66a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Roboto,Arial,"Noto Sans JP",sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer;color:inherit}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+header{height:58px;position:sticky;top:0;z-index:20;background:var(--bg);display:flex;align-items:center;gap:18px;padding:0 22px;border-bottom:1px solid #ffffff0a}.brand{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:800;white-space:nowrap}.logo{width:31px;height:22px;border-radius:7px;background:var(--red);display:grid;place-items:center;color:white;font-size:13px}.headright{margin-left:auto;display:flex;align-items:center;gap:9px}.headstat{background:var(--panel2);padding:8px 12px;border-radius:22px;font-weight:700}.round{width:38px;height:38px;border:0;border-radius:50%;background:transparent;font-size:19px}.round:hover,.nav:hover{background:var(--panel2)}.layout{display:flex;min-height:calc(100vh - 58px)}aside{width:225px;flex:0 0 225px;padding:14px 12px;border-right:1px solid var(--line);position:sticky;top:58px;height:calc(100vh - 58px);overflow:auto}.nav{width:100%;display:flex;align-items:center;gap:15px;border:0;background:transparent;text-align:left;padding:11px 13px;border-radius:10px;margin-bottom:3px;font-weight:550}.nav.active{background:var(--panel2);font-weight:750}.nav .ico{width:24px;text-align:center;font-size:19px}.navlabel{font-size:13px;color:var(--muted);padding:15px 13px 7px}.main{padding:26px clamp(16px,3vw,42px) 60px;max-width:1500px;width:100%;margin:auto}.pagehead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}.pagehead h1{font-size:25px;margin:0}.sub{color:var(--muted);margin-top:4px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px;min-width:0}.stat .label{color:var(--muted);font-size:13px}.stat .value{font-size:25px;font-weight:800;margin-top:5px;overflow-wrap:anywhere}.stat .change{font-size:12px;color:var(--green);margin-top:3px}.section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:18px}.section h2{font-size:17px;margin:0 0 14px}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.between{justify-content:space-between}.muted{color:var(--muted)}.btn{border:0;border-radius:22px;padding:10px 16px;background:var(--panel2);font-weight:700}.btn:hover{filter:brightness(1.2)}.btn.primary{background:#f1f1f1;color:#111}.btn.red{background:var(--red);color:#fff}.btn:disabled{opacity:.45;cursor:not-allowed}.field{display:block;margin:14px 0}.field span{display:block;font-weight:700;margin-bottom:7px}.field input,.field textarea,.field select{width:100%;padding:11px 12px;border-radius:9px;border:1px solid #555;background:#101010;color:var(--text)}.field textarea{min-height:105px;resize:vertical}.field small{color:var(--muted);display:block;margin-top:5px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}.video-list,.npc-list,.history-list{display:flex;flex-direction:column;gap:10px}.item{display:flex;align-items:center;gap:13px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#141414;min-width:0}.thumb{width:116px;aspect-ratio:16/9;border-radius:8px;background:linear-gradient(135deg,#383838,#151515);display:grid;place-items:center;font-size:26px;flex:none}.itembody{min-width:0;flex:1}.itemtitle{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.itemmeta{color:var(--muted);font-size:12px;margin-top:4px}.pill{display:inline-block;padding:4px 9px;border-radius:20px;background:var(--panel2);font-size:11px;color:var(--muted)}.notice{padding:12px 0;border-bottom:1px solid var(--line)}.notice:last-child{border-bottom:0}.notice strong{display:block}.empty{text-align:center;color:var(--muted);padding:38px 10px}.bar{height:9px;border-radius:20px;background:#333;overflow:hidden;margin-top:8px}.bar span{display:block;height:100%;background:var(--red);border-radius:20px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:520px}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:12px;font-weight:600}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:11px 17px;border-radius:25px;z-index:50;display:none;box-shadow:0 5px 25px #0008}.toast.show{display:block}.profile{display:flex;align-items:center;gap:14px}.avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:#4d5f8c;font-size:24px;flex:none}.small{font-size:12px}.mobile-menu{display:none}
+@media(max-width:1050px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}aside{width:76px;flex-basis:76px;padding:12px 5px}.nav{justify-content:center;flex-direction:column;gap:4px;padding:11px 2px;font-size:10px}.nav .ico{font-size:20px}.navlabel{display:none}}
+@media(max-width:650px){header{height:54px;padding:0 10px;gap:9px}.brand{font-size:16px}.logo{width:27px;height:20px}.headstat{font-size:11px;padding:7px 9px}.mobile-menu{display:grid}aside{display:none;position:fixed;z-index:30;top:54px;left:0;bottom:0;width:min(280px,82vw);height:auto;background:var(--bg);padding:12px;box-shadow:10px 0 25px #0008}.layout.menu-open aside{display:block}.layout.menu-open:after{content:"";position:fixed;inset:54px 0 0;background:#0008;z-index:25}.layout.menu-open aside{z-index:30}.nav{flex-direction:row;justify-content:flex-start;gap:14px;padding:12px;font-size:14px}.nav .ico{font-size:19px}.navlabel{display:block}.main{padding:18px 12px 45px}.grid{gap:9px}.stat{padding:12px}.stat .value{font-size:20px}.section{padding:14px;margin-top:13px}.pagehead h1{font-size:22px}.item{gap:9px;padding:9px}.thumb{width:88px}.formgrid{grid-template-columns:1fr}.headstat.hide-mobile{display:none}}
+</style>
+</head>
+<body>
+<header>
+<button class="round mobile-menu" id="menuBtn" aria-label="メニュー">☰</button>
+<div class="brand"><span class="logo">▶</span><span>YouTuber Simulator</span></div>
+<div class="headright"><span class="headstat" id="clock">1年目 1月1日</span><span class="headstat hide-mobile" id="moneyTop">¥0</span><button class="round" id="notifyBtn" title="通知">🔔</button></div>
+</header>
+<div class="layout" id="layout">
+<aside id="sidebar">
+<button class="nav active" data-page="home"><span class="ico">⌂</span><span>ホーム</span></button>
+<button class="nav" data-page="studio"><span class="ico">＋</span><span>動画を投稿</span></button>
+<button class="nav" data-page="videos"><span class="ico">▣</span><span>動画管理</span></button>
+<button class="nav" data-page="analytics"><span class="ico">▥</span><span>アナリティクス</span></button>
+<div class="navlabel">コミュニティ・交流</div>
+<button class="nav" data-page="npcs"><span class="ico">♙</span><span>YouTuber一覧</span></button>
+<button class="nav" data-page="community"><span class="ico">▤</span><span>コミュニティ</span></button>
+<div class="navlabel">記録・設定</div>
+<button class="nav" data-page="history"><span class="ico">◷</span><span>活動履歴</span></button>
+<button class="nav" data-page="achievements"><span class="ico">★</span><span>実績</span></button>
+<button class="nav" data-page="settings"><span class="ico">⚙</span><span>チャンネル設定</span></button>
+</aside>
+<main class="main" id="main"></main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+"use strict";
+const KEY="youtuber-simulator-save-v1";
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.floor(Number(n)||0).toLocaleString("ja-JP");
+const yen=n=>"¥"+fmt(n);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const names=["アオイ","カイト","ミナト","ユズ","レン","ハル","ソラ","ナナ","リク","メイ","ユウト","ヒナタ","コウ","サクラ","タクミ","ミオ","シオン","アキ","レオ","マナ"];
+const genres=["ゲーム実況","ガジェット","日常","料理","音楽","解説","エンタメ","教育","旅行","Shorts"];
+const prefixes=["毎日","ゆるっと","本気の","自由気ままな","研究所","秘密基地","チャンネル"];
+function makeNPCs(){let arr=[];for(let i=0;i<100;i++){let name=names[i%names.length]+(i>=20?String(Math.floor(i/20)+1):"");let genre=genres[i%genres.length];let subs= Math.floor(500+((i*7919)%850000));arr.push({id:i+1,name:name+" "+prefixes[i%prefixes.length],genre:genre,subs:subs,views:subs*(2+(i%7)),level:["新人","成長中","人気","大手"][i%4],relation:"未交流",active:true,uploads:i%90+3});}return arr}
+function fresh(){return {version:1,player:{name:"TK",channel:"TKのチャンネル",description:"動画投稿を始めました！",icon:"🎬",subs:0,money:0,totalViews:0,likes:0,uploads:0,created:"1年目 1月1日"},time:{year:1,month:1,day:1,hour:9},videos:[],npcs:makeNPCs(),history:[{day:"1年目 1月1日",text:"チャンネルを開設した",type:"system"}],notifications:[{text:"YouTuberシミュレーターへようこそ！まずは最初の動画を投稿してみよう。",day:"1年目 1月1日",read:false}],community:[],achievements:[],monetized:false,settings:{}}}
+let state=load();
+function load(){try{let raw=localStorage.getItem(KEY);if(raw){let s=JSON.parse(raw);if(s&&s.player&&Array.isArray(s.videos)&&Array.isArray(s.npcs))return s}}catch(e){}return fresh()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch(e){toast("保存できませんでした。ブラウザの容量を確認してください。");return false}}
+function dayLabel(){return state.time.year+"年目 "+state.time.month+"月"+state.time.day+"日"}
+function log(text,type){state.history.unshift({day:dayLabel(),text:text,type:type||"activity"});if(state.history.length>5000)state.history.length=5000}
+function notice(text){state.notifications.unshift({text:text,day:dayLabel(),read:false});if(state.notifications.length>300)state.notifications.length=300}
+function toast(t){let el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2300)}
+function advance(days){for(let d=0;d<days;d++){state.time.day++;if(state.time.day>30){state.time.day=1;state.time.month++;if(state.time.month>12){state.time.month=1;state.time.year++}}state.time.hour=9;
+state.npcs.forEach(n=>{if(!n.active)return;let delta=Math.max(0,Math.floor(n.subs*(0.0001+(n.id%8)*0.00004)));if(n.id%23===0&&state.time.day%17===0){n.active=false;notice(n.name+" が活動休止を発表しました。")}else if(n.id%29===0&&state.time.day%19===0){n.active=true;notice(n.name+" が活動を再開しました。")}else{n.subs+=delta;n.views+=delta*(2+n.id%6);if(state.time.day%7===0&&n.id%4===0)n.uploads++}});
+if(state.time.day%10===0){let n=state.npcs[(state.time.day*7+state.time.month)%state.npcs.length];notice(n.name+" が新しい動画を投稿しました。")}
+}save();updateHeader()}
+function updateHeader(){$("clock").textContent=dayLabel();$("moneyTop").textContent=yen(state.player.money);let unread=state.notifications.filter(n=>!n.read).length;$("notifyBtn").textContent=unread?"🔔"+(unread>9?"9+":unread):"🔔"}
+function setPage(page){document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.page===page));render(page);$("layout").classList.remove("menu-open")}
+function pageHead(title,sub,action){return '<div class="pagehead"><div><h1>'+title+'</h1><div class="sub">'+(sub||"")+'</div></div>'+(action||"")+'</div>'}
+function stat(label,value,change){return '<div class="stat"><div class="label">'+label+'</div><div class="value">'+value+'</div><div class="change">'+(change||"")+'</div></div>'}
+function videoCard(v){return '<div class="item"><div class="thumb">'+(v.type==="Shorts"?"📱":"▶️")+'</div><div class="itembody"><div class="itemtitle">'+esc(v.title)+'</div><div class="itemmeta">'+esc(v.type)+' ・ '+fmt(v.views)+' 回再生 ・ '+fmt(v.likes)+' 高評価 ・ '+esc(v.date)+'</div><div class="itemmeta">収益 '+yen(v.earnings)+'</div></div><span class="pill">'+(v.published?"公開":"予約")+'</span></div>'}
+function render(page){
+updateHeader();
+if(page==="home"){
+let latest=state.videos.slice(0,4);
+$("main").innerHTML=pageHead("ホーム","あなたのチャンネルの現在の状況",'<button class="btn primary" data-go="studio">＋ 動画を投稿</button>')+
+'<div class="grid">'+stat("チャンネル登録者",fmt(state.player.subs),"累計登録者数")+stat("総再生回数",fmt(state.player.totalViews),"すべての動画")+stat("推定収益",yen(state.player.money),state.monetized?"収益化中":"収益化条件を目指そう")+stat("投稿動画数",fmt(state.player.uploads),"公開した動画")+'</div>'+
+'<div class="section"><div class="row between"><h2>チャンネル</h2><span class="pill">'+(state.monetized?"収益化済み":"収益化前")+'</span></div><div class="profile"><div class="avatar">'+esc(state.player.icon)+'</div><div><strong>'+esc(state.player.channel)+'</strong><div class="muted">'+esc(state.player.name)+' ・ 登録者 '+fmt(state.player.subs)+' 人</div><div class="muted small">'+esc(state.player.description)+'</div></div></div></div>'+
+'<div class="section"><div class="row between"><h2>最近の動画</h2><button class="btn" data-go="videos">すべて見る</button></div>'+(latest.length?'<div class="video-list">'+latest.map(videoCard).join("")+'</div>':'<div class="empty">まだ動画がありません。最初の動画を投稿しよう！</div>')+'</div>'+
+'<div class="section"><h2>最近の通知</h2>'+state.notifications.slice(0,4).map(n=>'<div class="notice"><strong>'+esc(n.text)+'</strong><span class="muted small">'+esc(n.day)+'</span></div>').join("")+'</div>'+
+'<div class="section"><h2>今日の業界ニュース</h2><div class="notice"><strong>動画プラットフォームのトレンドが更新されました</strong><span class="muted small">ゲーム実況・Shorts・解説動画が注目されています。</span></div><div class="notice"><strong>クリエイター向け機材市場の動向</strong><span class="muted small">新しい編集ソフトやPCが登場しています。</span></div></div>';
+}else if(page==="studio"){
+$("main").innerHTML=pageHead("動画を投稿","タイトルと内容を決めれば、動画は自動で制作されます。")+
+'<div class="section"><h2>新しい動画を作成</h2><form id="videoForm"><label class="field"><span>動画タイトル</span><input name="title" maxlength="100" required placeholder="例：初めての動画投稿！"></label><label class="field"><span>動画の内容</span><textarea name="content" maxlength="3000" required placeholder="どんな動画なのか、内容を自由に入力しよう"></textarea></label><div class="formgrid"><label class="field"><span>動画の種類</span><select name="type"><option>通常動画</option><option>Shorts</option></select></label><label class="field"><span>動画の長さ（分）</span><input name="length" type="number" min="1" max="600" value="8" required></label><label class="field"><span>ジャンル</span><select name="genre">'+genres.map(g=>'<option>'+g+'</option>').join("")+'</select></label><label class="field"><span>公開方法</span><select name="publish"><option value="now">今すぐ公開</option><option value="schedule">予約投稿（翌日）</option></select></label></div><button class="btn primary" type="submit">動画を制作して投稿</button></form></div>'+
+'<div class="section"><h2>制作環境</h2><div class="row between"><span>PC・編集ソフト</span><strong>初期環境</strong></div><div class="muted small">機材やスタッフによって動画の品質が変化するシステムは、今後の開発段階で拡張します。</div></div>';
+}else if(page==="videos"){
+$("main").innerHTML=pageHead("動画管理","投稿した動画の一覧と成績")+(state.videos.length?'<div class="video-list">'+state.videos.map(videoCard).join("")+'</div>':'<div class="section empty">投稿した動画はまだありません。</div>');
+}else if(page==="analytics"){
+let avg=state.player.uploads?Math.floor(state.player.totalViews/state.player.uploads):0;
+$("main").innerHTML=pageHead("アナリティクス","チャンネルの成長データ")+'<div class="grid">'+stat("総再生回数",fmt(state.player.totalViews))+stat("登録者",fmt(state.player.subs))+stat("動画の平均再生数",fmt(avg))+stat("累計収益",yen(state.player.money))+'</div><div class="section"><h2>動画別パフォーマンス</h2>'+(state.videos.length?'<div class="tablewrap"><table><thead><tr><th>動画</th><th>再生回数</th><th>高評価</th><th>収益</th></tr></thead><tbody>'+state.videos.map(v=>'<tr><td>'+esc(v.title)+'</td><td>'+fmt(v.views)+'</td><td>'+fmt(v.likes)+'</td><td>'+yen(v.earnings)+'</td></tr>').join("")+'</tbody></table></div>':'<div class="empty">データはまだありません。</div>')+'</div><div class="section"><h2>収益化条件</h2><p class="muted">ゲーム内の収益化条件：登録者500人・動画5本・総再生回数3,000回</p><p>登録者：'+fmt(state.player.subs)+' / 500人</p><div class="bar"><span style="width:'+Math.min(100,state.player.subs/5)+'%"></span></div><p>動画：'+fmt(state.player.uploads)+' / 5本</p><div class="bar"><span style="width:'+Math.min(100,state.player.uploads*20)+'%"></span></div><p>再生回数：'+fmt(state.player.totalViews)+' / 3,000回</p><div class="bar"><span style="width:'+Math.min(100,state.player.totalViews/30)+'%"></span></div></div>';
+}else if(page==="npcs"){
+let q=state.npcQuery||"";let list=state.npcs.filter(n=>(n.name+n.genre).toLowerCase().includes(q.toLowerCase())).sort((a,b)=>b.subs-a.subs);
+$("main").innerHTML=pageHead("YouTuber一覧","この世界で活動する100人のYouTuber")+'<div class="section"><label class="field"><span>名前・ジャンルで検索</span><input id="npcSearch" value="'+esc(q)+'" placeholder="検索..."></label><div class="npc-list" id="npcList">'+list.map(n=>'<div class="item"><div class="avatar">'+["🎮","🎧","📷","🍳","🎤"][n.id%5]+'</div><div class="itembody"><div class="itemtitle">'+esc(n.name)+'</div><div class="itemmeta">'+esc(n.genre)+' ・ '+fmt(n.subs)+' 人 ・ '+(n.active?"活動中":"休止中")+'</div><div class="itemmeta">関係：'+esc(n.relation)+'</div></div><button class="btn" data-npc="'+n.id+'">交流</button></div>').join("")+'</div></div>';
+}else if(page==="community"){
+$("main").innerHTML=pageHead("コミュニティ","チャンネルの視聴者に向けて投稿しよう。")+'<div class="section"><form id="communityForm"><label class="field"><span>投稿内容</span><textarea name="text" required maxlength="1000" placeholder="視聴者に伝えたいことを書こう"></textarea></label><button class="btn primary">投稿する</button></form></div><div class="section"><h2>投稿一覧</h2>'+(state.community.length?state.community.map(p=>'<div class="notice"><strong>'+esc(state.player.channel)+'</strong><p>'+esc(p.text)+'</p><span class="muted small">'+esc(p.day)+' ・ 👍 '+fmt(p.likes)+'</span></div>').join(""):'<div class="empty">まだ投稿はありません。</div>')+'</div>';
+}else if(page==="history"){
+$("main").innerHTML=pageHead("活動履歴","ゲーム内で起きた出来事を保存しています。")+'<div class="section"><div class="history-list">'+state.history.slice(0,250).map(h=>'<div class="notice"><strong>'+esc(h.text)+'</strong><span class="muted small">'+esc(h.day)+'</span></div>').join("")+'</div></div>';
+}else if(page==="achievements"){
+let defs=[["first","初投稿","初めて動画を投稿する",state.player.uploads>=1],["subs100","登録者100人","登録者100人を達成する",state.player.subs>=100],["subs1000","登録者1,000人","登録者1,000人を達成する",state.player.subs>=1000],["video10","動画10本","動画を10本投稿する",state.player.uploads>=10],["views10000","1万回再生","総再生回数10,000回を達成する",state.player.totalViews>=10000]];
+let html=defs.map(d=>'<div class="item"><div class="avatar">'+(d[3]?"🏆":"🔒")+'</div><div class="itembody"><div class="itemtitle">'+d[1]+'</div><div class="itemmeta">'+d[2]+'</div></div><span class="pill">'+(d[3]?"達成":"未達成")+'</span></div>').join("");
+$("main").innerHTML=pageHead("実績・称号","チャンネルの成長を記録しよう。")+'<div class="section"><div class="video-list">'+html+'</div></div>';
+}else if(page==="settings"){
+$("main").innerHTML=pageHead("チャンネル設定","プロフィールとセーブデータの管理")+'<div class="section"><h2>チャンネル情報</h2><form id="settingsForm"><label class="field"><span>プレイヤー名</span><input name="name" maxlength="30" value="'+esc(state.player.name)+'" required></label><label class="field"><span>チャンネル名</span><input name="channel" maxlength="50" value="'+esc(state.player.channel)+'" required></label><label class="field"><span>アイコン（絵文字）</span><input name="icon" maxlength="4" value="'+esc(state.player.icon)+'"></label><label class="field"><span>チャンネル説明</span><textarea name="description" maxlength="500">'+esc(state.player.description)+'</textarea></label><button class="btn primary">変更を保存</button></form></div><div class="section"><h2>セーブデータ</h2><div class="row"><button class="btn" id="saveBtn">手動セーブ</button><button class="btn" id="exportBtn">データを書き出す</button><label class="btn">データを読み込む<input id="importFile" type="file" accept="application/json" hidden></label></div><p class="muted small">自動セーブは行動ごとに実行されます。データはこのブラウザ内に保存されます。</p><button class="btn" id="resetBtn">最初からやり直す</button></div>';
+}
+}
+function checkAchievements(){let before=state.achievements.length;let checks=[["first",state.player.uploads>=1],["subs100",state.player.subs>=100],["subs1000",state.player.subs>=1000],["video10",state.player.uploads>=10],["views10000",state.player.totalViews>=10000]];checks.forEach(c=>{if(c[1]&&!state.achievements.includes(c[0])){state.achievements.push(c[0]);notice("実績を達成しました："+c[0]);}});if(state.achievements.length>before)log("新しい実績を獲得した","achievement")}
+function publishVideo(data){
+let quality=1+(data.length>10?0.12:0)+(data.type==="Shorts"?0.18:0);
+let base=Math.max(12,Math.floor((state.player.subs+20)*(0.18+Math.random()*0.22)*quality));
+let views=base+Math.floor(Math.random()*40);
+let likes=Math.floor(views*(0.025+Math.random()*0.055));
+let earnings=state.monetized?Math.floor(views/1000*80):0;
+let v={id:Date.now()+Math.floor(Math.random()*999),title:data.title,content:data.content,type:data.type,genre:data.genre,length:data.length,views:views,likes:likes,earnings:earnings,date:dayLabel(),published:data.publish==="now"};
+state.videos.unshift(v);state.player.uploads++;if(v.published){state.player.totalViews+=views;state.player.likes+=likes;state.player.subs+=Math.max(0,Math.floor(views*(0.001+Math.random()*0.003)));state.player.money+=earnings;notice("新しい動画「"+v.title+"」を公開しました。");}else{notice("動画「"+v.title+"」を予約投稿しました。翌日に公開されます。")}
+log("動画を"+(v.published?"公開":"予約投稿")+"：「"+v.title+"」");
+if(!state.monetized&&state.player.subs>=500&&state.player.uploads>=5&&state.player.totalViews>=3000){state.monetized=true;notice("おめでとう！チャンネルが収益化されました！");log("チャンネルが収益化された","achievement")}
+checkAchievements();advance(1);save();setPage("videos");toast("動画を制作しました！");
+}
+function interact(id){let n=state.npcs.find(x=>x.id===id);if(!n)return;let opts=["こんにちは！動画を見ました。","今度コラボしませんか？","最近の活動について話したいです。"];let msg=opts[Math.floor(Math.random()*opts.length)];n.relation=n.relation==="未交流"?"知り合い":n.relation;log(n.name+" と交流した：「"+msg+"」");notice(n.name+" と交流しました。");advance(1);save();toast(n.name+" と交流した！")}
+function renderNotifications(){state.notifications.forEach(n=>n.read=true);save();$("main").innerHTML=pageHead("通知","チャンネルに届いたすべての通知")+'<div class="section">'+(state.notifications.length?state.notifications.map(n=>'<div class="notice"><strong>'+esc(n.text)+'</strong><span class="muted small">'+esc(n.day)+'</span></div>').join(""):'<div class="empty">通知はありません。</div>')+'</div>';updateHeader()}
+document.addEventListener("click",e=>{
+let go=e.target.closest("[data-go]");if(go){setPage(go.dataset.go);return}
+let nav=e.target.closest(".nav");if(nav){setPage(nav.dataset.page);return}
+let npc=e.target.closest("[data-npc]");if(npc){interact(Number(npc.dataset.npc));render("npcs");return}
+if(e.target.id==="notifyBtn"){renderNotifications();document.querySelectorAll(".nav").forEach(b=>b.classList.remove("active"))}
+if(e.target.id==="menuBtn")$("layout").classList.toggle("menu-open");
+if(e.target.id==="saveBtn"){save();toast("セーブしました！")}
+if(e.target.id==="exportBtn"){let blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="youtuber-simulator-save.json";a.click();URL.revokeObjectURL(a.href);toast("セーブデータを書き出しました")}
+if(e.target.id==="resetBtn"){if(confirm("現在のセーブデータを削除して最初から始めますか？")){state=fresh();save();setPage("home");toast("新しいゲームを開始しました")}}
+});
+document.addEventListener("submit",e=>{
+e.preventDefault();let f=e.target;
+if(f.id==="videoForm"){let d=new FormData(f);publishVideo({title:d.get("title").trim(),content:d.get("content").trim(),type:d.get("type")==="Shorts"?"Shorts":"通常動画",length:Math.max(1,Math.min(600,Number(d.get("length"))||8)),genre:d.get("genre"),publish:d.get("publish")});}
+if(f.id==="settingsForm"){let d=new FormData(f);state.player.name=d.get("name").trim();state.player.channel=d.get("channel").trim();state.player.icon=d.get("icon").trim()||"🎬";state.player.description=d.get("description").trim();log("チャンネル情報を変更した");save();updateHeader();toast("チャンネル情報を保存しました");setPage("settings")}
+if(f.id==="communityForm"){let d=new FormData(f);state.community.unshift({text:d.get("text").trim(),day:dayLabel(),likes:0});log("コミュニティに投稿した");advance(1);save();setPage("community");toast("投稿しました")}
+});
+document.addEventListener("input",e=>{if(e.target.id==="npcSearch"){state.npcQuery=e.target.value;let q=state.npcQuery;let list=state.npcs.filter(n=>(n.name+n.genre).toLowerCase().includes(q.toLowerCase())).sort((a,b)=>b.subs-a.subs);$("npcList").innerHTML=list.map(n=>'<div class="item"><div class="avatar">🎬</div><div class="itembody"><div class="itemtitle">'+esc(n.name)+'</div><div class="itemmeta">'+esc(n.genre)+' ・ '+fmt(n.subs)+' 人 ・ '+(n.active?"活動中":"休止中")+'</div><div class="itemmeta">関係：'+esc(n.relation)+'</div></div><button class="btn" data-npc="'+n.id+'">交流</button></div>').join("")}});
+$("main").addEventListener("change",e=>{if(e.target.id==="importFile"){let file=e.target.files[0];if(!file)return;let reader=new FileReader();reader.onload=()=>{try{let s=JSON.parse(reader.result);if(!s.player||!Array.isArray(s.videos)||!Array.isArray(s.npcs))throw Error();state=s;save();setPage("home");toast("データを読み込みました")}catch(err){toast("セーブデータを読み込めませんでした")}};reader.readAsText(file)}});
+updateHeader();render("home");save();
+})();
+</script>
+</body>
+</html>
