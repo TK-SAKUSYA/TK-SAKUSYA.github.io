@@ -48,9 +48,9 @@ const names=["アオイ","カイト","ミナト","ユズ","レン","ハル","ソ
 const genres=["ゲーム実況","ガジェット","日常","料理","音楽","解説","エンタメ","教育","旅行","Shorts"];
 const prefixes=["毎日","ゆるっと","本気の","自由気ままな","研究所","秘密基地","チャンネル"];
 function makeNPCs(){let arr=[];for(let i=0;i<100;i++){let name=names[i%names.length]+(i>=20?String(Math.floor(i/20)+1):"");let genre=genres[i%genres.length];let subs= Math.floor(500+((i*7919)%850000));arr.push({id:i+1,name:name+" "+prefixes[i%prefixes.length],genre:genre,subs:subs,views:subs*(2+(i%7)),level:["新人","成長中","人気","大手"][i%4],relation:"未交流",active:true,uploads:i%90+3});}return arr}
-function fresh(){return {version:1,player:{name:"TK",channel:"TKのチャンネル",description:"動画投稿を始めました！",icon:"🎬",subs:0,money:0,totalViews:0,likes:0,uploads:0,created:"1年目 1月1日"},time:{year:1,month:1,day:1,hour:9},videos:[],npcs:makeNPCs(),history:[{day:"1年目 1月1日",text:"チャンネルを開設した",type:"system"}],notifications:[{text:"YouTuberシミュレーターへようこそ！まずは最初の動画を投稿してみよう。",day:"1年目 1月1日",read:false}],community:[],achievements:[],monetized:false,settings:{}}}
+function fresh(){return {version:1,player:{name:"プレイヤー",channel:"マイチャンネル",description:"動画投稿を始めました！",icon:"🎬",subs:0,money:0,totalViews:0,likes:0,uploads:0,created:"1年目 1月1日"},time:{year:1,month:1,day:1,hour:9},videos:[],npcs:makeNPCs(),history:[{day:"1年目 1月1日",text:"チャンネルを開設した",type:"system"}],notifications:[{text:"YouTuberシミュレーターへようこそ！まずは最初の動画を投稿してみよう。",day:"1年目 1月1日",read:false}],community:[],achievements:[],monetized:false,settings:{}}}
 let state=load();
-function load(){try{let raw=localStorage.getItem(KEY);if(raw){let s=JSON.parse(raw);if(s&&s.player&&Array.isArray(s.videos)&&Array.isArray(s.npcs))return s}}catch(e){}return fresh()}
+function load(){try{let raw=localStorage.getItem(KEY);if(raw){let s=JSON.parse(raw);if(s&&s.player&&Array.isArray(s.videos)&&Array.isArray(s.npcs)){if(s.player.name==="TK")s.player.name="プレイヤー";if(s.player.channel==="TKのチャンネル")s.player.channel="マイチャンネル";return s}}}catch(e){}return fresh()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));return true}catch(e){toast("保存できませんでした。ブラウザの容量を確認してください。");return false}}
 function dayLabel(){return state.time.year+"年目 "+state.time.month+"月"+state.time.day+"日"}
 function log(text,type){state.history.unshift({day:dayLabel(),text:text,type:type||"activity"});if(state.history.length>5000)state.history.length=5000}
