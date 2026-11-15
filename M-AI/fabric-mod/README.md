@@ -7,13 +7,22 @@ Client-side Fabric mod for **Minecraft Java 26.3**.
 - Starts with the Minecraft client.
 - Connects only to `127.0.0.1:25580`.
 - Performs the version 1 JSON Lines handshake expected by the Node bridge.
-- Every five seconds, sends the local player's X/Y/Z position as a small observation message.
+- Every five seconds, sends the local player's X/Y/Z position, current health, dimension ID, and main-hand item name as a small observation message.
 - Uses a background thread for socket I/O; it does not block the game tick.
 - Reconnects if the Node bridge is not running yet.
 
+## Observation fields (version 0.2.0)
+
+- `player_position`: X/Y/Z coordinates
+- `health`: current and maximum health
+- `dimension`: dimension identifier such as `minecraft:overworld`
+- `main_hand`: displayed name of the item currently held in the main hand
+
+The observation is sampled on the Minecraft client tick and sent by the background socket thread.
+
 ## What it does not do yet
 
-- It does not send movement, inventory, block, entity, health, or chat history.
+- It does not send movement commands, full inventory contents, nearby block/entity details, or chat history. Only the main-hand item name is included.
 - It does not execute AI actions or control the player.
 - It does not spawn a separate bot entity.
 - It does not connect to remote servers or expose a network listener.
