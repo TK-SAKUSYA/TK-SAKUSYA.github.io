@@ -31,6 +31,14 @@ function clean(value, max = 300) {
 }
 const clients = new Set();
 let lastBroadcastAt = '';
+try {
+  if (fs.existsSync(LATEST_THOUGHT)) {
+    const previous = JSON.parse(fs.readFileSync(LATEST_THOUGHT, 'utf8'));
+    lastBroadcastAt = clean(previous.generatedAt, 40);
+  }
+} catch {
+  // Ignore an old or incomplete thought file; the brain will write a fresh one.
+}
 function broadcastLatestSpeech() {
   if (!fs.existsSync(LATEST_THOUGHT)) return;
   try {
@@ -90,7 +98,7 @@ const server = net.createServer(socket => {
           type: 'hello_ack',
           protocol: PROTOCOL,
           accepted: true,
-          note: '通信確認OK。ゲーム操作の中継は次の段階で実装します。'
+          note: '通信確認OK。M-AIの新しい発言をこのクライアントへ表示します。'
         });
         continue;
       }
@@ -137,7 +145,7 @@ server.on('error', error => {
 server.listen(PORT, HOST, () => {
   console.log('[M-AI Bridge] 待受中: ' + HOST + ':' + PORT);
   console.log('[M-AI Bridge] このPC内だけで待ち受けます。外部ネットワークには公開しません。');
-  console.log('[M-AI Bridge] 最新の観察データを data/bridge/latest-observation.json に保存します。AI判断・Minecraft操作はまだ未接続です。');
+  console.log('[M-AI Bridge] 観察データを保存し、Ollamaの新しい発言をMinecraftへ中継します。ゲーム操作はまだ未接続です。');
 });
 function shutdown() {
   clearInterval(speechTimer);
