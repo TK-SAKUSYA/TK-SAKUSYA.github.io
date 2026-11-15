@@ -10,11 +10,19 @@
 
 > **Experimental:** this project has not been tested end-to-end against a live Minecraft 26.3 world. The current connection mode is offline authentication for an isolated local test server. It does not yet automatically join a normal single-player Open-to-LAN world.
 
+## Version 0.4.0 — Third update
+
+Implemented in source:
+- Each AI asks the local language model to choose its own Japanese name at first launch
+- The chosen name and self-introduction are saved in that agent's local identity record and remain stable across restarts
+- Different agents are asked to choose names that do not duplicate names already assigned
+- Memory reset preserves the AI's chosen identity; it clears learned records without erasing who the AI calls itself
+
 ## Version 0.3.0 — Second update
 
 Implemented in source:
 - Multiple agents can be configured in one process (maximum 8)
-- Each agent has an individual ID, Minecraft username, display name, personality prompt, and independent memory file
+- Each agent has an individual ID, Minecraft username, personality prompt, and independent memory file. Display names are chosen by the AI itself on first launch
 - Japanese system instructions and Japanese chat output preference
 - `!mai reset all` clears every agent's observations, experiences, conversations, and diary index, then pauses all agents
 - `!mai reset 名前` clears one named agent's memory
@@ -50,11 +58,11 @@ M-AI ships no Minecraft tutorials, recipes, wiki data, or strategy guides. Senso
 2. Use an isolated local test server configured only for local connections. Do not expose an offline-mode server to the internet.
 3. Copy `config.example.json` to `config.json`.
 4. Set the local server port.
-5. Edit the `agents` array. Each agent needs a unique `id`, `username`, and `name`. Set `diaryEnabled` to `true` for agents allowed to write diaries.
+5. Edit the `agents` array. Each agent needs a unique `id` and `username`. The AI chooses its own display name on first launch. Set `diaryEnabled` to `true` for agents allowed to write diaries.
 6. Start Ollama if enabled.
 7. Run `start.bat`.
 
-The sample configuration creates two agents named アキラ and ミドリ. They use offline-mode usernames MAI001 and MAI002 on the isolated local server.
+The sample configuration creates two agents. They use offline-mode usernames MAI001 and MAI002 on the isolated local server, then each AI chooses its own display name using the local Ollama model.
 
 ## Chat commands
 
@@ -69,7 +77,7 @@ The sample configuration creates two agents named アキラ and ミドリ. They 
 - `!mai アキラ 周囲を観察して` — direct an instruction to one named agent
 - `!mai to ミドリ 周囲を観察して` — alternate named-instruction syntax
 
-Each agent stores its local data in `data/agents/<id>.json`. Do not publish this folder: it may contain player names and chat history.
+Each agent stores its local data, including its chosen identity, in `data/agents/<id>.json`. Do not publish this folder: it may contain player names and chat history.
 
 ## License
 
