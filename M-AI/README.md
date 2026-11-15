@@ -10,6 +10,14 @@
 
 > **Experimental:** the Fabric client mod connects to the Node-side local bridge and sends player-position observations. The eleventh update adds local persistence for the latest observation. It does not yet execute AI actions or spawn separate AI players. No live Minecraft 26.3 test has been completed.
 
+## Version 0.13.0 — Twelfth update
+
+- The Fabric Gradle project now gives the remapped output a predictable `m-ai-fabric` archive name.
+- GitHub Actions now verifies that exactly one remapped mod JAR exists before packaging.
+- The workflow creates a ready-to-install artifact named `M-AI-Fabric-26.3` containing the mod JAR, quick-start instructions, installation guide, and SHA-256 checksum.
+- The artifact is retained for 30 days; download it from the successful workflow run's Artifacts section.
+- **Limit:** this update prepares a downloadable installation package, but it does not prove the build passed. Actual installation and in-game communication still require a successful Actions run and a Minecraft test.
+
 ## Version 0.12.0 — Eleventh update
 
 - The local bridge now validates incoming observation summaries and saves the latest one to `data/bridge/latest-observation.json`.
@@ -172,4 +180,4 @@ The protocol is a preliminary contract for the future client mod. It is not a Mi
 
 ## Fabric client mod (tenth update)
 
-See [fabric-mod/README.md](fabric-mod/README.md) for build and installation notes. The GitHub Actions workflow builds the JAR and publishes it as an artifact when the Fabric project changes.
+See [fabric-mod/README.md](fabric-mod/README.md) for build and installation notes. The GitHub Actions workflow creates a ready-to-install artifact named `M-AI-Fabric-26.3` after a successful build.
