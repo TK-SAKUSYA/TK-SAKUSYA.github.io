@@ -1,0 +1,19 @@
+{
+  "name": "m-ai-minecraft-agent",
+  "version": "0.1.0",
+  "private": false,
+  "description": "An experimental observation-first Minecraft Java AI player",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "check": "node --check src/index.js && node --check src/brain.js && node --check src/actions.js && node --check src/observer.js && node --check src/memory.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@wp2508/mineflayer": "4.42.8"
+  }
+}
