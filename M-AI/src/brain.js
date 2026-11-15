@@ -142,7 +142,7 @@ async function thinkAndAct(bot, config, memory, latestObservation, operatorMessa
   const selectedAction = allowActions ? decision.action : { type: 'wait', durationMs: 500 };
   const miningAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /採掘|掘って|掘る|\bmine\b|\bdig\b/i.test(operatorMessage));
   const craftingAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /クラフト|作って|作成して|\bcraft(?:ing)?\b/i.test(operatorMessage));
-  const buildingAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /建築|建てて|ブロックを置|設置して|置いて|\bbuild\b|\bplace\b/i.test(operatorMessage));
+  const buildingAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /建築|建てて|ブロックを置|設置して|置いて|家を作|壁を作|柱を作|組み立て|\bbuild\b|\bplace\b/i.test(operatorMessage));
   const result = await executeAction(bot, selectedAction, config, signal, { mining: miningAuthorized, crafting: craftingAuthorized, building: buildingAuthorized });
   return {
     result,
