@@ -5,6 +5,7 @@ const path = require('node:path');
 const DATA_DIR = path.join(__dirname, '..', 'data', 'bridge');
 const LATEST_OBSERVATION = path.join(DATA_DIR, 'latest-observation.json');
 const LATEST_THOUGHT = path.join(DATA_DIR, 'latest-thought.json');
+const LATEST_CHAT = path.join(DATA_DIR, 'latest-chat.json');
 const configPath = path.join(__dirname, '..', 'config.json');
 if (!fs.existsSync(configPath)) {
   console.error('[M-AI Bridge] config.json がありません。');
@@ -109,6 +110,23 @@ const server = net.createServer(socket => {
       const value = message.type === 'chat' ? message.text :
         message.type === 'command_result' ? message.result :
         message.type === 'status' ? message.state : message.summary;
+      if (message.type === 'chat') {
+        if (typeof message.text !== 'string' || !message.text.trim()) {
+          send(socket, { type: 'error', code: 'INVALID_CHAT' });
+          continue;
+        }
+        try {
+          fs.mkdirSync(DATA_DIR, { recursive: true });
+          const record = { receivedAt: new Date().toISOString(), source: label, text: clean(message.text, 500) };
+          const temporaryPath = LATEST_CHAT + '.tmp';
+          fs.writeFileSync(temporaryPath, JSON.stringify(record, null, 2) + '\n', { encoding: 'utf8', mode: 0o600 });
+          fs.renameSync(temporaryPath, LATEST_CHAT);
+        } catch (error) {
+          console.error('[M-AI Bridge] チャット保存エラー: ' + error.message);
+          send(socket, { type: 'error', code: 'CHAT_SAVE_FAILED' });
+          continue;
+        }
+      }
       if (message.type === 'observation') {
         if (typeof message.summary !== 'string' || !message.summary.trim()) {
           send(socket, { type: 'error', code: 'INVALID_OBSERVATION' });
@@ -145,7 +163,7 @@ server.on('error', error => {
 server.listen(PORT, HOST, () => {
   console.log('[M-AI Bridge] 待受中: ' + HOST + ':' + PORT);
   console.log('[M-AI Bridge] このPC内だけで待ち受けます。外部ネットワークには公開しません。');
-  console.log('[M-AI Bridge] 観察データを保存し、Ollamaの新しい発言をMinecraftへ中継します。ゲーム操作はまだ未接続です。');
+  console.log('[M-AI Bridge] 観察データとプレイヤーの会話を保存し、Ollamaの返答をMinecraftへ中継します。ゲーム操作はまだ未接続です。');
 });
 function shutdown() {
   clearInterval(speechTimer);
