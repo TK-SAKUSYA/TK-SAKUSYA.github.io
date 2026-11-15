@@ -10,6 +10,12 @@
 
 > **Experimental:** this project has not been tested end-to-end against a live Minecraft 26.3 world. The current connection mode is offline authentication for an isolated local test server. It does not yet automatically join a normal single-player world.
 
+## Version 0.5.1 — Fourth update improvement
+
+- The first successful `!mai claim` registers one operator for all configured agents.
+- The same operator can pause, resume, reset, and direct any AI without claiming separately on every bot.
+- The shared operator identity is synchronized into each agent's existing local memory file and survives normal restarts.
+
 ## Version 0.5.0 — Fourth update
 
 Implemented in source:
@@ -75,7 +81,7 @@ The sample configuration creates two agents. They use offline-mode usernames MAI
 
 ## Chat commands
 
-- `!mai claim` — register the operator (first claim per agent)
+- `!mai claim` — register the shared operator for all agents (first claim wins)
 - `!mai help` — show commands
 - `!mai status` — show this agent's status
 - `!mai pause` — stop all agents (operator only)
