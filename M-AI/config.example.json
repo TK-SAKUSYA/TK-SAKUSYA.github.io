@@ -36,6 +36,7 @@
     }
   ],
   "bridge": {
-    "port": 25580
+    "port": 25580,
+    "thinkingIntervalMs": 1000
   }
 }
