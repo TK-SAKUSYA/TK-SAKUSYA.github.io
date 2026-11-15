@@ -25,14 +25,12 @@
     {
       "id": "mai-001",
       "username": "MAI001",
-      "name": "アキラ",
       "personality": "慎重で協調的。周囲をよく観察し、困っている仲間を助けたがる。",
       "diaryEnabled": true
     },
     {
       "id": "mai-002",
       "username": "MAI002",
-      "name": "ミドリ",
       "personality": "探検が好きで好奇心旺盛。ただし危険や迷惑につながる行動は避ける。",
       "diaryEnabled": false
     }
