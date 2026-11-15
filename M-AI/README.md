@@ -1,6 +1,6 @@
 # M-AI — Minecraft AI
 
-**M-AI** is an experimental Minecraft Java AI player system. Each agent can have its own name, personality, memory, and optional in-game diary.
+**M-AI** is an experimental Minecraft Java AI player system with a client-side Fabric bridge for Minecraft 26.3. Each agent can have its own name, personality, memory, and optional in-game diary.
 
 - Target: Minecraft Java **26.3**
 - Runtime: Node.js 22+
@@ -8,7 +8,17 @@
 - Local reasoning: Ollama
 - Memory: separate local JSON file for each agent
 
-> **Experimental:** the Node-side local bridge now exists, but a Minecraft client mod and the bridge-to-AI action adapter are not implemented yet. M-AI still does not automatically join or control a normal single-player world. No end-to-end Minecraft 26.3 test has been completed.
+> **Experimental:** the first Fabric client mod now connects to the Node-side local bridge and sends player-position observations. It does not yet execute AI actions or spawn separate AI players. No live Minecraft 26.3 test has been completed.
+
+## Version 0.11.0 — Tenth update
+
+- Added a real Fabric client-mod project under `fabric-mod/`, based on the official Fabric 26.3 example project layout.
+- The mod starts inside the Minecraft client and connects only to `127.0.0.1:25580`.
+- It performs the existing version 1 JSON Lines handshake with the Node bridge.
+- Every five seconds, while inside a world, it sends the local player's X/Y/Z position as an observation.
+- Socket work runs on a daemon background thread, not the Minecraft tick thread; it retries when the bridge is unavailable.
+- Added a GitHub Actions build workflow for the Fabric JAR using Java 25 and Gradle 9.8.2.
+- **Limit:** this is now a Minecraft client-side connection and basic position-observation milestone. The mod does not yet control the player, read inventory/blocks/entities, relay chat, or create AI-controlled player entities. End-to-end Minecraft 26.3 testing is still required.
 
 ## Version 0.10.0 — Ninth update
 
@@ -150,3 +160,8 @@ MIT. See [LICENSE](LICENSE).
 - Maximum incoming buffer: 16 KiB; idle connection timeout: 30 seconds
 
 The protocol is a preliminary contract for the future client mod. It is not a Minecraft mod and does not yet perform in-game actions.
+
+
+## Fabric client mod (tenth update)
+
+See [fabric-mod/README.md](fabric-mod/README.md) for build and installation notes. The GitHub Actions workflow builds the JAR and publishes it as an artifact when the Fabric project changes.
