@@ -32,7 +32,7 @@ function canStepSafely(bot, direction) {
   if (support.boundingBox !== 'block') return false;
   return true;
 }
-async function executeAction(bot, action, config, signal) {
+async function executeAction(bot, action, config, signal, isOperator = false) {
   if (!action || typeof action !== 'object') return 'No action selected.';
   if (signal?.aborted) return 'Action cancelled before execution.';
   switch (action.type) {
@@ -66,6 +66,43 @@ async function executeAction(bot, action, config, signal) {
     case 'jump':
       try { bot.setControlState('jump', true); await delay(350, signal); return 'Tried jumping.'; }
       finally { bot.setControlState('jump', false); }
+    case 'mine': {
+      if (!isOperator) return 'Mining requires an explicit operator instruction.';
+      const dx = clamp(action.dx, -2, 2, 0);
+      const dy = clamp(action.dy, -2, 2, 0);
+      const dz = clamp(action.dz, -2, 2, 0);
+      if (![dx, dy, dz].every(Number.isInteger) || (dx === 0 && dy === 0 && dz === 0)) {
+        return 'Mining target rejected: invalid relative position.';
+      }
+      if (!bot.entity?.position || typeof bot.blockAt !== 'function' || typeof bot.dig !== 'function') {
+        return 'Mining unavailable: required world interaction is unsupported.';
+      }
+      const target = bot.entity.position.offset(dx, dy, dz);
+      const block = bot.blockAt(target);
+      if (!block || !block.name || block.name === 'air' || block.name === 'cave_air' || block.name === 'void_air') {
+        return 'Mining skipped: no known block at the requested position.';
+      }
+      const protectedName = /chest|barrel|shulker|furnace|hopper|spawner|command_block|sign|banner|lectern|beacon|end_portal|nether_portal|bedrock/i;
+      if (block.entity || protectedName.test(block.name)) {
+        return 'Mining skipped: protected or interactive block.';
+      }
+      if (block.boundingBox !== 'block' || !Number.isFinite(block.hardness) || block.hardness <= 0) {
+        return 'Mining skipped: block is not confirmed as safely diggable.';
+      }
+      if (typeof bot.canDigBlock !== 'function' || !bot.canDigBlock(block)) {
+        return 'Mining skipped: block is out of reach or cannot be dug.';
+      }
+      if (signal?.aborted) return 'Mining cancelled before starting.';
+      const stopDigging = () => { try { bot.stopDigging(); } catch {} };
+      signal?.addEventListener('abort', stopDigging, { once: true });
+      try {
+        await bot.dig(block, true);
+        if (signal?.aborted) return 'Mining interrupted by operator.';
+        return `Mined one block at relative position ${dx}, ${dy}, ${dz}.`;
+      } finally {
+        signal?.removeEventListener('abort', stopDigging);
+      }
+    }
     case 'inspect': return 'A fresh observation will be recorded.';
     case 'wait': {
       const duration = clamp(action.durationMs, 500, 5000, 1500);
