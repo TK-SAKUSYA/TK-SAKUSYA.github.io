@@ -16,12 +16,16 @@ M-AI does not ship Minecraft tutorials, recipes, wiki data, block-name explanati
 
 **A language model cannot have its pretrained knowledge erased.** Ollama models may still know Minecraft from training. The prompt and opaque observations reduce direct knowledge leakage, but cannot mathematically guarantee a truly blank model. For strict zero-prior experiments, run without an LLM and use a future purpose-built learning policy.
 
-## Current release: v0.1.0
+## Current release: v0.2.0
 
 Implemented:
 - Connect to a local offline-mode Java server
 - Observe nearby blocks and entities using opaque numeric identifiers
-- Store observations, chats, and actions locally
+- Store observations, chats, actions, and before/after experiment records locally
+- Compare position, health, food, and opaque sensor-count changes after each action
+- Feed recent observed outcomes back into later decisions
+- Interrupt an active movement/wait action when the operator gives a new instruction
+- Validate model output and safely fall back to waiting when an action is malformed
 - Chat with players (non-operator chat is conversation only)
 - Claim one local operator account
 - Give the operator priority over autonomous behavior
@@ -29,9 +33,10 @@ Implemented:
 - Basic look, walk, jump, wait, inspect, and say actions
 - Pause/resume autonomy
 
-Not implemented yet:
+Still not implemented (future development):
 - Mining, crafting, inventory use, farming, building, combat, signs/books, pathfinding, multi-agent society, or long-term civilization systems
 - A verified Minecraft 26.3 end-to-end test
+- Single-player Open-to-LAN auto-discovery; for now a local server endpoint is still required
 - Secure Microsoft-account authentication for public/online servers
 
 ## Requirements
