@@ -10,6 +10,14 @@
 
 > **Experimental:** this project has not been tested end-to-end against a live Minecraft 26.3 world. The current connection mode is offline authentication for an isolated local test server. It does not yet automatically join a normal single-player world.
 
+## Version 0.6.0 — Fifth update
+
+- Added a one-block mining action using Mineflayer's `canDigBlock` and `dig` APIs.
+- Mining is only permitted during an explicit operator instruction; autonomous decisions and ordinary non-operator chat cannot mine.
+- Targets must be within two blocks on each axis, loaded, visible to the bot's dig-range check, solid, and have finite positive hardness.
+- Interactive/container-like blocks and bedrock are excluded. Operator interruption stops an active dig.
+- This is a guarded first step: no autonomous resource gathering, crafting, or building is included yet. Live Minecraft 26.3 behavior has not been verified.
+
 ## Version 0.5.1 — Fourth update improvement
 
 - The first successful `!mai claim` registers one operator for all configured agents.
