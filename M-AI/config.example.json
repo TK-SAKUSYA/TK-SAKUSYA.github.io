@@ -3,7 +3,6 @@
   "port": 25565,
   "minecraftVersion": "26.3",
   "botUsername": "MAI001",
-  "operatorUsername": "",
   "ollama": {
     "enabled": true,
     "baseUrl": "http://127.0.0.1:11434",
