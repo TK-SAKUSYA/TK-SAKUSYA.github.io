@@ -8,7 +8,16 @@
 - Local reasoning: Ollama
 - Memory: separate local JSON file for each agent
 
-> **Experimental:** this project has not been tested end-to-end against a live Minecraft 26.3 world. The current connection mode is offline authentication for an isolated local test server. It does not yet automatically join a normal single-player world.
+> **Experimental:** the Node-side local bridge now exists, but a Minecraft client mod and the bridge-to-AI action adapter are not implemented yet. M-AI still does not automatically join or control a normal single-player world. No end-to-end Minecraft 26.3 test has been completed.
+
+## Version 0.10.0 — Ninth update
+
+- Added the first local integration bridge server using Node.js built-in TCP networking; no extra npm dependency is required.
+- The bridge listens only on `127.0.0.1` and the configured port (default `25580`), never on external network interfaces.
+- Added a versioned JSON-lines handshake for a future Minecraft client mod, bounded message parsing, a 16 KiB input limit, a 30-second idle timeout, and explicit event types.
+- The bridge can receive test observations, chat events, status messages, and command results, then acknowledge them.
+- Added `npm run bridge` to start the bridge independently from the existing Mineflayer bot.
+- **Important:** this is communication infrastructure only. There is no Fabric mod yet, and the bridge does not read the world, make AI decisions, or execute Minecraft actions. The ninth update does not yet achieve in-game integration.
 
 ## Version 0.9.0 — Eighth update
 
@@ -85,7 +94,8 @@ Implemented in source:
 - The diary feature requires the agent to already have a writable book in its inventory. M-AI does not yet craft or fetch books. Diary writing has not been verified on Minecraft 26.3.
 - The current action set includes look, walk, jump, wait, inspect, say, operator-directed single-block mining, operator-directed crafting, operator-directed single-block placement, and operator-directed template building (small wall or pillar). Autonomous resource gathering, free-form building, farming, full pathfinding, and autonomous settlement-building are not implemented.
 - Step checks reduce some movement risks but are not a complete pathfinder and cannot guarantee avoidance of every hazard.
-- The selected Mineflayer fork's compatibility, multi-bot login, and book-writing behavior have not been verified in a live 26.3 world.
+- The selected Mineflayer fork advertises protocol support for Minecraft 26.3, but M-AI's full login, action, and world behavior have not been verified in a live 26.3 world.
+- The local bridge is only a transport layer. Until the Fabric client mod and AI adapter are complete, it cannot access or control a single-player world.
 - More agents require more RAM and local model inference time. Start with one or two agents on an 8 GB PC; multiple agents may respond slowly.
 
 ## What “no supplied Minecraft knowledge” means
@@ -107,7 +117,7 @@ M-AI ships no Minecraft tutorials, recipes, wiki data, or strategy guides. Senso
 4. Set the local server port.
 5. Edit the `agents` array. Each agent needs a unique `id` and `username`. The AI chooses its own display name on first launch. Set `diaryEnabled` to `true` for agents allowed to write diaries.
 6. Start Ollama if enabled.
-7. Run `start.bat`.
+7. Run `start.bat` for the existing Mineflayer bot, or run `npm run bridge` for the ninth-update local bridge test server.
 
 The sample configuration creates two agents. They use offline-mode usernames MAI001 and MAI002 on the isolated local server, then each AI chooses its own display name using the local Ollama model.
 
@@ -129,3 +139,14 @@ Each agent stores its local data, including its chosen identity, in `data/agents
 ## License
 
 MIT. See [LICENSE](LICENSE).
+## Local bridge protocol (ninth update)
+
+- TCP address: `127.0.0.1`
+- Default port: `25580`
+- Encoding: UTF-8 JSON Lines (one JSON object per line)
+- First message: `{"type":"hello","protocol":1,"client":"M-AI-Fabric","minecraftVersion":"26.3"}`
+- Server reply: `hello_ack` with protocol version 1
+- Supported later event types: `observation`, `chat`, `command_result`, `status`
+- Maximum incoming buffer: 16 KiB; idle connection timeout: 30 seconds
+
+The protocol is a preliminary contract for the future client mod. It is not a Minecraft mod and does not yet perform in-game actions.
