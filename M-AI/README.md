@@ -8,7 +8,15 @@
 - Local reasoning: Ollama
 - Memory: separate local JSON file for each agent
 
-> **Experimental:** the Fabric client mod connects to the Node-side local bridge and sends limited player observations. The thirteenth update adds local Ollama reasoning; the fourteenth expands observations to health, dimension, and the main-hand item. It still does not send control commands to Minecraft or spawn separate AI players. No live Minecraft 26.3 test has been completed.
+> **Experimental:** the Fabric client mod connects to the Node-side local bridge, sends limited player observations, and can display short Ollama-generated speech in the local Minecraft chat. It does not yet control movement or spawn separate AI players. No live Minecraft 26.3 test has been completed.
+
+## Version 0.16.0 — Fifteenth update
+
+- The Node bridge watches `data/bridge/latest-thought.json` and relays each new non-empty AI `say` line to connected Fabric clients as an `ai_say` message.
+- The Fabric client handles that message on the Minecraft client thread and displays it in the local chat with an `[M-AI]` prefix.
+- The bridge remains restricted to `127.0.0.1`; no remote network endpoint was added.
+- The Fabric mod version is now `0.3.0`.
+- **Limit:** this makes the AI speak inside Minecraft, but it does not yet accept player chat as conversation input or execute movement/actions. The build and live game test remain unverified.
 
 ## Version 0.15.0 — Fourteenth update
 
