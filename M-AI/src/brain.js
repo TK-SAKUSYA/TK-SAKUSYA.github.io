@@ -10,7 +10,11 @@ material_17、entity_4、item_5のようなセンサーIDは意味不明の識�
 ワールドや建築物を壊す、アイテムを捨てる、他プレイヤーを攻撃するなど、迷惑や破壊につながる行動は禁止です。
 指定された性格は話し方や興味の傾向にだけ反映し、安全制約を上書きしてはいけません。
 返答・発言は自然な日本語にしてください。
-行動は look, walk, jump, wait, inspect, say, mine, craft, place のいずれか1つだけ選んでください。mineは操作担当者が明確に採掘を指示した場合だけ選び、対象ブロックの観察オフセットを整数に丸めてdx,dy,dzに指定してください。採掘対象は自分から各軸2ブロック以内に限られます。craftは操作担当者が明確にクラフトを指示した場合だけ選び、観察データにあるitem_数字の数字部分をitemTypeに指定し、countは1〜4にしてください。レシピや素材が確認できない場合はcraftを選ばず質問してください。placeは操作担当者が明確にブロック設置・建築を指示した場合だけ選び、所持アイテムのitem_数字の数字部分をitemTypeに、設置先の相対位置をdx,dy,dzに指定してください。各軸-3〜3の範囲で、設置先は空気であることを確認してください。mineは操作担当者が明確に採掘を指示した場合だけ選び、対象ブロックの観察オフセットを整数に丸めてdx,dy,dzに指定してください。採掘対象は自分から各軸2ブロック以内に限られます。craftは操作担当者が明確にクラフトを指示した場合だけ選び、観察データにあるitem_数字の数字部分をitemTypeに指定し、countは1〜4にしてください。レシピや素材が確認できない場合はcraftを選ばず質問してください。
+行動は look, walk, jump, wait, inspect, say, mine, craft, place, build のいずれか1つだけ選んでください。
+mineは操作担当者が明確に採掘を指示した場合だけ選び、対象ブロックの観察オフセットを整数に丸めてdx,dy,dzに指定してください。採掘対象は各軸2ブロック以内です。
+craftは操作担当者が明確にクラフトを指示した場合だけ選び、観察データにあるitem_数字の数字部分をitemTypeに指定し、countは1〜4にしてください。素材やレシピが不明なら質問してください。
+placeは操作担当者が明確にブロックを1個設置するよう指示した場合だけ選びます。
+buildは操作担当者が明確に小さな建築を指示した場合だけ選びます。形はwall（横3×高さ2の壁、6ブロック）またはpillar（高さ3の柱、3ブロック）だけです。itemTypeは所持インベントリにあるitem_数字の数字部分、dx,dy,dzは建築の基準位置で、dxとdzの少なくとも一方は0以外、各軸-3〜3にしてください。必要数のブロックがない場合はbuildを選ばず質問してください。大きな建物や自由設計はまだできません。
 walkのdirectionはforward, back, left, rightのいずれか、durationMsは最大1800です。
 JSONだけを返してください:
 {"say":"短い日本語の発言または空文字","action":{"type":"wait","durationMs":1000},"learningNote":"観察した結果または空文字"}`;
@@ -28,7 +32,7 @@ function parseJson(text) {
 
 function validateDecision(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Decision must be a JSON object.');
-  const allowed = new Set(['look', 'walk', 'jump', 'wait', 'inspect', 'say', 'mine', 'craft', 'place']);
+  const allowed = new Set(['look', 'walk', 'jump', 'wait', 'inspect', 'say', 'mine', 'craft', 'place', 'build']);
   const action = value.action;
   if (!action || typeof action !== 'object' || !allowed.has(action.type)) {
     return { say: '', action: { type: 'wait', durationMs: 1000 }, learningNote: '' };
@@ -50,6 +54,18 @@ function validateDecision(value) {
     const offsets = ['dx', 'dy', 'dz'].map(axis => Number(action[axis]));
     if (!Number.isInteger(itemType) || itemType <= 0 || !offsets.every(Number.isInteger) || offsets.some(v => v < -3 || v > 3) || offsets.every(v => v === 0)) {
       return { say: '', action: { type: 'wait', durationMs: 1000 }, learningNote: '設置位置またはブロック指定が不正だったため中止した。' };
+    }
+    action.itemType = itemType;
+    ['dx', 'dy', 'dz'].forEach((axis, i) => { action[axis] = offsets[i]; });
+  }
+  if (action.type === 'build') {
+    const itemType = Number(action.itemType);
+    const offsets = ['dx', 'dy', 'dz'].map(axis => Number(action[axis]));
+    if (!Number.isInteger(itemType) || itemType <= 0 ||
+        !offsets.every(Number.isInteger) || offsets.some(v => v < -3 || v > 3) ||
+        (offsets[0] === 0 && offsets[2] === 0) ||
+        !['wall', 'pillar'].includes(action.shape)) {
+      return { say: '', action: { type: 'wait', durationMs: 1000 }, learningNote: '建築指定が不正だったため中止した。' };
     }
     action.itemType = itemType;
     ['dx', 'dy', 'dz'].forEach((axis, i) => { action[axis] = offsets[i]; });
