@@ -22,10 +22,18 @@ small{color:#9eb2a2}
 </head>
 <body>
 <main>
-<span class="tag">EXPERIMENTAL · VERSION 0.15.0</span>
+<span class="tag">EXPERIMENTAL · VERSION 0.16.0</span>
 <h1>M-AI</h1>
 <p class="lead">観察と経験から学び、それぞれの名前と性格を持って活動するMinecraft AIプレイヤーシステム。</p>
 <section class="panel">
+<h2>第十五回アップデート</h2>
+<ul>
+<li>Ollamaが考えた新しい発言をローカル通信ブリッジからMinecraftへ送信</li>
+<li>Minecraft内のチャット欄に [M-AI] としてAIの発言を表示</li>
+<li>通信はこのPC内の127.0.0.1限定</li>
+<li>Fabric Modを0.3.0へ更新</li>
+<li>会話の入力や移動などのゲーム操作はまだ未実装</li>
+</ul>
 <h2>第十四回アップデート</h2>
 <ul>
 <li>プレイヤーの座標に加えて現在の体力・最大体力を送信</li>
@@ -117,7 +125,7 @@ small{color:#9eb2a2}
 </section>
 <section class="panel">
 <h2>重要な制限</h2>
-<p>第十三回でMinecraftの観察データをローカルOllamaに渡し、考察を保存できるようにしました。ただし、AIの考察をMinecraftの操作へ返す機能、AIプレイヤーの生成、実ワールドでの動作確認は未完了です。</p>
+<p>第十五回でOllamaが生成した発言をMinecraftのチャット欄へ表示できる通信経路を追加しました。ただし、プレイヤーからの会話入力、AIによるゲーム操作、AIプレイヤーの生成、実ワールドでの動作確認は未完了です。</p>
 <p>今回の移動確認は簡易的な足場・障害物チェックです。完全な経路探索や、あらゆる危険の回避を保証するものではありません。</p>
 <p>日記を書くAIには、あらかじめ本と羽ペンをインベントリに入れておく必要があります。言語モデルの事前学習知識そのものを消去することはできません。</p>
 </section>
