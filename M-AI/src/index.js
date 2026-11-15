@@ -123,21 +123,28 @@ async function runThinking(state, message = null, fromOperator = false, allowAct
   }
 }
 
-function writeDiary(state) {
-  if (!state.profile.diaryEnabled || !state.bot.entity || globalPaused) return;
+async function writeDiary(state) {
+  if (!state.profile.diaryEnabled || !state.bot.entity || globalPaused || state.diaryWriting) return;
   const book = state.bot.inventory?.findInventoryItem?.('writable_book');
   if (!book || typeof state.bot.writeBook !== 'function') return;
-  const latest = state.memory.experiences.slice(-5);
-  const lines = latest.map((entry, index) => {
-    const note = String(entry.learningNote || entry.actionResult || '周囲を観察した').replace(/[\r\n]/g, ' ').slice(0, 65);
-    return `${index + 1}. ${note}`;
-  });
-  const page = (`【${state.profile.name}の日記】\n${new Date().toLocaleString('ja-JP')}\n\n${lines.join('\n') || '今日は周囲を観察した。'}`).slice(0, 240);
-  state.bot.writeBook(book.slot, [page]).then(() => {
-    addBounded(state.memory.diaryEntries, { at: new Date().toISOString(), type: 'minecraft-book' }, 100);
+  state.diaryWriting = true;
+  try {
+    const latest = state.memory.experiences.slice(-5);
+    const lines = latest.map((entry, index) => {
+      const note = String(entry.learningNote || entry.actionResult || '周囲を観察した').replace(/[\r\n]/g, ' ').slice(0, 55);
+      return `${index + 1}. ${note}`;
+    });
+    const page = (`【${state.profile.name}の日記】\n${new Date().toLocaleString('ja-JP')}\n\n${lines.join('\n') || '今日は周囲を観察した。'}`).slice(0, 240);
+    const entries = [...state.memory.diaryEntries, { at: new Date().toISOString(), page }].slice(-100);
+    await state.bot.writeBook(book.slot, entries.map(entry => entry.page));
+    state.memory.diaryEntries = entries;
     save(state);
     log(state.profile, '本と羽ペンに日記を書きました。');
-  }).catch(error => log(state.profile, `日記を書けませんでした: ${error.message}`));
+  } catch (error) {
+    log(state.profile, `日記を書けませんでした: ${error.message}`);
+  } finally {
+    state.diaryWriting = false;
+  }
 }
 
 function resetOne(state) {
@@ -146,6 +153,10 @@ function resetOne(state) {
   state.pendingOperatorMessage = null;
   resetMemory(state.profile.id, state.memory);
   state.latestObservation = null;
+  const writableBook = state.bot.inventory?.findInventoryItem?.('writable_book');
+  if (writableBook && typeof state.bot.writeBook === 'function') {
+    state.bot.writeBook(writableBook.slot, ['']).catch(error => log(state.profile, `日記帳を空にできませんでした: ${error.message}`));
+  }
   state.resetting = false;
 }
 function handleCommand(state, username, command) {
