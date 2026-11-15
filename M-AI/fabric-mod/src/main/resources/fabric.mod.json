@@ -3,7 +3,7 @@
   "id": "m_ai_bridge",
   "version": "${version}",
   "name": "M-AI Bridge",
-  "description": "Connects a Minecraft Java 26.3 client to the local M-AI bridge and sends player position, health, dimension and held-item observations.",
+  "description": "Connects a Minecraft Java 26.3 client to the local M-AI bridge, sends player observations, and forwards player chat for local AI replies.",
   "authors": ["M-AI contributors"],
   "license": "MIT",
   "environment": "client",
