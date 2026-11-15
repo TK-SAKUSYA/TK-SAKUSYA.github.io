@@ -10,6 +10,14 @@
 
 > **Experimental:** the Fabric client mod connects to the Node-side local bridge, sends limited player observations, and can display short Ollama-generated speech in the local Minecraft chat. It does not yet control movement or spawn separate AI players. No live Minecraft 26.3 test has been completed.
 
+## Version 0.19.0 — Eighteenth update
+
+- The GitHub Actions artifact now includes an all-in-one `M-AI-Chat-Playtest.zip` with the Fabric JAR, Windows launcher, example config, and the two Node bridge scripts.
+- The quick-start instructions now describe the exact chat-only test flow instead of requiring the user to start two commands manually.
+- The package still requires Minecraft Java 26.3, Fabric Loader/API, Node.js 22+, and local Ollama. It does not include Minecraft or Ollama itself.
+- Fabric mod version bumped to `0.6.0`; M-AI project version bumped to `0.19.0`.
+- **Important:** the ZIP is created only after a successful GitHub Actions build. A source-code commit is not itself a built JAR.
+
 ## Version 0.18.0 — Seventeenth update
 
 - Added `start-bridge.bat` for Windows: it creates `config.json` if needed and opens the local bridge and Ollama reply process in separate terminals.
