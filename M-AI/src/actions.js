@@ -32,7 +32,7 @@ function canStepSafely(bot, direction) {
   if (support.boundingBox !== 'block') return false;
   return true;
 }
-async function executeAction(bot, action, config, signal, miningAuthorized = false) {
+async function executeAction(bot, action, config, signal, permissions = {}) {
   if (!action || typeof action !== 'object') return 'No action selected.';
   if (signal?.aborted) return 'Action cancelled before execution.';
   switch (action.type) {
@@ -67,7 +67,7 @@ async function executeAction(bot, action, config, signal, miningAuthorized = fal
       try { bot.setControlState('jump', true); await delay(350, signal); return 'Tried jumping.'; }
       finally { bot.setControlState('jump', false); }
     case 'mine': {
-      if (!miningAuthorized) return 'Mining requires an explicit operator mining instruction.';
+      if (!permissions.mining) return 'Mining requires an explicit operator mining instruction.';
       const dx = clamp(action.dx, -2, 2, 0);
       const dy = clamp(action.dy, -2, 2, 0);
       const dz = clamp(action.dz, -2, 2, 0);
@@ -101,6 +101,42 @@ async function executeAction(bot, action, config, signal, miningAuthorized = fal
         return `Mined one block at relative position ${dx}, ${dy}, ${dz}.`;
       } finally {
         signal?.removeEventListener('abort', stopDigging);
+      }
+    }
+    case 'craft': {
+      if (!permissions.crafting) return 'Crafting requires an explicit operator crafting instruction.';
+      const itemType = Number(action.itemType);
+      const count = clamp(action.count, 1, 4, 1);
+      if (!Number.isInteger(itemType) || itemType <= 0 || !Number.isInteger(count)) {
+        return 'Crafting request rejected: invalid item type or count.';
+      }
+      if (typeof bot.recipesFor !== 'function' || typeof bot.craft !== 'function' || !bot.inventory) {
+        return 'Crafting unavailable: required crafting APIs are unsupported.';
+      }
+      let table = null;
+      if (typeof bot.findBlock === 'function') {
+        try {
+          table = bot.findBlock({
+            matching: block => block?.name === 'crafting_table',
+            maxDistance: 4
+          }) || null;
+        } catch {}
+      }
+      let recipes = [];
+      try {
+        recipes = bot.recipesFor(itemType, null, 1, table);
+        if (!recipes.length && table) recipes = bot.recipesFor(itemType, null, 1, null);
+      } catch (error) {
+        return `Crafting recipe lookup failed: ${error.message}`;
+      }
+      if (!recipes.length) return 'Crafting skipped: no matching recipe with the current inventory and nearby table.';
+      if (signal?.aborted) return 'Crafting cancelled before starting.';
+      try {
+        await bot.craft(recipes[0], count, recipes[0].requiresTable ? table : null);
+        if (signal?.aborted) return 'Crafting interrupted by operator.';
+        return `Crafted item type ${itemType} using ${count} recipe operation(s).`;
+      } catch (error) {
+        return `Crafting failed: ${error.message}`;
       }
     }
     case 'inspect': return 'A fresh observation will be recorded.';
