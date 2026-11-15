@@ -2,6 +2,8 @@
 const net = require('node:net');
 const fs = require('node:fs');
 const path = require('node:path');
+const DATA_DIR = path.join(__dirname, '..', 'data', 'bridge');
+const LATEST_OBSERVATION = path.join(DATA_DIR, 'latest-observation.json');
 const configPath = path.join(__dirname, '..', 'config.json');
 if (!fs.existsSync(configPath)) {
   console.error('[M-AI Bridge] config.json がありません。');
@@ -76,6 +78,27 @@ const server = net.createServer(socket => {
       const value = message.type === 'chat' ? message.text :
         message.type === 'command_result' ? message.result :
         message.type === 'status' ? message.state : message.summary;
+      if (message.type === 'observation') {
+        if (typeof message.summary !== 'string' || !message.summary.trim()) {
+          send(socket, { type: 'error', code: 'INVALID_OBSERVATION' });
+          continue;
+        }
+        try {
+          fs.mkdirSync(DATA_DIR, { recursive: true });
+          const record = {
+            receivedAt: new Date().toISOString(),
+            source: label,
+            summary: clean(message.summary, 1000)
+          };
+          const temporaryPath = LATEST_OBSERVATION + '.tmp';
+          fs.writeFileSync(temporaryPath, JSON.stringify(record, null, 2) + '\\n', { encoding: 'utf8', mode: 0o600 });
+          fs.renameSync(temporaryPath, LATEST_OBSERVATION);
+        } catch (error) {
+          console.error('[M-AI Bridge] 観察データ保存エラー: ' + error.message);
+          send(socket, { type: 'error', code: 'OBSERVATION_SAVE_FAILED' });
+          continue;
+        }
+      }
       console.log('[M-AI Bridge] ' + message.type + ' (' + label + '): ' + clean(value));
       send(socket, { type: 'received', event: message.type });
     }
