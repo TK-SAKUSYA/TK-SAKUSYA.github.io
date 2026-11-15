@@ -24,7 +24,7 @@ const INTERVAL_MS = Math.max(1000, Number(config.bridge?.thinkingIntervalMs) || 
 const TIMEOUT_MS = Math.max(1000, Number(ollama.timeoutMs) || 45000);
 let inFlight = false;
 let lastProcessedObservationKey = '';
-let lastProcessedChatAt = '';
+let lastProcessedChatAt = readRecord(chatPath)?.receivedAt || ''; // Ignore an old message from before this process started.
 
 function parseModelJson(raw) {
   const text = String(raw || '').trim().replace(/^\uFEFF/, '');
@@ -57,10 +57,8 @@ async function processLatestInput() {
   const observation = readRecord(observationPath);
   const chat = readRecord(chatPath);
   const hasNewChat = chat && typeof chat.text === 'string' && chat.text.trim() && chat.receivedAt && chat.receivedAt !== lastProcessedChatAt;
-  const observationKey = observation && typeof observation.summary === 'string' ? String(observation.receivedAt || '') + '\n' + observation.summary : '';
-  const hasNewObservation = observationKey && observationKey !== lastProcessedObservationKey;
-  if (!hasNewChat && !hasNewObservation) return;
-  const selectedChat = hasNewChat ? chat : null;
+  if (!hasNewChat) return;
+  const selectedChat = chat;
   inFlight = true;
   try {
     const result = await askLocalModel(observation, selectedChat);
@@ -69,16 +67,16 @@ async function processLatestInput() {
     const temporaryPath = thoughtPath + '.tmp';
     fs.writeFileSync(temporaryPath, JSON.stringify(record, null, 2) + '\n', { encoding: 'utf8', mode: 0o600 });
     fs.renameSync(temporaryPath, thoughtPath);
-    if (hasNewChat) lastProcessedChatAt = chat.receivedAt; else lastProcessedObservationKey = observationKey;
+    lastProcessedChatAt = chat.receivedAt;
     console.log(selectedChat ? '[M-AI Bridge Brain] プレイヤーの会話に返答しました。' : '[M-AI Bridge Brain] 観察内容を考察しました。');
     if (result.say) console.log('[M-AI] ' + result.say);
   } catch (error) { console.error('[M-AI Bridge Brain] 返答生成に失敗しました: ' + error.message); }
   finally { inFlight = false; }
 }
 
-console.log('[M-AI Bridge Brain] 起動しました。ローカルOllamaで観察とプレイヤーの会話に返答します。');
+console.log('[M-AI Bridge Brain] 起動しました。Minecraftで新しいチャットが届いたときだけ返答します。');
 console.log('[M-AI Bridge Brain] 会話はMinecraftの通常チャットに入力してください。ゲーム操作はまだ行いません。');
-console.log('[M-AI Bridge Brain] 更新間隔: ' + INTERVAL_MS + 'ms');
+console.log('[M-AI Bridge Brain] 観察だけでは発言しません。プレイヤーの発言を待機中...');
 processLatestInput();
 const interval = setInterval(processLatestInput, INTERVAL_MS);
 function shutdown() { clearInterval(interval); process.exit(0); }
