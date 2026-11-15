@@ -29,7 +29,7 @@ function canStepSafely(bot, direction) {
   // Unknown collision data is treated conservatively. Empty space below means no step.
   if (!feet || !head || !support) return false;
   if (feet.boundingBox !== 'empty' || head.boundingBox !== 'empty') return false;
-  if (support.boundingBox === 'empty') return false;
+  if (support.boundingBox !== 'block') return false;
   return true;
 }
 async function executeAction(bot, action, config, signal) {
