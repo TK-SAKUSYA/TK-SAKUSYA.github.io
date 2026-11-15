@@ -59,7 +59,7 @@ Implemented in source:
 - A reset clears M-AI's saved local records, not the language model's pretrained knowledge or model weights.
 - Personality affects the agent's conversational and decision style; it is not a guarantee of human-like stable personality.
 - The diary feature requires the agent to already have a writable book in its inventory. M-AI does not yet craft or fetch books. Diary writing has not been verified on Minecraft 26.3.
-- The current action set remains limited to look, walk, jump, wait, inspect, and say. Mining, crafting, building, farming, combat, full pathfinding, and autonomous settlement-building are not implemented.
+- The current action set includes look, walk, jump, wait, inspect, say, and operator-directed single-block mining. Autonomous resource gathering, crafting, building, farming, full pathfinding, and autonomous settlement-building are not implemented.
 - Step checks reduce some movement risks but are not a complete pathfinder and cannot guarantee avoidance of every hazard.
 - The selected Mineflayer fork's compatibility, multi-bot login, and book-writing behavior have not been verified in a live 26.3 world.
 - More agents require more RAM and local model inference time. Start with one or two agents on an 8 GB PC; multiple agents may respond slowly.
