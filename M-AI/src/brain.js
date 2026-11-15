@@ -115,8 +115,8 @@ async function thinkAndAct(bot, config, memory, latestObservation, operatorMessa
   const say = typeof decision.say === 'string' ? decision.say.replace(/[\r\n]/g, ' ').slice(0, 100) : '';
   if (say && !signal?.aborted) bot.chat(say);
   const selectedAction = allowActions ? decision.action : { type: 'wait', durationMs: 500 };
-  const miningAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /採掘|掘って|掘る|mine|dig/i.test(operatorMessage));
-  const craftingAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /クラフト|作って|作成して|craft/i.test(operatorMessage));
+  const miningAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /採掘|掘って|掘る|\\bmine\\b|\\bdig\\b/i.test(operatorMessage));
+  const craftingAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /クラフト|作って|作成して|\\bcraft(?:ing)?\\b/i.test(operatorMessage));
   const result = await executeAction(bot, selectedAction, config, signal, { mining: miningAuthorized, crafting: craftingAuthorized });
   return {
     result,
