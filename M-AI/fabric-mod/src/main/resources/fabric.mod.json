@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "m_ai_bridge",
+  "version": "${version}",
+  "name": "M-AI Bridge",
+  "description": "Connects a Minecraft Java 26.3 client to the local M-AI bridge and sends player position observations.",
+  "authors": ["M-AI contributors"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.mai.bridge.MaiBridgeClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": ">=0.166.2"
+  }
+}
