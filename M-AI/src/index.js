@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const mineflayer = require('@wp2508/mineflayer');
-const { loadMemory, saveMemory, addBounded } = require('./memory');
+const { loadMemory, saveMemory, resetMemory, addBounded } = require('./memory');
 const { observe } = require('./observer');
 const { thinkAndAct } = require('./brain');
 const { compareObservations } = require('./learning');
@@ -11,7 +11,6 @@ if (!fs.existsSync(configPath)) {
   console.error('config.json is missing. Copy config.example.json to config.json first.');
   process.exit(1);
 }
-
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 const localHosts = new Set(['127.0.0.1', 'localhost', '::1']);
 if (!localHosts.has(config.host)) {
@@ -19,205 +18,271 @@ if (!localHosts.has(config.host)) {
   process.exit(1);
 }
 
-const memory = loadMemory();
-let paused = !config.autonomy.enabled;
-let thinking = false;
-let observationTimer = null;
-let autonomyTimer = null;
-let latestObservation = null;
-let pendingOperatorMessage = null;
-let activeActionController = null;
+const profiles = Array.isArray(config.agents) && config.agents.length
+  ? config.agents
+  : [{
+      id: 'mai-001',
+      username: config.botUsername || 'MAI001',
+      name: config.agentName || 'M-AI',
+      personality: config.personality || '慎重で協調的',
+      diaryEnabled: false
+    }];
 
-function log(message) {
-  console.log(`[M-AI] ${message}`);
+if (profiles.length > 8) {
+  console.error('Safety stop: at most 8 agents can be started in one process.');
+  process.exit(1);
+}
+const ids = new Set();
+const usernames = new Set();
+for (const profile of profiles) {
+  profile.id = String(profile.id || '').trim();
+  profile.username = String(profile.username || '').trim();
+  profile.name = String(profile.name || '').trim();
+  if (!profile.id || !profile.username || !profile.name || ids.has(profile.id) || usernames.has(profile.username.toLowerCase())) {
+    console.error('Each agent needs a unique id, username, and name in config.json.');
+    process.exit(1);
+  }
+  ids.add(profile.id);
+  usernames.add(profile.username.toLowerCase());
+  profile.personality = String(profile.personality || '慎重で協調的').slice(0, 300);
+  profile.diaryEnabled = Boolean(profile.diaryEnabled);
 }
 
-function recordExperience(entry) {
-  addBounded(memory.experiences, {
-    at: new Date().toISOString(),
-    ...entry
-  }, 500);
-  saveMemory(memory);
+const agents = new Map();
+let globalPaused = !config.autonomy.enabled;
+
+function log(profile, message) {
+  console.log(`[M-AI:${profile.name}] ${message}`);
+}
+function isOperator(state, username) {
+  return Boolean(state.memory.operator && username.toLowerCase() === state.memory.operator.toLowerCase());
+}
+function save(state) {
+  saveMemory(state.profile.id, state.memory);
+}
+function recordExperience(state, entry) {
+  addBounded(state.memory.experiences, { at: new Date().toISOString(), ...entry }, 500);
+  save(state);
+}
+function recordObservation(state) {
+  state.latestObservation = observe(state.bot, config.observation);
+  if (!state.latestObservation) return null;
+  addBounded(state.memory.observations, state.latestObservation, 100);
+  save(state);
+  return state.latestObservation;
+}
+function stopState(state) {
+  if (state.activeActionController) state.activeActionController.abort();
+  try { state.bot.clearControlStates(); } catch {}
+}
+function stopAll() {
+  globalPaused = true;
+  for (const state of agents.values()) stopState(state);
 }
 
-function recordObservation() {
-  latestObservation = observe(bot, config.observation);
-  if (!latestObservation) return null;
-  addBounded(memory.observations, latestObservation, 100);
-  saveMemory(memory);
-  return latestObservation;
-}
-
-function isOperator(username) {
-  return Boolean(memory.operator && username.toLowerCase() === memory.operator.toLowerCase());
-}
-
-const bot = mineflayer.createBot({
-  host: config.host,
-  port: config.port,
-  username: config.botUsername,
-  version: config.minecraftVersion,
-  auth: 'offline'
-});
-
-async function runThinking(message = null, fromOperator = false, allowActions = true) {
-  if (!bot.entity) return;
-  if (thinking) {
+async function runThinking(state, message = null, fromOperator = false, allowActions = true) {
+  if (!state.bot.entity || state.resetting) return;
+  if (state.thinking) {
     if (fromOperator) {
-      pendingOperatorMessage = message;
-      if (activeActionController) activeActionController.abort();
-      bot.clearControlStates();
-      log('Operator instruction queued with priority.');
+      state.pendingOperatorMessage = message;
+      stopState(state);
+      log(state.profile, '担当者の指示を優先します。');
     }
     return;
   }
-  if (paused && !fromOperator && !message) return;
-
-  thinking = true;
-  activeActionController = new AbortController();
+  if (globalPaused && !fromOperator && !message) return;
+  state.thinking = true;
+  state.activeActionController = new AbortController();
   try {
-    const observation = recordObservation();
+    const before = recordObservation(state);
     const result = await thinkAndAct(
-      bot,
-      config,
-      memory,
-      observation,
-      message,
-      fromOperator,
-      allowActions,
-      activeActionController.signal
+      state.bot, config, state.memory, before, message, fromOperator,
+      allowActions, state.activeActionController.signal, state.profile
     );
-    const afterObservation = recordObservation();
-    recordExperience({
+    const after = recordObservation(state);
+    recordExperience(state, {
       source: fromOperator ? 'operator' : 'autonomy',
       input: message,
       actionResult: result.result,
       learningNote: result.learningNote,
-      before: observation,
-      after: afterObservation,
-      observedChanges: compareObservations(observation, afterObservation)
+      before,
+      after,
+      observedChanges: compareObservations(before, after)
     });
-    log(result.result);
+    log(state.profile, result.result);
   } catch (error) {
-    log(`Thinking unavailable: ${error.message}`);
-    recordExperience({
-      source: fromOperator ? 'operator' : 'autonomy',
-      input: message,
-      error: error.message
-    });
+    if (!state.activeActionController?.signal.aborted) log(state.profile, `思考できませんでした: ${error.message}`);
   } finally {
-    thinking = false;
-    activeActionController = null;
-    if (pendingOperatorMessage !== null) {
-      const nextMessage = pendingOperatorMessage;
-      pendingOperatorMessage = null;
-      setImmediate(() => runThinking(nextMessage, true, true));
+    state.thinking = false;
+    state.activeActionController = null;
+    if (state.pendingOperatorMessage !== null) {
+      const next = state.pendingOperatorMessage;
+      state.pendingOperatorMessage = null;
+      setImmediate(() => runThinking(state, next, true, true));
     }
   }
 }
 
-function showHelp() {
-  bot.chat('M-AI: !mai claim / help / status / pause / resume / think');
+function writeDiary(state) {
+  if (!state.profile.diaryEnabled || !state.bot.entity || globalPaused) return;
+  const book = state.bot.inventory?.findInventoryItem?.('writable_book');
+  if (!book || typeof state.bot.writeBook !== 'function') return;
+  const latest = state.memory.experiences.slice(-5);
+  const lines = latest.map((entry, index) => {
+    const note = String(entry.learningNote || entry.actionResult || '周囲を観察した').replace(/[\r\n]/g, ' ').slice(0, 65);
+    return `${index + 1}. ${note}`;
+  });
+  const page = (`【${state.profile.name}の日記】\n${new Date().toLocaleString('ja-JP')}\n\n${lines.join('\n') || '今日は周囲を観察した。'}`).slice(0, 240);
+  state.bot.writeBook(book.slot, [page]).then(() => {
+    addBounded(state.memory.diaryEntries, { at: new Date().toISOString(), type: 'minecraft-book' }, 100);
+    save(state);
+    log(state.profile, '本と羽ペンに日記を書きました。');
+  }).catch(error => log(state.profile, `日記を書けませんでした: ${error.message}`));
 }
 
-bot.once('spawn', () => {
-  log('Connected to the local Minecraft world.');
-  log('Minecraft-specific guide data: none supplied.');
-  bot.chat('こんにちは。私はM-AIです。ここでの経験を記録していきます。');
-
-  recordObservation();
-
-  observationTimer = setInterval(recordObservation, 15000);
-  autonomyTimer = setInterval(() => {
-    if (!paused) runThinking();
-  }, config.autonomy.intervalMs);
-});
-
-bot.on('chat', (username, message) => {
-  if (!message || username === bot.username) return;
-
-  addBounded(memory.conversations, {
-    at: new Date().toISOString(),
-    username,
-    message: String(message).slice(0, 300)
-  }, 300);
-  saveMemory(memory);
-
-  const command = message.trim();
-
-  if (command === '!mai claim') {
-    if (!memory.operator) {
-      memory.operator = username;
-      saveMemory(memory);
-      bot.chat(`${username}を操作担当者として登録しました。`);
-    } else if (isOperator(username)) {
-      bot.chat('あなたは既に操作担当者です。');
+function resetOne(state) {
+  state.resetting = true;
+  stopState(state);
+  state.pendingOperatorMessage = null;
+  resetMemory(state.profile.id, state.memory);
+  state.latestObservation = null;
+  state.resetting = false;
+}
+function handleCommand(state, username, command) {
+  const parts = command.trim().split(/\s+/);
+  const sub = (parts[1] || '').toLowerCase();
+  if (sub === 'claim') {
+    if (!state.memory.operator) {
+      state.memory.operator = username;
+      save(state);
+      state.bot.chat(`${state.profile.name}: ${username}を操作担当者として登録しました。`);
+    } else if (isOperator(state, username)) state.bot.chat(`${state.profile.name}: あなたは操作担当者です。`);
+    else state.bot.chat(`${state.profile.name}: 操作担当者は既に登録されています。`);
+    return true;
+  }
+  if (sub === 'help') {
+    state.bot.chat('コマンド: !mai claim / status / pause / resume / think / reset all / reset 名前 / 名前 指示');
+    return true;
+  }
+  if (sub === 'status') {
+    state.bot.chat(`${state.profile.name}: ${globalPaused ? '停止中' : '活動中'} / 観察 ${state.memory.observations.length}件 / 経験 ${state.memory.experiences.length}件`);
+    return true;
+  }
+  if (sub === 'reset') {
+    if (!isOperator(state, username)) { state.bot.chat('記憶リセットには操作担当者登録が必要です。'); return true; }
+    const target = parts.slice(2).join(' ');
+    if (!target) { state.bot.chat('例: !mai reset all または !mai reset アキラ'); return true; }
+    if (target.toLowerCase() === 'all') {
+      stopAll();
+      for (const item of agents.values()) resetOne(item);
+      state.bot.chat('全AIの記憶をリセットしました。安全のため全AIを停止中にしました。再開は !mai resume です。');
     } else {
-      bot.chat('操作担当者は既に登録されています。');
+      const targetState = [...agents.values()].find(item => item.profile.name.toLowerCase() === target.toLowerCase());
+      if (!targetState) state.bot.chat(`「${target}」という名前のAIはいません。`);
+      else {
+        resetOne(targetState);
+        state.bot.chat(`${targetState.profile.name}の記憶をリセットしました。自律行動は全体停止中でなければ再開します。`);
+      }
     }
-    return;
+    return true;
   }
+  if (sub === 'pause') {
+    if (!isOperator(state, username)) { state.bot.chat('この操作には担当者登録が必要です。'); return true; }
+    stopAll();
+    state.bot.chat('全AIの自律行動を停止しました。');
+    return true;
+  }
+  if (sub === 'resume') {
+    if (!isOperator(state, username)) { state.bot.chat('この操作には担当者登録が必要です。'); return true; }
+    globalPaused = false;
+    state.bot.chat('全AIの自律行動を再開します。');
+    return true;
+  }
+  if (sub === 'think') {
+    if (!isOperator(state, username)) { state.bot.chat('この操作には担当者登録が必要です。'); return true; }
+    runThinking(state, '周囲を観察し、次に何を試すか考えてください。', true);
+    return true;
+  }
+  return false;
+}
 
-  if (!command.startsWith('!mai')) {
-    if (isOperator(username)) {
-      runThinking(command, true, true);
-    } else {
-      runThinking(command, false, false);
+for (const profile of profiles) {
+  const memory = loadMemory(profile.id);
+  const bot = mineflayer.createBot({
+    host: config.host,
+    port: config.port,
+    username: profile.username,
+    version: config.minecraftVersion,
+    auth: 'offline'
+  });
+  const state = {
+    profile, memory, bot, thinking: false, resetting: false,
+    pendingOperatorMessage: null, activeActionController: null,
+    observationTimer: null, autonomyTimer: null, diaryTimer: null,
+    latestObservation: null
+  };
+  agents.set(profile.id, state);
+
+  bot.once('spawn', () => {
+    log(profile, 'ローカルMinecraftワールドに接続しました。');
+    bot.chat(`こんにちは！私は${profile.name}です。`);
+    recordObservation(state);
+    state.observationTimer = setInterval(() => recordObservation(state), 15000);
+    state.autonomyTimer = setInterval(() => {
+      if (!globalPaused) runThinking(state);
+    }, config.autonomy.intervalMs);
+    if (profile.diaryEnabled) {
+      const interval = Math.max(60000, Number(config.diary?.intervalMs) || 1800000);
+      state.diaryTimer = setInterval(() => writeDiary(state), interval);
     }
-    return;
-  }
+  });
 
-  const subcommand = command.slice(4).trim().toLowerCase();
+  bot.on('chat', (username, message) => {
+    if (!message || username.toLowerCase() === bot.username.toLowerCase()) return;
+    addBounded(memory.conversations, { at: new Date().toISOString(), username, message: String(message).slice(0, 300) }, 300);
+    save(state);
+    const command = message.trim();
+    if (command.startsWith('!mai')) {
+      const parts = command.split(/\s+/);
+      const maybeName = parts[1];
+      if (maybeName && !['claim','help','status','pause','resume','think','reset','to'].includes(maybeName.toLowerCase())) {
+        if (maybeName.toLowerCase() !== profile.name.toLowerCase()) return;
+        if (!isOperator(state, username)) { bot.chat('個別指示には操作担当者登録が必要です。'); return; }
+        const instruction = parts.slice(2).join(' ');
+        if (instruction) runThinking(state, instruction, true, true);
+        return;
+      }
+      if (parts[1]?.toLowerCase() === 'to') {
+        const targetName = parts[2];
+        if (targetName?.toLowerCase() !== profile.name.toLowerCase()) return;
+        if (!isOperator(state, username)) { bot.chat('個別指示には操作担当者登録が必要です。'); return; }
+        const instruction = parts.slice(3).join(' ');
+        if (instruction) runThinking(state, instruction, true, true);
+        return;
+      }
+      handleCommand(state, username, command);
+      return;
+    }
+    if (isOperator(state, username)) runThinking(state, command, true, true);
+    else runThinking(state, command, false, false);
+  });
 
-  if (subcommand === 'help') return showHelp();
-
-  if (subcommand === 'status') {
-    bot.chat(`M-AI: ${paused ? '停止中' : '活動中'} / 観察 ${memory.observations.length}件 / 経験 ${memory.experiences.length}件`);
-    return;
-  }
-
-  if (subcommand === 'pause') {
-    if (!isOperator(username)) return bot.chat('この操作には担当者登録が必要です。');
-    paused = true;
-    if (activeActionController) activeActionController.abort();
-    bot.clearControlStates();
-    bot.chat('自律行動を停止しました。');
-    return;
-  }
-
-  if (subcommand === 'resume') {
-    if (!isOperator(username)) return bot.chat('この操作には担当者登録が必要です。');
-    paused = false;
-    bot.chat('自律行動を再開します。');
-    return;
-  }
-
-  if (subcommand === 'think') {
-    if (!isOperator(username)) return bot.chat('この操作には担当者登録が必要です。');
-    runThinking('周囲を観察し、次に何を試すか考えてください。', true);
-    return;
-  }
-
-  bot.chat('不明な命令です。!mai help を確認してください。');
-});
-
-bot.on('error', error => log(`Connection error: ${error.message}`));
-bot.on('kicked', reason => log(`Kicked: ${JSON.stringify(reason)}`));
-
-bot.on('end', () => {
-  if (activeActionController) activeActionController.abort();
-  if (observationTimer) clearInterval(observationTimer);
-  if (autonomyTimer) clearInterval(autonomyTimer);
-  bot.clearControlStates();
-  saveMemory(memory);
-  log('Disconnected. Local memory saved.');
-});
+  bot.on('error', error => log(profile, `接続エラー: ${error.message}`));
+  bot.on('kicked', reason => log(profile, `サーバーから切断: ${JSON.stringify(reason)}`));
+  bot.on('end', () => {
+    stopState(state);
+    for (const timer of [state.observationTimer, state.autonomyTimer, state.diaryTimer]) if (timer) clearInterval(timer);
+    save(state);
+    log(profile, '切断しました。ローカル記憶を保存しました。');
+  });
+}
 
 process.on('SIGINT', () => {
-  if (activeActionController) activeActionController.abort();
-  if (observationTimer) clearInterval(observationTimer);
-  if (autonomyTimer) clearInterval(autonomyTimer);
-  try { bot.clearControlStates(); bot.quit(); } catch {}
-  saveMemory(memory);
+  stopAll();
+  for (const state of agents.values()) {
+    for (const timer of [state.observationTimer, state.autonomyTimer, state.diaryTimer]) if (timer) clearInterval(timer);
+    try { state.bot.quit(); } catch {}
+    save(state);
+  }
   process.exit(0);
 });
