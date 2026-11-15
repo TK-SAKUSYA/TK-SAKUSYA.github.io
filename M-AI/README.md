@@ -16,7 +16,7 @@
 - Recipe lookup uses the bot's current inventory and a nearby crafting table when available.
 - Each request is limited to 1–4 recipe operations; no recipe or insufficient materials results in a safe skip.
 - Crafting requires an explicit operator instruction containing a crafting request. Autonomous decisions and ordinary non-operator chat cannot craft.
-- Operator interruption remains supported. Live Minecraft 26.3 crafting behavior has not been verified.
+- Cancellation is checked before crafting starts; an in-progress craft is not guaranteed to be interruptible. Live Minecraft 26.3 crafting behavior has not been verified.
 
 ## Version 0.6.0 — Fifth update
 
