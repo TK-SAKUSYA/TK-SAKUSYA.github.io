@@ -49,7 +49,7 @@ Still not implemented (future development):
 
 ## Safe local-server setup
 
-M-AI v0.1.0 uses offline authentication for a **local-only test server**. Do not expose an offline-mode server to the internet, do not configure port forwarding, and do not use this setup on a public server.
+M-AI v0.2.0 uses offline authentication for a **local-only test server**. Do not expose an offline-mode server to the internet, do not configure port forwarding, and do not use this setup on a public server.
 
 1. Back up your single-player world before experimenting.
 2. Create a separate local Java 26.3 server using the official server software.
