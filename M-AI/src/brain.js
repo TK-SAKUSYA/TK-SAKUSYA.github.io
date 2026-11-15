@@ -67,7 +67,7 @@ async function requestDecision(config, payload) {
   }
 }
 
-async function thinkAndAct(bot, config, memory, latestObservation, operatorMessage, isOperator) {
+async function thinkAndAct(bot, config, memory, latestObservation, operatorMessage, isOperator, allowActions = true) {
   const recentExperiences = memory.experiences.slice(-20);
   const recentObservations = memory.observations.slice(-5);
 
@@ -89,7 +89,8 @@ async function thinkAndAct(bot, config, memory, latestObservation, operatorMessa
 
   if (say) bot.chat(say);
 
-  const result = await executeAction(bot, decision.action, config);
+  const selectedAction = allowActions ? decision.action : { type: 'wait', durationMs: 500 };
+  const result = await executeAction(bot, selectedAction, config);
   return {
     result,
     learningNote: typeof decision.learningNote === 'string'
