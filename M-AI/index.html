@@ -22,10 +22,19 @@ small{color:#9eb2a2}
 </head>
 <body>
 <main>
-<span class="tag">EXPERIMENTAL · VERSION 0.17.0</span>
+<span class="tag">EXPERIMENTAL · VERSION 0.18.0</span>
 <h1>M-AI</h1>
 <p class="lead">観察と経験から学び、それぞれの名前と性格を持って活動するMinecraft AIプレイヤーシステム。</p>
 <section class="panel">
+<h2>第十七回アップデート</h2>
+<ul>
+<li>Windows用 start-bridge.bat を追加、2つのローカル処理をまとめて起動</li>
+<li>プレイヤーが新しいチャットを送ったときだけAIが返答</li>
+<li>起動前の古いチャットを誤って再生しない</li>
+<li>Minecraft 26.3公式サンプルに合わせてGradle依存関係を修正</li>
+<li>Fabric Modを0.5.0へ更新</li>
+<li>今回は会話だけの試作版。移動・採掘・建築・AIプレイヤー生成は未対応</li>
+</ul>
 <h2>第十六回アップデート</h2>
 <ul>
 <li>Minecraftの通常チャットでプレイヤーがAIに話しかけられる</li>
@@ -135,7 +144,7 @@ small{color:#9eb2a2}
 </section>
 <section class="panel">
 <h2>重要な制限</h2>
-<p>第十六回でMinecraftの通常チャットからプレイヤーの発言を受け取り、ローカルOllamaの返事をMinecraftのチャット欄へ返す経路を追加しました。ただし、AIによるゲーム操作、AIプレイヤーの生成、実ワールドでの動作確認は未完了です。</p>
+<p>第十七回で会話だけの試作プレイをしやすくするWindows起動ファイルを追加しました。新しいプレイヤー発言にだけAIが返答します。実際に遊ぶにはFabric Modのビルド成功と導入が必要です。AIによるゲーム操作やAIプレイヤー生成はまだ未対応です。</p>
 <p>今回の移動確認は簡易的な足場・障害物チェックです。完全な経路探索や、あらゆる危険の回避を保証するものではありません。</p>
 <p>日記を書くAIには、あらかじめ本と羽ペンをインベントリに入れておく必要があります。言語モデルの事前学習知識そのものを消去することはできません。</p>
 </section>
