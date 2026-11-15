@@ -139,6 +139,57 @@ async function executeAction(bot, action, config, signal, permissions = {}) {
         return `Crafting failed: ${error.message}`;
       }
     }
+    case 'place': {
+      if (!permissions.building) return 'Block placement requires an explicit operator building instruction.';
+      const dx = Number(action.dx);
+      const dy = Number(action.dy);
+      const dz = Number(action.dz);
+      const itemType = Number(action.itemType);
+      if (![dx, dy, dz].every(Number.isInteger) || [dx, dy, dz].some(v => v < -3 || v > 3) ||
+          (dx === 0 && dy === 0 && dz === 0) || !Number.isInteger(itemType) || itemType <= 0) {
+        return 'Placement rejected: invalid target offset or item type.';
+      }
+      if (!bot.entity?.position || typeof bot.blockAt !== 'function' ||
+          typeof bot.placeBlock !== 'function' || typeof bot.equip !== 'function' || !bot.inventory) {
+        return 'Block placement unavailable: required world interaction APIs are unsupported.';
+      }
+      const target = bot.entity.position.offset(dx, dy, dz);
+      if (bot.entity.position.distanceTo(target) > 4.5) return 'Placement skipped: target is too far away.';
+      const existing = bot.blockAt(target);
+      if (!existing || !['air', 'cave_air', 'void_air'].includes(existing.name)) {
+        return 'Placement skipped: target space is not confirmed empty.';
+      }
+      const protectedNames = /water|lava|fire|portal|chest|barrel|shulker|furnace|hopper|spawner|command_block|bedrock/i;
+      const item = bot.inventory.items().find(entry => entry.type === itemType && entry.count > 0);
+      if (!item || protectedNames.test(item.name)) return 'Placement skipped: requested safe block is not in inventory.';
+      const faces = [
+        { x: 1, y: 0, z: 0 }, { x: -1, y: 0, z: 0 },
+        { x: 0, y: 1, z: 0 }, { x: 0, y: -1, z: 0 },
+        { x: 0, y: 0, z: 1 }, { x: 0, y: 0, z: -1 }
+      ];
+      let reference = null;
+      let face = null;
+      for (const candidate of faces) {
+        const block = bot.blockAt(target.offset(-candidate.x, -candidate.y, -candidate.z));
+        if (block && block.boundingBox === 'block' && !block.entity && !protectedNames.test(block.name || '')) {
+          reference = block;
+          face = candidate;
+          break;
+        }
+      }
+      if (!reference || !face) return 'Placement skipped: no safe solid supporting block is adjacent to the target.';
+      if (signal?.aborted) return 'Placement cancelled before starting.';
+      try {
+        await bot.equip(item, 'hand');
+        if (signal?.aborted) return 'Placement cancelled before placing the block.';
+        await bot.placeBlock(reference, face);
+        return `Placed one block at relative position ${dx}, ${dy}, ${dz}.`;
+      } catch (error) {
+        return `Block placement failed: ${error.message}`;
+      } finally {
+        try { await bot.unequip('hand'); } catch {}
+      }
+    }
     case 'inspect': return 'A fresh observation will be recorded.';
     case 'wait': {
       const duration = clamp(action.durationMs, 500, 5000, 1500);
