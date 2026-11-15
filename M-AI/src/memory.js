@@ -13,10 +13,11 @@ function memoryPath(agentId) {
   return path.join(DATA_DIR, safeId(agentId) + '.json');
 }
 
-function emptyMemory(operator = null) {
+function emptyMemory(operator = null, identity = null) {
   const now = new Date().toISOString();
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
+    identity,
     createdAt: now,
     updatedAt: now,
     observations: [],
@@ -38,7 +39,7 @@ function loadMemory(agentId = 'mai-001') {
 
   try {
     const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
-    return { ...emptyMemory(parsed.operator || null), ...parsed, schemaVersion: 2 };
+    return { ...emptyMemory(parsed.operator || null, parsed.identity || null), ...parsed, schemaVersion: 3 };
   } catch (error) {
     const backup = file + '.corrupt-' + Date.now();
     fs.copyFileSync(file, backup);
@@ -57,7 +58,8 @@ function saveMemory(agentId, memory) {
 
 function resetMemory(agentId, memory) {
   const operator = memory.operator || null;
-  const fresh = emptyMemory(operator);
+  const identity = memory.identity || null;
+  const fresh = emptyMemory(operator, identity);
   for (const key of Object.keys(memory)) delete memory[key];
   Object.assign(memory, fresh);
   saveMemory(agentId, memory);
