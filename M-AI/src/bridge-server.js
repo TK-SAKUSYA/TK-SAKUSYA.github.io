@@ -91,7 +91,7 @@ const server = net.createServer(socket => {
             summary: clean(message.summary, 1000)
           };
           const temporaryPath = LATEST_OBSERVATION + '.tmp';
-          fs.writeFileSync(temporaryPath, JSON.stringify(record, null, 2) + '\\n', { encoding: 'utf8', mode: 0o600 });
+          fs.writeFileSync(temporaryPath, JSON.stringify(record, null, 2) + '\n', { encoding: 'utf8', mode: 0o600 });
           fs.renameSync(temporaryPath, LATEST_OBSERVATION);
         } catch (error) {
           console.error('[M-AI Bridge] 観察データ保存エラー: ' + error.message);
