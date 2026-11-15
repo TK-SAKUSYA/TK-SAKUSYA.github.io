@@ -32,7 +32,7 @@ function canStepSafely(bot, direction) {
   if (support.boundingBox !== 'block') return false;
   return true;
 }
-async function executeAction(bot, action, config, signal, isOperator = false) {
+async function executeAction(bot, action, config, signal, miningAuthorized = false) {
   if (!action || typeof action !== 'object') return 'No action selected.';
   if (signal?.aborted) return 'Action cancelled before execution.';
   switch (action.type) {
@@ -67,7 +67,7 @@ async function executeAction(bot, action, config, signal, isOperator = false) {
       try { bot.setControlState('jump', true); await delay(350, signal); return 'Tried jumping.'; }
       finally { bot.setControlState('jump', false); }
     case 'mine': {
-      if (!isOperator) return 'Mining requires an explicit operator instruction.';
+      if (!miningAuthorized) return 'Mining requires an explicit operator mining instruction.';
       const dx = clamp(action.dx, -2, 2, 0);
       const dy = clamp(action.dy, -2, 2, 0);
       const dz = clamp(action.dz, -2, 2, 0);
