@@ -41,7 +41,7 @@ async function executeAction(bot, action, config, signal) {
       return `Waited ${duration} ms.`;
     }
     case 'say': {
-      const message = String(action.message || '').replace(/[\\r\\n]/g, ' ').slice(0, 100);
+      const message = String(action.message || '').replace(/[\r\n]/g, ' ').slice(0, 100);
       if (message) bot.chat(message);
       return 'Sent a chat message.';
     }
