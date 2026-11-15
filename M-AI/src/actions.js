@@ -191,6 +191,87 @@ async function executeAction(bot, action, config, signal, permissions = {}) {
         try { await bot.unequip('hand'); } catch {}
       }
     }
+    case 'build': {
+      if (!permissions.building) return 'Building requires an explicit operator building instruction.';
+      const itemType = Number(action.itemType);
+      const shape = action.shape;
+      const dx = Number(action.dx);
+      const dy = Number(action.dy);
+      const dz = Number(action.dz);
+      if (!Number.isInteger(itemType) || itemType <= 0 ||
+          ![dx, dy, dz].every(Number.isInteger) ||
+          [dx, dy, dz].some(v => v < -3 || v > 3) ||
+          (dx === 0 && dz === 0) ||
+          !['wall', 'pillar'].includes(shape)) {
+        return 'Build rejected: invalid material, shape, or anchor position.';
+      }
+      if (!bot.entity?.position || typeof bot.blockAt !== 'function' ||
+          typeof bot.placeBlock !== 'function' || typeof bot.equip !== 'function' || !bot.inventory) {
+        return 'Building unavailable: required world interaction APIs are unsupported.';
+      }
+      const offsets = shape === 'wall'
+        ? [[0,0,0],[1,0,0],[2,0,0],[0,1,0],[1,1,0],[2,1,0]]
+        : [[0,0,0],[0,1,0],[0,2,0]];
+      const targets = offsets.map(([x,y,z]) => bot.entity.position.offset(dx+x, dy+y, dz+z));
+      if (targets.some(target => bot.entity.position.distanceTo(target) > 4.5)) {
+        return 'Build skipped: part of the structure is too far away.';
+      }
+      const airNames = new Set(['air', 'cave_air', 'void_air']);
+      for (const target of targets) {
+        const existing = bot.blockAt(target);
+        if (!existing || !airNames.has(existing.name)) {
+          return 'Build skipped: every target position must be confirmed empty before construction.';
+        }
+      }
+      const item = bot.inventory.items().find(entry => entry.type === itemType && entry.count >= offsets.length);
+      if (!item || /water|lava|fire|portal|chest|barrel|shulker|furnace|hopper|spawner|command_block|bedrock|sand|gravel|concrete_powder|torch|rail|door|sign|banner|slab|stairs/i.test(item.name)) {
+        return 'Build skipped: enough safe building blocks of the requested type are not in inventory.';
+      }
+      const blockInfo = bot.registry?.blocksByName?.[item.name];
+      if (!blockInfo || blockInfo.boundingBox !== 'block') {
+        return 'Build skipped: the selected item is not confirmed as a full solid block.';
+      }
+      if (signal?.aborted) return 'Build cancelled before starting.';
+      const faces = [
+        { x: 1, y: 0, z: 0 }, { x: -1, y: 0, z: 0 },
+        { x: 0, y: 1, z: 0 }, { x: 0, y: -1, z: 0 },
+        { x: 0, y: 0, z: 1 }, { x: 0, y: 0, z: -1 }
+      ];
+      let placed = 0;
+      try {
+        await bot.equip(item, 'hand');
+        for (const target of targets) {
+          if (signal?.aborted) return `Building interrupted by operator after ${placed} block(s).`;
+          const current = bot.blockAt(target);
+          if (!current || !airNames.has(current.name)) {
+            return `Building stopped after ${placed} block(s): a target is no longer empty.`;
+          }
+          let reference = null;
+          let face = null;
+          for (const candidate of faces) {
+            const block = bot.blockAt(target.offset(-candidate.x, -candidate.y, -candidate.z));
+            if (block && block.boundingBox === 'block' && !block.entity &&
+                !/water|lava|fire|portal|chest|barrel|shulker|furnace|hopper|spawner|command_block|bedrock/i.test(block.name || '')) {
+              reference = block;
+              face = candidate;
+              break;
+            }
+          }
+          if (!reference || !face) {
+            return `Building stopped after ${placed} block(s): no safe adjacent support block.`;
+          }
+          const faceVector = new bot.entity.position.constructor(face.x, face.y, face.z);
+          await bot.placeBlock(reference, faceVector);
+          placed += 1;
+          await delay(180, signal);
+        }
+        return `Built a ${shape} with ${placed} block(s).`;
+      } catch (error) {
+        return `Building stopped after ${placed} block(s): ${error.message}`;
+      } finally {
+        try { await bot.unequip('hand'); } catch {}
+      }
+    }
     case 'inspect': return 'A fresh observation will be recorded.';
     case 'wait': {
       const duration = clamp(action.durationMs, 500, 5000, 1500);
