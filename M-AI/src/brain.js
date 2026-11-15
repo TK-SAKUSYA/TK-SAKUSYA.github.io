@@ -106,7 +106,8 @@ async function thinkAndAct(bot, config, memory, latestObservation, operatorMessa
   const say = typeof decision.say === 'string' ? decision.say.replace(/[\r\n]/g, ' ').slice(0, 100) : '';
   if (say && !signal?.aborted) bot.chat(say);
   const selectedAction = allowActions ? decision.action : { type: 'wait', durationMs: 500 };
-  const result = await executeAction(bot, selectedAction, config, signal, isOperator);
+  const miningAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /採掘|掘って|掘る|mine|dig/i.test(operatorMessage));
+  const result = await executeAction(bot, selectedAction, config, signal, miningAuthorized);
   return {
     result,
     learningNote: typeof decision.learningNote === 'string' ? decision.learningNote.slice(0, 300) : ''
