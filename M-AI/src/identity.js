@@ -45,14 +45,14 @@ async function generateIdentity(config, personality, existingNames = []) {
   if (!response.ok) throw new Error(`OllamaがHTTP ${response.status}を返しました。起動状態とモデルを確認してください。`);
   const result = await response.json();
   const data = parseJson(result.message?.content);
-  const name = String(data.name || '').trim().replace(/[\\r\\n]/g, '').slice(0, 12);
-  if (!name || !/^[\\p{L}\\p{N}_ー・]+$/u.test(name)) {
+  const name = String(data.name || '').trim().replace(/[\r\n]/g, '').slice(0, 12);
+  if (!name || !/^[\p{L}\p{N}_ー・]+$/u.test(name)) {
     throw new Error('AIが有効な名前を決められませんでした。もう一度起動してください。');
   }
   if (existingNames.some(item => item.toLowerCase() === name.toLowerCase())) {
     throw new Error(`AIが既存の名前「${name}」を選んでしまいました。再起動してもう一度試してください。`);
   }
-  const introduction = String(data.introduction || '').replace(/[\\r\\n]/g, ' ').slice(0, 120);
+  const introduction = String(data.introduction || '').replace(/[\r\n]/g, ' ').slice(0, 120);
   return { name, introduction, chosenAt: new Date().toISOString() };
 }
 
