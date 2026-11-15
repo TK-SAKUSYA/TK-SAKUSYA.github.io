@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="M-AI — Minecraft AI player that learns from its own observations.">
+<title>M-AI — Minecraft AI</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#101713;color:#edf5ee}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 75% 0%,#24442f 0,transparent 38%),#101713}
+main{width:min(920px,92%);margin:0 auto;padding:56px 0 72px}
+.tag{display:inline-block;border:1px solid #477b56;border-radius:999px;padding:6px 12px;color:#b8edc5;font-size:13px}
+h1{font-size:clamp(52px,10vw,92px);letter-spacing:-.07em;margin:18px 0 0}
+.lead{font-size:clamp(18px,3vw,24px);color:#c5d4c8;max-width:680px;line-height:1.65}
+.panel{background:#18251d;border:1px solid #344d3b;border-radius:18px;padding:24px;margin-top:24px}
+h2{margin-top:0}ul{line-height:2;color:#d4e2d6;padding-left:22px}
+a{color:#9ce5ad}a:hover{color:#d4f8dc}
+.links{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.links a{display:inline-block;padding:12px 16px;border:1px solid #527b5b;border-radius:10px;text-decoration:none;background:#203b29}
+small{color:#9eb2a2}
+</style>
+</head>
+<body>
+<main>
+<span class="tag">EXPERIMENTAL · VERSION 0.1.0</span>
+<h1>M-AI</h1>
+<p class="lead">A Minecraft AI player that starts without supplied Minecraft guides and builds a record of what it observes and experiences.</p>
+<section class="panel">
+<h2>What is M-AI?</h2>
+<p>M-AI is an open-source experiment in observation-first Minecraft agents. It connects to a local Minecraft Java server, observes the world through opaque sensor identifiers, stores experience, and can use a local Ollama model to choose limited actions.</p>
+<ul>
+<li>Local-first: agent memory stays on your computer.</li>
+<li>Human operator takes priority over autonomous behavior.</li>
+<li>No Minecraft wiki, recipe book, or strategy database is bundled.</li>
+<li>Designed as a foundation for future learning, cooperation, and civilization systems.</li>
+</ul>
+</section>
+<section class="panel">
+<h2>Important limitations</h2>
+<p>This is an early experimental release, not a finished autonomous civilization. Minecraft 26.3 compatibility has not yet been verified in a live end-to-end test. A language model's pretrained knowledge cannot be erased, so “zero knowledge” is an observation-first design goal rather than a mathematical guarantee.</p>
+<p>Use only an isolated local test server. Offline-mode servers must never be exposed to the internet.</p>
+</section>
+<div class="links">
+<a href="README.md">Setup & documentation</a>
+<a href="https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/tree/main/M-AI">Source code on GitHub</a>
+<a href="https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/archive/refs/heads/main.zip">Download repository ZIP</a>
+</div>
+<p><small>MIT License · Community project · No personal account details required</small></p>
+</main>
+</body>
+</html>
