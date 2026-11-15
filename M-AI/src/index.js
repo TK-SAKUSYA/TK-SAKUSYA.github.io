@@ -24,6 +24,7 @@ let thinking = false;
 let observationTimer = null;
 let autonomyTimer = null;
 let latestObservation = null;
+let pendingOperatorMessage = null;
 
 function log(message) {
   console.log(`[M-AI] ${message}`);
@@ -57,9 +58,17 @@ const bot = mineflayer.createBot({
   auth: 'offline'
 });
 
-async function runThinking(message = null, fromOperator = false) {
-  if (thinking || !bot.entity) return;
-  if (paused && !fromOperator) return;
+async function runThinking(message = null, fromOperator = false, allowActions = true) {
+  if (!bot.entity) return;
+  if (thinking) {
+    if (fromOperator) {
+      pendingOperatorMessage = message;
+      bot.clearControlStates();
+      log('Operator instruction queued with priority.');
+    }
+    return;
+  }
+  if (paused && !fromOperator && !message) return;
 
   thinking = true;
   try {
@@ -70,7 +79,8 @@ async function runThinking(message = null, fromOperator = false) {
       memory,
       observation,
       message,
-      fromOperator
+      fromOperator,
+      allowActions
     );
     recordExperience({
       source: fromOperator ? 'operator' : 'autonomy',
@@ -88,6 +98,11 @@ async function runThinking(message = null, fromOperator = false) {
     });
   } finally {
     thinking = false;
+    if (pendingOperatorMessage !== null) {
+      const nextMessage = pendingOperatorMessage;
+      pendingOperatorMessage = null;
+      setImmediate(() => runThinking(nextMessage, true, true));
+    }
   }
 }
 
@@ -135,9 +150,9 @@ bot.on('chat', (username, message) => {
 
   if (!command.startsWith('!mai')) {
     if (isOperator(username)) {
-      runThinking(command, true);
+      runThinking(command, true, true);
     } else {
-      log(`Chat received from ${username}.`);
+      runThinking(command, false, false);
     }
     return;
   }
