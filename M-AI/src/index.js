@@ -4,6 +4,7 @@ const mineflayer = require('@wp2508/mineflayer');
 const { loadMemory, saveMemory, addBounded } = require('./memory');
 const { observe } = require('./observer');
 const { thinkAndAct } = require('./brain');
+const { compareObservations } = require('./learning');
 
 const configPath = path.join(__dirname, '..', 'config.json');
 if (!fs.existsSync(configPath)) {
@@ -25,6 +26,7 @@ let observationTimer = null;
 let autonomyTimer = null;
 let latestObservation = null;
 let pendingOperatorMessage = null;
+let activeActionController = null;
 
 function log(message) {
   console.log(`[M-AI] ${message}`);
@@ -63,6 +65,7 @@ async function runThinking(message = null, fromOperator = false, allowActions = 
   if (thinking) {
     if (fromOperator) {
       pendingOperatorMessage = message;
+      if (activeActionController) activeActionController.abort();
       bot.clearControlStates();
       log('Operator instruction queued with priority.');
     }
@@ -71,6 +74,7 @@ async function runThinking(message = null, fromOperator = false, allowActions = 
   if (paused && !fromOperator && !message) return;
 
   thinking = true;
+  activeActionController = new AbortController();
   try {
     const observation = recordObservation();
     const result = await thinkAndAct(
@@ -80,13 +84,18 @@ async function runThinking(message = null, fromOperator = false, allowActions = 
       observation,
       message,
       fromOperator,
-      allowActions
+      allowActions,
+      activeActionController.signal
     );
+    const afterObservation = recordObservation();
     recordExperience({
       source: fromOperator ? 'operator' : 'autonomy',
       input: message,
       actionResult: result.result,
-      learningNote: result.learningNote
+      learningNote: result.learningNote,
+      before: observation,
+      after: afterObservation,
+      observedChanges: compareObservations(observation, afterObservation)
     });
     log(result.result);
   } catch (error) {
@@ -98,6 +107,7 @@ async function runThinking(message = null, fromOperator = false, allowActions = 
     });
   } finally {
     thinking = false;
+    activeActionController = null;
     if (pendingOperatorMessage !== null) {
       const nextMessage = pendingOperatorMessage;
       pendingOperatorMessage = null;
