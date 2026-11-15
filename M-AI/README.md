@@ -10,6 +10,14 @@
 
 > **Experimental:** the Fabric client mod connects to the Node-side local bridge, sends limited player observations, and can display short Ollama-generated speech in the local Minecraft chat. It does not yet control movement or spawn separate AI players. No live Minecraft 26.3 test has been completed.
 
+## Version 0.20.0 — Nineteenth update
+
+- Pin the build runner to Ubuntu 24.04 instead of the moving `ubuntu-latest` image.
+- Add a build-environment diagnostic step that prints Node.js, npm, Java, Gradle, Minecraft, and Fabric dependency versions before compilation.
+- This helps distinguish runner startup failures from actual Java/Gradle compilation failures once GitHub starts the job.
+- Fabric Mod version bumped to `0.7.0`; M-AI project version bumped to `0.20.0`.
+- **Current blocker:** GitHub Actions has been returning `startup_failure` before creating any job (the latest run reported zero jobs). That is earlier than the Gradle build, so changing Java source cannot fix it. No JAR is claimed as built.
+
 ## Version 0.19.0 — Eighteenth update
 
 - The GitHub Actions artifact now includes an all-in-one `M-AI-Chat-Playtest.zip` with the Fabric JAR, Windows launcher, example config, and the two Node bridge scripts.
