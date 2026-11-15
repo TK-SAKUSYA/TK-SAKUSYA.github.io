@@ -10,6 +10,15 @@
 
 > **Experimental:** the Fabric client mod connects to the Node-side local bridge, sends limited player observations, and can display short Ollama-generated speech in the local Minecraft chat. It does not yet control movement or spawn separate AI players. No live Minecraft 26.3 test has been completed.
 
+## Version 0.17.0 — Sixteenth update
+
+- The Fabric client forwards ordinary Minecraft chat messages to the local bridge while still allowing the normal Minecraft chat flow.
+- The Node bridge validates and stores the latest player message in `data/bridge/latest-chat.json`.
+- `bridge:think` prioritizes a newly received player message, sends it with the latest world observation to local Ollama, and generates a Japanese reply.
+- The existing `ai_say` relay displays that reply in Minecraft chat with an `[M-AI]` prefix.
+- The Fabric mod version is now `0.4.0`; project version is `0.17.0`.
+- **Limit:** chat is relayed locally only. The AI still cannot move, mine, build, or spawn as a separate player. Build and live Minecraft testing remain unverified.
+
 ## Version 0.16.0 — Fifteenth update
 
 - The Node bridge watches `data/bridge/latest-thought.json` and relays each new non-empty AI `say` line to connected Fabric clients as an `ai_say` message.
@@ -147,7 +156,7 @@ Implemented in source:
 - The current action set includes look, walk, jump, wait, inspect, say, operator-directed single-block mining, operator-directed crafting, operator-directed single-block placement, and operator-directed template building (small wall or pillar). Autonomous resource gathering, free-form building, farming, full pathfinding, and autonomous settlement-building are not implemented.
 - Step checks reduce some movement risks but are not a complete pathfinder and cannot guarantee avoidance of every hazard.
 - The selected Mineflayer fork advertises protocol support for Minecraft 26.3, but M-AI's full login, action, and world behavior have not been verified in a live 26.3 world.
-- The local bridge receives limited observations from the Fabric client. The thirteenth-update reasoning adapter can send those observations to local Ollama, but no AI-generated control command is sent back to Minecraft.
+- The local bridge receives limited observations and ordinary player chat from the Fabric client. Local Ollama can generate replies that appear in Minecraft chat, but no AI-generated control command is sent back to Minecraft.
 - More agents require more RAM and local model inference time. Start with one or two agents on an 8 GB PC; multiple agents may respond slowly.
 
 ## What “no supplied Minecraft knowledge” means
@@ -170,7 +179,7 @@ M-AI ships no Minecraft tutorials, recipes, wiki data, or strategy guides. Senso
 5. Edit the `agents` array. Each agent needs a unique `id` and `username`. The AI chooses its own display name on first launch. Set `diaryEnabled` to `true` for agents allowed to write diaries.
 6. Start Ollama if enabled.
 7. Run `start.bat` for the existing Mineflayer bot, or run `npm run bridge` for the local bridge server. After a Fabric client sends an observation, the latest record is saved at `data/bridge/latest-observation.json`.
-8. In a second terminal, run `npm run bridge:think` to let the local Ollama model interpret new observations. The result is saved at `data/bridge/latest-thought.json`. This command does not control Minecraft.
+8. In a second terminal, run `npm run bridge:think` to let the local Ollama model interpret new observations and reply to new player chat messages. The result is saved at `data/bridge/latest-thought.json`. This command does not control Minecraft.
 
 The sample configuration creates two agents. They use offline-mode usernames MAI001 and MAI002 on the isolated local server, then each AI chooses its own display name using the local Ollama model.
 
@@ -202,7 +211,7 @@ MIT. See [LICENSE](LICENSE).
 - Supported later event types: `observation`, `chat`, `command_result`, `status`
 - Maximum incoming buffer: 16 KiB; idle connection timeout: 30 seconds
 
-The protocol is a preliminary contract for the future client mod. It is not a Minecraft mod and does not yet perform in-game actions.
+The Fabric client forwards ordinary chat messages to the local bridge as `chat` events. Messages are saved at `data/bridge/latest-chat.json` and passed to Ollama for a reply. The protocol does not execute AI game actions.
 
 
 ## Fabric client mod (tenth update)
