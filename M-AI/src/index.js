@@ -244,7 +244,7 @@ for (const profile of profiles) {
 
   bot.once('spawn', () => {
     log(profile, 'ローカルMinecraftワールドに接続しました。');
-    bot.chat(`こんにちは！私は${profile.name}です。`);
+    bot.chat(`こんにちは！私は${profile.name}です。${memory.identity.introduction || 'よろしくお願いします！'}`);
     recordObservation(state);
     state.observationTimer = setInterval(() => recordObservation(state), 15000);
     state.autonomyTimer = setInterval(() => {
