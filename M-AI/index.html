@@ -22,10 +22,21 @@ small{color:#9eb2a2}
 </head>
 <body>
 <main>
-<span class="tag">EXPERIMENTAL · VERSION 0.22.0</span>
+<span class="tag">EXPERIMENTAL · VERSION 0.23.0</span>
 <h1>M-AI</h1>
 <p class="lead">観察と経験から学び、それぞれの名前と性格を持って活動するMinecraft AIプレイヤーシステム。</p>
 <section class="panel">
+<h2>第二十二回アップデート</h2>
+<ul>
+<li>第21回で追加した新しいworkflowの実際の実行記録を確認</li>
+<li>pushイベントは新workflowではなく、BuildFailedという合成workflowに割り当てられた</li>
+<li>実行結果は startup_failure、ジョブ数0</li>
+<li>成果物数も0。Node.js・Java・Gradle・ZIP作成処理は一切開始していない</li>
+<li>GitHub Statusでは11月11日のActions/Pages障害は解決済みだが、このリポジトリでは同じ起動前エラーが継続</li>
+<li>根拠のないGradle変更やworkflowの重複追加は停止し、workflow登録・イベント振り分けの問題に絞る</li>
+<li>プロジェクトを0.23.0へ更新。Fabric Modは0.7.0のまま</li>
+<li>JAR・試遊ZIP・Minecraft導入テストは未完了</li>
+</ul>
 <h2>第二十一回アップデート</h2>
 <ul>
 <li>新しいファイル名のビルドworkflow「m-ai-fresh-build.yml」を追加</li>
@@ -35,17 +46,6 @@ small{color:#9eb2a2}
 <li>新workflowが正常起動するかは、実行結果を確認するまで未確定</li>
 <li>プロジェクトを0.22.0へ更新。Mod本体は0.7.0のまま</li>
 <li>JAR・試遊ZIPはまだ生成確認できていない</li>
-</ul>
-<h2>第二十回アップデート</h2>
-<ul>
-<li>GitHub Actionsの実行記録を調査</li>
-<li>失敗 run が通常のビルド workflow ではなく、GitHub側の合成された BuildFailed workflow に紐づいていることを確認</li>
-<li>ジョブ数は0。Node.js・Java・Gradleの処理開始前に停止</li>
-<li>再実行もGitHub APIから拒否された</li>
-<li>GitHub Communityに同じ BuildFailed / startup_failure / 0 jobs の報告があることを確認</li>
-<li>GradleやMinecraftのソースを根拠なく変更せず、GitHub側のworkflow登録・イベント振り分け問題として切り分け</li>
-<li>プロジェクトを0.21.0へ更新。Mod本体は0.7.0のまま</li>
-<li>JARと試遊ZIPはまだ未生成</li>
 </ul>
 <h2>第十九回アップデート</h2>
 <ul>
