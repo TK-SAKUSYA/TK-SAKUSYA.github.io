@@ -8,7 +8,15 @@
 - Local reasoning: Ollama
 - Memory: separate local JSON file for each agent
 
-> **Experimental:** the Fabric client mod connects to the Node-side local bridge and sends player-position observations. The thirteenth update adds a separate local Ollama reasoning process for those observations. It does not send control commands to Minecraft or spawn separate AI players. No live Minecraft 26.3 test has been completed.
+> **Experimental:** the Fabric client mod connects to the Node-side local bridge and sends limited player observations. The thirteenth update adds local Ollama reasoning; the fourteenth expands observations to health, dimension, and the main-hand item. It still does not send control commands to Minecraft or spawn separate AI players. No live Minecraft 26.3 test has been completed.
+
+## Version 0.15.0 — Fourteenth update
+
+- Fabric Mod version bumped to `0.2.0` and M-AI project version to `0.15.0`.
+- Every five seconds, the client now reports player coordinates, current/maximum health, dimension ID, and the displayed name of the main-hand item.
+- Added complete JSON string escaping for observation text so quotes, backslashes, and control characters cannot break the JSON Lines message.
+- The Node bridge persists the richer observation unchanged within its existing 1,000-character bound; the local Ollama reasoning process can now consider these additional facts.
+- **Limit:** full inventory, nearby blocks/entities, chat, and all game-control actions remain unimplemented in the Fabric bridge. The source has been committed, but the Gradle build and live Minecraft 26.3 test still need confirmation.
 
 ## Version 0.14.0 — Thirteenth update
 
