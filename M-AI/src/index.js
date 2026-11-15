@@ -51,12 +51,20 @@ for (const profile of profiles) {
 
 const agents = new Map();
 let globalPaused = !config.autonomy.enabled;
+let globalOperator = null;
 
 function log(profile, message) {
   console.log(`[M-AI:${profile.name}] ${message}`);
 }
 function isOperator(state, username) {
-  return Boolean(state.memory.operator && username.toLowerCase() === state.memory.operator.toLowerCase());
+  return Boolean(globalOperator && username.toLowerCase() === globalOperator.toLowerCase());
+}
+function setGlobalOperator(username) {
+  globalOperator = String(username || '').trim();
+  for (const state of agents.values()) {
+    state.memory.operator = globalOperator;
+    save(state);
+  }
 }
 function save(state) {
   saveMemory(state.profile.id, state.memory);
@@ -164,11 +172,10 @@ function handleCommand(state, username, command) {
   const parts = command.trim().split(/\s+/);
   const sub = (parts[1] || '').toLowerCase();
   if (sub === 'claim') {
-    if (!state.memory.operator) {
-      state.memory.operator = username;
-      save(state);
-      state.bot.chat(`${state.profile.name}: ${username}を操作担当者として登録しました。`);
-    } else if (isOperator(state, username)) state.bot.chat(`${state.profile.name}: あなたは操作担当者です。`);
+    if (!globalOperator) {
+      setGlobalOperator(username);
+      state.bot.chat(`${state.profile.name}: ${username}を全AI共通の操作担当者として登録しました。`);
+    } else if (isOperator(state, username)) state.bot.chat(`${state.profile.name}: あなたは全AI共通の操作担当者です。`);
     else state.bot.chat(`${state.profile.name}: 操作担当者は既に登録されています。`);
     return true;
   }
@@ -221,6 +228,11 @@ function handleCommand(state, username, command) {
 async function startAgents() {
 for (const profile of profiles) {
   const memory = loadMemory(profile.id);
+  if (!globalOperator && memory.operator) globalOperator = memory.operator;
+  if (globalOperator && memory.operator !== globalOperator) {
+    memory.operator = globalOperator;
+    saveMemory(profile.id, memory);
+  }
   if (!memory.identity?.name) {
     const existingNames = [...agents.values()].map(item => item.profile.name);
     memory.identity = await generateIdentity(config, profile.personality, existingNames);
