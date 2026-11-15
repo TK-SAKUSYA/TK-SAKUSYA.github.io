@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="M-AI — Minecraft AI player that learns from its own observations.">
+<meta name="description" content="M-AI — 観察と経験から学ぶMinecraft AIプレイヤー">
 <title>M-AI — Minecraft AI</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#101713;color:#edf5ee}
@@ -22,30 +22,32 @@ small{color:#9eb2a2}
 </head>
 <body>
 <main>
-<span class="tag">EXPERIMENTAL · VERSION 0.1.0</span>
+<span class="tag">EXPERIMENTAL · VERSION 0.3.0</span>
 <h1>M-AI</h1>
-<p class="lead">A Minecraft AI player that starts without supplied Minecraft guides and builds a record of what it observes and experiences.</p>
+<p class="lead">観察と経験から学び、それぞれの名前と性格を持って活動するMinecraft AIプレイヤーシステム。</p>
 <section class="panel">
-<h2>What is M-AI?</h2>
-<p>M-AI is an open-source experiment in observation-first Minecraft agents. It connects to a local Minecraft Java server, observes the world through opaque sensor identifiers, stores experience, and can use a local Ollama model to choose limited actions.</p>
+<h2>第二回アップデート</h2>
 <ul>
-<li>Local-first: agent memory stays on your computer.</li>
-<li>Human operator takes priority over autonomous behavior.</li>
-<li>No Minecraft wiki, recipe book, or strategy database is bundled.</li>
-<li>Designed as a foundation for future learning, cooperation, and civilization systems.</li>
+<li>複数のAIを同時に設定可能（最大8体）</li>
+<li>AIごとの名前・性格・個別の記憶</li>
+<li>日本語での指示・会話を優先</li>
+<li>全AIまたは指定AIの記憶リセットコマンド</li>
+<li>本と羽ペンを持つAIは、任意で日記を記録</li>
+<li>人間の操作担当者を最優先</li>
 </ul>
 </section>
 <section class="panel">
-<h2>Important limitations</h2>
-<p>This is an early experimental release, not a finished autonomous civilization. Minecraft 26.3 compatibility has not yet been verified in a live end-to-end test. A language model's pretrained knowledge cannot be erased, so “zero knowledge” is an observation-first design goal rather than a mathematical guarantee.</p>
-<p>Use only an isolated local test server. Offline-mode servers must never be exposed to the internet.</p>
+<h2>重要な制限</h2>
+<p>まだ実験段階です。Minecraft 26.3のワールドで接続・複数AI・日記機能を含む一連の動作確認は完了していません。通常のシングルプレイワールドへ自動参加する機能も未実装です。</p>
+<p>日記を書くAIには、あらかじめ本と羽ペンをインベントリに入れておく必要があります。記憶リセットは保存データを消去しますが、別の場所に保管・署名された本など、AIの管理外にある記録までは消去できません。</p>
+<p>言語モデルの事前学習知識そのものを消去することはできません。オフライン認証のテストサーバーはインターネットに公開しないでください。</p>
 </section>
 <div class="links">
-<a href="README.md">Setup & documentation</a>
-<a href="https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/tree/main/M-AI">Source code on GitHub</a>
-<a href="https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/archive/refs/heads/main.zip">Download repository ZIP</a>
+<a href="README.md">導入方法・説明書</a>
+<a href="https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/tree/main/M-AI">GitHubソースコード</a>
+<a href="https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/archive/refs/heads/main.zip">ZIPでダウンロード</a>
 </div>
-<p><small>MIT License · Community project · No personal account details required</small></p>
+<p><small>MIT License · 実験的オープンソースプロジェクト</small></p>
 </main>
 </body>
 </html>
