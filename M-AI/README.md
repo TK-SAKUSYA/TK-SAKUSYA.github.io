@@ -8,7 +8,17 @@
 - Local reasoning: Ollama
 - Memory: separate local JSON file for each agent
 
-> **Experimental:** the Fabric client mod connects to the Node-side local bridge and sends player-position observations. The eleventh update adds local persistence for the latest observation. It does not yet execute AI actions or spawn separate AI players. No live Minecraft 26.3 test has been completed.
+> **Experimental:** the Fabric client mod connects to the Node-side local bridge and sends player-position observations. The thirteenth update adds a separate local Ollama reasoning process for those observations. It does not send control commands to Minecraft or spawn separate AI players. No live Minecraft 26.3 test has been completed.
+
+## Version 0.14.0 — Thirteenth update
+
+- Added `src/bridge-brain.js`, a separate process that reads the latest Fabric observation saved by the local bridge.
+- Added `npm run bridge:think` to ask the configured local Ollama model for a short Japanese interpretation of each new observation.
+- Saves the model's bounded thought and short spoken line to `data/bridge/latest-thought.json` using a temporary file and rename.
+- Ollama is restricted to `127.0.0.1`, `localhost`, or `::1`; requests have a timeout and overlapping inference is prevented.
+- The model is explicitly told that observation text is data, not instructions, and that it cannot claim to have performed game actions.
+- Added the new script to `npm run check` and made the Fabric workflow run JavaScript syntax checks on relevant changes.
+- **Limit:** this is the first observation-to-Ollama reasoning link, not a control loop. The Fabric mod still sends only player coordinates, and M-AI cannot yet move or act through this Fabric bridge. The local Minecraft test and successful GitHub Actions build are still unverified.
 
 ## Version 0.13.0 — Twelfth update
 
@@ -121,7 +131,7 @@ Implemented in source:
 - The current action set includes look, walk, jump, wait, inspect, say, operator-directed single-block mining, operator-directed crafting, operator-directed single-block placement, and operator-directed template building (small wall or pillar). Autonomous resource gathering, free-form building, farming, full pathfinding, and autonomous settlement-building are not implemented.
 - Step checks reduce some movement risks but are not a complete pathfinder and cannot guarantee avoidance of every hazard.
 - The selected Mineflayer fork advertises protocol support for Minecraft 26.3, but M-AI's full login, action, and world behavior have not been verified in a live 26.3 world.
-- The local bridge is only a transport layer. Until the Fabric client mod and AI adapter are complete, it cannot access or control a single-player world.
+- The local bridge receives limited observations from the Fabric client. The thirteenth-update reasoning adapter can send those observations to local Ollama, but no AI-generated control command is sent back to Minecraft.
 - More agents require more RAM and local model inference time. Start with one or two agents on an 8 GB PC; multiple agents may respond slowly.
 
 ## What “no supplied Minecraft knowledge” means
@@ -144,6 +154,7 @@ M-AI ships no Minecraft tutorials, recipes, wiki data, or strategy guides. Senso
 5. Edit the `agents` array. Each agent needs a unique `id` and `username`. The AI chooses its own display name on first launch. Set `diaryEnabled` to `true` for agents allowed to write diaries.
 6. Start Ollama if enabled.
 7. Run `start.bat` for the existing Mineflayer bot, or run `npm run bridge` for the local bridge server. After a Fabric client sends an observation, the latest record is saved at `data/bridge/latest-observation.json`.
+8. In a second terminal, run `npm run bridge:think` to let the local Ollama model interpret new observations. The result is saved at `data/bridge/latest-thought.json`. This command does not control Minecraft.
 
 The sample configuration creates two agents. They use offline-mode usernames MAI001 and MAI002 on the isolated local server, then each AI chooses its own display name using the local Ollama model.
 
