@@ -8,36 +8,45 @@
 - Local reasoning: Ollama
 - Memory: separate local JSON file for each agent
 
-> **Experimental:** this project has not been tested end-to-end against a live Minecraft 26.3 world. The current connection mode is offline authentication for an isolated local test server. It does not yet automatically join a normal single-player Open-to-LAN world.
+> **Experimental:** this project has not been tested end-to-end against a live Minecraft 26.3 world. The current connection mode is offline authentication for an isolated local test server. It does not yet automatically join a normal single-player world.
+
+## Version 0.5.0 — Fourth update
+
+Implemented in source:
+- Walking now checks the next step repeatedly instead of holding a movement key for the entire duration without checks.
+- The safety check stops movement when the next space is blocked, the supporting block is missing, collision information is unknown, or the agent is no longer grounded.
+- Existing operator interruption remains able to cancel an action.
+- Existing individual names, self-introductions, personalities, memories, and optional diaries are retained.
 
 ## Version 0.4.0 — Third update
 
 Implemented in source:
-- Each AI asks the local language model to choose its own Japanese name at first launch
-- The chosen name and self-introduction are saved in that agent's local identity record and remain stable across restarts
-- Different agents are asked to choose names that do not duplicate names already assigned
-- Memory reset preserves the AI's chosen identity; it clears learned records without erasing who the AI calls itself
+- Each AI asks the local language model to choose its own Japanese name at first launch.
+- The chosen name and self-introduction are saved in that agent's local identity record and remain stable across restarts.
+- Different agents are asked to choose names that do not duplicate names already assigned.
+- Memory reset preserves the AI's chosen identity; it clears learned records without erasing who the AI calls itself.
 
 ## Version 0.3.0 — Second update
 
 Implemented in source:
 - Multiple agents can be configured in one process (maximum 8)
-- Each agent has an individual ID, Minecraft username, personality prompt, and independent memory file. Display names are chosen by the AI itself on first launch
+- Each agent has an individual ID, Minecraft username, personality prompt, and independent memory file.
 - Japanese system instructions and Japanese chat output preference
 - `!mai reset all` clears every agent's observations, experiences, conversations, and diary index, then pauses all agents
 - `!mai reset 名前` clears one named agent's memory
 - Reset preserves the operator authorization so the operator does not get locked out
-- `!mai pause` stops all agents; `!mai resume` resumes them
+- `!mai pause` and `!mai resume` control all agents
 - `!mai 名前 指示` or `!mai to 名前 指示` directs a message to one agent
 - Optional diary writing: an agent with `diaryEnabled: true` writes a short Japanese entry into a writable book in its inventory when one is available
 - Destructive and disruptive actions are prohibited in the agent's system instructions
 
 ## Important limits
 
-- A reset clears M-AI's saved local records, not the language model's pretrained knowledge or the model weights.
+- A reset clears M-AI's saved local records, not the language model's pretrained knowledge or model weights.
 - Personality affects the agent's conversational and decision style; it is not a guarantee of human-like stable personality.
 - The diary feature requires the agent to already have a writable book in its inventory. M-AI does not yet craft or fetch books. Diary writing has not been verified on Minecraft 26.3.
-- The current action set remains limited to look, walk, jump, wait, inspect, and say. Mining, crafting, building, farming, combat, pathfinding, and autonomous settlement-building are not implemented.
+- The current action set remains limited to look, walk, jump, wait, inspect, and say. Mining, crafting, building, farming, combat, full pathfinding, and autonomous settlement-building are not implemented.
+- Step checks reduce some movement risks but are not a complete pathfinder and cannot guarantee avoidance of every hazard.
 - The selected Mineflayer fork's compatibility, multi-bot login, and book-writing behavior have not been verified in a live 26.3 world.
 - More agents require more RAM and local model inference time. Start with one or two agents on an 8 GB PC; multiple agents may respond slowly.
 
