@@ -10,7 +10,7 @@ material_17、entity_4、item_5のようなセンサーIDは意味不明の識�
 ワールドや建築物を壊す、アイテムを捨てる、他プレイヤーを攻撃するなど、迷惑や破壊につながる行動は禁止です。
 指定された性格は話し方や興味の傾向にだけ反映し、安全制約を上書きしてはいけません。
 返答・発言は自然な日本語にしてください。
-行動は look, walk, jump, wait, inspect, say, mine のいずれか1つだけ選んでください。mineは操作担当者が明確に採掘を指示した場合だけ選び、対象ブロックの観察オフセットを整数に丸めてdx,dy,dzに指定してください。採掘対象は自分から各軸2ブロック以内に限られます。
+行動は look, walk, jump, wait, inspect, say, mine, craft のいずれか1つだけ選んでください。mineは操作担当者が明確に採掘を指示した場合だけ選び、対象ブロックの観察オフセットを整数に丸めてdx,dy,dzに指定してください。採掘対象は自分から各軸2ブロック以内に限られます。craftは操作担当者が明確にクラフトを指示した場合だけ選び、観察データにあるitem_数字の数字部分をitemTypeに指定し、countは1〜4にしてください。レシピや素材が確認できない場合はcraftを選ばず質問してください。
 walkのdirectionはforward, back, left, rightのいずれか、durationMsは最大1800です。
 JSONだけを返してください:
 {"say":"短い日本語の発言または空文字","action":{"type":"wait","durationMs":1000},"learningNote":"観察した結果または空文字"}`;
@@ -28,7 +28,7 @@ function parseJson(text) {
 
 function validateDecision(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Decision must be a JSON object.');
-  const allowed = new Set(['look', 'walk', 'jump', 'wait', 'inspect', 'say', 'mine']);
+  const allowed = new Set(['look', 'walk', 'jump', 'wait', 'inspect', 'say', 'mine', 'craft']);
   const action = value.action;
   if (!action || typeof action !== 'object' || !allowed.has(action.type)) {
     return { say: '', action: { type: 'wait', durationMs: 1000 }, learningNote: '' };
@@ -44,6 +44,15 @@ function validateDecision(value) {
     if (action.dx === 0 && action.dy === 0 && action.dz === 0) {
       return { say: '', action: { type: 'wait', durationMs: 1000 }, learningNote: '自分の位置は採掘対象にできない。' };
     }
+  }
+  if (action.type === 'craft') {
+    const itemType = Number(action.itemType);
+    const count = Number(action.count ?? 1);
+    if (!Number.isInteger(itemType) || itemType <= 0 || !Number.isInteger(count) || count < 1 || count > 4) {
+      return { say: '', action: { type: 'wait', durationMs: 1000 }, learningNote: 'クラフトの指定が不正だったため中止した。' };
+    }
+    action.itemType = itemType;
+    action.count = count;
   }
   if (action.type === 'walk' && !['forward', 'back', 'left', 'right'].includes(action.direction)) {
     return { say: '', action: { type: 'wait', durationMs: 1000 }, learningNote: '' };
@@ -107,7 +116,8 @@ async function thinkAndAct(bot, config, memory, latestObservation, operatorMessa
   if (say && !signal?.aborted) bot.chat(say);
   const selectedAction = allowActions ? decision.action : { type: 'wait', durationMs: 500 };
   const miningAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /採掘|掘って|掘る|mine|dig/i.test(operatorMessage));
-  const result = await executeAction(bot, selectedAction, config, signal, miningAuthorized);
+  const craftingAuthorized = Boolean(isOperator && typeof operatorMessage === 'string' && /クラフト|作って|作成して|craft/i.test(operatorMessage));
+  const result = await executeAction(bot, selectedAction, config, signal, { mining: miningAuthorized, crafting: craftingAuthorized });
   return {
     result,
     learningNote: typeof decision.learningNote === 'string' ? decision.learningNote.slice(0, 300) : ''
