@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const DATA_DIR = path.join(__dirname, '..', 'data', 'bridge');
 const LATEST_OBSERVATION = path.join(DATA_DIR, 'latest-observation.json');
+const LATEST_THOUGHT = path.join(DATA_DIR, 'latest-thought.json');
 const configPath = path.join(__dirname, '..', 'config.json');
 if (!fs.existsSync(configPath)) {
   console.error('[M-AI Bridge] config.json がありません。');
@@ -28,12 +29,34 @@ function send(socket, value) {
 function clean(value, max = 300) {
   return typeof value === 'string' ? value.replace(/[\r\n\0]/g, ' ').slice(0, max) : '';
 }
+const clients = new Set();
+let lastBroadcastAt = '';
+function broadcastLatestSpeech() {
+  if (!fs.existsSync(LATEST_THOUGHT)) return;
+  try {
+    const thought = JSON.parse(fs.readFileSync(LATEST_THOUGHT, 'utf8'));
+    const generatedAt = clean(thought.generatedAt, 40);
+    const text = clean(thought.say, 160);
+    if (!generatedAt || !text || generatedAt === lastBroadcastAt) return;
+    lastBroadcastAt = generatedAt;
+    for (const client of clients) {
+      if (client.paired && !client.socket.destroyed) {
+        send(client.socket, { type: 'ai_say', text, generatedAt });
+      }
+    }
+  } catch (error) {
+    console.error('[M-AI Bridge] AI発言の配信エラー: ' + error.message);
+  }
+}
+const speechTimer = setInterval(broadcastLatestSpeech, 500);
 const server = net.createServer(socket => {
   socket.setNoDelay(true);
   socket.setTimeout(30000);
   let buffer = '';
   let paired = false;
   let label = 'client';
+  const clientRecord = { socket, get paired() { return paired; } };
+  clients.add(clientRecord);
   socket.on('data', chunk => {
     buffer += chunk.toString('utf8');
     if (Buffer.byteLength(buffer, 'utf8') > MAX_BYTES) {
@@ -105,7 +128,7 @@ const server = net.createServer(socket => {
   });
   socket.on('timeout', () => socket.destroy());
   socket.on('error', error => console.error('[M-AI Bridge] 通信エラー: ' + error.message));
-  socket.on('close', () => { if (paired) console.log('[M-AI Bridge] 切断: ' + label); });
+  socket.on('close', () => { clients.delete(clientRecord); if (paired) console.log('[M-AI Bridge] 切断: ' + label); });
 });
 server.on('error', error => {
   console.error('[M-AI Bridge] 起動エラー: ' + error.message);
@@ -117,6 +140,7 @@ server.listen(PORT, HOST, () => {
   console.log('[M-AI Bridge] 最新の観察データを data/bridge/latest-observation.json に保存します。AI判断・Minecraft操作はまだ未接続です。');
 });
 function shutdown() {
+  clearInterval(speechTimer);
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(0), 1500).unref();
 }
