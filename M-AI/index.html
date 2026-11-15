@@ -22,10 +22,21 @@ small{color:#9eb2a2}
 </head>
 <body>
 <main>
-<span class="tag">EXPERIMENTAL · VERSION 0.20.0</span>
+<span class="tag">EXPERIMENTAL · VERSION 0.21.0</span>
 <h1>M-AI</h1>
 <p class="lead">観察と経験から学び、それぞれの名前と性格を持って活動するMinecraft AIプレイヤーシステム。</p>
 <section class="panel">
+<h2>第二十回アップデート</h2>
+<ul>
+<li>GitHub Actionsの実行記録を調査</li>
+<li>失敗 run が通常のビルド workflow ではなく、GitHub側の合成された BuildFailed workflow に紐づいていることを確認</li>
+<li>ジョブ数は0。Node.js・Java・Gradleの処理開始前に停止</li>
+<li>再実行もGitHub APIから拒否された</li>
+<li>GitHub Communityに同じ BuildFailed / startup_failure / 0 jobs の報告があることを確認</li>
+<li>GradleやMinecraftのソースを根拠なく変更せず、GitHub側のworkflow登録・イベント振り分け問題として切り分け</li>
+<li>プロジェクトを0.21.0へ更新。Mod本体は変更していないため0.7.0のまま</li>
+<li>JARと試遊ZIPはまだ未生成</li>
+</ul>
 <h2>第十九回アップデート</h2>
 <ul>
 <li>GitHub Actionsの実行環境をUbuntu 24.04に固定</li>
@@ -159,7 +170,7 @@ small{color:#9eb2a2}
 </section>
 <section class="panel">
 <h2>重要な制限</h2>
-<p>第十九回ではビルド環境をUbuntu 24.04に固定し、Node.js・Java・Gradleの診断情報を記録します。現在GitHub Actionsがジョブ開始前にstartup_failureとなっており、JARはまだ生成できていません。</p>
+<p>第二十回ではGitHub Actionsの失敗記録を調査し、BuildFailedというGitHub側の合成workflowに割り当てられ、ジョブが0件のまま起動前に停止していることを確認しました。GitHub Communityにも同じ症状の報告があります。GitHub側のworkflow登録・イベント振り分けが正常に戻るまで、JARは生成できません。</p>
 <p>今回の移動確認は簡易的な足場・障害物チェックです。完全な経路探索や、あらゆる危険の回避を保証するものではありません。</p>
 <p>日記を書くAIには、あらかじめ本と羽ペンをインベントリに入れておく必要があります。言語モデルの事前学習知識そのものを消去することはできません。</p>
 </section>
