@@ -10,6 +10,14 @@
 
 > **Experimental:** this project has not been tested end-to-end against a live Minecraft 26.3 world. The current connection mode is offline authentication for an isolated local test server. It does not yet automatically join a normal single-player world.
 
+## Version 0.9.0 — Eighth update
+
+- Added operator-directed small structure construction with two fixed patterns: a 3-wide × 2-high wall (6 blocks) or a 3-block pillar.
+- The AI must choose a block type already in its inventory and have enough of that full solid block before starting.
+- Every target cell is checked as empty before construction; each placement rechecks the target and an adjacent solid reference block.
+- Construction is limited to a short range and requires an explicit operator building instruction. The operator can interrupt between placements.
+- This is a bounded template builder, not free-form or autonomous architecture. A partially completed structure may remain if construction is interrupted or a later placement fails. Live Minecraft 26.3 behavior has not been verified.
+
 ## Version 0.8.0 — Seventh update
 
 - Added operator-directed single-block placement using the bot's inventory and Mineflayer placement API.
@@ -75,7 +83,7 @@ Implemented in source:
 - A reset clears M-AI's saved local records, not the language model's pretrained knowledge or model weights.
 - Personality affects the agent's conversational and decision style; it is not a guarantee of human-like stable personality.
 - The diary feature requires the agent to already have a writable book in its inventory. M-AI does not yet craft or fetch books. Diary writing has not been verified on Minecraft 26.3.
-- The current action set includes look, walk, jump, wait, inspect, say, operator-directed single-block mining, operator-directed crafting, and operator-directed single-block placement. Autonomous resource gathering, multi-block building, farming, full pathfinding, and autonomous settlement-building are not implemented.
+- The current action set includes look, walk, jump, wait, inspect, say, operator-directed single-block mining, operator-directed crafting, operator-directed single-block placement, and operator-directed template building (small wall or pillar). Autonomous resource gathering, free-form building, farming, full pathfinding, and autonomous settlement-building are not implemented.
 - Step checks reduce some movement risks but are not a complete pathfinder and cannot guarantee avoidance of every hazard.
 - The selected Mineflayer fork's compatibility, multi-bot login, and book-writing behavior have not been verified in a live 26.3 world.
 - More agents require more RAM and local model inference time. Start with one or two agents on an 8 GB PC; multiple agents may respond slowly.
