@@ -22,10 +22,19 @@ small{color:#9eb2a2}
 </head>
 <body>
 <main>
-<span class="tag">EXPERIMENTAL · VERSION 0.10.0</span>
+<span class="tag">EXPERIMENTAL · VERSION 0.11.0</span>
 <h1>M-AI</h1>
 <p class="lead">観察と経験から学び、それぞれの名前と性格を持って活動するMinecraft AIプレイヤーシステム。</p>
 <section class="panel">
+<h2>第十回アップデート</h2>
+<ul>
+<li>Minecraft Java 26.3用のFabricクライアントModを追加</li>
+<li>Minecraft起動時にローカルM-AI通信ブリッジへ接続</li>
+<li>ワールド内にいる間、5秒ごとにプレイヤー座標を送信</li>
+<li>通信処理はゲーム本体とは別スレッドで実行</li>
+<li>GitHub ActionsでModのビルドを自動化</li>
+<li>AIによる移動・採掘・建築などの操作はまだ未実装</li>
+</ul>
 <h2>第九回アップデート</h2>
 <ul>
 <li>通常のシングルプレイ連携に向けたローカル通信ブリッジを追加</li>
@@ -73,12 +82,13 @@ small{color:#9eb2a2}
 </section>
 <section class="panel">
 <h2>重要な制限</h2>
-<p>第九回でローカル通信ブリッジを追加しましたが、Minecraft内で動くFabricクライアントModと、通信内容をAIの観察・行動へ変換する部分は未実装です。通常のシングルプレイワールドへの導入はまだできません。Minecraft 26.3の実ワールドで一連の動作確認も完了していません。</p>
+<p>第十回でFabricクライアントModと座標送信を実装しました。Minecraftクライアントからローカル通信ブリッジへの接続基盤はできましたが、AIによるゲーム操作・AIプレイヤーの生成・実ワールドでの動作確認は未完了です。</p>
 <p>今回の移動確認は簡易的な足場・障害物チェックです。完全な経路探索や、あらゆる危険の回避を保証するものではありません。</p>
 <p>日記を書くAIには、あらかじめ本と羽ペンをインベントリに入れておく必要があります。言語モデルの事前学習知識そのものを消去することはできません。</p>
 </section>
 <div class="links">
 <a href="README.md">導入方法・説明書</a>
+<a href="fabric-mod/README.md">Fabric Modの説明</a>
 <a href="https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/tree/main/M-AI">GitHubソースコード</a>
 <a href="https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/archive/refs/heads/main.zip">ZIPでダウンロード</a>
 </div>
