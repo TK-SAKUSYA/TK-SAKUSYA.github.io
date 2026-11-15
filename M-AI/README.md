@@ -8,7 +8,15 @@
 - Local reasoning: Ollama
 - Memory: separate local JSON file for each agent
 
-> **Experimental:** the first Fabric client mod now connects to the Node-side local bridge and sends player-position observations. It does not yet execute AI actions or spawn separate AI players. No live Minecraft 26.3 test has been completed.
+> **Experimental:** the Fabric client mod connects to the Node-side local bridge and sends player-position observations. The eleventh update adds local persistence for the latest observation. It does not yet execute AI actions or spawn separate AI players. No live Minecraft 26.3 test has been completed.
+
+## Version 0.12.0 — Eleventh update
+
+- The local bridge now validates incoming observation summaries and saves the latest one to `data/bridge/latest-observation.json`.
+- The saved record includes its receive time, source client, and a bounded summary; writes use a temporary file followed by rename.
+- Invalid or empty observation messages are rejected, and a save failure is reported to the client.
+- The bridge remains bound to `127.0.0.1`; no external network listener was added.
+- **Limit:** this makes Minecraft observations persist on the PC. The Ollama decision loop and player-control commands are not yet connected to the Fabric client mod, and live Minecraft testing is still required.
 
 ## Version 0.11.0 — Tenth update
 
@@ -127,7 +135,7 @@ M-AI ships no Minecraft tutorials, recipes, wiki data, or strategy guides. Senso
 4. Set the local server port.
 5. Edit the `agents` array. Each agent needs a unique `id` and `username`. The AI chooses its own display name on first launch. Set `diaryEnabled` to `true` for agents allowed to write diaries.
 6. Start Ollama if enabled.
-7. Run `start.bat` for the existing Mineflayer bot, or run `npm run bridge` for the ninth-update local bridge test server.
+7. Run `start.bat` for the existing Mineflayer bot, or run `npm run bridge` for the local bridge server. After a Fabric client sends an observation, the latest record is saved at `data/bridge/latest-observation.json`.
 
 The sample configuration creates two agents. They use offline-mode usernames MAI001 and MAI002 on the isolated local server, then each AI chooses its own display name using the local Ollama model.
 
@@ -149,7 +157,7 @@ Each agent stores its local data, including its chosen identity, in `data/agents
 ## License
 
 MIT. See [LICENSE](LICENSE).
-## Local bridge protocol (ninth update)
+## Local bridge protocol
 
 - TCP address: `127.0.0.1`
 - Default port: `25580`
