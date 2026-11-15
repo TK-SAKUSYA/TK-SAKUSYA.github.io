@@ -32,9 +32,33 @@ jobs:
         working-directory: M-AI/fabric-mod
         run: gradle build --no-daemon
 
-      - name: Upload mod JAR
+      - name: Prepare installation package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          mapfile -t jars < <(find M-AI/fabric-mod/build/libs -maxdepth 1 -type f -name 'm-ai-fabric-*.jar' ! -name '*-sources.jar' | sort)
+          if [ "${#jars[@]}" -ne 1 ]; then
+            echo "Expected exactly one remapped M-AI mod JAR, found ${#jars[@]}."
+            printf '%s\n' "${jars[@]}"
+            exit 1
+          fi
+          cp "${jars[0]}" dist/M-AI-Fabric-26.3.jar
+          cp M-AI/fabric-mod/README.md dist/INSTALLATION.txt
+          sha256sum dist/M-AI-Fabric-26.3.jar > dist/SHA256SUMS.txt
+          {
+            echo "M-AI Fabric Mod for Minecraft Java 26.3"
+            echo
+            echo "Install Fabric Loader for Minecraft 26.3 and Fabric API for 26.3."
+            echo "Copy M-AI-Fabric-26.3.jar into the Minecraft instance mods folder."
+            echo "This is a client-side bridge only; it sends player coordinates to 127.0.0.1:25580."
+            echo "It does not yet control the player or run AI decisions."
+          } > dist/QUICK-START.txt
+
+      - name: Upload ready-to-install package
         uses: actions/upload-artifact@v4
         with:
-          name: m-ai-fabric-mod-26.3
-          path: M-AI/fabric-mod/build/libs/*.jar
+          name: M-AI-Fabric-26.3
+          path: dist/*
           if-no-files-found: error
+          retention-days: 30
