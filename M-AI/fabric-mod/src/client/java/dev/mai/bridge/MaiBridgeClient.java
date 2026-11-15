@@ -34,12 +34,18 @@ public final class MaiBridgeClient implements ClientModInitializer {
             Minecraft game = client;
             if (game.player == null || game.level == null) return;
 
+            String dimension = game.level.dimension().location().toString();
+            String heldItem = game.player.getMainHandItem().getHoverName().getString();
             String observation = String.format(
                 Locale.ROOT,
-                "player_position x=%.2f y=%.2f z=%.2f",
+                "player_position x=%.2f y=%.2f z=%.2f; health=%.1f/%.1f; dimension=%s; main_hand=%s",
                 game.player.getX(),
                 game.player.getY(),
-                game.player.getZ()
+                game.player.getZ(),
+                game.player.getHealth(),
+                game.player.getMaxHealth(),
+                dimension,
+                heldItem
             );
             LATEST_OBSERVATION.set(observation);
         });
@@ -69,8 +75,7 @@ public final class MaiBridgeClient implements ClientModInitializer {
                     while (!Thread.currentThread().isInterrupted() && !socket.isClosed()) {
                         String observation = LATEST_OBSERVATION.getAndSet(null);
                         if (observation != null) {
-                            String escaped = observation.replace("\\", "\\\\").replace("\"", "\\\"");
-                            send(writer, "{\"type\":\"observation\",\"summary\":\"" + escaped + "\"}");
+                            send(writer, "{\"type\":\"observation\",\"summary\":\"" + jsonEscape(observation) + "\"}");
                         }
                         try {
                             String response = reader.readLine();
@@ -92,6 +97,27 @@ public final class MaiBridgeClient implements ClientModInitializer {
                 }
             }
         }
+    }
+
+    private static String jsonEscape(String value) {
+        StringBuilder escaped = new StringBuilder(value.length() + 16);
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+                case '"' -> escaped.append("\\\"");
+                case '\\' -> escaped.append("\\\\");
+                case '\b' -> escaped.append("\\b");
+                case '\f' -> escaped.append("\\f");
+                case '\n' -> escaped.append("\\n");
+                case '\r' -> escaped.append("\\r");
+                case '\t' -> escaped.append("\\t");
+                default -> {
+                    if (c < 0x20) escaped.append(String.format(Locale.ROOT, "\\u%04x", (int) c));
+                    else escaped.append(c);
+                }
+            }
+        }
+        return escaped.toString();
     }
 
     private static void send(BufferedWriter writer, String json) throws IOException {
