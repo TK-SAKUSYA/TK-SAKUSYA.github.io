@@ -182,7 +182,8 @@ async function executeAction(bot, action, config, signal, permissions = {}) {
       try {
         await bot.equip(item, 'hand');
         if (signal?.aborted) return 'Placement cancelled before placing the block.';
-        await bot.placeBlock(reference, face);
+        const faceVector = new bot.entity.position.constructor(face.x, face.y, face.z);
+        await bot.placeBlock(reference, faceVector);
         return `Placed one block at relative position ${dx}, ${dy}, ${dz}.`;
       } catch (error) {
         return `Block placement failed: ${error.message}`;
