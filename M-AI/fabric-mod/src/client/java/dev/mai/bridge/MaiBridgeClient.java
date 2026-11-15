@@ -2,6 +2,7 @@ package dev.mai.bridge;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
@@ -21,10 +22,16 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class MaiBridgeClient implements ClientModInitializer {
     private static final Logger LOGGER = LoggerFactory.getLogger("m_ai_bridge");
     private static final AtomicReference<String> LATEST_OBSERVATION = new AtomicReference<>();
+    private static final AtomicReference<String> LATEST_CHAT = new AtomicReference<>();
     private static int tickCounter = 0;
 
     @Override
     public void onInitializeClient() {
+        ClientSendMessageEvents.ALLOW_CHAT.register(message -> {
+            if (message != null && !message.isBlank()) LATEST_CHAT.set(message);
+            return true;
+        });
+
         Thread bridgeThread = new Thread(MaiBridgeClient::connectionLoop, "M-AI-Bridge-Client");
         bridgeThread.setDaemon(true);
         bridgeThread.start();
@@ -74,6 +81,10 @@ public final class MaiBridgeClient implements ClientModInitializer {
                     LOGGER.info("Connected to local M-AI bridge.");
 
                     while (!Thread.currentThread().isInterrupted() && !socket.isClosed()) {
+                        String chat = LATEST_CHAT.getAndSet(null);
+                        if (chat != null) {
+                            send(writer, "{\"type\":\"chat\",\"text\":\"" + jsonEscape(chat) + "\"}");
+                        }
                         String observation = LATEST_OBSERVATION.getAndSet(null);
                         if (observation != null) {
                             send(writer, "{\"type\":\"observation\",\"summary\":\"" + jsonEscape(observation) + "\"}");
