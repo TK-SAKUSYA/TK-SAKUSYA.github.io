@@ -5,6 +5,7 @@ const { loadMemory, saveMemory, resetMemory, addBounded } = require('./memory');
 const { observe } = require('./observer');
 const { thinkAndAct } = require('./brain');
 const { compareObservations } = require('./learning');
+const { generateIdentity } = require('./identity');
 
 const configPath = path.join(__dirname, '..', 'config.json');
 if (!fs.existsSync(configPath)) {
@@ -23,7 +24,7 @@ const profiles = Array.isArray(config.agents) && config.agents.length
   : [{
       id: 'mai-001',
       username: config.botUsername || 'MAI001',
-      name: config.agentName || 'M-AI',
+      name: '',
       personality: config.personality || '慎重で協調的',
       diaryEnabled: false
     }];
@@ -38,8 +39,8 @@ for (const profile of profiles) {
   profile.id = String(profile.id || '').trim();
   profile.username = String(profile.username || '').trim();
   profile.name = String(profile.name || '').trim();
-  if (!profile.id || !profile.username || !profile.name || ids.has(profile.id) || usernames.has(profile.username.toLowerCase())) {
-    console.error('Each agent needs a unique id, username, and name in config.json.');
+  if (!profile.id || !profile.username || ids.has(profile.id) || usernames.has(profile.username.toLowerCase())) {
+    console.error('Each agent needs a unique id and username in config.json.');
     process.exit(1);
   }
   ids.add(profile.id);
@@ -217,8 +218,15 @@ function handleCommand(state, username, command) {
   return false;
 }
 
+async function startAgents() {
 for (const profile of profiles) {
   const memory = loadMemory(profile.id);
+  if (!memory.identity?.name) {
+    const existingNames = [...agents.values()].map(item => item.profile.name);
+    memory.identity = await generateIdentity(config, profile.personality, existingNames);
+    saveMemory(profile.id, memory);
+  }
+  profile.name = memory.identity.name;
   const bot = mineflayer.createBot({
     host: config.host,
     port: config.port,
@@ -287,6 +295,13 @@ for (const profile of profiles) {
     log(profile, '切断しました。ローカル記憶を保存しました。');
   });
 }
+
+}
+
+startAgents().catch(error => {
+  console.error(`[M-AI] 起動できませんでした: ${error.message}`);
+  process.exitCode = 1;
+});
 
 process.on('SIGINT', () => {
   stopAll();
