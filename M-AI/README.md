@@ -22,7 +22,7 @@ Implemented:
 - Connect to a local offline-mode Java server
 - Observe nearby blocks and entities using opaque numeric identifiers
 - Store observations, chats, and actions locally
-- Chat with players
+- Chat with players (non-operator chat is conversation only)
 - Claim one local operator account
 - Give the operator priority over autonomous behavior
 - Ask Ollama for a constrained action
@@ -84,7 +84,7 @@ After the bot joins, use Minecraft chat:
 - `!mai resume` — resume autonomous turns
 - `!mai think` — ask the AI to make one observation-based decision
 
-The operator's messages are treated as instructions. Other players can chat, but their messages are not treated as high-priority commands.
+The operator's messages are treated as instructions and queued ahead of autonomous turns. Other players can chat; their messages are conversation only and cannot trigger movement.
 
 ## Data and privacy
 
