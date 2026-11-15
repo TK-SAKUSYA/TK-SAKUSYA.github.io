@@ -114,7 +114,7 @@ server.on('error', error => {
 server.listen(PORT, HOST, () => {
   console.log('[M-AI Bridge] 待受中: ' + HOST + ':' + PORT);
   console.log('[M-AI Bridge] このPC内だけで待ち受けます。外部ネットワークには公開しません。');
-  console.log('[M-AI Bridge] 現段階は通信確認用です。Minecraftの操作やAI判断はまだ中継しません。');
+  console.log('[M-AI Bridge] 最新の観察データを data/bridge/latest-observation.json に保存します。AI判断・Minecraft操作はまだ未接続です。');
 });
 function shutdown() {
   server.close(() => process.exit(0));
