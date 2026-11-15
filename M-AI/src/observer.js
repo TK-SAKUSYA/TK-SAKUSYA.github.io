@@ -29,8 +29,8 @@ function observe(bot, settings) {
     .filter(entity => entity && entity.id !== bot.entity.id && entity.position)
     .slice(0, settings.maxEntities)
     .map(entity => ({
-      sensorId: Number.isInteger(entity.type)
-        ? `entity_${entity.type}`
+      sensorId: Number.isInteger(entity.entityType)
+        ? `entity_${entity.entityType}`
         : 'entity_unknown',
       offset: {
         x: round(entity.position.x - bot.entity.position.x),
