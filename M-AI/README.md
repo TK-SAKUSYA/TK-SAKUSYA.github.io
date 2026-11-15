@@ -10,14 +10,16 @@
 
 > **Experimental:** the Fabric client mod connects to the Node-side local bridge, sends limited player observations, and can display short Ollama-generated speech in the local Minecraft chat. It does not yet control movement or spawn separate AI players. No live Minecraft 26.3 test has been completed.
 
-## Version 0.22.0 — Twenty-first update
+## Version 0.23.0 — Twenty-second update
 
-- Added a second build workflow under a brand-new filename: `.github/workflows/m-ai-fresh-build.yml`.
-- The new workflow uses the same verified build and packaging steps as the existing workflow, but gets a fresh GitHub Actions workflow registration instead of relying on the repeatedly failing workflow registration.
-- It runs on pushes affecting M-AI source/build files and can also be started manually from GitHub Actions.
-- This is a targeted workaround for the earlier `BuildFailed` / `startup_failure` / zero-jobs condition. It is **not yet confirmed** that the new workflow starts successfully.
-- Project version bumped to `0.22.0`. Fabric Mod remains `0.7.0` because no in-game mod code changed.
-- **Status:** no JAR or playtest ZIP is claimed. A successful build and artifact check are still required before installation.
+- Checked the actual GitHub Actions run created after adding the fresh workflow file and updating the project.
+- The new push event still resolved to the synthetic workflow path `BuildFailed` with conclusion `startup_failure`.
+- Queried the run's jobs endpoint: **0 jobs**. Queried its artifacts: **0 artifacts**.
+- This proves the new workflow has still not reached a runner. Node.js checks, Java setup, Gradle compilation, and ZIP packaging did not execute.
+- GitHub Status shows the November 11, 2026 Actions/Pages incident as resolved, but this repository continues to show the same pre-job failure. Similar reports exist in GitHub Community; they are reports, not a confirmed diagnosis for this repository.
+- **Decision:** stop adding duplicate workflows or changing Minecraft/Gradle source without a runner log. The current blocker must be resolved at GitHub Actions workflow registration/dispatch level.
+- Project version bumped to `0.23.0`. Fabric Mod remains `0.7.0`.
+- **Status:** no JAR, no playtest ZIP, and no Minecraft installation test. The new workflow approach did not resolve the blocker.
 
 ## Version 0.20.0 — Nineteenth update
 
