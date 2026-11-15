@@ -13,7 +13,7 @@ Return ONLY JSON:
 {"say":"short optional chat text","action":{"type":"wait","durationMs":1000},"learningNote":"directly observed result or empty"}`;
 
 function parseJson(text) {
-  const cleaned = String(text || '').trim().replace(/^\\uFEFF/, '');
+  const cleaned = String(text || '').trim().replace(/^\uFEFF/, '');
   try { return JSON.parse(cleaned); }
   catch {
     const start = cleaned.indexOf('{');
@@ -82,7 +82,7 @@ async function thinkAndAct(bot, config, memory, latestObservation, operatorMessa
     isOperator: Boolean(isOperator),
     knownFacts: memory.experiences.filter(entry => entry.learningNote).slice(-30).map(entry => entry.learningNote)
   });
-  const say = typeof decision.say === 'string' ? decision.say.replace(/[\\r\\n]/g, ' ').slice(0, 100) : '';
+  const say = typeof decision.say === 'string' ? decision.say.replace(/[\r\n]/g, ' ').slice(0, 100) : '';
   if (say && !signal?.aborted) bot.chat(say);
   const selectedAction = allowActions ? decision.action : { type: 'wait', durationMs: 500 };
   const result = await executeAction(bot, selectedAction, config, signal);
