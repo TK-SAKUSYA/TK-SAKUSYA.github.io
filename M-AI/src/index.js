@@ -179,6 +179,7 @@ bot.on('chat', (username, message) => {
   if (subcommand === 'pause') {
     if (!isOperator(username)) return bot.chat('この操作には担当者登録が必要です。');
     paused = true;
+    if (activeActionController) activeActionController.abort();
     bot.clearControlStates();
     bot.chat('自律行動を停止しました。');
     return;
@@ -204,6 +205,7 @@ bot.on('error', error => log(`Connection error: ${error.message}`));
 bot.on('kicked', reason => log(`Kicked: ${JSON.stringify(reason)}`));
 
 bot.on('end', () => {
+  if (activeActionController) activeActionController.abort();
   if (observationTimer) clearInterval(observationTimer);
   if (autonomyTimer) clearInterval(autonomyTimer);
   bot.clearControlStates();
@@ -212,6 +214,7 @@ bot.on('end', () => {
 });
 
 process.on('SIGINT', () => {
+  if (activeActionController) activeActionController.abort();
   if (observationTimer) clearInterval(observationTimer);
   if (autonomyTimer) clearInterval(autonomyTimer);
   try { bot.clearControlStates(); bot.quit(); } catch {}
