@@ -3,6 +3,7 @@ package dev.mai.bridge;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +81,7 @@ public final class MaiBridgeClient implements ClientModInitializer {
                         try {
                             String response = reader.readLine();
                             if (response == null) throw new IOException("Bridge closed the connection.");
+                            handleBridgeMessage(response);
                         } catch (java.net.SocketTimeoutException ignored) {
                             // Poll again without blocking the Minecraft client thread.
                         }
@@ -97,6 +99,59 @@ public final class MaiBridgeClient implements ClientModInitializer {
                 }
             }
         }
+    }
+
+
+    private static void handleBridgeMessage(String json) {
+        if (json == null || !json.contains("\"type\":\"ai_say\"")) return;
+        java.util.regex.Matcher matcher = java.util.regex.Pattern
+            .compile("\"text\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\"")
+            .matcher(json);
+        if (!matcher.find()) return;
+        String message = decodeJsonString(matcher.group(1));
+        if (message.isBlank()) return;
+        Minecraft.getInstance().execute(() -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player != null) {
+                client.player.displayClientMessage(Component.literal("[M-AI] " + message), false);
+            }
+        });
+    }
+
+    private static String decodeJsonString(String value) {
+        StringBuilder decoded = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (c != '\\\\' || i + 1 >= value.length()) {
+                decoded.append(c);
+                continue;
+            }
+            char escaped = value.charAt(++i);
+            switch (escaped) {
+                case '"' -> decoded.append('"');
+                case '\\\\' -> decoded.append('\\\\');
+                case '/' -> decoded.append('/');
+                case 'b' -> decoded.append('\\b');
+                case 'f' -> decoded.append('\\f');
+                case 'n' -> decoded.append('\\n');
+                case 'r' -> decoded.append('\\r');
+                case 't' -> decoded.append('\\t');
+                case 'u' -> {
+                    if (i + 4 < value.length()) {
+                        try {
+                            decoded.append((char) Integer.parseInt(value.substring(i + 1, i + 5), 16));
+                            i += 4;
+                        } catch (NumberFormatException invalidEscape) {
+                            decoded.append('u');
+                        }
+                    } else {
+                        decoded.append('u');
+                    }
+                }
+                default -> decoded.append(escaped);
+            }
+        }
+        return decoded.toString();
     }
 
     private static String jsonEscape(String value) {
