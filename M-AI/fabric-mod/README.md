@@ -20,7 +20,7 @@ Client-side Fabric mod for **Minecraft Java 26.3**.
 
 The observation is sampled on the Minecraft client tick and sent by the background socket thread.
 
-## Two-way chat playtest (version 0.6.0)
+## Two-way chat playtest (version 0.7.0)
 
 Ordinary player chat is forwarded to the local bridge using Fabric's client send-chat event. The normal Minecraft chat send is still allowed. The bridge brain passes the new message and latest observation to local Ollama; the AI reply returns to the client chat with an `[M-AI]` prefix.
 
