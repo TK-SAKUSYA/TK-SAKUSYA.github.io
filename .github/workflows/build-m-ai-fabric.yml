@@ -62,8 +62,9 @@ jobs:
             echo
             echo "Install Fabric Loader for Minecraft 26.3 and Fabric API for 26.3."
             echo "Copy M-AI-Fabric-26.3.jar into the Minecraft instance mods folder."
-            echo "This is a client-side bridge only; it sends player coordinates to 127.0.0.1:25580."
-            echo "It does not yet control the player or run AI decisions."
+            echo "The client sends position, health, dimension and main-hand item observations to 127.0.0.1:25580."
+            echo "Run npm run bridge and npm run bridge:think in separate terminals to enable local Ollama speech in Minecraft chat."
+            echo "The mod displays AI speech but does not yet control player movement or spawn a separate AI player."
           } > dist/QUICK-START.txt
 
       - name: Upload ready-to-install package
