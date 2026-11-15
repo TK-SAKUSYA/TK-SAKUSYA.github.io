@@ -1,5 +1,14 @@
 # M-AI — Minecraft AI
 
+## Version 0.24.0 — Twenty-fourth update
+
+- Retrieved the real Gradle job logs from the earlier Actions runs instead of treating every failure as a zero-job startup issue.
+- Found the earlier dependency-resolution error: the old build revision requested the invalid coordinate `net.fabricmc.fabric-loader:0.20.1`.
+- Confirmed the current Fabric Loader coordinate is `net.fabricmc:fabric-loader:0.20.1`.
+- Changed both Fabric Loader and Fabric API declarations to Loom's `modImplementation` configuration, as documented for mod dependencies.
+- The current GitHub event routing still needs a fresh successful Actions run to prove the build passes. Later pushes have been assigned to a synthetic `BuildFailed` workflow with `startup_failure` and zero jobs.
+- **Status:** source fix committed; JAR, playtest ZIP, and Minecraft installation test are still unverified.
+
 **M-AI** is an experimental Minecraft Java AI player system with a client-side Fabric bridge for Minecraft 26.3. Each agent can have its own name, personality, memory, and optional in-game diary.
 
 - Target: Minecraft Java **26.3**
