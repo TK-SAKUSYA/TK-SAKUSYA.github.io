@@ -20,9 +20,14 @@ Client-side Fabric mod for **Minecraft Java 26.3**.
 
 The observation is sampled on the Minecraft client tick and sent by the background socket thread.
 
+## In-game AI speech (version 0.3.0)
+
+When the local bridge relays a new `ai_say` message, the mod schedules it on the Minecraft client thread and displays it in the local chat. Run both `npm run bridge` and `npm run bridge:think` for the full observation-to-speech path.
+
 ## What it does not do yet
 
 - It does not send movement commands, full inventory contents, nearby block/entity details, or chat history. Only the main-hand item name is included.
+- It displays new Ollama-generated `ai_say` messages in the local player chat with an `[M-AI]` prefix.
 - It does not execute AI actions or control the player.
 - It does not spawn a separate bot entity.
 - It does not connect to remote servers or expose a network listener.
