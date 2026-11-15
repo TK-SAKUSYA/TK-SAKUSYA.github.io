@@ -10,16 +10,14 @@
 
 > **Experimental:** the Fabric client mod connects to the Node-side local bridge, sends limited player observations, and can display short Ollama-generated speech in the local Minecraft chat. It does not yet control movement or spawn separate AI players. No live Minecraft 26.3 test has been completed.
 
-## Version 0.21.0 — Twentieth update
+## Version 0.22.0 — Twenty-first update
 
-- Investigated the repeated GitHub Actions failures using the actual workflow-run records.
-- Confirmed that the latest failed run is associated with the synthetic workflow path `BuildFailed`, not the repository's `.github/workflows/build-m-ai-fabric.yml`.
-- Confirmed the run contains **zero jobs**. The GitHub Actions runner never starts, so Node checks, Java setup, Gradle, and JAR packaging never execute.
-- A retry request was rejected by GitHub with HTTP 403 because this synthetic startup-failure run cannot be retried.
-- Found a matching report in GitHub Community describing the same `BuildFailed` + `startup_failure` + zero-jobs symptom across normal workflows and GitHub Pages. This points to GitHub-side workflow registration/event routing, not a Gradle or Minecraft source-code compile error.
-- **Decision:** do not keep changing Gradle versions or Java source blindly. The Ubuntu 24.04 pin and diagnostic step from update 19 remain ready for when GitHub dispatches the real workflow again.
-- Project version bumped to `0.21.0`. Fabric Mod remains `0.7.0` because no mod code was changed.
-- **Status:** no JAR or playtest ZIP exists yet. A successful real workflow run is still required before installation can be offered.
+- Added a second build workflow under a brand-new filename: `.github/workflows/m-ai-fresh-build.yml`.
+- The new workflow uses the same verified build and packaging steps as the existing workflow, but gets a fresh GitHub Actions workflow registration instead of relying on the repeatedly failing workflow registration.
+- It runs on pushes affecting M-AI source/build files and can also be started manually from GitHub Actions.
+- This is a targeted workaround for the earlier `BuildFailed` / `startup_failure` / zero-jobs condition. It is **not yet confirmed** that the new workflow starts successfully.
+- Project version bumped to `0.22.0`. Fabric Mod remains `0.7.0` because no in-game mod code changed.
+- **Status:** no JAR or playtest ZIP is claimed. A successful build and artifact check are still required before installation.
 
 ## Version 0.20.0 — Nineteenth update
 
