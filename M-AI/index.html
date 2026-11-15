@@ -22,9 +22,20 @@ small{color:#9eb2a2}
 </head>
 <body>
 <main>
-<span class="tag">EXPERIMENTAL · VERSION 0.23.0</span>
+<span class="tag">EXPERIMENTAL · VERSION 0.24.0</span>
 <h1>M-AI</h1>
 <p class="lead">観察と経験から学び、それぞれの名前と性格を持って活動するMinecraft AIプレイヤーシステム。</p>
+<section class="panel">
+<h2>第二十四回アップデート</h2>
+<ul>
+<li>過去のGitHub Actions実行ログを直接取得し、Gradleが実際に失敗していた記録を発見</li>
+<li>古いビルドでFabric Loaderの依存関係座標が誤っていたことを特定</li>
+<li>現在の正しい座標 net.fabricmc:fabric-loader を確認</li>
+<li>Fabric LoaderとFabric APIをLoom公式資料に沿った modImplementation に変更</li>
+<li>ソース修正をGitHubへ反映。ビルド成功・JAR生成・ゲーム内テストはまだ未確認</li>
+<li>後続pushがBuildFailed / startup_failure / ジョブ0件になる問題は継続調査</li>
+</ul>
+</section>
 <section class="panel">
 <h2>第二十二回アップデート</h2>
 <ul>
