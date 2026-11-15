@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'M-AI/fabric-mod/**'
+      - 'M-AI/src/**'
+      - 'M-AI/package.json'
       - '.github/workflows/build-m-ai-fabric.yml'
   workflow_dispatch:
 
@@ -16,6 +18,15 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check M-AI JavaScript
+        working-directory: M-AI
+        run: npm run check
 
       - name: Set up Java 25
         uses: actions/setup-java@v4
