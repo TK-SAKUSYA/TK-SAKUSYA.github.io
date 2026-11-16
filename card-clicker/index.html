@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10152d"><title>カードクリッカー</title>
+<style>
+:root{color-scheme:dark;--bg:#10152d;--panel:#1b2343;--panel2:#252f55;--gold:#ffd76a;--muted:#aab4d2;--line:#39466f}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -20%,#39477c 0,#10152d 48%);color:#f7f8ff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+header{padding:20px max(16px,calc((100% - 1100px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #ffffff18;background:#10152dcc;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+h1{font-size:clamp(22px,4vw,30px);margin:0;letter-spacing:.04em}.brand{display:flex;align-items:center;gap:10px}.brand-icon{font-size:30px}
+.stats{display:flex;gap:9px;flex-wrap:wrap}.stat{background:var(--panel);border:1px solid var(--line);padding:9px 13px;border-radius:13px;font-weight:800}.stat span{color:var(--gold)}
+main{max-width:1100px;margin:auto;padding:22px 16px 60px}.hero{background:linear-gradient(120deg,#303e72,#202a50);border:1px solid #6574aa66;border-radius:20px;padding:20px;margin-bottom:18px}.hero h2{margin:0 0 5px;font-size:22px}.hero p{margin:0;color:#c4cce4}
+.tabs{display:flex;gap:8px;overflow:auto;margin:16px 0}.tab,button{border:0;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer;transition:.15s}.tab{background:var(--panel);color:#c5cce2;white-space:nowrap}.tab.active{background:var(--gold);color:#28213a}
+button:disabled{opacity:.4;cursor:not-allowed}.tab:hover,button:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.08)}
+.panel{display:none}.panel.active{display:block}.section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 12px}.section-title h2{margin:0;font-size:21px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:13px}.card,.pack,.shop-item{background:linear-gradient(160deg,#27345e,#1a2242);border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 8px 22px #0002}
+.card{position:relative;text-align:center;overflow:hidden;cursor:pointer;min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}.card:hover{border-color:#8798d7}.art{font-size:55px;filter:drop-shadow(0 7px 8px #0005)}.card h3{margin:3px 0;font-size:17px}.rarity{font-size:12px;font-weight:900;letter-spacing:.08em}.power{color:var(--gold);font-weight:900}.owned{font-size:12px;color:var(--muted)}
+.common{--rarity:#bdc5d6}.rare{--rarity:#5ba7ff}.epic{--rarity:#c18aff}.legendary{--rarity:#ffca54}.mythic{--rarity:#ff6f9e}
+.card:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--rarity,#fff)}.rarity{color:var(--rarity,#fff)}
+button.primary{background:linear-gradient(120deg,#ffe58b,#ffbf4e);color:#30233a}button.secondary{background:#3b4b7c;color:white}button.danger{background:#8d405a;color:white}
+.pack{display:flex;flex-direction:column;gap:10px}.pack-art{font-size:42px}.pack h3{margin:0}.pack p,.shop-item p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.pack button{margin-top:auto}.price{color:var(--gold);font-weight:900}
+.clicker{display:grid;grid-template-columns:1fr 1fr;gap:16px}.click-zone{background:linear-gradient(160deg,#2a3866,#1b2343);border:1px solid var(--line);border-radius:20px;padding:25px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px}.big-character{font-size:100px;cursor:pointer;user-select:none;transition:transform .1s;filter:drop-shadow(0 10px 10px #0005)}.big-character:active{transform:scale(.9)}.click-zone h2{margin:5px}.click-zone p{color:var(--muted);margin:4px}.upgrade-list{display:grid;gap:10px}.upgrade{background:var(--panel);border:1px solid var(--line);padding:14px;border-radius:15px;display:flex;align-items:center;justify-content:space-between;gap:10px}.upgrade strong{display:block}.upgrade small{color:var(--muted)}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px}.collection-grid .card{min-height:175px;padding:10px}.collection-grid .art{font-size:42px}.collection-grid .locked{opacity:.35;filter:grayscale(1)}
+#toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);background:#f8dc88;color:#2b2340;padding:12px 18px;border-radius:13px;font-weight:900;opacity:0;pointer-events:none;transition:.25s;z-index:10;text-align:center;max-width:90vw}#toast.show{opacity:1;transform:translate(-50%,0)}
+#result{display:none;position:fixed;inset:0;background:#090d20df;z-index:9;align-items:center;justify-content:center;padding:18px}#result.show{display:flex}.result-box{background:var(--panel);border:1px solid var(--gold);border-radius:22px;padding:25px;text-align:center;max-width:340px;width:100%}.result-box .art{font-size:90px}
+footer{text-align:center;color:#7784aa;padding:25px;font-size:12px}
+@media(max-width:650px){header{position:static}.clicker{grid-template-columns:1fr}.click-zone{min-height:240px}.big-character{font-size:78px}.stats{width:100%}.stat{flex:1;text-align:center;font-size:13px}}
+</style></head>
+<body>
+<header><div class="brand"><div class="brand-icon">🃏</div><h1>カードクリッカー</h1></div><div class="stats"><div class="stat">🪙 <span id="coins">0</span></div><div class="stat">👆 <span id="perClick">1</span>/クリック</div><div class="stat">⚡ <span id="perSec">0</span>/秒</div></div></header>
+<main><section class="hero"><h2>カードを集めて、最強チームを作ろう！</h2><p>クリックでコインを稼ぎ、パックを開封！レアキャラほどコインを生み出すぞ。</p></section>
+<nav class="tabs"><button class="tab active" data-tab="play">👆 クリック</button><button class="tab" data-tab="shop">🛍️ ショップ</button><button class="tab" data-tab="collection">📚 カード図鑑</button></nav>
+<section class="panel active" id="play"><div class="clicker"><div class="click-zone"><div id="mainChar" class="big-character" title="クリック！">🧑‍🚀</div><h2 id="mainName">ビギナー</h2><p>キャラクターをクリックしてコインGET！</p><button class="primary" id="clickButton">💥 タップ！</button></div><div><div class="section-title"><h2>⚙️ 強化ショップ</h2></div><div class="upgrade-list" id="upgrades"></div><div class="section-title"><h2>🌟 所持カード</h2><span id="ownedCount">0枚</span></div><div id="activeCard" class="card common"><div class="art">🧑‍🚀</div><h3>ビギナー</h3><div class="rarity">COMMON</div><div class="power">+1 コイン/秒</div></div></div></div></section>
+<section class="panel" id="shop"><div class="section-title"><h2>🎁 カードパック</h2><span>開封して新キャラをGET！</span></div><div class="grid" id="packs"></div></section>
+<section class="panel" id="collection"><div class="section-title"><h2>📖 カード図鑑</h2><span id="collectionCount">0 / 15</span></div><div class="collection-grid" id="collectionGrid"></div></section></main><footer>カードクリッカー · データはこのブラウザに自動保存されます</footer>
+<div id="toast"></div><div id="result"><div class="result-box"><div style="color:var(--gold);font-weight:900">✨ NEW CARD! ✨</div><div id="resultArt" class="art"></div><h2 id="resultName"></h2><div id="resultRarity" class="rarity"></div><p id="resultPower" class="power"></p><button class="primary" id="closeResult">やったー！</button></div></div>
+<script>
+const cards=[
+{id:'rookie',name:'ビギナー',emoji:'🧑‍🚀',rarity:'common',power:1,weight:48},
+{id:'slime',name:'ぷにスライム',emoji:'🟢',rarity:'common',power:2,weight:38},
+{id:'cat',name:'ねこ剣士',emoji:'🐱',rarity:'common',power:3,weight:30},
+{id:'robot',name:'メカボット',emoji:'🤖',rarity:'rare',power:6,weight:22},
+{id:'ninja',name:'影の忍者',emoji:'🥷',rarity:'rare',power:8,weight:18},
+{id:'wizard',name:'星読み魔導士',emoji:'🧙',rarity:'rare',power:10,weight:15},
+{id:'dragon',name:'紅蓮ドラゴン',emoji:'🐉',rarity:'epic',power:22,weight:10},
+{id:'phoenix',name:'不死鳥フェニックス',emoji:'🦅',rarity:'epic',power:28,weight:8},
+{id:'samurai',name:'雷神サムライ',emoji:'⚔️',rarity:'epic',power:35,weight:7},
+{id:'unicorn',name:'銀河ユニコーン',emoji:'🦄',rarity:'legendary',power:75,weight:4},
+{id:'king',name:'天空の王',emoji:'👑',rarity:'legendary',power:95,weight:3},
+{id:'cosmos',name:'コスモス',emoji:'🌌',rarity:'legendary',power:120,weight:2},
+{id:'void',name:'虚空の支配者',emoji:'🌀',rarity:'mythic',power:260,weight:1},
+{id:'deity',name:'創造神',emoji:'✨',rarity:'mythic',power:400,weight:.6},
+{id:'omega',name:'Ω オメガ',emoji:'♾️',rarity:'mythic',power:650,weight:.25}
+];
+const rarityNames={common:'COMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY',mythic:'MYTHIC'};
+const packs=[
+{id:'basic',name:'ノーマルパック',emoji:'📦',price:100,desc:'まずはここから！コモン中心。',bonus:1,weights:{common:1,rare:.2,epic:.02,legendary:0,mythic:0}},
+{id:'silver',name:'シルバーパック',emoji:'🎁',price:600,desc:'レア以上が出やすい！',bonus:1,weights:{common:.5,rare:1,epic:.25,legendary:.04,mythic:0}},
+{id:'gold',name:'ゴールドパック',emoji:'💎',price:2500,desc:'エピック以上を狙え！',bonus:1,weights:{common:.15,rare:.7,epic:1,legendary:.25,mythic:.03}},
+{id:'legend',name:'伝説パック',emoji:'👑',price:10000,desc:'レジェンド・神話級の大チャンス！',bonus:1,weights:{common:.05,rare:.25,epic:.7,legendary:1,mythic:.2}}
+];
+const upgrades=[{id:'finger',name:'クリック強化',desc:'1クリックの獲得コイン +1',base:50,type:'click'},{id:'auto',name:'自動クリック装置',desc:'毎秒の獲得コイン +2',base:120,type:'auto'}];
+let state={coins:0,clickPower:1,autoPower:0,levels:{finger:0,auto:0},owned:{rookie:1},totalClicks:0};
+function load(){try{const s=JSON.parse(localStorage.getItem('cardClickerSave'));if(s&&typeof s.coins==='number')state={...state,...s,levels:{...state.levels,...s.levels},owned:{...state.owned,...s.owned}}}catch(e){}}
+function save(){localStorage.setItem('cardClickerSave',JSON.stringify(state))}
+function fmt(n){return Math.floor(n).toLocaleString('ja-JP')}
+function rarityClass(r){return r}
+function notify(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>el.classList.remove('show'),1800)}
+function addCoins(n){state.coins+=n;renderStats();save()}
+function renderStats(){document.getElementById('coins').textContent=fmt(state.coins);document.getElementById('perClick').textContent=fmt(state.clickPower);document.getElementById('perSec').textContent=fmt(state.autoPower);document.getElementById('ownedCount').textContent=Object.values(state.owned).reduce((a,b)=>a+b,0)+'枚';}
+function renderUpgrades(){document.getElementById('upgrades').innerHTML=upgrades.map(u=>{const lv=state.levels[u.id],cost=Math.floor(u.base*Math.pow(1.65,lv));return '<div class="upgrade"><div><strong>'+u.name+' Lv.'+lv+'</strong><small>'+u.desc+'</small></div><button class="secondary" data-up="'+u.id+'">🪙 '+fmt(cost)+'</button></div>'}).join('');document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>buyUpgrade(b.dataset.up))}
+function buyUpgrade(id){const u=upgrades.find(x=>x.id===id),lv=state.levels[id],cost=Math.floor(u.base*Math.pow(1.65,lv));if(state.coins<cost)return notify('コインが足りない！');state.coins-=cost;state.levels[id]++;if(id==='finger')state.clickPower++;else state.autoPower+=2;renderAll();save();notify('強化成功！ '+u.name)}
+function cardPower(){return cards.reduce((sum,c)=>sum+(state.owned[c.id]||0)*c.power,0)}
+function bestCard(){return [...cards].filter(c=>state.owned[c.id]).sort((a,b)=>b.power-a.power)[0]||cards[0]}
+function renderActive(){const c=bestCard();document.getElementById('mainChar').textContent=c.emoji;document.getElementById('mainName').textContent=c.name;document.getElementById('activeCard').className='card '+c.rarity;document.getElementById('activeCard').innerHTML='<div class="art">'+c.emoji+'</div><h3>'+c.name+'</h3><div class="rarity">'+rarityNames[c.rarity]+'</div><div class="power">+'+c.power+' コイン/秒</div>'}
+function renderPacks(){document.getElementById('packs').innerHTML=packs.map(p=>'<div class="pack"><div class="pack-art">'+p.emoji+'</div><h3>'+p.name+'</h3><p>'+p.desc+'</p><div class="price">🪙 '+fmt(p.price)+'</div><button class="primary" data-pack="'+p.id+'">パックを購入</button></div>').join('');document.querySelectorAll('[data-pack]').forEach(b=>b.onclick=()=>openPack(b.dataset.pack))}
+function renderCollection(){document.getElementById('collectionGrid').innerHTML=cards.map(c=>{const n=state.owned[c.id]||0;return '<div class="card '+c.rarity+' '+(!n?'locked':'')+'"><div class="art">'+(n?c.emoji:'❔')+'</div><h3>'+(n?c.name:'？？？？')+'</h3><div class="rarity">'+(n?rarityNames[c.rarity]:'UNKNOWN')+'</div><div class="owned">'+(n?'所持 '+n+'枚':'未発見')+'</div><div class="power">'+(n?'+'+c.power+'/秒':'')+'</div></div>'}).join('');document.getElementById('collectionCount').textContent=cards.filter(c=>state.owned[c.id]).length+' / '+cards.length}
+function openPack(id){const p=packs.find(x=>x.id===id);if(state.coins<p.price)return notify('コインが足りない！');state.coins-=p.price;const pool=cards.map(c=>({...c,weight:c.weight*(p.weights[c.rarity]||0)})).filter(c=>c.weight>0);const total=pool.reduce((s,c)=>s+c.weight,0);let roll=Math.random()*total,got=pool[0];for(const c of pool){roll-=c.weight;if(roll<=0){got=c;break}}const isNew=!state.owned[got.id];state.owned[got.id]=(state.owned[got.id]||0)+1;renderAll();save();document.getElementById('resultArt').textContent=got.emoji;document.getElementById('resultName').textContent=got.name+(isNew?'【NEW!】':'');document.getElementById('resultRarity').textContent=rarityNames[got.rarity];document.getElementById('resultRarity').className='rarity '+got.rarity;document.getElementById('resultPower').textContent='+'+got.power+' コイン/秒';document.getElementById('result').classList.add('show')}
+function renderAll(){renderStats();renderUpgrades();renderPacks();renderCollection();renderActive()}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab))});
+function clickCharacter(){addCoins(state.clickPower);state.totalClicks++;document.getElementById('mainChar').animate([{transform:'scale(1)'},{transform:'scale(.88)'},{transform:'scale(1)'}],{duration:130});}
+document.getElementById('mainChar').onclick=clickCharacter;document.getElementById('clickButton').onclick=clickCharacter;
+document.getElementById('closeResult').onclick=()=>document.getElementById('result').classList.remove('show');
+load();renderAll();setInterval(()=>{if(state.autoPower>0)addCoins(state.autoPower)},1000);
+</script></body></html>
