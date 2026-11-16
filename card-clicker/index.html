@@ -66,15 +66,15 @@ const cards=[
 const rarityNames={normal:'ノーマル',rare:'レア',super:'スーパーレア',ultra:'ウルトラレア',legendary:'レジェンドレア'};
 const rarityOrder=['normal','rare','super','ultra','legendary'];
 const packs=[
-{id:'bronze',name:'ブロンズパック',emoji:'🥉',price:100,desc:'まずはここから！ノーマル中心。',weights:{normal:1,rare:.18,super:.025,ultra:.003,legendary:0}},
-{id:'silver',name:'シルバーパック',emoji:'🥈',price:300,desc:'レアカードを狙おう！',weights:{normal:.65,rare:.55,super:.09,ultra:.012,legendary:.001}},
-{id:'gold',name:'ゴールドパック',emoji:'🥇',price:800,desc:'スーパーレアの出現率アップ！',weights:{normal:.4,rare:.65,super:.35,ultra:.05,legendary:.005}},
-{id:'diamond',name:'ダイヤモンドパック',emoji:'💎',price:2000,desc:'ウルトラレアも狙える高級パック。',weights:{normal:.2,rare:.5,super:.65,ultra:.2,legendary:.025}},
-{id:'angel',name:'エンジェルパック',emoji:'😇',price:5000,desc:'光り輝く強力なカードが集結！',weights:{normal:.12,rare:.35,super:.7,ultra:.4,legendary:.08}},
-{id:'devil',name:'デビルパック',emoji:'😈',price:10000,desc:'高レアカードが出やすい危険なパック。',weights:{normal:.08,rare:.25,super:.55,ultra:.65,legendary:.16}},
-{id:'king',name:'キングパック',emoji:'👑',price:25000,desc:'王者級カードをその手に！',weights:{normal:.04,rare:.16,super:.45,ultra:.8,legendary:.3}},
-{id:'god',name:'ゴッドパック',emoji:'⚡',price:60000,desc:'レジェンドレアを強く狙える神パック。',weights:{normal:.015,rare:.08,super:.3,ultra:.8,legendary:.75}},
-{id:'last',name:'ラストパック',emoji:'🌌',price:150000,desc:'最後の切り札。最高レアを狙え！',weights:{normal:.005,rare:.025,super:.12,ultra:.5,legendary:1.5}}
+{id:'bronze',name:'ブロンズパック',emoji:'🥉',price:100,desc:'ノーマル中心。高レアはかなりレア！',weights:{normal:1,rare:.18,super:.025,ultra:.003,legendary:.0005}},
+{id:'silver',name:'シルバーパック',emoji:'🥈',price:300,desc:'レア以上が少し出やすくなった！',weights:{normal:.8,rare:.25,super:.06,ultra:.01,legendary:.002}},
+{id:'gold',name:'ゴールドパック',emoji:'🥇',price:800,desc:'スーパーレア以上の期待度アップ！',weights:{normal:.6,rare:.35,super:.12,ultra:.04,legendary:.008}},
+{id:'diamond',name:'ダイヤモンドパック',emoji:'💎',price:2000,desc:'ウルトラレアも狙える高級パック。',weights:{normal:.4,rare:.45,super:.25,ultra:.12,legendary:.03}},
+{id:'angel',name:'エンジェルパック',emoji:'😇',price:5000,desc:'高レアカードがさらに出やすい！',weights:{normal:.25,rare:.55,super:.4,ultra:.3,legendary:.1}},
+{id:'devil',name:'デビルパック',emoji:'😈',price:10000,desc:'ウルトラレア・レジェンドレアの確率上昇！',weights:{normal:.15,rare:.65,super:.55,ultra:.5,legendary:.25}},
+{id:'king',name:'キングパック',emoji:'👑',price:25000,desc:'高レア中心の王者級パック！',weights:{normal:.1,rare:.75,super:.7,ultra:.8,legendary:.6}},
+{id:'god',name:'ゴッドパック',emoji:'⚡',price:60000,desc:'レジェンドレアの出現率も大幅アップ！',weights:{normal:.06,rare:.85,super:.85,ultra:1.2,legendary:1.5}},
+{id:'last',name:'ラストパック',emoji:'🌌',price:150000,desc:'最高レアが最も出やすい究極のパック！',weights:{normal:.03,rare:1,super:1,ultra:1.8,legendary:4}}
 ];
 const upgrades=[{id:'finger',name:'クリック強化',desc:'クリックの基本獲得コイン +1',base:50},{id:'auto',name:'自動生産装置',desc:'毎秒の基本獲得コイン +2',base:120}];
 let state={coins:0,clickPower:1,autoPower:0,levels:{finger:0,auto:0},owned:{rookie:1},totalClicks:0,selectedCard:'rookie'};
