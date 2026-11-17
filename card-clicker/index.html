@@ -58,6 +58,11 @@ body.light .secondary{background:#526b96;color:#fff}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
 /* Layout polish: avoid collisions and emphasize card switching */
+/* Separate the card switch control from the tap character */
+.click-actions{margin-top:24px;padding-top:10px;position:relative;z-index:1}
+.change-card{margin-top:0!important}
+@media(max-width:760px){.click-actions{margin-top:28px;padding-top:12px}}
+
 .clicker{grid-template-columns:minmax(0,1fr);gap:14px}
 .click-zone{width:100%;min-width:0}
 .ability-panel{min-width:0}
