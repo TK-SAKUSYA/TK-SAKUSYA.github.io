@@ -56,12 +56,29 @@ body.light .secondary{background:#526b96;color:#fff}
 .theme-buttons button.selected{outline:3px solid var(--gold);outline-offset:2px}
 
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Layout polish: avoid collisions and emphasize card switching */
+.clicker{grid-template-columns:minmax(0,1fr);gap:14px}
+.click-zone{width:100%;min-width:0}
+.ability-panel{min-width:0}
+.change-card{width:min(100%,520px);min-height:76px;padding:18px 28px;font-size:clamp(21px,3vw,27px);font-weight:950;border:2px solid #9bb5e8;border-radius:18px;box-shadow:0 8px 0 #263a60,0 12px 24px #0003;letter-spacing:.03em}
+.change-card:active{transform:translateY(3px);box-shadow:0 4px 0 #263a60}
+.click-actions{width:100%;padding:5px 0 8px}
+.click-zone{overflow:visible}
+.section-title h2{min-width:0;overflow-wrap:anywhere}
+.pack,.shop-item,.upgrade,.picker-box,.result-box{overflow-wrap:anywhere}
+#settingsModal .picker-box,#cardPicker .picker-box{max-height:calc(100vh - 36px);overflow:auto}
+#result .result-box{max-height:calc(100vh - 36px);overflow:auto}
+.tabs{align-items:stretch}
+.tabs>*{min-width:0}
+@media(max-width:760px){.click-zone{padding:18px 14px}.big-character{max-width:100%}.change-card{width:100%;min-height:72px}.ability-panel{margin-top:2px}}
+@media(max-width:420px){.click-zone h2{font-size:20px}.change-card{font-size:22px;padding:16px 12px}.section-title{align-items:flex-start}.section-title h2{font-size:20px}}
 </style></head>
 <body>
 <header><div class="brand"><div class="brand-icon">🃏</div><h1>カードクリッカー</h1></div><div class="stats"><div class="stat">🪙 <span id="coins">0</span></div><div class="stat">👆 <span id="perClick">1</span>/クリック</div><div class="stat">⚡ <span id="perSec">0</span>/秒</div></div></header>
 <main><section class="hero"><h2>カードを集めて、最強チームを作ろう！</h2><p>クリックでコインを稼ぎ、パックを開封！カードごとのアビリティを活用しよう。</p></section>
 <nav class="tabs"><button class="tab active" data-tab="play">👆 クリック</button><button class="tab" data-tab="shop">🛍️ ショップ</button><button class="tab" data-tab="upgrade">⚙️ 強化</button><button class="tab" data-tab="collection">📚 カード図鑑</button><button class="secondary" id="openSettings">⚙️ 設定</button></nav>
-<section class="panel active" id="play"><div class="clicker"><div class="click-zone"><div id="mainChar" class="big-character" title="キャラクターをタップ！" role="button" tabindex="0" aria-label="キャラクターをタップしてコインを獲得"></div><h2 id="mainName">キャラクター</h2><p>キャラクターをタップしてコインGET！</p><div class="click-actions"><button class="change-card" id="changeCard">🃏 カード変更</button></div></div><div><div class="section-title"><h2>🌟 所持カード</h2><span id="ownedCount">0枚</span></div><div id="activeCard" class="card normal"></div><div class="section-title"><h2>✨ 発動中の能力</h2></div><div id="abilitySummary" class="shop-item"></div></div></div></section>
+<section class="panel active" id="play"><div class="clicker"><div class="click-zone"><div id="mainChar" class="big-character" title="キャラクターをタップ！" role="button" tabindex="0" aria-label="キャラクターをタップしてコインを獲得"></div><h2 id="mainName">キャラクター</h2><p>キャラクターをタップしてコインGET！</p><div class="click-actions"><button class="change-card" id="changeCard">🃏 カード変更</button></div></div><div class="ability-panel"><div class="section-title"><h2>✨ 発動中の能力</h2></div><div id="abilitySummary" class="shop-item"></div></div></div></section>
 <section class="panel" id="shop"><div class="section-title"><h2>🎁 カードパック</h2><span>開封演出つき！</span></div><div id="shardInventory" class="shard-inventory"></div><div class="grid" id="packs"></div></section>
 <section class="panel" id="upgrade"><div class="section-title"><h2>⚙️ 強化ショップ</h2><span>コインを使って能力アップ！</span></div><div class="upgrade-list" id="upgrades"></div></section>
 <section class="panel" id="collection"><div class="section-title"><h2>📖 カード図鑑</h2><span id="collectionCount">0 / 15</span></div><div class="collection-grid" id="collectionGrid"></div></section></main>
@@ -117,6 +134,7 @@ function addCoins(n){state.coins+=n;renderStats();save()}
 function renderStats(){document.getElementById('coins').textContent=fmt(state.coins);document.getElementById('perClick').textContent=fmt(totalClick());document.getElementById('perSec').textContent=fmt(totalAuto());document.getElementById('ownedCount').textContent=Object.values(state.owned).reduce((a,b)=>a+b,0)+'枚';renderShards()}
 function renderShards(){const el=document.getElementById('shardInventory');if(!el)return;const labels={rare:'レア',super:'スーパーレア',ultra:'ウルトラレア',legendary:'レジェンドレア'};el.innerHTML='<div class="shard-title">🧩 キャラクターのかけら</div>'+Object.entries(labels).map(([key,label])=>'<div class="shard-chip">'+label+'のかけら<strong>'+fmt(state.shards[key]||0)+'</strong></div>').join('')}
 function art(c){
+if(c.history)return historyPortrait(c);
 const col=c.color||'#91a8d8',n=Number(c.shape)||0;
 const styles=[
 {head:'M39 68 Q37 25 70 22 Q103 25 101 68 L94 105 Q70 124 46 105Z',hair:'M39 58 Q25 14 70 17 Q115 14 101 58 L91 43 Q70 31 49 43Z',extra:'<path d="M48 47 L56 31 L65 46 M75 46 L86 31 L94 48" fill="#f5f8ff" stroke="#7187a8" stroke-width="3"/>'},
@@ -137,8 +155,38 @@ const styles=[
 ];
 const v=styles[n%styles.length],uid='portrait'+String(c.id).replace(/[^a-z0-9]/gi,'');
 const eyes=n%3===0?'<rect x="48" y="65" width="17" height="8" rx="4" fill="#24314b"/><rect x="75" y="65" width="17" height="8" rx="4" fill="#24314b"/>':'<ellipse cx="57" cy="69" rx="5" ry="7" fill="#24314b"/><ellipse cx="83" cy="69" rx="5" ry="7" fill="#24314b"/>';
-const trim=c.history?'<path d="M24 117 Q70 96 116 117 L124 140 H16Z" fill="'+col+'" stroke="#f4d99a" stroke-width="3"/><path d="M45 119 L70 137 L95 119" fill="none" stroke="#fff0c4" stroke-width="3"/>':'<path d="M34 117 Q70 101 106 117 L116 140 H24Z" fill="'+col+'" stroke="#ffffff55" stroke-width="3"/>';
-return '<svg viewBox="0 0 140 140" role="img" aria-label="'+c.name+'のイラスト"><defs><radialGradient id="'+uid+'g"><stop stop-color="'+col+'" stop-opacity=".5"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></radialGradient><linearGradient id="'+uid+'m" x2="0" y2="1"><stop stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity=".24"/></linearGradient></defs><circle cx="70" cy="70" r="66" fill="url(#'+uid+'g)"/><circle cx="70" cy="70" r="59" fill="none" stroke="'+col+'" stroke-width="3" stroke-dasharray="3 6"/><path d="'+v.head+'" fill="'+col+'" stroke="#17213b" stroke-width="4" stroke-linejoin="round"/>'+ (v.hair?'<path d="'+v.hair+'" fill="#26334d" stroke="#10182d" stroke-width="4"/>':'')+v.extra+eyes+'<path d="M59 91 Q70 99 81 91" fill="none" stroke="#663d48" stroke-width="3" stroke-linecap="round"/>'+trim+'<path d="M0 0 H140 V140 H0Z" fill="url(#'+uid+'m)" pointer-events="none"/></svg>';
+const trim='<path d="M24 117 Q70 96 116 117 L124 140 H16Z" fill="'+col+'" stroke="#f4d99a" stroke-width="3"/><path d="M45 119 L70 137 L95 119" fill="none" stroke="#fff0c4" stroke-width="3"/>';
+return '<svg viewBox="0 0 140 140" role="img" aria-label="'+c.name+'のイラスト"><defs><radialGradient id="'+uid+'g"><stop stop-color="'+col+'" stop-opacity=".5"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></radialGradient><linearGradient id="'+uid+'m" x2="0" y2="1"><stop stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity=".24"/></linearGradient></defs><circle cx="70" cy="70" r="66" fill="url(#'+uid+'g)"/><circle cx="70" cy="70" r="59" fill="none" stroke="'+col+'" stroke-width="3" stroke-dasharray="3 6"/><path d="'+v.head+'" fill="'+col+'" stroke="#17213b" stroke-width="4" stroke-linejoin="round"/>'+(v.hair?'<path d="'+v.hair+'" fill="#26334d" stroke="#10182d" stroke-width="4"/>':'')+v.extra+eyes+'<path d="M59 91 Q70 99 81 91" fill="none" stroke="#663d48" stroke-width="3" stroke-linecap="round"/>'+trim+'<path d="M0 0 H140 V140 H0Z" fill="url(#'+uid+'m)" pointer-events="none"/></svg>';
+}
+function historyPortrait(c){
+const i=Math.max(0,(parseInt(c.id.split('-')[1],10)||1)-1),col=c.color||'#b99b72';
+const skins=['#e8c5a0','#d7a77e','#f0d0ad','#c98f69','#e3b995'];
+const hair=['#29231f','#473329','#171a20','#6b4a2d','#b5a18a'];
+const garments=['#473b32','#6c332d','#34465a','#6b5838','#4d4a65','#6c4936','#283e3d','#795d46'];
+const skin=skins[i%skins.length],hairColor=hair[(i*3+Math.floor(i/7))%hair.length],robe=garments[(i*5+Math.floor(i/4))%garments.length];
+const japanese=i<40,ancient=i>=60&&i<90,modern=i>=35&&i<41||i>=70&&i<79;
+const headgear=[
+'<path d="M34 48 Q34 13 70 12 Q106 13 106 48 L96 44 Q70 31 44 44Z" fill="#29231f" stroke="#c5a36a" stroke-width="3"/>',
+'<path d="M28 48 Q70 4 112 48 L101 52 Q70 29 39 52Z" fill="#302a25" stroke="#d8bd83" stroke-width="3"/><path d="M70 15 V3" stroke="#d8bd83" stroke-width="4"/>',
+'<path d="M30 42 L70 8 L110 42 L100 52 L70 31 L40 52Z" fill="#5a3027" stroke="#d9b46f" stroke-width="3"/>',
+'<path d="M38 38 Q70 4 102 38 L94 48 Q70 30 46 48Z" fill="#d8d0bd" stroke="#8d7652" stroke-width="3"/>',
+'<path d="M35 39 Q70 14 105 39 L100 50 Q70 32 40 50Z" fill="#272d3a" stroke="#c9ad78" stroke-width="3"/><circle cx="70" cy="23" r="7" fill="#c9ad78"/>',
+'<path d="M24 47 Q70 0 116 47 L104 55 Q70 26 36 55Z" fill="#543d2d" stroke="#cba86a" stroke-width="3"/>',
+'<path d="M35 43 Q70 8 105 43 L99 53 Q70 31 41 53Z" fill="#eee1c5" stroke="#a78b5c" stroke-width="3"/>',
+'<path d="M35 42 L70 7 L105 42 L97 52 L70 29 L43 52Z" fill="#6b2630" stroke="#e2c27b" stroke-width="3"/>',
+'<path d="M35 38 Q70 10 105 38 L98 47 Q70 29 42 47Z" fill="#343b4d" stroke="#b99a6a" stroke-width="3"/>',
+'<path d="M38 38 Q70 5 102 38 L96 49 Q70 28 44 49Z" fill="#d6c9a8" stroke="#7e6748" stroke-width="3"/>'
+];
+const head= i%10, hat=(i%4===0||i%4===1||i%7===0)?headgear[(i*7)%headgear.length]:'';
+const beard=(i%5===0||i%5===2)?'<path d="M49 91 Q70 127 91 91 L84 112 Q70 125 56 112Z" fill="'+hairColor+'" opacity=".95"/>':'';
+const collar=japanese?'<path d="M45 111 L70 137 L95 111 L85 106 L70 119 L55 106Z" fill="#d8c49b" stroke="#8d6e49" stroke-width="2"/>':'<path d="M47 108 L70 137 L93 108 L82 103 L70 119 L58 103Z" fill="#e2d5bd" stroke="#9b8666" stroke-width="2"/>';
+const frame='<rect x="5" y="5" width="130" height="130" rx="12" fill="none" stroke="#c6a66d" stroke-width="4"/><path d="M13 13 H127 V127 H13Z" fill="none" stroke="#f2dfb7" stroke-opacity=".45" stroke-width="1"/>';
+const background='<rect x="9" y="9" width="122" height="122" rx="9" fill="'+(i%2?'#c6b18c':'#d5c39f')+'"/><path d="M12 20 Q70 0 128 20 V128 H12Z" fill="#6b5c4a" opacity=".18"/>';
+const bust='<path d="M24 140 Q28 105 51 103 L89 103 Q112 105 116 140Z" fill="'+robe+'" stroke="#392f2a" stroke-width="3"/>'+collar;
+const face='<path d="M42 53 Q42 29 70 29 Q98 29 98 53 L94 83 Q88 103 70 105 Q52 103 46 83Z" fill="'+skin+'" stroke="#765c49" stroke-width="2"/><path d="M45 60 Q49 39 70 39 Q91 39 95 60" fill="none" stroke="'+hairColor+'" stroke-width="5"/><ellipse cx="58" cy="69" rx="3.5" ry="4" fill="#302a28"/><ellipse cx="82" cy="69" rx="3.5" ry="4" fill="#302a28"/><path d="M61 87 Q70 91 79 87" fill="none" stroke="#754c45" stroke-width="2.5" stroke-linecap="round"/>'+beard;
+const ornament=japanese?'<path d="M18 45 Q70 29 122 45" fill="none" stroke="#b28b50" stroke-width="2"/>':'<circle cx="70" cy="18" r="3" fill="#f3e4c2"/>';
+const texture='<path d="M16 112 L124 112 M16 119 L124 119" stroke="#fff0cf" stroke-opacity=".12" stroke-width="2"/>';
+return '<svg viewBox="0 0 140 140" role="img" aria-label="'+c.name+'の肖像画風イラスト"><defs><linearGradient id="hist'+i+'" x2="0" y2="1"><stop stop-color="#ead9b6"/><stop offset="1" stop-color="#9a8262"/></linearGradient></defs>'+background+texture+frame+ornament+bust+face+(hat||'<path d="M43 55 Q39 25 70 22 Q101 25 97 55 Q87 39 70 39 Q53 39 43 55Z" fill="'+hairColor+'" stroke="#392f2a" stroke-width="2"/>')+'<path d="M44 59 Q54 52 64 58 M76 58 Q86 52 96 59" fill="none" stroke="'+hairColor+'" stroke-width="3"/><path d="M70 71 L67 82 L72 83" fill="none" stroke="#9b705d" stroke-width="2"/>'+ (modern?'<path d="M49 65 Q58 60 64 65 M76 65 Q83 60 91 65" fill="none" stroke="#302a28" stroke-width="2"/>':'')+'</svg>';
 }
 function bestCard(){return [...cards].filter(c=>state.owned[c.id]).sort((a,b)=>b.power-a.power)[0]||cards[0]}
 function renderActive(){const c=cards.find(x=>x.id===state.selectedCard&&state.owned[x.id])||bestCard();state.selectedCard=c.id;document.getElementById('mainChar').innerHTML='<div class="art">'+art(c)+'</div>';document.getElementById('mainName').textContent='使用カード：'+c.name;document.getElementById('activeCard').className='card '+c.rarity;document.getElementById('activeCard').innerHTML='<div class="art">'+art(c)+'</div><h3>'+c.name+'</h3><div class="rarity">'+rarityNames[c.rarity]+'</div><div class="power">+'+c.power+' コイン/秒</div><div class="ability">✦ '+c.ability+'：'+c.effect+'</div>';document.getElementById('abilitySummary').innerHTML='<strong>カードのアビリティは所持しているだけで発動！</strong><p>クリック追加：+'+fmt(abilityTotals().click)+' / 毎秒追加：+'+fmt(abilityTotals().auto)+'（カード生産分は別途加算）</p>'}
