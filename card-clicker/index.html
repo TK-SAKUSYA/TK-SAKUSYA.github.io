@@ -72,21 +72,21 @@ body.light .secondary{background:#526b96;color:#fff}
 <div id="cardPicker"><div class="picker-box"><div class="section-title"><h2>🃏 使用カードを選択</h2><button class="secondary" id="closePicker">閉じる</button></div><p>所持しているカードから選べます。</p><div id="pickerGrid" class="collection-grid"></div></div></div><div id="settingsModal" class="show" style="display:none;position:fixed;inset:0;z-index:18;background:#070b1bee;backdrop-filter:blur(8px);padding:18px;overflow:auto"><div class="picker-box" style="max-width:520px"><div class="section-title"><h2>⚙️ 設定</h2><button class="secondary" id="closeSettings">閉じる</button></div><div class="section-title" style="margin:8px 0 12px"><h2>🎨 デザイン</h2></div><div class="upgrade theme-setting"><div><strong>画面テーマ</strong><small>ゲーム全体の明るさを切り替えます。</small></div><div class="theme-buttons"><button type="button" id="lightTheme" class="secondary">☀️ ライト</button><button type="button" id="darkTheme" class="secondary">🌙 ダーク</button></div></div><div class="upgrade"><div><strong>🎬 開封演出</strong><small>パック開封時のアニメーションを再生します。</small></div><label style="display:flex;align-items:center;gap:8px;font-weight:800"><input id="animationSetting" type="checkbox" checked> ON</label></div><div class="upgrade" style="margin-top:10px"><div><strong>💾 セーブデータ</strong><small>このブラウザに自動保存されています。</small></div><button class="primary" id="saveNow">今すぐ保存</button></div></div></div>
 <script>
 const cards=[
-{id:'rookie',name:'ビギナー',rarity:'normal',power:1,weight:48,ability:'コツコツ精神',effect:'クリック獲得量 +1',click:1,auto:0,color:'#b9c7df',shape:0},
-{id:'slime',name:'ぷにスライム',rarity:'normal',power:2,weight:38,ability:'ぷにぷに吸収',effect:'毎秒コイン +1',click:0,auto:1,color:'#58dfad',shape:1},
-{id:'cat',name:'ねこ剣士',rarity:'normal',power:3,weight:30,ability:'ねこパンチ',effect:'クリック獲得量 +2',click:2,auto:0,color:'#f0ad65',shape:2},
-{id:'robot',name:'メカボット',rarity:'rare',power:6,weight:22,ability:'オーバークロック',effect:'毎秒コイン +3',click:0,auto:3,color:'#5bc8e8',shape:3},
-{id:'ninja',name:'影の忍者',rarity:'rare',power:8,weight:18,ability:'影分身',effect:'クリック獲得量 +4',click:4,auto:0,color:'#8d9be9',shape:4},
-{id:'wizard',name:'星読み魔導士',rarity:'rare',power:10,weight:15,ability:'星の導き',effect:'毎秒コイン +5',click:0,auto:5,color:'#b18cff',shape:5},
-{id:'dragon',name:'紅蓮ドラゴン',rarity:'super',power:22,weight:10,ability:'紅蓮の息吹',effect:'クリック獲得量 +10',click:10,auto:0,color:'#f36b54',shape:6},
-{id:'phoenix',name:'不死鳥フェニックス',rarity:'super',power:28,weight:8,ability:'再生の炎',effect:'毎秒コイン +14',click:0,auto:14,color:'#ff9c45',shape:7},
-{id:'samurai',name:'雷神サムライ',rarity:'super',power:35,weight:7,ability:'雷鳴一閃',effect:'クリック獲得量 +18',click:18,auto:0,color:'#e9c45c',shape:8},
-{id:'unicorn',name:'銀河ユニコーン',rarity:'ultra',power:75,weight:4,ability:'銀河の祝福',effect:'毎秒コイン +35',click:0,auto:35,color:'#77d9f2',shape:9},
-{id:'king',name:'天空の王',rarity:'ultra',power:95,weight:3,ability:'王者の威光',effect:'クリック獲得量 +45',click:45,auto:0,color:'#f5cb65',shape:10},
-{id:'cosmos',name:'コスモス',rarity:'ultra',power:120,weight:2,ability:'星雲の鼓動',effect:'毎秒コイン +60',click:0,auto:60,color:'#b18aff',shape:11},
-{id:'void',name:'虚空の支配者',rarity:'legendary',power:260,weight:1,ability:'虚無の支配',effect:'クリック獲得量 +120',click:120,auto:0,color:'#8b78ed',shape:12},
-{id:'deity',name:'創造神',rarity:'legendary',power:400,weight:.6,ability:'創世の光',effect:'毎秒コイン +200',click:0,auto:200,color:'#ffe28a',shape:13},
-{id:'omega',name:'Ω オメガ',rarity:'legendary',power:650,weight:.25,ability:'無限増幅',effect:'クリック獲得量 +300・毎秒 +300',click:300,auto:300,color:'#ff83c5',shape:14}
+{id:'rookie',name:'ビギナー',rarity:'normal',power:1,weight:48,ability:'はじめの一歩',effect:'クリック獲得量 +1',click:1,auto:0,color:'#b9c7df',shape:0},
+{id:'slime',name:'ぷにスライム',rarity:'normal',power:2,weight:38,ability:'ぷるぷる増殖',effect:'毎秒コイン +1',click:0,auto:1,color:'#58dfad',shape:1},
+{id:'cat',name:'ねこ剣士',rarity:'normal',power:3,weight:30,ability:'肉球連撃',effect:'クリック獲得量 +2',click:2,auto:0,color:'#f0ad65',shape:2},
+{id:'robot',name:'メカボット',rarity:'rare',power:6,weight:22,ability:'メカニカル稼働',effect:'毎秒コイン +3',click:0,auto:3,color:'#5bc8e8',shape:3},
+{id:'ninja',name:'影の忍者',rarity:'rare',power:8,weight:18,ability:'影縫いの一撃',effect:'クリック獲得量 +4',click:4,auto:0,color:'#8d9be9',shape:4},
+{id:'wizard',name:'星読み魔導士',rarity:'rare',power:10,weight:15,ability:'星屑の魔力',effect:'毎秒コイン +5',click:0,auto:5,color:'#b18cff',shape:5},
+{id:'dragon',name:'紅蓮ドラゴン',rarity:'super',power:22,weight:10,ability:'焔竜の咆哮',effect:'クリック獲得量 +10',click:10,auto:0,color:'#f36b54',shape:6},
+{id:'phoenix',name:'不死鳥フェニックス',rarity:'super',power:28,weight:8,ability:'不死鳥の灯火',effect:'毎秒コイン +14',click:0,auto:14,color:'#ff9c45',shape:7},
+{id:'samurai',name:'雷神サムライ',rarity:'super',power:35,weight:7,ability:'雷光抜刀',effect:'クリック獲得量 +18',click:18,auto:0,color:'#e9c45c',shape:8},
+{id:'unicorn',name:'銀河ユニコーン',rarity:'ultra',power:75,weight:4,ability:'星虹の加護',effect:'毎秒コイン +35',click:0,auto:35,color:'#77d9f2',shape:9},
+{id:'king',name:'天空の王',rarity:'ultra',power:95,weight:3,ability:'天空王の号令',effect:'クリック獲得量 +45',click:45,auto:0,color:'#f5cb65',shape:10},
+{id:'cosmos',name:'コスモス',rarity:'ultra',power:120,weight:2,ability:'星雲生成',effect:'毎秒コイン +60',click:0,auto:60,color:'#b18aff',shape:11},
+{id:'void',name:'虚空の支配者',rarity:'legendary',power:260,weight:1,ability:'深淵の一撃',effect:'クリック獲得量 +120',click:120,auto:0,color:'#8b78ed',shape:12},
+{id:'deity',name:'創造神',rarity:'legendary',power:400,weight:.6,ability:'創世の恵み',effect:'毎秒コイン +200',click:0,auto:200,color:'#ffe28a',shape:13},
+{id:'omega',name:'Ω オメガ',rarity:'legendary',power:650,weight:.25,ability:'Ωエンドレス',effect:'クリック獲得量 +300・毎秒 +300',click:300,auto:300,color:'#ff83c5',shape:14}
 ];
 const rarityNames={normal:'ノーマル',rare:'レア',super:'スーパーレア',ultra:'ウルトラレア',legendary:'レジェンドレア'};
 const rarityOrder=['normal','rare','super','ultra','legendary'];
