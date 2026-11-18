@@ -16,10 +16,13 @@
     const parts = segmenter ? [...segmenter.segment(cleaned)].filter(x=>x.isWordLike).map(x=>x.segment) : cleaned.match(/[一-龯々〆ヵヶぁ-んァ-ヶー]+|[a-zA-Z0-9]+/g)||[];
     return parts.map(x=>x.toLowerCase()).filter(x=>x.length>0);
   }
+  // 乱暴な言葉は語彙・会話例に登録しない
+  const blockedWords = new Set(["死ね","しね","カス","かす","くず","クズ","ばか","バカ","あほ","アホ","ころす","殺す"]);
+  function isBlocked(word){return blockedWords.has(word.toLowerCase());}
   function learn(text){
-    const tokens=tokenize(text);
+    const tokens=tokenize(text).filter(token=>!isBlocked(token));
     for(const token of tokens)data.vocabulary[token]=(data.vocabulary[token]||0)+1;
-    if(tokens.length)data.utterances.push({tokens, text, at:Date.now()});
+    if(tokens.length)data.utterances.push({tokens, text:tokens.join(" "), at:Date.now()});
     if(data.utterances.length>600)data.utterances=data.utterances.slice(-600);
     return tokens;
   }
@@ -29,28 +32,16 @@
     return hit/(aa.size+bb.size-hit||1);
   }
   function makeLearnedReply(inputTokens){
+    const safeInput=inputTokens.filter(token=>!isBlocked(token));
+    if(inputTokens.length && safeInput.length===0)return "その言葉は学習しないよ。別の言葉で話してね。";
     const vocab=Object.keys(data.vocabulary);
-    if(!vocab.length)return "……";
-    // 入力と一致する記録がなくても、覚えた単語を組み合わせて返事を作る
-    const ranked=data.utterances.filter(x=>x.tokens.length)
-      .map(x=>({x,score:overlap(inputTokens,x.tokens)})).sort((a,b)=>b.score-a.score);
-    if(ranked.length && ranked[0].score>0){
-      const pool=ranked.filter(x=>x.score>=Math.max(.12,ranked[0].score*.72)).slice(0,6);
-      const chosen=pool[Math.floor(Math.random()*pool.length)].x;
-      const words=chosen.tokens.filter(w=>data.vocabulary[w]);
-      const compact=words.filter((w,i)=>i===0||w!==words[i-1]).slice(0,7);
-      if(compact.length)return compact.join(" ")+"。";
-    }
-    const weighted=[];
-    for(const word of vocab){const count=Math.min(data.vocabulary[word],8);for(let i=0;i<count;i++)weighted.push(word);}
-    const result=[];
-    const target=Math.min(4,Math.max(1,weighted.length));
-    let attempts=0;
-    while(result.length<target && attempts++<40){
-      const word=weighted[Math.floor(Math.random()*weighted.length)];
-      if(result.length===0||result[result.length-1]!==word)result.push(word);
-    }
-    return result.join(" ")+"。";
+    if(!vocab.length)return "こんにちは！話しかけてくれてありがとう！";
+    const known=safeInput.filter(token=>data.vocabulary[token]);
+    if(!known.length && safeInput.length)return "「"+safeInput[0]+"」って言葉を覚えたよ！";
+    const ranked=data.utterances.filter(x=>x.tokens.length && x.tokens.every(w=>!isBlocked(w)))
+      .map(x=>({x,score:overlap(safeInput,x.tokens)})).sort((a,b)=>b.score-a.score);
+    if(ranked.length && ranked[0].score>=0.5)return "「"+ranked[0].x.text+"」のことだね！";
+    return ["そうなんだ！","なるほど！","へえ、そうなんだ！","おもしろいね！"][data.turns%4];
   }
   function time(){return new Intl.DateTimeFormat("ja-JP",{hour:"2-digit",minute:"2-digit"}).format(new Date());}
   function addMessage(role,text,system=false,stamp=time()){
