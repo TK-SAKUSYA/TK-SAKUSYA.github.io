@@ -124,7 +124,7 @@ public final class MaiBridgeClient implements ClientModInitializer {
         Minecraft.getInstance().execute(() -> {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null) {
-                client.gui.getChat().addClientSystemMessage(Component.literal("[M-AI] " + message));
+                client.gui.chatListener().handleSystemMessage(Component.literal("[M-AI] " + message), false);
             }
         });
     }
