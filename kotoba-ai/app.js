@@ -81,9 +81,22 @@
   function send(text){
     const value=text.trim();if(!value)return;
     addMessage("user",value);
-    const tokens=tokenize(value);
-    const answer=makeLearnedReply(tokens,value);
-    learn(value);
+    const teachMatch=value.match(/^覚えて[：:]\\s*(.+)$/);
+    let answer;
+    if(teachMatch){
+      const teachingText=teachMatch[1].trim();
+      if(!teachingText){
+        answer="覚えたい言葉を「覚えて：〇〇」の形で送ってね！";
+      }else if(containsBlockedText(teachingText)){
+        answer="その言葉は学習しないよ。別の言葉を教えてね。";
+      }else{
+        const added=learn(teachingText);
+        answer=added.length ? "「"+teachingText+"」を覚えたよ！" : "その文章から覚えられる言葉が見つからなかったよ。";
+      }
+    }else{
+      // 普通の会話では学習データを変更しない
+      answer=makeLearnedReply(tokenize(value),value);
+    }
     data.turns++;
     addMessage("bot",answer);
     save();updateStats();
