@@ -36,6 +36,7 @@
     }
   ],
   "bridge": {
+    "agentId": "mai-001",
     "port": 25580,
     "thinkingIntervalMs": 1000
   }

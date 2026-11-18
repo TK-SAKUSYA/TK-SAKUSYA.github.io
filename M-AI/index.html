@@ -22,9 +22,21 @@ small{color:#9eb2a2}
 </head>
 <body>
 <main>
-<span class="tag">EXPERIMENTAL · VERSION 0.24.0</span>
+<span class="tag">EXPERIMENTAL · VERSION 0.25.0</span>
 <h1>M-AI</h1>
 <p class="lead">観察と経験から学び、それぞれの名前と性格を持って活動するMinecraft AIプレイヤーシステム。</p>
+<section class="panel">
+<h2>第二十五回アップデート</h2>
+<ul>
+<li>Fabricチャット連携を既存のAI個体別メモリシステムに接続</li>
+<li>bridge.agentIdで対象AIを指定可能。未指定なら最初のAIを使用</li>
+<li>保存済みの名前・性格をOllamaの会話指示へ反映</li>
+<li>直近10件の会話を文脈として利用し、最大200件を個体別メモリへ保存</li>
+<li>既存の記憶を初期化せず再利用。名前が未生成の場合は設定名へフォールバック</li>
+<li>Fabric連携は引き続き会話専用。移動・採掘・建築・AIプレイヤー生成は未対応</li>
+<li>Pages公開の成功とFabricビルドの成功は別。JAR・試遊ZIPは新しいビルド成功を確認するまで未完成</li>
+</ul>
+</section>
 <section class="panel">
 <h2>第二十四回アップデート</h2>
 <ul>

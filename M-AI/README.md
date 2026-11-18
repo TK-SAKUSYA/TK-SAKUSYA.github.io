@@ -1,13 +1,13 @@
 # M-AI — Minecraft AI
 
-## Version 0.24.0 — Twenty-fourth update
+## Version 0.25.0 — Twenty-fifth update
 
-- Retrieved the real Gradle job logs from the earlier Actions runs instead of treating every failure as a zero-job startup issue.
-- Found the earlier dependency-resolution error: the old build revision requested the invalid coordinate `net.fabricmc.fabric-loader:0.20.1`.
-- Confirmed the current Fabric Loader coordinate is `net.fabricmc:fabric-loader:0.20.1`.
-- Changed both Fabric Loader and Fabric API declarations to Loom's `modImplementation` configuration, as documented for mod dependencies.
-- The current GitHub event routing still needs a fresh successful Actions run to prove the build passes. Later pushes have been assigned to a synthetic `BuildFailed` workflow with `startup_failure` and zero jobs.
-- **Status:** source fix committed; JAR, playtest ZIP, and Minecraft installation test are still unverified.
+- Connected the Fabric chat bridge to the project's existing per-agent memory system.
+- The bridge now selects the configured agent (`bridge.agentId`) or the first configured agent, and uses that agent's saved identity/name and personality in Ollama's system prompt.
+- Added bounded conversation history (up to 200 stored messages; the latest 10 are supplied as context) and saves each successful exchange to that agent's existing memory file.
+- Existing agent memories are reused; the bridge does not reset them. If no generated identity exists yet, it falls back to the configured agent name/username.
+- Kept the Fabric bridge chat-only: it still cannot move, mine, build, or spawn an AI player.
+- **Build status:** GitHub Pages deployment is working again, but that is not proof of the M-AI Fabric build. The latest known M-AI build runs still had `startup_failure`, zero jobs, and zero artifacts. A fresh build must finish successfully before a JAR or playtest ZIP can be claimed.
 
 **M-AI** is an experimental Minecraft Java AI player system with a client-side Fabric bridge for Minecraft 26.3. Each agent can have its own name, personality, memory, and optional in-game diary.
 
@@ -19,7 +19,7 @@
 
 > **Experimental:** the Fabric client mod connects to the Node-side local bridge, sends limited player observations, and can display short Ollama-generated speech in the local Minecraft chat. It does not yet control movement or spawn separate AI players. No live Minecraft 26.3 test has been completed.
 
-## Version 0.23.0 — Twenty-second update
+## Version 0.23.0 — Twenty-third update
 
 - Checked the actual GitHub Actions run created after adding the fresh workflow file and updating the project.
 - The new push event still resolved to the synthetic workflow path `BuildFailed` with conclusion `startup_failure`.
