@@ -133,20 +133,20 @@ public final class MaiBridgeClient implements ClientModInitializer {
         StringBuilder decoded = new StringBuilder(value.length());
         for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);
-            if (c != '\\\\' || i + 1 >= value.length()) {
+            if (c != '\\' || i + 1 >= value.length()) {
                 decoded.append(c);
                 continue;
             }
             char escaped = value.charAt(++i);
             switch (escaped) {
                 case '"' -> decoded.append('"');
-                case '\\\\' -> decoded.append('\\\\');
+                case '\\' -> decoded.append('\\');
                 case '/' -> decoded.append('/');
-                case 'b' -> decoded.append('\\b');
-                case 'f' -> decoded.append('\\f');
-                case 'n' -> decoded.append('\\n');
-                case 'r' -> decoded.append('\\r');
-                case 't' -> decoded.append('\\t');
+                case 'b' -> decoded.append('\b');
+                case 'f' -> decoded.append('\f');
+                case 'n' -> decoded.append('\n');
+                case 'r' -> decoded.append('\r');
+                case 't' -> decoded.append('\t');
                 case 'u' -> {
                     if (i + 4 < value.length()) {
                         try {
