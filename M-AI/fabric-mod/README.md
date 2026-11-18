@@ -52,7 +52,7 @@ gradle build
 
 The resulting mod JAR is written to `build/libs/`.
 
-The repository GitHub Actions workflow builds the artifact **M-AI-Fabric-26.3**. It contains the remapped mod JAR, a quick-start note, this installation guide, a SHA-256 checksum, and `M-AI-Chat-Playtest.zip`. The ZIP contains the JAR, Windows launcher, example config, and Node bridge scripts. Artifacts are retained for 30 days.
+The repository GitHub Actions workflow builds the artifact **M-AI-Fabric-26.3**. It contains the remapped mod JAR, a quick-start note, this installation guide, a SHA-256 checksum, and `M-AI-Chat-Playtest.zip`. The ZIP contains the JAR, Windows launcher, example config, and Node bridge scripts plus the required per-agent memory module. Artifacts are retained for 30 days.
 
 ## Install from the GitHub Actions package
 

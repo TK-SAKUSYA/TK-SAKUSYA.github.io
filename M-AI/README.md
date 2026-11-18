@@ -7,7 +7,10 @@
 - Added bounded conversation history (up to 200 stored messages; the latest 10 are supplied as context) and saves each successful exchange to that agent's existing memory file.
 - Existing agent memories are reused; the bridge does not reset them. If no generated identity exists yet, it falls back to the configured agent name/username.
 - Kept the Fabric bridge chat-only: it still cannot move, mine, build, or spawn an AI player.
-- **Build status:** GitHub Pages deployment is working again, but that is not proof of the M-AI Fabric build. The latest known M-AI build runs still had `startup_failure`, zero jobs, and zero artifacts. A fresh build must finish successfully before a JAR or playtest ZIP can be claimed.
+- Corrected the Fabric dependency scopes to `implementation`: Minecraft 26.1+ uses the non-obfuscated Loom plugin, for which `modImplementation` is not available. The real Gradle log exposed this exact error.
+- Updated the playtest ZIP to include `src/memory.js`, which the new chat brain now imports. Without it, the packaged chat brain would fail at startup.
+- Removed the temporary duplicate build workflow; the original M-AI workflow is the single build path again.
+- **Build status:** JavaScript syntax checks passed on the corrected chat-brain revision. The Gradle build must now finish on the corrected dependency revision before a JAR or playtest ZIP can be claimed.
 
 **M-AI** is an experimental Minecraft Java AI player system with a client-side Fabric bridge for Minecraft 26.3. Each agent can have its own name, personality, memory, and optional in-game diary.
 

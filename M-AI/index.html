@@ -33,6 +33,9 @@ small{color:#9eb2a2}
 <li>保存済みの名前・性格をOllamaの会話指示へ反映</li>
 <li>直近10件の会話を文脈として利用し、最大200件を個体別メモリへ保存</li>
 <li>既存の記憶を初期化せず再利用。名前が未生成の場合は設定名へフォールバック</li>
+<li>Minecraft 26.1以降の非難読化版Loomに合わせ、依存関係をimplementationへ修正</li>
+<li>試遊ZIPにmemory.jsも同梱し、チャットAI起動時の依存ファイル不足を修正</li>
+<li>重複していた一時ビルドWorkflowを削除し、通常のビルド経路へ整理</li>
 <li>Fabric連携は引き続き会話専用。移動・採掘・建築・AIプレイヤー生成は未対応</li>
 <li>Pages公開の成功とFabricビルドの成功は別。JAR・試遊ZIPは新しいビルド成功を確認するまで未完成</li>
 </ul>
@@ -43,7 +46,7 @@ small{color:#9eb2a2}
 <li>過去のGitHub Actions実行ログを直接取得し、Gradleが実際に失敗していた記録を発見</li>
 <li>古いビルドでFabric Loaderの依存関係座標が誤っていたことを特定</li>
 <li>現在の正しい座標 net.fabricmc:fabric-loader を確認</li>
-<li>Fabric LoaderとFabric APIをLoom公式資料に沿った modImplementation に変更</li>
+<li>当時はmodImplementationへ変更したが、第25回でMinecraft 26.1以降の非難読化版ではimplementationが正しいと判明し修正</li>
 <li>ソース修正をGitHubへ反映。ビルド成功・JAR生成・ゲーム内テストはまだ未確認</li>
 <li>後続pushがBuildFailed / startup_failure / ジョブ0件になる問題は継続調査</li>
 </ul>
@@ -203,7 +206,7 @@ small{color:#9eb2a2}
 </section>
 <section class="panel">
 <h2>重要な制限</h2>
-<p>第二十回ではGitHub Actionsの失敗記録を調査し、BuildFailedというGitHub側の合成workflowに割り当てられ、ジョブが0件のまま起動前に停止していることを確認しました。GitHub Communityにも同じ症状の報告があります。GitHub側のworkflow登録・イベント振り分けが正常に戻るまで、JARは生成できません。</p>
+<p>以前はGitHub ActionsがBuildFailed / startup_failureでジョブを作成できない状態でしたが、現在はM-AIのビルドジョブが起動することを確認しています。第25回では実際のGradleログをもとにMinecraft 26.1以降の依存関係設定を修正中です。JARの生成とMinecraft内での動作は、ビルドと実機テストが成功するまで未確認です。</p>
 <p>今回の移動確認は簡易的な足場・障害物チェックです。完全な経路探索や、あらゆる危険の回避を保証するものではありません。</p>
 <p>日記を書くAIには、あらかじめ本と羽ペンをインベントリに入れておく必要があります。言語モデルの事前学習知識そのものを消去することはできません。</p>
 </section>

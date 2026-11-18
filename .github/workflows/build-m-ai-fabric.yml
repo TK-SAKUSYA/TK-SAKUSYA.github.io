@@ -61,7 +61,7 @@ jobs:
           mkdir -p dist
           mapfile -t jars < <(find M-AI/fabric-mod/build/libs -maxdepth 1 -type f -name 'm-ai-fabric-*.jar' ! -name '*-sources.jar' | sort)
           if [ "${#jars[@]}" -ne 1 ]; then
-            echo "Expected exactly one remapped M-AI mod JAR, found ${#jars[@]}."
+            echo "Expected exactly one built M-AI mod JAR, found ${#jars[@]}."
             printf '%s\n' "${jars[@]}"
             exit 1
           fi
@@ -89,6 +89,7 @@ jobs:
           cp M-AI/config.example.json dist/playtest/
           cp M-AI/src/bridge-server.js dist/playtest/src/
           cp M-AI/src/bridge-brain.js dist/playtest/src/
+          cp M-AI/src/memory.js dist/playtest/src/
           cp dist/M-AI-Fabric-26.3.jar dist/playtest/
           cp dist/QUICK-START.txt dist/playtest/
           (cd dist && zip -qr M-AI-Chat-Playtest.zip playtest)
