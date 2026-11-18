@@ -84,7 +84,7 @@
   function send(text){
     const value=text.trim();if(!value)return;
     addMessage("user",value);
-    const teachMatch=value.match(/^覚えて[：:]\\s*(.+)$/);
+    const teachMatch=value.match(/^覚えて[：:]\s*(.+)$/);
     let answer;
     if(teachMatch){
       const teachingText=teachMatch[1].trim();
