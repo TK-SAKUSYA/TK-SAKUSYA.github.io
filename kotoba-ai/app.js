@@ -78,9 +78,10 @@
   function send(text){
     const value=text.trim();if(!value)return;
     addMessage("user",value);
-    const tokens=learn(value);
-    data.turns++;
+    const tokens=tokenize(value);
     const answer=respond(tokens);
+    learn(value);
+    data.turns++;
     addMessage("bot",answer);
     save();updateStats();
   }
