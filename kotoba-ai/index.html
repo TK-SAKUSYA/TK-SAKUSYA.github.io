@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101827">
+  <meta name="theme-color" content="#06c755">
   <title>ことばAI</title>
   <link rel="stylesheet" href="./style.css">
   <script src="./app.js" defer></script>
 </head>
-<body>
+<body data-theme="light">
   <main class="app">
     <header class="topbar">
-      <div class="brand"><div class="bot-icon">🧠</div><div><h1>ことばAI</h1><p><span class="status-dot"></span> 会話から学習するプログラム</p></div></div>
-      <button id="menuToggle" class="icon-button" aria-label="メニュー">☰</button>
+      <div class="brand"><div class="bot-icon">🧠</div><div class="brand-copy"><h1>ことばAI</h1><p><span class="status-dot"></span>オンライン・学習中</p></div></div>
+      <button id="menuToggle" class="icon-button" aria-label="設定を開く" title="設定">⚙</button>
     </header>
     <section class="chat" aria-label="チャット">
       <div class="date-chip">今日</div>
@@ -20,18 +20,30 @@
     </section>
     <div class="typing" id="typing" hidden>ことばAI が考えています…</div>
     <form id="chatForm" class="composer">
-      <textarea id="messageInput" rows="1" maxlength="500" placeholder="メッセージを入力…" aria-label="メッセージ"></textarea>
+      <button class="plus-button" type="button" aria-label="メニュー">＋</button>
+      <textarea id="messageInput" rows="1" maxlength="500" placeholder="メッセージを入力" aria-label="メッセージ"></textarea>
       <button class="send-button" type="submit" aria-label="送信">➤</button>
     </form>
     <footer class="footer"><span id="wordCount">語彙 0語</span><span id="pairCount">会話記録 0件</span><span>自動保存 ON</span></footer>
     <aside id="settings" class="settings" hidden>
-      <div class="settings-head"><h2>ことばAIの管理</h2><button id="closeSettings" class="icon-button" aria-label="閉じる">✕</button></div>
-      <p class="hint">会話で覚えた単語や会話記録は、このブラウザに自動保存されます。</p>
-      <div class="stat-grid"><div><strong id="statWords">0</strong><span>覚えた語彙</span></div><div><strong id="statPairs">0</strong><span>会話記録</span></div><div><strong id="statTurns">0</strong><span>会話回数</span></div></div>
-      <button id="exportBtn" class="wide-button">学習データを書き出す（JSON）</button>
-      <label class="wide-button file-label">学習データを読み込む<input id="importFile" type="file" accept="application/json"></label>
-      <button id="clearBtn" class="wide-button danger">学習データと会話履歴をリセット</button>
-      <p class="hint small">※まだ学習していない内容を理解したり、意味を推測したりするAIではありません。似た会話の記録を探し、覚えた言葉を使って返答を組み立てます。</p>
+      <div class="settings-head"><h2>設定</h2><button id="closeSettings" class="icon-button" aria-label="閉じる">✕</button></div>
+      <section class="setting-section">
+        <h3>🎨 デザイン</h3>
+        <p class="hint">画面の明るさを切り替えられます。</p>
+        <div class="theme-switch" role="group" aria-label="テーマ切り替え">
+          <button id="lightTheme" type="button" class="theme-option">☀️ ライトモード</button>
+          <button id="darkTheme" type="button" class="theme-option">🌙 ダークモード</button>
+        </div>
+      </section>
+      <section class="setting-section">
+        <h3>🧠 学習データ</h3>
+        <p class="hint">会話で覚えた単語や会話記録は、このブラウザに自動保存されます。</p>
+        <div class="stat-grid"><div><strong id="statWords">0</strong><span>覚えた語彙</span></div><div><strong id="statPairs">0</strong><span>会話記録</span></div><div><strong id="statTurns">0</strong><span>会話回数</span></div></div>
+        <button id="exportBtn" class="wide-button">学習データを書き出す（JSON）</button>
+        <label class="wide-button file-label">学習データを読み込む<input id="importFile" type="file" accept="application/json"></label>
+        <button id="clearBtn" class="wide-button danger">学習データと会話履歴をリセット</button>
+      </section>
+      <p class="hint small">※ことばAIは会話の記録と覚えた単語を使う学習実験プログラムです。人間のように意味を完全に理解するAIではありません。</p>
     </aside>
   </main>
   <div id="toast" class="toast" role="status"></div>
