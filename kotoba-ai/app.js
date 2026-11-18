@@ -19,7 +19,9 @@
   // 乱暴な言葉は語彙・会話例に登録しない
   const blockedWords = new Set(["死ね","しね","カス","かす","くず","クズ","ばか","バカ","あほ","アホ","ころす","殺す"]);
   function isBlocked(word){return blockedWords.has(word.toLowerCase());}
+  function containsBlockedText(text){const normalized=text.normalize("NFKC").toLowerCase();return [...blockedWords].some(word=>normalized.includes(word));}
   function learn(text){
+    if(containsBlockedText(text))return [];
     const tokens=tokenize(text).filter(token=>!isBlocked(token));
     for(const token of tokens)data.vocabulary[token]=(data.vocabulary[token]||0)+1;
     if(tokens.length)data.utterances.push({tokens, text:tokens.join(" "), at:Date.now()});
@@ -31,14 +33,14 @@
     for(const w of aa)if(bb.has(w))hit++;
     return hit/(aa.size+bb.size-hit||1);
   }
-  function makeLearnedReply(inputTokens){
+  function makeLearnedReply(inputTokens,inputText){
     const safeInput=inputTokens.filter(token=>!isBlocked(token));
-    if(inputTokens.length && safeInput.length===0)return "その言葉は学習しないよ。別の言葉で話してね。";
+    if(containsBlockedText(inputText) || (inputTokens.length && safeInput.length===0))return "その言葉は学習しないよ。別の言葉で話してね。";
     const vocab=Object.keys(data.vocabulary);
     if(!vocab.length)return "こんにちは！話しかけてくれてありがとう！";
     const known=safeInput.filter(token=>data.vocabulary[token]);
     if(!known.length && safeInput.length)return "「"+safeInput[0]+"」って言葉を覚えたよ！";
-    const ranked=data.utterances.filter(x=>x.tokens.length && x.tokens.every(w=>!isBlocked(w)))
+    const ranked=data.utterances.filter(x=>x.tokens.length && !containsBlockedText(x.text) && x.tokens.every(w=>!isBlocked(w)))
       .map(x=>({x,score:overlap(safeInput,x.tokens)})).sort((a,b)=>b.score-a.score);
     if(ranked.length && ranked[0].score>=0.5)return "「"+ranked[0].x.text+"」のことだね！";
     return ["そうなんだ！","なるほど！","へえ、そうなんだ！","おもしろいね！"][data.turns%4];
@@ -80,7 +82,7 @@
     const value=text.trim();if(!value)return;
     addMessage("user",value);
     const tokens=tokenize(value);
-    const answer=makeLearnedReply(tokens);
+    const answer=makeLearnedReply(tokens,value);
     learn(value);
     data.turns++;
     addMessage("bot",answer);
