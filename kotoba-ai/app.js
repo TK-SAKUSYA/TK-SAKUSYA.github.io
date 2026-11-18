@@ -39,7 +39,10 @@
     const vocab=Object.keys(data.vocabulary);
     if(!vocab.length)return "こんにちは！話しかけてくれてありがとう！";
     const known=safeInput.filter(token=>data.vocabulary[token]);
-    if(!known.length && safeInput.length)return "「"+safeInput[0]+"」って言葉を覚えたよ！";
+    if(!known.length && safeInput.length){
+      const replies=["そうなんだ！","なるほどね！","へえ、そうなんだ！","それでそれで？","うんうん！","ほかには？"];
+      return replies[data.turns%replies.length];
+    }
     const ranked=data.utterances.filter(x=>x.tokens.length && !containsBlockedText(x.text) && x.tokens.every(w=>!isBlocked(w)))
       .map(x=>({x,score:overlap(safeInput,x.tokens)})).sort((a,b)=>b.score-a.score);
     if(ranked.length && ranked[0].score>=0.5)return "「"+ranked[0].x.text+"」のことだね！";
