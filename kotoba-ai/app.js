@@ -129,6 +129,5 @@
     data=fresh();save();renderAll();notify("学習データをリセットしました。");
   });
   applyTheme(localStorage.getItem(THEME_KEY)||"light");
-  if(data.messages.length===0)addMessage("bot","こんにちは！ぼくは「ことばAI」。会話から言葉を覚えていくよ。まずはいろいろ話しかけてね！");
   renderAll();save();
 })();
