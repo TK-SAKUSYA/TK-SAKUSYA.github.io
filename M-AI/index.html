@@ -38,7 +38,9 @@ small{color:#9eb2a2}
 <li>重複していた一時ビルドWorkflowを削除し、通常のビルド経路へ整理</li>
 <li>Gradle 9.8.2のconfiguration cacheがprocessResourcesで失敗する問題を修正</li>
 <li>Fabric連携は引き続き会話専用。移動・採掘・建築・AIプレイヤー生成は未対応</li>
-<li>Pages公開の成功とFabricビルドの成功は別。JAR・試遊ZIPは新しいビルド成功を確認するまで未完成</li>
+<li>Fabric Modのビルド成功！JAR・試遊ZIPを含む成果物をGitHub Actionsへアップロード済み</li>
+<li>実行記録: <a href="https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/actions/runs/44264257034">第25回ビルド成果物を取得</a>（2026年12月18日まで）</li>
+<li>実際のMinecraft 26.3への導入・ゲーム内動作テストはこれから</li>
 </ul>
 </section>
 <section class="panel">
@@ -207,7 +209,7 @@ small{color:#9eb2a2}
 </section>
 <section class="panel">
 <h2>重要な制限</h2>
-<p>以前はGitHub ActionsがBuildFailed / startup_failureでジョブを作成できない状態でしたが、現在はM-AIのビルドジョブが起動することを確認しています。第25回では実際のGradleログをもとにMinecraft 26.1以降の依存関係設定を修正中です。JARの生成とMinecraft内での動作は、ビルドと実機テストが成功するまで未確認です。</p>
+<p>第25回でGitHub ActionsのM-AIビルドが成功し、Fabric ModのJARと試遊用ZIPを含む成果物をアップロードしました。実際のMinecraft 26.3への導入とゲーム内動作は、まだテストしていません。</p>
 <p>今回の移動確認は簡易的な足場・障害物チェックです。完全な経路探索や、あらゆる危険の回避を保証するものではありません。</p>
 <p>日記を書くAIには、あらかじめ本と羽ペンをインベントリに入れておく必要があります。言語モデルの事前学習知識そのものを消去することはできません。</p>
 </section>

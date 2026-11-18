@@ -11,7 +11,8 @@
 - Updated the playtest ZIP to include `src/memory.js`, which the new chat brain now imports. Without it, the packaged chat brain would fail at startup.
 - Removed the temporary duplicate build workflow; the original M-AI workflow is the single build path again.
 - Fixed the next Gradle blocker found by the real runner: `processResources` referenced `project.version` from an execution-time closure, which Gradle 9.8.2 rejects with configuration cache. The version is now captured as a plain string before task execution.
-- **Build status:** JavaScript syntax checks passed. The first build after the Loom dependency correction reached `processResources` but exposed this configuration-cache issue; a new run is required to verify the fix before claiming a JAR or playtest ZIP.
+- **Build succeeded:** [GitHub Actions run #44264257034](https://github.com/TK-SAKUSYA/TK-SAKUSYA.github.io/actions/runs/44264257034) completed the JavaScript check, Gradle build, JAR packaging, playtest ZIP creation, and artifact upload. The artifact `M-AI-Fabric-26.3` is available until 2026-12-18.
+- **Still unverified:** the generated JAR has not yet been installed and tested in a real Minecraft Java 26.3 world.
 
 **M-AI** is an experimental Minecraft Java AI player system with a client-side Fabric bridge for Minecraft 26.3. Each agent can have its own name, personality, memory, and optional in-game diary.
 
