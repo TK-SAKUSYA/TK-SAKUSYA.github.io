@@ -10,7 +10,8 @@
 - Corrected the Fabric dependency scopes to `implementation`: Minecraft 26.1+ uses the non-obfuscated Loom plugin, for which `modImplementation` is not available. The real Gradle log exposed this exact error.
 - Updated the playtest ZIP to include `src/memory.js`, which the new chat brain now imports. Without it, the packaged chat brain would fail at startup.
 - Removed the temporary duplicate build workflow; the original M-AI workflow is the single build path again.
-- **Build status:** JavaScript syntax checks passed on the corrected chat-brain revision. The Gradle build must now finish on the corrected dependency revision before a JAR or playtest ZIP can be claimed.
+- Fixed the next Gradle blocker found by the real runner: `processResources` referenced `project.version` from an execution-time closure, which Gradle 9.8.2 rejects with configuration cache. The version is now captured as a plain string before task execution.
+- **Build status:** JavaScript syntax checks passed. The first build after the Loom dependency correction reached `processResources` but exposed this configuration-cache issue; a new run is required to verify the fix before claiming a JAR or playtest ZIP.
 
 **M-AI** is an experimental Minecraft Java AI player system with a client-side Fabric bridge for Minecraft 26.3. Each agent can have its own name, personality, memory, and optional in-game diary.
 
