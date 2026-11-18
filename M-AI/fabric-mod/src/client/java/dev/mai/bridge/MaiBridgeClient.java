@@ -42,7 +42,7 @@ public final class MaiBridgeClient implements ClientModInitializer {
             Minecraft game = client;
             if (game.player == null || game.level == null) return;
 
-            String dimension = game.level.dimension().location().toString();
+            String dimension = game.level.dimension().identifier().toString();
             String heldItem = game.player.getMainHandItem().getHoverName().getString();
             String observation = String.format(
                 Locale.ROOT,
@@ -124,7 +124,7 @@ public final class MaiBridgeClient implements ClientModInitializer {
         Minecraft.getInstance().execute(() -> {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null) {
-                client.player.displayClientMessage(Component.literal("[M-AI] " + message), false);
+                client.gui.getChat().addClientSystemMessage(Component.literal("[M-AI] " + message));
             }
         });
     }
