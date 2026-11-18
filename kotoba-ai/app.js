@@ -36,17 +36,26 @@
   function makeLearnedReply(inputTokens,inputText){
     const safeInput=inputTokens.filter(token=>!isBlocked(token));
     if(containsBlockedText(inputText) || (inputTokens.length && safeInput.length===0))return "その言葉は学習しないよ。別の言葉で話してね。";
-    const vocab=Object.keys(data.vocabulary);
-    if(!vocab.length)return "こんにちは！話しかけてくれてありがとう！";
+
+    // まず、学習データがなくても使える基本的な会話ルールで返答する
+    const text=inputText.normalize("NFKC").trim();
+    const replies=(items)=>items[data.turns%items.length];
+    if(/^(おはよう|おはようございます)/.test(text))return replies(["おはよう！今日は何する？","おはよう！元気？","おはよう！いい一日にしよう！"]);
+    if(/^(こんにちは|こんちは)/.test(text))return replies(["こんにちは！今日は何の話をする？","やあ、こんにちは！","こんにちは！何か面白いことあった？"]);
+    if(/^(こんばんは|こんばんわ)/.test(text))return replies(["こんばんは！今日はどうだった？","こんばんは！ゆっくり話そう！","やあ、こんばんは！"]);
+    if(/^(やあ|よっ|おっす)/.test(text))return replies(["やあ！","おっす！今日は何する？","来てくれてありがとう！"]);
+    if(/ありがとう|ありがと/.test(text))return replies(["どういたしまして！","いえいえ！","役に立ててよかった！"]);
+    if(/ごめん|すみません|申し訳/.test(text))return replies(["大丈夫だよ！","気にしなくていいよ！","全然大丈夫！"]);
+    if(/元気/.test(text))return replies(["ぼくは元気だよ！そっちは？","元気！話せてうれしいよ！","なかなか調子いいよ！"]);
+    if(/[？?]/.test(text) || /^(なに|何|どうして|なんで|いつ|どこ|だれ|誰)/.test(text))return replies(["うーん、もう少し詳しく教えて！","それについて、きみはどう思う？","なるほど！もうちょっと聞かせて！"]);
+    if(/[！!]/.test(text))return replies(["おお！そうなんだ！","いいね！","おっ、何かあった？"]);
+    if(!Object.keys(data.vocabulary).length)return replies(["そうなんだ！もう少し聞かせて！","なるほどね！","へえ、そうなんだ！","それでそれで？","うんうん！","ほかには？"]);
     const known=safeInput.filter(token=>data.vocabulary[token]);
-    if(!known.length && safeInput.length){
-      const replies=["そうなんだ！","なるほどね！","へえ、そうなんだ！","それでそれで？","うんうん！","ほかには？"];
-      return replies[data.turns%replies.length];
-    }
     const ranked=data.utterances.filter(x=>x.tokens.length && !containsBlockedText(x.text) && x.tokens.every(w=>!isBlocked(w)))
       .map(x=>({x,score:overlap(safeInput,x.tokens)})).sort((a,b)=>b.score-a.score);
     if(ranked.length && ranked[0].score>=0.5)return "「"+ranked[0].x.text+"」のことだね！";
-    return ["そうなんだ！","なるほど！","へえ、そうなんだ！","おもしろいね！"][data.turns%4];
+    if(known.length)return replies(["その言葉、覚えているよ！","なるほど、その話だね！","うん、その言葉は知ってるよ！"]);
+    return replies(["そうなんだ！","なるほどね！","へえ、そうなんだ！","それでそれで？","うんうん！","ほかには？"]);
   }
   function time(){return new Intl.DateTimeFormat("ja-JP",{hour:"2-digit",minute:"2-digit"}).format(new Date());}
   function addMessage(role,text,system=false,stamp=time()){
