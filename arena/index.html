@@ -24,7 +24,7 @@ const skin=new THREE.MeshStandardMaterial({color:0xffc99c,roughness:.85}),shirt=
 function part(w,h,d,m,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;player.add(o);return o}
 part(1.05,1.25,.62,shirt,0,1.45,0);part(.88,.88,.88,skin,0,2.55,0);part(.94,.24,.94,hair,0,3.08,0);part(.12,.12,.06,eyeMat,-.2,2.62,.45);part(.12,.12,.06,eyeMat,.2,2.62,.45);const legs=[part(.38,.85,.42,pants,-.28,.43,0),part(.38,.85,.42,pants,.28,.43,0)];const arms=[part(.32,1,.38,skin,-.72,1.5,0),part(.32,1,.38,skin,.72,1.5,0)];
 player.position.set(0,0,0);
-let yaw=0,pitch=-.18,velY=0,onGround=true,keys={},touch={},last=performance.now();
+let yaw=0,pitch=.22,velY=0,onGround=true,keys={},touch={},last=performance.now();
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 document.addEventListener('keydown',e=>{keys[e.code]=true;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault()});
 document.addEventListener('keyup',e=>keys[e.code]=false);
