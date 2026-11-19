@@ -34,7 +34,7 @@
  const URL_KEY='one-ai-ollama-url',MODEL='one-ai-model',STORE='one-ai-chats-v1';
  let chats=loadChats(),currentId=null,busy=false;
  const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
- function loadChats(){try{return JSON.parse(localStorage.getItem(STORE)||'[]')}catch{return[]}}
+ function loadChats(){try{const data=JSON.parse(localStorage.getItem(STORE)||'[]');let changed=false;data.forEach(chat=>{const before=(chat.messages||[]).length;chat.messages=(chat.messages||[]).filter(m=>!(m.role==='assistant'&&typeof m.text==='string'&&m.text.includes('Gemini APIキー')));if(chat.messages.length!==before)changed=true});if(changed)localStorage.setItem(STORE,JSON.stringify(data));return data}catch{return[]}}
  function save(){localStorage.setItem(STORE,JSON.stringify(chats))}
  function toast(s){const t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
  function current(){return chats.find(c=>c.id===currentId)}
