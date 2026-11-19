@@ -62,7 +62,7 @@
  }
  function openSettings(){ $('ollamaUrl').value=localStorage.getItem(URL_KEY)||'http://localhost:11434';$('settingsModal').classList.add('open');loadModels().catch(()=>{});}
  function closeSettings(){$('settingsModal').classList.remove('open')}
- function ollamaBase(){return (localStorage.getItem(URL_KEY)||'http://localhost:11434').trim().replace(/\\/+$/,'')}
+ function ollamaBase(){return (localStorage.getItem(URL_KEY)||'http://localhost:11434').trim().replace(/\/+$/,'')}
  async function loadModels(){
   const select=$('model'),previous=localStorage.getItem(MODEL)||'qwen2.5-coder:3b';
   const response=await fetch(ollamaBase()+'/api/tags');if(!response.ok)throw new Error('Ollamaに接続できません ('+response.status+')');
@@ -91,9 +91,9 @@
   finally{busy=false;$('send').disabled=false;c.updated=Date.now();save();renderHistory();renderMessages()}
  }
  $('newChat').onclick=createChat;$('openSettings').onclick=openSettings;$('topSettings').onclick=openSettings;$('cancelSettings').onclick=closeSettings;
- $('saveSettings').onclick=()=>{const url=$('ollamaUrl').value.trim().replace(/\\/+$/,'');if(!/^https?:\\/\\//i.test(url)){toast('接続先URLを確認してください');return}localStorage.setItem(URL_KEY,url);localStorage.setItem(MODEL,$('model').value);$('modelName').textContent=$('model').selectedOptions[0]?.textContent||$('model').value;closeSettings();toast('Ollama設定を保存しました')};
- $('refreshModels').onclick=async()=>{try{localStorage.setItem(URL_KEY,$('ollamaUrl').value.trim().replace(/\\/+$/,''));const models=await loadModels();toast('モデル一覧を更新しました（'+models.length+'件）')}catch(e){toast('取得失敗：'+e.message)}};
- $('testConnection').onclick=async()=>{localStorage.setItem(URL_KEY,$('ollamaUrl').value.trim().replace(/\\/+$/,''));await testConnection()};
+ $('saveSettings').onclick=()=>{const url=$('ollamaUrl').value.trim().replace(/\/+$/,'');if(!/^https?:\/\//i.test(url)){toast('接続先URLを確認してください');return}localStorage.setItem(URL_KEY,url);localStorage.setItem(MODEL,$('model').value);$('modelName').textContent=$('model').selectedOptions[0]?.textContent||$('model').value;closeSettings();toast('Ollama設定を保存しました')};
+ $('refreshModels').onclick=async()=>{try{localStorage.setItem(URL_KEY,$('ollamaUrl').value.trim().replace(/\/+$/,''));const models=await loadModels();toast('モデル一覧を更新しました（'+models.length+'件）')}catch(e){toast('取得失敗：'+e.message)}};
+ $('testConnection').onclick=async()=>{localStorage.setItem(URL_KEY,$('ollamaUrl').value.trim().replace(/\/+$/,''));await testConnection()};
  $('composer').addEventListener('submit',e=>{e.preventDefault();sendMessage($('prompt').value)});
  $('prompt').addEventListener('input',()=>{$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,180)+'px'});
  $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('composer').requestSubmit()}});
