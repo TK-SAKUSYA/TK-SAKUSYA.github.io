@@ -80,6 +80,24 @@ body{font-family:Roboto,"Arial","Noto Sans JP",sans-serif;font-size:14px;letter-
 </aside>
 <main class="main" id="main"></main>
 </div>
+<nav class="yt-mobile-bottom" id="ytMobileBottom" aria-label="モバイルナビゲーション"><button type="button" data-bottom-page="home"><span class="bottom-icon">⌂</span><span>ホーム</span></button><button type="button" data-bottom-page="shorts"><span class="bottom-icon">▣</span><span>ショート</span></button><button type="button" class="bottom-create" id="bottomCreate" aria-label="作成"><span>＋</span></button><button type="button" data-bottom-page="subscriptions"><span class="bottom-icon">▤</span><span>登録チャンネル</span></button><button type="button" data-bottom-page="library"><span class="bottom-icon">▣</span><span>マイページ</span></button></nav>
+<style id="ytMobileBottomStyle">
+.yt-mobile-bottom{display:none}
+@media(max-width:650px){
+ body{padding-bottom:calc(66px + env(safe-area-inset-bottom))}
+ .yt-mobile-bottom{position:fixed;z-index:45;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;height:calc(58px + env(safe-area-inset-bottom));padding:4px 5px env(safe-area-inset-bottom);background:var(--bg,#0f0f0f);border-top:1px solid var(--line,#303030)}
+ .yt-mobile-bottom button{min-width:0;height:50px;border:0;background:transparent;color:var(--text,#f1f1f1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:inherit;font-size:10px;white-space:nowrap}
+ .yt-mobile-bottom button.active{font-weight:700}
+ .yt-mobile-bottom .bottom-icon{font-size:23px;line-height:25px}
+ .yt-mobile-bottom .bottom-create{height:42px;width:48px;justify-self:center;border:1px solid var(--line,#303030);border-radius:15px;background:var(--surface2,#272727);font-size:30px;font-weight:300}
+ .yt-mobile-bottom .bottom-create span{line-height:1}
+ .playerbg{z-index:60}
+ .modalbg{z-index:80}
+}
+</style>
+<script id="ytMobileBottomScript">
+(()=>{const init=()=>{const bar=document.getElementById("ytMobileBottom");if(!bar||bar.dataset.ready)return;bar.dataset.ready="1";const buttons=[...bar.querySelectorAll("[data-bottom-page]")];function sync(){const page=typeof currentPage!=="undefined"?currentPage:"home";buttons.forEach(b=>b.classList.toggle("active",b.dataset.bottomPage===page||(b.dataset.bottomPage==="library"&&["library","history","playlists","watchlater","liked","channel","posts"].includes(page))))}bar.addEventListener("click",e=>{const b=e.target.closest("[data-bottom-page]");if(b){const target=document.querySelector('.sidebar .nav[data-page="'+b.dataset.bottomPage+'"]');if(target)target.click();sync()} });const create=bar.querySelector("#bottomCreate");if(create)create.addEventListener("click",()=>{if(typeof openUpload==="function")openUpload()});document.addEventListener("click",e=>{if(e.target.closest(".nav,[data-page],[data-goto]"))setTimeout(sync,0)});sync();const observer=new MutationObserver(sync);const main=document.getElementById("main");if(main)observer.observe(main,{attributes:true,attributeFilter:["data-mobile-page"]});};if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init()})();
+</script>
 <div class="modalbg" id="modalBg"><section class="modal" role="dialog" aria-modal="true"><div class="modalhead"><h2 id="modalTitle">作成</h2><button class="close" id="modalClose">×</button></div><div id="modalBody"></div><div class="modalbuttons" id="modalButtons"></div></section></div>
 <div class="playerbg" id="playerBg"><div class="watch"><div class="watchtop"><button class="round" id="miniPlayerBtn" aria-label="ミニプレイヤーにする" title="ミニプレイヤー">—</button><button class="round" id="miniRestoreBtn" aria-label="通常サイズに戻す" title="通常サイズに戻す">↗</button><button class="round" id="watchClose" aria-label="閉じる" title="閉じる">✕</button></div><video class="watchvideo" id="watchVideo" controls playsinline></video><h1 class="watchtitle" id="watchTitle"></h1><div class="watchmeta"><div class="watchchannel" id="watchChannel"></div><div class="actions"><button class="secondary" id="likeBtn">❤️ 高評価</button><button class="secondary" id="laterBtn">⏰ 後で見る</button></div></div><div class="description" id="watchDescription"></div></div></div>
 <div class="toast" id="toast"></div>
