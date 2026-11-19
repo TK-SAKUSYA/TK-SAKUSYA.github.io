@@ -21,17 +21,17 @@
  <div class="side-bottom"><button class="settings-btn" id="openSettings">⚙️　設定</button></div>
 </aside>
 <main class="main">
- <header class="topbar"><div class="top-left"><button class="iconbtn mobile-menu" id="openSidebar" aria-label="メニュー">☰</button><span class="model-label">ONE AI <span style="color:#888">·</span> <span id="modelName">Gemini</span></span></div><button class="iconbtn" id="topSettings" aria-label="設定">⚙</button></header>
+ <header class="topbar"><div class="top-left"><button class="iconbtn mobile-menu" id="openSidebar" aria-label="メニュー">☰</button><span class="model-label">ONE AI <span style="color:#888">·</span> <span id="modelName">Ollama</span></span></div><button class="iconbtn" id="topSettings" aria-label="設定">⚙</button></header>
  <section class="chat" id="chat" aria-live="polite"><div class="welcome" id="welcome"><h1>今日は何をお手伝いしましょうか？</h1><p>ONE AI と会話を始めましょう。</p><div class="suggestions"><button class="suggestion">💡 新しいアイデアを考えて</button><button class="suggestion">📚 難しいことをわかりやすく説明して</button><button class="suggestion">💻 プログラミングを手伝って</button><button class="suggestion">✍️ 文章を一緒に作って</button></div></div><div class="messages" id="messages"></div></section>
  <div class="composer-wrap"><form class="composer" id="composer"><textarea id="prompt" rows="1" placeholder="ONE AIにメッセージを送信..." aria-label="メッセージ"></textarea><button class="send" id="send" type="submit" aria-label="送信">↑</button></form><div class="disclaimer">AIの回答は不正確な場合があります。重要な情報は確認してください。</div></div>
 </main>
 </div>
-<div class="overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><div class="modal"><h2 id="settingsTitle">ONE AI の設定</h2><p>AIを利用するには Gemini API キーが必要です。キーはこのブラウザ内にのみ保存し、GitHubには送信しません。</p><div class="field"><label for="apiKey">Gemini API キー</label><input id="apiKey" type="password" autocomplete="off" placeholder="APIキーを入力"></div><div class="field"><label for="model">モデル</label><select id="model"><option value="gemini-2.5-flash">Gemini 2.5 Flash</option><option value="gemini-2.0-flash">Gemini 2.0 Flash</option></select></div><p>APIキーはGoogle AI Studioで取得できます。無料枠・利用条件は変更される場合があります。</p><div class="modal-actions"><button class="btn danger" id="clearKey">キーを削除</button><button class="btn" id="cancelSettings">キャンセル</button><button class="btn primary" id="saveSettings">保存</button></div></div></div>
+<div class="overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><div class="modal"><h2 id="settingsTitle">ONE AI の設定</h2><p>このブラウザから、あなたのPCで動くOllamaに接続します。APIキーは不要です。</p><div class="field"><label for="ollamaUrl">Ollama接続先</label><input id="ollamaUrl" type="url" autocomplete="url" value="http://localhost:11434" placeholder="http://localhost:11434"></div><div class="field"><label for="model">使用モデル</label><select id="model"><option value="qwen2.5-coder:3b">qwen2.5-coder:3b</option></select><button class="btn" type="button" id="refreshModels">モデル一覧を取得</button></div><p id="connectionHelp">Ollamaが起動している必要があります。GitHub Pagesから接続するには、Ollama側でこのサイトのオリジンを許可する設定も必要です。</p><div class="modal-actions"><button class="btn" id="testConnection">接続テスト</button><button class="btn" id="cancelSettings">閉じる</button><button class="btn primary" id="saveSettings">保存</button></div></div></div>
 <div class="toast" id="toast"></div>
 <script>
 (()=> {
  const $=id=>document.getElementById(id);
- const KEY='one-ai-api-key',MODEL='one-ai-model',STORE='one-ai-chats-v1';
+ const URL_KEY='one-ai-ollama-url',MODEL='one-ai-model',STORE='one-ai-chats-v1';
  let chats=loadChats(),currentId=null,busy=false;
  const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
  function loadChats(){try{return JSON.parse(localStorage.getItem(STORE)||'[]')}catch{return[]}}
@@ -60,36 +60,49 @@
   });
   $('chat').scrollTop=$('chat').scrollHeight;
  }
- function openSettings(){ $('apiKey').value=localStorage.getItem(KEY)||'';$('model').value=localStorage.getItem(MODEL)||'gemini-2.5-flash';$('settingsModal').classList.add('open')}
+ function openSettings(){ $('ollamaUrl').value=localStorage.getItem(URL_KEY)||'http://localhost:11434';$('settingsModal').classList.add('open');loadModels().catch(()=>{});}
  function closeSettings(){$('settingsModal').classList.remove('open')}
- async function askGemini(history){
-  const key=localStorage.getItem(KEY);if(!key)throw new Error('設定からGemini APIキーを登録してください。');
-  const model=localStorage.getItem(MODEL)||'gemini-2.5-flash';
-  const contents=history.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.text}]}));
-  const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents,generationConfig:{temperature:.7,maxOutputTokens:2048}})});
+ function ollamaBase(){return (localStorage.getItem(URL_KEY)||'http://localhost:11434').trim().replace(/\\/+$/,'')}
+ async function loadModels(){
+  const select=$('model'),previous=localStorage.getItem(MODEL)||'qwen2.5-coder:3b';
+  const response=await fetch(ollamaBase()+'/api/tags');if(!response.ok)throw new Error('Ollamaに接続できません ('+response.status+')');
+  const data=await response.json();const models=data.models||[];select.replaceChildren();
+  if(!models.length){const o=document.createElement('option');o.value=previous;o.textContent=previous+'（未検出）';select.append(o);return models}
+  models.forEach(m=>{const o=document.createElement('option');o.value=m.name;o.textContent=m.name;select.append(o)});
+  if([...select.options].some(o=>o.value===previous))select.value=previous;else select.selectedIndex=0;
+  $('modelName').textContent=select.value;return models;
+ }
+ async function testConnection(){try{const models=await loadModels();toast('Ollamaに接続しました（'+models.length+'モデル）')}catch(e){toast('接続できません：'+e.message)}}
+ async function askOllama(history){
+  const model=localStorage.getItem(MODEL)||'qwen2.5-coder:3b';
+  const messages=history.map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.text}));
+  const response=await fetch(ollamaBase()+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model,messages,stream:false})});
   const data=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(data.error?.message||'APIエラー ('+response.status+')');
-  const text=data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'回答を取得できませんでした。';return text;
+  if(!response.ok)throw new Error(data.error||'Ollamaエラー ('+response.status+')');
+  if(!data.message?.content)throw new Error('Ollamaから回答が返りませんでした。モデルがダウンロード済みか確認してください。');
+  return data.message.content;
  }
  async function sendMessage(text){
   if(busy||!text.trim())return;
   if(!currentId)createChat();const c=current();c.messages.push({role:'user',text:text.trim()});if(c.messages.length===1)c.title=text.trim().slice(0,26);c.updated=Date.now();save();renderHistory();renderMessages();$('prompt').value='';$('prompt').style.height='auto';busy=true;$('send').disabled=true;
   const pending={role:'assistant',text:'考え中…'};c.messages.push(pending);renderMessages();
-  try{const history=c.messages.slice(0,-1);const answer=await askGemini(history);pending.text=answer}
+  try{const history=c.messages.slice(0,-1);const answer=await askOllama(history);pending.text=answer}
   catch(e){pending.text='エラー：'+e.message;pending.error=true}
   finally{busy=false;$('send').disabled=false;c.updated=Date.now();save();renderHistory();renderMessages()}
  }
  $('newChat').onclick=createChat;$('openSettings').onclick=openSettings;$('topSettings').onclick=openSettings;$('cancelSettings').onclick=closeSettings;
- $('saveSettings').onclick=()=>{const k=$('apiKey').value.trim();if(k)localStorage.setItem(KEY,k);else localStorage.removeItem(KEY);localStorage.setItem(MODEL,$('model').value);$('modelName').textContent=$('model').selectedOptions[0].textContent;closeSettings();toast('設定を保存しました')};
- $('clearKey').onclick=()=>{localStorage.removeItem(KEY);$('apiKey').value='';toast('APIキーを削除しました')};
+ $('saveSettings').onclick=()=>{const url=$('ollamaUrl').value.trim().replace(/\\/+$/,'');if(!/^https?:\\/\\//i.test(url)){toast('接続先URLを確認してください');return}localStorage.setItem(URL_KEY,url);localStorage.setItem(MODEL,$('model').value);$('modelName').textContent=$('model').selectedOptions[0]?.textContent||$('model').value;closeSettings();toast('Ollama設定を保存しました')};
+ $('refreshModels').onclick=async()=>{try{localStorage.setItem(URL_KEY,$('ollamaUrl').value.trim().replace(/\\/+$/,''));const models=await loadModels();toast('モデル一覧を更新しました（'+models.length+'件）')}catch(e){toast('取得失敗：'+e.message)}};
+ $('testConnection').onclick=async()=>{localStorage.setItem(URL_KEY,$('ollamaUrl').value.trim().replace(/\\/+$/,''));await testConnection()};
  $('composer').addEventListener('submit',e=>{e.preventDefault();sendMessage($('prompt').value)});
  $('prompt').addEventListener('input',()=>{$('prompt').style.height='auto';$('prompt').style.height=Math.min($('prompt').scrollHeight,180)+'px'});
  $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('composer').requestSubmit()}});
  document.querySelectorAll('.suggestion').forEach(b=>b.onclick=()=>sendMessage(b.textContent.replace(/^\S+\s/,'')));
  $('openSidebar').onclick=()=>$('sidebar').classList.add('open');$('closeSidebar').onclick=()=>$('sidebar').classList.remove('open');
- $('modelName').textContent=$('model').selectedOptions[0].textContent;
+ $('modelName').textContent=localStorage.getItem(MODEL)||'qwen2.5-coder:3b';
+ localStorage.removeItem('one-ai-api-key');
  renderHistory();renderMessages();
- if(!localStorage.getItem(KEY))setTimeout(()=>{if(!chats.length)openSettings()},700);
+ setTimeout(()=>loadModels().catch(()=>{}),400);
 })();
 </script>
 </body>
