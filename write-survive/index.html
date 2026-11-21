@@ -56,7 +56,7 @@ function addWriteBubble(owner,word){
 function feedWrite(owner,word){
  const feed=$('writeFeed'),item=document.createElement('div');item.className='feed-item';const safeName=owner.name.replace(/[&<>"]/g,'');const safeWord=word.replace(/[&<>"]/g,'');item.innerHTML='<b>'+safeName+'</b> が「'+safeWord+'」を書いた！<small>実体化！</small>';feed.prepend(item);while(feed.children.length>3)feed.lastChild.remove();setTimeout(()=>item.remove(),3400);addWriteBubble(owner,word);
 }
-function clearWorld(){for(const p of [...players])scene.remove(p.group);for(const s of [...summons])scene.remove(s.group);players=[];summons=[];while(scene.children.length>0){const o=scene.children[scene.children.length-1];if(o===sun||o.type==='HemisphereLight')break;scene.remove(o)}}
+function clearWorld(){for(const p of [...players])scene.remove(p.group);for(const s of [...summons])scene.remove(s.group);players=[];summons=[];for(const o of [...scene.children])if(o!==sun&&o.type!=='HemisphereLight')scene.remove(o)}
 function buildMap(type){const groundColor=mats[type];const ground=box(scene,100,1,100,groundColor,0,-.55,0,groundTextures[type]);ground.receiveShadow=true;const centerDisc=box(scene,28,.12,28,type==='grass'?0x6cae59:0x8c9bab,0,.02,0,trimTexture);centerDisc.material.map.repeat.set(5,5);
 const wallColor=type==='city'?0x586779:0x4b5969;
 for(let i=0;i<4;i++){const a=i*Math.PI/2;const w=type==='arena'?1.5:1;const wall=box(scene,100,5,w,wallColor,0,2.2,-49);wall.rotation.y=a}
@@ -91,7 +91,7 @@ function update(dt){if(!running)return;roundClock+=dt;const me=players[0];for(co
   const side=d<8?Math.sin(p.aiPhase)*.58:Math.sin(p.aiPhase)*.18;
   if(d>preferred+1){p.group.position.x+=(dx/d*forward+Math.cos(angle)*side)*p.speed*.62*dt;p.group.position.z+=(dz/d*forward-Math.sin(angle)*side)*p.speed*.62*dt}
   else if(low){p.group.position.x-=dx/d*p.speed*.48*dt;p.group.position.z-=dz/d*p.speed*.48*dt}
-  p.group.rotation.y=angle;
+  p.group.rotation.y=angle;p.group.position.x=THREE.MathUtils.clamp(p.group.position.x,-44,44);p.group.position.z=THREE.MathUtils.clamp(p.group.position.z,-44,44);
   if(d<3.25&&Math.random()<dt*(low?.35:1.65))doAttack(p);
   if(p.hp<48&&d<5&&Math.random()<dt*.22){p.group.position.x+=Math.cos(angle+Math.PI/2)*p.speed*dt*2;p.group.position.z-=Math.sin(angle+Math.PI/2)*p.speed*dt*2}
  }
