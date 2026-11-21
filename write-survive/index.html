@@ -33,14 +33,36 @@ scene.add(new THREE.HemisphereLight(0xffffff,0x536477,2));const sun=new THREE.Di
 const mats={grass:0x63a85a,arena:0x687587,city:0x777d8a};
 let selectedMap='arena',players=[],summons=[],running=false,writerTimer=0,writerId=null,turnBusy=false,lastTime=0,roundClock=0,keys={},jumpQueued=false,attackQueued=false,crouch=false,stickVector={x:0,y:0};let cameraYaw=0,cameraPitch=.28,cameraDistance=10,cameraDrag=null,lastPointer={x:0,y:0};
 const mapNames={arena:'アリーナ',grass:'草原',city:'シティ'};
-function box(parent,w,h,d,color,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.85}));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
+function makePatternTexture(base,accent,kind='grid'){
+ const c=document.createElement('canvas');c.width=256;c.height=256;const ctx=c.getContext('2d');ctx.fillStyle=base;ctx.fillRect(0,0,256,256);
+ if(kind==='grass'){for(let i=0;i<900;i++){ctx.fillStyle=i%3?'#ffffff18':accent;ctx.fillRect(Math.random()*256,Math.random()*256,2+Math.random()*3,5+Math.random()*9)}}
+ else if(kind==='stone'){for(let y=0;y<256;y+=32)for(let x=0;x<256;x+=48){ctx.fillStyle=(Math.floor(x/48+y/32)%2)?'#ffffff12':'#00000012';ctx.fillRect(x+(y%64?0:24),y,46,30);ctx.strokeStyle='#17233435';ctx.strokeRect(x+(y%64?0:24),y,46,30)}}
+ else if(kind==='city'){for(let y=12;y<256;y+=38)for(let x=12;x<256;x+=42){ctx.fillStyle=accent;ctx.fillRect(x,y,22,16);ctx.fillStyle='#ffffff35';ctx.fillRect(x+3,y+3,5,5)}}
+ else {ctx.strokeStyle=accent;ctx.lineWidth=3;for(let i=0;i<=256;i+=32){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,256);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(256,i);ctx.stroke()}}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;return t;
+}
+const groundTextures={arena:makePatternTexture('#657486','#aab8c8','stone'),grass:makePatternTexture('#5a9b4e','#8fcf65','grass'),city:makePatternTexture('#596879','#9bc9db','city')};
+const trimTexture=makePatternTexture('#35465a','#a4d5e8','grid');
+function box(parent,w,h,d,color,x,y,z,texture=null){const mat=new THREE.MeshStandardMaterial({color,roughness:.88,map:texture||null});const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
+function addNameTag(p){
+ const c=document.createElement('canvas');c.width=384;c.height=96;const x=c.getContext('2d');x.fillStyle='#07111ddd';x.beginPath();x.roundRect(8,8,368,80,22);x.fill();x.strokeStyle=p.isBot?'#ffc46a':'#79e4ff';x.lineWidth=6;x.stroke();
+ x.font='bold 42px system-ui';x.textAlign='center';x.textBaseline='middle';x.fillStyle='#ffffff';x.fillText(p.name,192,49);
+ const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));spr.scale.set(3.3,.82,1);spr.position.set(0,3.65,0);p.group.add(spr);p.nameTag=spr;
+}
+function addWriteBubble(owner,word){
+ const c=document.createElement('canvas');c.width=512;c.height=144;const x=c.getContext('2d');x.fillStyle='#07111eee';x.beginPath();x.roundRect(8,8,496,112,26);x.fill();x.strokeStyle='#7de5ff';x.lineWidth=7;x.stroke();x.fillStyle='#ffffff';x.font='bold 38px system-ui';x.textAlign='center';x.textBaseline='middle';const label=word.length>17?word.slice(0,16)+'…':word;x.fillText('✍ '+label,256,65);
+ const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));spr.scale.set(4.8,1.35,1);spr.position.set(0,4.8,0);owner.group.add(spr);setTimeout(()=>{owner.group.remove(spr);tex.dispose()},2600);
+}
+function feedWrite(owner,word){
+ const feed=$('writeFeed'),item=document.createElement('div');item.className='feed-item';const safeName=owner.name.replace(/[&<>"]/g,'');const safeWord=word.replace(/[&<>"]/g,'');item.innerHTML='<b>'+safeName+'</b> が「'+safeWord+'」を書いた！<small>実体化！</small>';feed.prepend(item);while(feed.children.length>3)feed.lastChild.remove();setTimeout(()=>item.remove(),3400);addWriteBubble(owner,word);
+}
 function clearWorld(){for(const p of [...players])scene.remove(p.group);for(const s of [...summons])scene.remove(s.group);players=[];summons=[];while(scene.children.length>0){const o=scene.children[scene.children.length-1];if(o===sun||o.type==='HemisphereLight')break;scene.remove(o)}}
-function buildMap(type){const groundColor=mats[type];const ground=box(scene,100,1,100,groundColor,0,-.55,0);ground.receiveShadow=true;
+function buildMap(type){const groundColor=mats[type];const ground=box(scene,100,1,100,groundColor,0,-.55,0,groundTextures[type]);ground.receiveShadow=true;const centerDisc=box(scene,28,.12,28,type==='grass'?0x6cae59:0x8c9bab,0,.02,0,trimTexture);centerDisc.material.map.repeat.set(5,5);
 const wallColor=type==='city'?0x586779:0x4b5969;
 for(let i=0;i<4;i++){const a=i*Math.PI/2;const w=type==='arena'?1.5:1;const wall=box(scene,100,5,w,wallColor,0,2.2,-49);wall.rotation.y=a}
 if(type==='arena'){for(let i=0;i<10;i++){const a=i*Math.PI*2/10;box(scene,2,2,2,0x9aa7b5,Math.cos(a)*20,0.5,Math.sin(a)*20)}}
-if(type==='grass'){for(let i=0;i<28;i++){const x=(Math.random()-.5)*78,z=(Math.random()-.5)*78;if(Math.hypot(x,z)<10)continue;const trunk=box(scene,.7,3,.7,0x795331,x,1.5,z);const crown=box(scene,3,3,3,0x267a42,x,4,z);crown.rotation.y=Math.random()*2}}
-if(type==='city'){for(let i=0;i<22;i++){const x=(Math.random()-.5)*78,z=(Math.random()-.5)*78;if(Math.hypot(x,z)<11)continue;const h=5+Math.random()*13;box(scene,5,h,5,[0x53677d,0x647b91,0x46586b][i%3],x,h/2,z);for(let y=2;y<h;y+=3)box(scene,3,.25,.15,0x8ed9e8,x,y,z-2.58)}}
+if(type==='grass'){for(let i=0;i<28;i++){const x=(Math.random()-.5)*78,z=(Math.random()-.5)*78;if(Math.hypot(x,z)<10)continue;const trunk=box(scene,.7,3,.7,0x795331,x,1.5,z,trimTexture);const crown=box(scene,3,3,3,0x267a42,x,4,z,groundTextures.grass);crown.rotation.y=Math.random()*2}}
+if(type==='city'){for(let i=0;i<22;i++){const x=(Math.random()-.5)*78,z=(Math.random()-.5)*78;if(Math.hypot(x,z)<11)continue;const h=5+Math.random()*13;box(scene,5,h,5,[0x53677d,0x647b91,0x46586b][i%3],x,h/2,z,groundTextures.city);for(let y=2;y<h;y+=3)box(scene,3,.25,.15,0x8ed9e8,x,y,z-2.58)}}
 }
 function makeAvatar(name,color,isBot=false){const g=new THREE.Group();const body=box(g,1.15,1.35,.62,color,0,1.45,0);const head=box(g,.85,.85,.85,0xffd7ad,0,2.55,0);box(g,.16,.13,.06,0x202b3b,-.19,2.6,-.44);box(g,.16,.13,.06,0x202b3b,.19,2.6,-.44);const arm1=box(g,.35,1.15,.38,color,-.78,1.48,0),arm2=box(g,.35,1.15,.38,color,.78,1.48,0);const leg1=box(g,.42,.85,.48,0x27364a,-.3,.43,0),leg2=box(g,.42,.85,.48,0x27364a,.3,.43,0);const tag=document.createElement('div');tag.textContent=name;tag.style.cssText='position:absolute;color:white;font:800 12px system-ui;text-shadow:0 2px 4px #000;white-space:nowrap;pointer-events:none';const p={name,group:g,hp:100,alive:true,isBot,id:Math.random().toString(36).slice(2),speed:7,vy:0,onGround:true,attackCd:0,invuln:0,regen:0,color,tag,spawn:{x:0,z:0},summonCd:0};scene.add(g);return p}
 function addPlayers(){const human=makeAvatar('YOU',0x28a9e8,false);human.group.position.set(0,0,0);players.push(human);for(let i=0;i<11;i++){const b=makeAvatar('BOT-'+String(i+1).padStart(2,'0'),[0xe85d5d,0xf0b84c,0x9a7be8,0x4bc6a8,0xe889c4][i%5],true);const a=i/11*Math.PI*2;b.group.position.set(Math.cos(a)*25,0,Math.sin(a)*25);b.spawn={x:Math.cos(a)*25,z:Math.sin(a)*25};players.push(b)}}
