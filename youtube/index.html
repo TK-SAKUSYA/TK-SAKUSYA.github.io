@@ -186,7 +186,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){modalClose();if($("
 
 /* 第二回アップデート：カテゴリ拡張、ハッシュタグ、投稿、通知、探索 */
 function loadState(){try{const s=JSON.parse(localStorage.getItem("yt_local_state")||"{}");Object.assign(state,s);state.channel=Object.assign({name:"マイチャンネル",handle:"@mychannel",description:"チャンネルの説明を追加しましょう。",avatar:"",created:false},state.channel||{});for(const k of ["videos","posts","notifications","history","watchlater","liked","playlists"])if(!Array.isArray(state[k]))state[k]=[]}catch(e){}}
-function card(v){const thumb=v.thumb?'<img src="'+esc(v.thumb)+'" alt="" loading="lazy" onerror="this.remove();this.parentElement.classList.add(\'thumb-missing\')">':'<span class="fileicon">▶</span>';return '<article class="card '+(v.isShort?'short-card':'')+'" tabindex="0" role="button" data-video="'+esc(v.id)+'"><div class="thumb">'+thumb+(v.isShort?'<span class="short-badge">▣ ショート</span>':'')+(v.duration?'<span class="duration">'+esc(v.duration)+'</span>':'')+'</div><div class="meta">'+avatarHTML("chavatar")+'<div class="details"><h3 class="vtitle">'+hashtagHTML(v.title)+'</h3><div class="channelname">'+esc(v.channelName||state.channel.name)+'</div><div class="stats">'+Number(v.views||0).toLocaleString()+' 回視聴 ・ '+esc(formatVideoDate(v))+'</div><div class="channelname">'+(v.type==="live"?"🔴 ライブ配信":v.type==="short"?"▣ ショート":"")+' '+(v.hashtags||[]).map(h=>hashtagHTML("#"+h)).join(" ")+'</div></div><button class="more" data-more="'+esc(v.id)+'" aria-label="その他">⋮</button></div></article>'}
+function card(v){const isShort=v.type==="short"||v.isShort;const thumb=v.thumb?'<img src="'+esc(v.thumb)+'" alt="" loading="lazy" onerror="this.remove();this.parentElement.classList.add(\'thumb-missing\')">':'<span class="fileicon">▶</span>';return '<article class="card '+(isShort?'short-card':'')+'" tabindex="0" role="button" data-video="'+esc(v.id)+'"><div class="thumb">'+thumb+(isShort?'<span class="short-badge">▣ ショート</span>':'')+(v.duration?'<span class="duration">'+esc(v.duration)+'</span>':'')+'</div><div class="meta">'+avatarHTML("chavatar")+'<div class="details"><h3 class="vtitle">'+hashtagHTML(v.title)+'</h3><div class="channelname">'+esc(v.channelName||state.channel.name)+'</div><div class="stats">'+Number(v.views||0).toLocaleString()+' 回視聴 ・ '+esc(formatVideoDate(v))+'</div><div class="channelname">'+(v.type==="live"?"🔴 ライブ配信":isShort?"▣ ショート":"")+' '+(v.hashtags||[]).map(h=>hashtagHTML("#"+h)).join(" ")+'</div></div><button class="more" data-more="'+esc(v.id)+'" aria-label="その他">⋮</button></div></article>'}
 function render(){
  const main=$("main");let list=state.videos.slice().sort((a,b)=>b.createdAt-a.createdAt);const q=query.trim().toLowerCase();
  if(q)list=list.filter(v=>(v.title+" "+v.description+" "+v.channelName+" "+(v.hashtags||[]).join(" ")).toLowerCase().includes(q));
@@ -1089,5 +1089,42 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
  const form=$("commentForm");if(form)form.addEventListener("submit",()=>setTimeout(renderPublicComments,0));
  mergePublicData();render();
 })();
-</script></body>
+</script>
+<script id="youtubeAccountOwnershipAndShortsFix">
+(()=>{
+ const KEY="yt_local_accounts_v1";
+ function accountData(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return {}}}
+ function tagOwners(){
+  const raw=accountData(),accounts=Array.isArray(raw.accounts)?raw.accounts:[],activeId=raw.activeId||"";
+  const byHandle=new Map();accounts.forEach(a=>{if(a&&a.handle){if(!byHandle.has(a.handle))byHandle.set(a.handle,[]);byHandle.get(a.handle).push(a)}});
+  const byName=new Map();accounts.forEach(a=>{if(a&&a.name){if(!byName.has(a.name))byName.set(a.name,[]);byName.get(a.name).push(a)}});
+  const resolve=(v,fallback)=>{
+   const matches=(v.channelHandle&&byHandle.get(v.channelHandle))||(v.channelName&&byName.get(v.channelName))||[];
+   if(v.ownerAccountId&&accounts.some(a=>a.id===v.ownerAccountId))return v.ownerAccountId;
+   if(matches.length===1)return matches[0].id;
+   return fallback||activeId;
+  };
+  (Array.isArray(state.videos)?state.videos:[]).forEach(v=>{if(v)v.ownerAccountId=resolve(v,v.ownerAccountId||activeId)});
+  accounts.forEach(a=>{if(!a||!a.data||!Array.isArray(a.data.videos))return;a.data.videos.forEach(v=>{if(v)v.ownerAccountId=resolve(v,v.ownerAccountId||a.id)})});
+  try{localStorage.setItem(KEY,JSON.stringify({accounts,activeId}))}catch(e){}
+ }
+ const originalRenderChannel=renderChannel;
+ renderChannel=function(main){
+  tagOwners();
+  const raw=accountData(),activeId=raw.activeId||"";
+  const all=state.videos;
+  state.videos=all.filter(v=>v&&v.ownerAccountId===activeId);
+  try{return originalRenderChannel(main)}finally{state.videos=all}
+ };
+ const originalPublish=publishVideo;
+ publishVideo=async function(){
+  const before=new Set((state.videos||[]).map(v=>v.id));
+  await originalPublish();
+  const added=(state.videos||[]).find(v=>v&&!before.has(v.id));
+  if(added){const raw=accountData();added.ownerAccountId=raw.activeId||"";saveState();if(currentPage==="channel")render()}
+ };
+ tagOwners();
+})();
+</script>
+</body>
 </html>
