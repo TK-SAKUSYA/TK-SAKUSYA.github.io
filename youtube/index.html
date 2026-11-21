@@ -985,9 +985,11 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
  initialize();
  window.openAccountSwitcher=openSwitcher;
  const switchButton=$("accountSwitchBtn");
+ const profileButton=$("profileBtn");
  const avatarButton=$("avatarBtn");
  if(switchButton){switchButton.type="button";switchButton.disabled=false;switchButton.onclick=e=>{e.preventDefault();e.stopPropagation();openSwitcher()}}
- if(avatarButton){avatarButton.type="button";avatarButton.onclick=e=>{e.preventDefault();e.stopPropagation();openSwitcher()}}
+ if(profileButton){profileButton.type="button";profileButton.onclick=e=>{e.preventDefault();e.stopPropagation();openSwitcher()}}
+ if(avatarButton){avatarButton.type="button";avatarButton.onclick=e=>{e.preventDefault();e.stopPropagation();setPage("channel")}}
 })();
 </script>
 </body>
