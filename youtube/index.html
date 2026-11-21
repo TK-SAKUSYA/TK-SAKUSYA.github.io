@@ -1100,8 +1100,8 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
   const byName=new Map();accounts.forEach(a=>{if(a&&a.name){if(!byName.has(a.name))byName.set(a.name,[]);byName.get(a.name).push(a)}});
   const resolve=(v,fallback)=>{
    const matches=(v.channelHandle&&byHandle.get(v.channelHandle))||(v.channelName&&byName.get(v.channelName))||[];
-   if(v.ownerAccountId&&accounts.some(a=>a.id===v.ownerAccountId))return v.ownerAccountId;
    if(matches.length===1)return matches[0].id;
+   if(v.ownerAccountId&&accounts.some(a=>a.id===v.ownerAccountId))return v.ownerAccountId;
    return fallback||activeId;
   };
   (Array.isArray(state.videos)?state.videos:[]).forEach(v=>{if(v)v.ownerAccountId=resolve(v,v.ownerAccountId||activeId)});
