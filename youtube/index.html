@@ -1108,6 +1108,8 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
   accounts.forEach(a=>{if(!a||!a.data||!Array.isArray(a.data.videos))return;a.data.videos.forEach(v=>{if(v)v.ownerAccountId=resolve(v,v.ownerAccountId||a.id)})});
   try{localStorage.setItem(KEY,JSON.stringify({accounts,activeId}))}catch(e){}
  }
+ const originalRender=render;
+ render=function(){const result=originalRender();tagOwners();return result};
  const originalRenderChannel=renderChannel;
  renderChannel=function(main){
   tagOwners();
