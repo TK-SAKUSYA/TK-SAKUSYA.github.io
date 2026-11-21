@@ -992,5 +992,78 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
  if(avatarButton){avatarButton.type="button";avatarButton.onclick=e=>{e.preventDefault();e.stopPropagation();setPage("channel")}}
 })();
 </script>
+<script id="aiLiveReimplementation">
+(()=>{
+ const style=document.createElement("style");
+ style.textContent='.watch.live-watch{width:min(1180px,calc(100vw - 28px));max-height:calc(100vh - 28px);overflow:auto;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:0;background:var(--panel,#181818);border-radius:14px;padding:14px}.watch.live-watch .watchtop{grid-column:1/-1;position:sticky;top:0;z-index:3;background:var(--panel,#181818)}.watch.live-watch .watchvideo{grid-column:1;grid-row:2;width:100%;aspect-ratio:16/9;max-height:62vh;background:#000;object-fit:contain}.watch.live-watch .watchtitle,.watch.live-watch .watchmeta,.watch.live-watch .description,.watch.live-watch #watchActionsExtra,.watch.live-watch #commentsPanel{grid-column:1}.live-chat{grid-column:2;grid-row:2/9;display:flex;flex-direction:column;min-height:420px;max-height:calc(100vh - 115px);border:1px solid var(--line,#383838);border-radius:12px;overflow:hidden;background:var(--card,#202020)}.live-chat-head{padding:12px;border-bottom:1px solid var(--line,#383838);font-weight:700;display:flex;justify-content:space-between;gap:8px}.live-chat-messages{padding:10px;overflow:auto;flex:1;display:flex;flex-direction:column;gap:10px;min-height:0}.live-chat-message{font-size:13px;line-height:1.45;overflow-wrap:anywhere}.live-chat-message strong{margin-right:6px}.live-chat-form{display:flex;gap:6px;padding:9px;border-top:1px solid var(--line,#383838)}.live-chat-form input{min-width:0;flex:1;background:transparent;color:inherit;border:1px solid var(--line,#555);border-radius:20px;padding:9px 12px}.live-chat-form button{border:0;border-radius:20px;padding:8px 12px}.live-pill{display:inline-flex;align-items:center;gap:5px;background:#c52222;color:white;border-radius:5px;padding:4px 8px;font-size:12px;font-weight:800}@media(max-width:800px){.watch.live-watch{display:flex;flex-direction:column;width:100%;max-height:100vh;height:100vh;border-radius:0;padding:8px}.watch.live-watch .watchvideo{max-height:36vh}.live-chat{min-height:220px;max-height:34vh}.watch.live-watch .watchtop{order:0}.watch.live-watch .watchvideo{order:1}.watch.live-watch .watchtitle{order:2}.watch.live-watch .watchmeta{order:3}.live-chat{order:4}.watch.live-watch .description{order:5}}';
+ document.head.appendChild(style);
+ const root=$("playerBg"),watchBox=root?.querySelector(".watch");
+ if(!root||!watchBox)return;
+ let liveTimer=null;
+ const liveChat={};
+ const rand=a=>a[Math.floor(Math.random()*a.length)];
+ const bots=()=>Array.isArray(state.aiAccounts)?state.aiAccounts:[];
+ const commentsFor=vid=>(state.comments=state.comments||{},state.comments[vid]=Array.isArray(state.comments[vid])?state.comments[vid]:[],state.comments[vid]);
+ const chatFor=vid=>(liveChat[vid]=liveChat[vid]||[]);
+ function addChat(vid,bot,text){const arr=chatFor(vid);arr.push({id:id(),name:bot.name,avatar:bot.avatar||"🤖",text,at:Date.now()});if(arr.length>120)arr.shift();renderLiveChat()}
+ function ensureLiveChat(){
+  let panel=$("liveChatPanel");if(panel)return panel;
+  panel=document.createElement("aside");panel.id="liveChatPanel";panel.className="live-chat";
+  panel.innerHTML='<div class="live-chat-head"><span>💬 チャット</span><span id="liveViewerCount">👁 1人が視聴中</span></div><div class="live-chat-messages" id="liveChatMessages"></div><form class="live-chat-form" id="liveChatForm"><input id="liveChatInput" maxlength="300" placeholder="チャットにメッセージを送信..." aria-label="チャットメッセージ"><button type="submit">送信</button></form>';
+  watchBox.appendChild(panel);
+  $("liveChatForm").onsubmit=e=>{e.preventDefault();const input=$("liveChatInput"),t=input.value.trim();if(!t)return;addChat(currentVideoId,{name:state.channel.name,avatar:"👤"},t);input.value=""};
+  return panel;
+ }
+ function renderLiveChat(){
+  const box=$("liveChatMessages");if(!box||!currentVideoId)return;
+  box.innerHTML=chatFor(currentVideoId).map(m=>'<div class="live-chat-message"><strong>'+esc(m.avatar||"🤖")+' '+esc(m.name)+'</strong>'+esc(m.text)+'</div>').join("");
+  box.scrollTop=box.scrollHeight;
+  const n=$("liveViewerCount");if(n)n.textContent="👁 "+Math.max(1,Number(getVideo(currentVideoId)?.liveViewers||1))+"人が視聴中";
+ }
+ function setLiveMode(on){
+  watchBox.classList.toggle("live-watch",!!on);
+  if(on){ensureLiveChat();const v=getVideo(currentVideoId);if(v&&!$("liveStatus")){const badge=document.createElement("span");badge.id="liveStatus";badge.className="live-pill";badge.textContent="🔴 ライブ配信";$("watchTitle").prepend(badge);$("watchTitle").prepend(document.createTextNode(" "))}renderLiveChat()}
+  else{$("liveChatPanel")?.remove();$("liveStatus")?.remove()}
+ }
+ const oldWatch=watch;
+ watch=async function(vid){
+  setLiveMode(false);await oldWatch(vid);
+  const v=getVideo(vid);if(!v||currentVideoId!==vid)return;
+  if(v.type==="live"){
+   setLiveMode(true);
+   if(!chatFor(vid).length){const starter=["配信きた！","こんにちは！","楽しみ！","音声聞こえてます！","今日も見に来ました 👋"];for(let i=0;i<3;i++)addChat(vid,rand(bots())||{name:"視聴者BOT",avatar:"🤖"},rand(starter))}
+   clearInterval(liveTimer);
+   liveTimer=setInterval(()=>{if(currentVideoId!==vid||!root.classList.contains("show"))return;const b=rand(bots());if(!b)return;addChat(vid,b,rand(["ここ好き！","ナイス！👏","続きが気になる","初見です！","配信ありがとう！","盛り上がってきた！","このシーンいいね","こんばんは！"]));v.liveViewers=Math.max(1,Number(v.liveViewers||8)+Math.floor(Math.random()*3)-1);renderLiveChat()},4200);
+  }else{clearInterval(liveTimer);liveTimer=null}
+ };
+ const oldClose=closeWatch;
+ closeWatch=function(){clearInterval(liveTimer);liveTimer=null;setLiveMode(false);oldClose()};
+ function record(vid,bot,action,detail){
+  state.aiEvents=Array.isArray(state.aiEvents)?state.aiEvents:[];
+  state.aiEvents.unshift({text:"🤖 "+bot.name+"："+action+"「"+(getVideo(vid)?.title||"動画")+"」"+(detail?" / "+detail:""),date:new Date().toLocaleTimeString("ja-JP")});
+  state.aiEvents=state.aiEvents.slice(0,100);
+ }
+ function botAction(){
+  if(localStorage.getItem("yt_stop_ai")==="true"||!state.videos?.length||!bots().length)return;
+  const v=rand(state.videos),b=rand(bots());if(!v||!b)return;
+  const mode=Math.random(),comments=commentsFor(v.id);
+  if(mode<.24){v.views=Number(v.views||0)+1;record(v.id,b,"視聴")}
+  else if(mode<.43){v.aiLikes=Number(v.aiLikes||0)+1;record(v.id,b,"高評価")}
+  else if(mode<.54){v.aiDislikes=Number(v.aiDislikes||0)+1;record(v.id,b,"低評価")}
+  else if(mode<.72){
+   const own=comments.find(c=>c.ai&&c.author===b.name);
+   if(!own){comments.unshift({id:id(),author:b.name,handle:b.handle,avatar:b.avatar,text:rand(["この動画めっちゃ好き！","説明が分かりやすい！","次回も楽しみにしてます！","これは知らなかった！","編集おもしろい！","最後まで見ました！"]),likes:0,dislikes:0,replies:[],ai:true,date:new Date().toLocaleString("ja-JP")});record(v.id,b,"コメント")}
+   else{own.likes=Number(own.likes||0)+1;record(v.id,b,"コメントに高評価")}
+  }else if(mode<.84&&comments.length){const c=rand(comments);c.dislikes=Number(c.dislikes||0)+1;record(v.id,b,"コメントに低評価")}
+  else if(mode<.94&&comments.length){const c=rand(comments);c.likes=Number(c.likes||0)+1;record(v.id,b,"コメントに高評価")}
+  else if(comments.length){const c=rand(comments);c.replies=Array.isArray(c.replies)?c.replies:[];c.replies.push({author:b.name,text:rand(["わかる！","自分もそう思う！","いいコメント！","ありがとう！"]),ai:true});record(v.id,b,"コメントに返信")}
+  saveState();
+  if(currentVideoId===v.id){if($("commentsList")&&typeof renderComments==="function")renderComments();if(v.type==="live")addChat(v.id,b,rand(["👍","いいね！","ここ注目！","盛り上がってる！"]))}
+  const cardEl=document.querySelector('[data-video="'+CSS.escape(v.id)+'"] .stats');if(cardEl)cardEl.textContent=Number(v.views||0).toLocaleString()+" 回視聴 ・ "+formatVideoDate(v);
+ }
+ setInterval(botAction,3200);
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&currentVideoId&&getVideo(currentVideoId)?.type==="live")renderLiveChat()});
+})();
+</script>
 </body>
 </html>
