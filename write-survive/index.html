@@ -48,7 +48,7 @@ function alive(){return players.filter(p=>p.alive)}
 function nearestEnemy(p){let best=null,dist=1e9;for(const q of alive()){if(q===p)continue;const d=p.group.position.distanceTo(q.group.position);if(d<dist){dist=d;best=q}}return best}
 function damage(p,n){if(!p.alive||p.invuln>0)return;p.hp=Math.max(0,p.hp-n);p.invuln=.5;if(p.hp<=0){p.alive=false;p.group.visible=false;if(p===players[0]){endGame(false)}else{const el=document.createElement('div');el.textContent=p.name+' OUT';el.style.cssText='position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);font-weight:1000;color:#fff;text-shadow:0 2px 8px #000';document.body.appendChild(el);setTimeout(()=>el.remove(),1300)}}}
 function spawnThing(owner,word){const key=word.trim().toLowerCase();if(summons.some(s=>s.key===key&&s.hp>0)){if(owner===players[0])showNotice('同じものはすでに存在している！');return}
-const color=/炎|火|ドラゴン|竜/.test(word)?0xf06b36:/氷|雪/.test(word)?0x69d5ef?0xd7e4ee:/盾|壁/.test(word)?0x83a4b9:/回復|薬/.test(word)?0x57d68d:0xd6a7ff;
+const color=/炎|火|ドラゴン|竜/.test(word)?0xf06b36:/氷|雪/.test(word)?0x69d5ef:/盾|壁/.test(word)?0x83a4b9:/回復|薬/.test(word)?0x57d68d:0xd6a7ff;
 const g=new THREE.Group();const core=box(g,1.4,1.4,1.4,color,0,1,0);const orb=box(g,.55,.55,.55,0xffffff,0,2.1,0);orb.rotation.y=.5;const p=owner.group.position;g.position.set(p.x+(Math.random()-.5)*5,0,p.z+(Math.random()-.5)*5);scene.add(g);summons.push({group:g,owner,key,word,hp:80,damage:/ドラゴン|竜/.test(word)?22:14,cd:0,life:55});showNotice('「'+word+'」が実体化！')}
 function showNotice(t){$('notice').textContent=t;setTimeout(()=>{if($('notice').textContent===t)$('notice').textContent=''},1700)}
 const words=['ドラゴン','巨大な岩','炎の魔法','石の壁','回復アイテム','氷のゴーレム','ロボット','風の精霊','光の球体','守護獣'];
