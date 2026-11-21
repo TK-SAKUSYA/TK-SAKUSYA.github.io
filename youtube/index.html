@@ -1043,6 +1043,14 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
   state.aiEvents.unshift({text:"🤖 "+bot.name+"："+action+"「"+(getVideo(vid)?.title||"動画")+"」"+(detail?" / "+detail:""),date:new Date().toLocaleTimeString("ja-JP")});
   state.aiEvents=state.aiEvents.slice(0,100);
  }
+ function renderBotComments(){
+  const box=$("commentsList");if(!box||!currentVideoId)return;
+  const arr=commentsFor(currentVideoId);
+  box.innerHTML=arr.map(c=>'<div class="comment"><div class="chavatar">'+esc(c.ai?(c.avatar||"🤖"):(c.author||"👤").slice(0,1))+'</div><div class="commentbody"><strong>'+esc(c.author||"ユーザー")+'</strong><span class="muted"> '+esc(c.handle||"")+'</span>'+(c.ai?'<span class="ai-badge">AIアカウント</span>':"")+'<p>'+esc(c.text)+'</p><div class="commenttools"><button data-bot-clike="'+esc(c.id)+'">👍 '+Number(c.likes||0)+'</button><button data-bot-cdislike="'+esc(c.id)+'">👎 '+Number(c.dislikes||0)+'</button><button data-bot-reply="'+esc(c.id)+'">↩️ 返信</button></div>'+(c.replies||[]).map(r=>'<div class="comment"><div class="chavatar">↳</div><div class="commentbody"><strong>'+esc(r.author||"視聴者")+'</strong><p>'+esc(r.text)+'</p></div></div>').join("")+'</div></div>').join("")||'<p class="muted">まだコメントはありません。</p>';
+  box.querySelectorAll("[data-bot-clike]").forEach(b=>b.onclick=()=>{const c=arr.find(x=>x.id===b.dataset.botClike);if(c){c.likes=Number(c.likes||0)+1;saveState();renderBotComments()}});
+  box.querySelectorAll("[data-bot-cdislike]").forEach(b=>b.onclick=()=>{const c=arr.find(x=>x.id===b.dataset.botCdislike);if(c){c.dislikes=Number(c.dislikes||0)+1;saveState();renderBotComments()}});
+  box.querySelectorAll("[data-bot-reply]").forEach(b=>b.onclick=()=>{const t=prompt("返信を入力してください");const c=arr.find(x=>x.id===b.dataset.botReply);if(c&&t&&t.trim()){c.replies=Array.isArray(c.replies)?c.replies:[];c.replies.push({author:state.channel.name,text:t.trim()});saveState();renderBotComments()}});
+ }
  function botAction(){
   if(localStorage.getItem("yt_stop_ai")==="true"||!state.videos?.length||!bots().length)return;
   const v=rand(state.videos),b=rand(bots());if(!v||!b)return;
@@ -1058,7 +1066,7 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
   else if(mode<.94&&comments.length){const c=rand(comments);c.likes=Number(c.likes||0)+1;record(v.id,b,"コメントに高評価")}
   else if(comments.length){const c=rand(comments);c.replies=Array.isArray(c.replies)?c.replies:[];c.replies.push({author:b.name,text:rand(["わかる！","自分もそう思う！","いいコメント！","ありがとう！"]),ai:true});record(v.id,b,"コメントに返信")}
   saveState();
-  if(currentVideoId===v.id){if($("commentsList")&&typeof renderComments==="function")renderComments();if(v.type==="live")addChat(v.id,b,rand(["👍","いいね！","ここ注目！","盛り上がってる！"]))}
+  if(currentVideoId===v.id){renderBotComments();if(v.type==="live")addChat(v.id,b,rand(["👍","いいね！","ここ注目！","盛り上がってる！"]))}
   const cardEl=document.querySelector('[data-video="'+CSS.escape(v.id)+'"] .stats');if(cardEl)cardEl.textContent=Number(v.views||0).toLocaleString()+" 回視聴 ・ "+formatVideoDate(v);
  }
  setInterval(botAction,3200);
