@@ -925,16 +925,19 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
   render();
  }
  function createAccount(){
-  const name=prompt("新しいアカウントのチャンネル名を入力してください");
-  if(name===null)return;
-  const clean=name.trim();if(!clean){toast("チャンネル名を入力してください");return}
-  syncCurrent();
-  const fresh=clone(state);
-  fresh.channel={name:clean,handle:"@"+clean.replace(/[^a-zA-Z0-9_]/g,"").toLowerCase().slice(0,20)||"@channel",description:"チャンネルの説明を追加しましょう。",avatar:"",created:false};
-  ["videos","posts","notifications","history","watchlater","liked","playlists","disliked"].forEach(k=>fresh[k]=[]);
-  fresh.comments={};
-  const a={id:id(),name:clean,handle:fresh.channel.handle,avatar:"",data:fresh};
-  accounts.push(a);activeId=a.id;persist();applyAccount(a);modalClose();toast("新しいアカウントを作成しました");
+  modalOpen("新しいアカウント",'<label class="field"><span>チャンネル名</span><input id="newAccountName" maxlength="60" placeholder="新しいチャンネル名" autocomplete="off"></label><p class="hint">アカウントごとに動画・投稿・履歴などを分けて保存します。</p>','<button class="secondary" id="newAccountCancel">キャンセル</button><button class="primary" id="newAccountCreate">作成</button>');
+  $("newAccountCancel").onclick=show;
+  $("newAccountCreate").onclick=()=>{
+   const clean=$("newAccountName").value.trim();
+   if(!clean){toast("チャンネル名を入力してください");return}
+   syncCurrent();
+   const fresh=clone(state);
+   fresh.channel={name:clean,handle:"@"+clean.replace(/[^a-zA-Z0-9_]/g,"").toLowerCase().slice(0,20)||"@channel",description:"チャンネルの説明を追加しましょう。",avatar:"",created:false};
+   ["videos","posts","notifications","history","watchlater","liked","playlists","disliked","aiEvents","queue","subscriptions"].forEach(k=>fresh[k]=[]);
+   fresh.comments={};
+   const a={id:id(),name:clean,handle:fresh.channel.handle,avatar:"",data:fresh};
+   accounts.push(a);activeId=a.id;persist();applyAccount(a);modalClose();toast("新しいアカウントを作成しました");
+  };
  }
  function show(){
   syncCurrent();
