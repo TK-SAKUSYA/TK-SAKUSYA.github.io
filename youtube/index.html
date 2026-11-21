@@ -959,8 +959,8 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
  // 操作ボタンの表示・クリックを最終段階で確実に設定
  const accountButton=$("accountSwitchBtn");
  const notificationButton=$("notificationsBtn");
- if(accountButton){accountButton.type="button";accountButton.disabled=false;accountButton.style.setProperty("display","inline-flex","important");accountButton.style.setProperty("visibility","visible","important");accountButton.style.setProperty("pointer-events","auto","important");accountButton.addEventListener("click",show);}
- if(notificationButton){notificationButton.type="button";notificationButton.disabled=false;notificationButton.style.setProperty("display","inline-flex","important");notificationButton.style.setProperty("visibility","visible","important");notificationButton.style.setProperty("pointer-events","auto","important");notificationButton.addEventListener("click",()=>showNotifications());}
+ if(accountButton){accountButton.type="button";accountButton.disabled=false;accountButton.style.setProperty("display","inline-flex","important");accountButton.style.setProperty("visibility","visible","important");accountButton.style.setProperty("pointer-events","auto","important");accountButton.onclick=show;}
+ if(notificationButton){notificationButton.type="button";notificationButton.disabled=false;notificationButton.style.setProperty("display","inline-flex","important");notificationButton.style.setProperty("visibility","visible","important");notificationButton.style.setProperty("pointer-events","auto","important");notificationButton.onclick=()=>showNotifications();}
  const actionStyle=document.createElement("style");
  actionStyle.textContent=`
   .top{position:sticky!important;top:0!important;z-index:150!important}
