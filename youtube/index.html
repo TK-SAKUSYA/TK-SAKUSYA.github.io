@@ -888,96 +888,107 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
 /* Compass uses its own inline handler in the dynamically rendered button. */
 
 
-/* アカウント切り替え */
+</script>
+<script id="accountSwitcherRuntime">
 (()=>{
+ "use strict";
  const KEY="yt_local_accounts_v1";
  let accounts=[],activeId="";
- const clone=v=>JSON.parse(JSON.stringify(v));
- function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||"{}");accounts=Array.isArray(x.accounts)?x.accounts:[];activeId=x.activeId||""}catch(e){accounts=[];activeId=""}}
- function snapshot(){return clone(state)}
- function persist(){localStorage.setItem(KEY,JSON.stringify({accounts,activeId}))}
- function current(){return accounts.find(a=>a.id===activeId)}
- function ensure(){
-  read();
-  if(!accounts.length){
-   const a={id:id(),name:state.channel.name||"マイチャンネル",handle:state.channel.handle||"@mychannel",avatar:state.channel.avatar||"",data:snapshot()};
-   accounts=[a];activeId=a.id;persist();
-  }else{
-   let a=current();if(!a){a=accounts[0];activeId=a.id}
-   a.data=snapshot();a.name=state.channel.name||a.name;a.handle=state.channel.handle||a.handle;a.avatar=state.channel.avatar||"";
-   persist();
-  }
+ const clone=value=>JSON.parse(JSON.stringify(value));
+ const current=()=>accounts.find(a=>a.id===activeId)||null;
+ const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify({accounts,activeId}));return true}catch(e){console.error("Account storage failed",e);toast("アカウント情報を保存できません。端末の空き容量を確認してください。");return false}};
+ const snapshot=()=>clone(state);
+ function readAccounts(){
+  try{const raw=JSON.parse(localStorage.getItem(KEY)||"{}");accounts=Array.isArray(raw.accounts)?raw.accounts.filter(a=>a&&typeof a.id==="string"&&a.data):[];activeId=typeof raw.activeId==="string"?raw.activeId:""}
+  catch(e){accounts=[];activeId=""}
  }
  function syncCurrent(){
   const a=current();if(!a)return;
-  a.data=snapshot();a.name=state.channel.name||a.name;a.handle=state.channel.handle||a.handle;a.avatar=state.channel.avatar||"";
-  persist();
+  try{a.data=snapshot();a.name=state.channel.name||a.name;a.handle=state.channel.handle||a.handle;a.avatar=state.channel.avatar||"";persist()}
+  catch(e){console.error("Account snapshot failed",e);toast("アカウントの保存に失敗しました")}
  }
- const originalSave=saveState;
- saveState=function(){originalSave();syncCurrent()};
+ function updateAvatar(){
+  const button=$("avatarBtn");if(!button)return;
+  button.innerHTML=state.channel.avatar?'<img src="'+esc(state.channel.avatar)+'" alt="">':esc((state.channel.name||"T").trim().charAt(0)||"T");
+ }
  function applyAccount(a){
-  if(!a||!a.data)return;
-  Object.keys(state).forEach(k=>delete state[k]);
-  Object.assign(state,clone(a.data));
-  state.channel=Object.assign({name:a.name||"マイチャンネル",handle:a.handle||"@mychannel",description:"チャンネルの説明を追加しましょう。",avatar:"",created:false},state.channel||{});
-  localStorage.setItem("yt_local_state",JSON.stringify(state));
-  $("avatarBtn").innerHTML=state.channel.avatar?'<img src="'+esc(state.channel.avatar)+'" alt="">':esc((state.channel.name||"T").trim().charAt(0)||"T");
-  render();
+  if(!a||!a.data)return false;
+  try{
+   const data=clone(a.data);
+   Object.keys(state).forEach(k=>delete state[k]);
+   Object.assign(state,data);
+   state.channel=Object.assign({name:a.name||"マイチャンネル",handle:a.handle||"@mychannel",description:"チャンネルの説明を追加しましょう。",avatar:"",created:false},state.channel||{});
+   localStorage.setItem("yt_local_state",JSON.stringify(state));
+   updateAvatar();
+   render();
+   return true;
+  }catch(e){console.error("Account switch failed",e);toast("アカウントを切り替えられませんでした");return false}
  }
- function createAccount(){
-  modalOpen("新しいアカウント",'<label class="field"><span>チャンネル名</span><input id="newAccountName" maxlength="60" placeholder="新しいチャンネル名" autocomplete="off"></label><p class="hint">アカウントごとに動画・投稿・履歴などを分けて保存します。</p>','<button class="secondary" id="newAccountCancel">キャンセル</button><button class="primary" id="newAccountCreate">作成</button>');
-  $("newAccountCancel").onclick=show;
-  $("newAccountCreate").onclick=()=>{
-   const clean=$("newAccountName").value.trim();
-   if(!clean){toast("チャンネル名を入力してください");return}
+ function initialize(){
+  readAccounts();
+  let active=current();
+  if(!accounts.length||!active){
+   const a={id:id(),name:state.channel.name||"マイチャンネル",handle:state.channel.handle||"@mychannel",avatar:state.channel.avatar||"",data:snapshot()};
+   accounts.push(a);activeId=a.id;persist();
+  }else{
+   active.data=snapshot();
+   active.name=state.channel.name||active.name;
+   active.handle=state.channel.handle||active.handle;
+   active.avatar=state.channel.avatar||"";
+   persist();
+  }
+  const baseSaveState=saveState;
+  saveState=function(){
+   baseSaveState();
    syncCurrent();
-   const fresh=clone(state);
-   fresh.channel={name:clean,handle:"@"+clean.replace(/[^a-zA-Z0-9_]/g,"").toLowerCase().slice(0,20)||"@channel",description:"チャンネルの説明を追加しましょう。",avatar:"",created:false};
-   ["videos","posts","notifications","history","watchlater","liked","playlists","disliked","aiEvents","queue","subscriptions"].forEach(k=>fresh[k]=[]);
-   fresh.comments={};
-   const a={id:id(),name:clean,handle:fresh.channel.handle,avatar:"",data:fresh};
-   accounts.push(a);activeId=a.id;persist();applyAccount(a);modalClose();toast("新しいアカウントを作成しました");
   };
  }
- function show(){
+ function openSwitcher(){
   syncCurrent();
-  const rows=accounts.map(a=>'<button type="button" class="account-row" data-account="'+esc(a.id)+'">'+(a.avatar?'<img src="'+esc(a.avatar)+'" alt="">':'<span class="account-letter">'+esc((a.name||"T").slice(0,1))+'</span>')+'<span class="account-info"><strong>'+esc(a.name)+'</strong><small>'+esc(a.handle||"")+'</small></span>'+(a.id===activeId?'<span class="account-current">使用中</span>':'')+'</button>').join("");
-  modalOpen("アカウントを切り替え",'<div class="account-list">'+rows+'</div><p class="hint">アカウントごとにチャンネル・動画・投稿・履歴などをこの端末内に保存します。</p>','<button class="secondary" id="accountCancel">閉じる</button><button class="primary" id="accountAdd">＋ アカウントを追加</button>');
-  $("accountCancel").onclick=modalClose;
+  const rows=accounts.map(a=>'<button type="button" class="account-row" data-account-id="'+esc(a.id)+'">'+(a.avatar?'<img src="'+esc(a.avatar)+'" alt="">':'<span class="account-letter">'+esc((a.name||"T").slice(0,1))+'</span>')+'<span class="account-info"><strong>'+esc(a.name||"マイチャンネル")+'</strong><small>'+esc(a.handle||"")+'</small></span>'+(a.id===activeId?'<span class="account-current">使用中 ✓</span>':'')+'</button>').join("");
+  modalOpen("アカウントを切り替え",'<div class="account-list">'+rows+'</div><p class="hint">アカウントごとにチャンネル・動画・投稿・履歴などをこの端末内に保存します。</p>','<button type="button" class="secondary" id="accountClose">閉じる</button><button type="button" class="primary" id="accountAdd">＋ アカウントを追加</button>');
+  $("accountClose").onclick=modalClose;
   $("accountAdd").onclick=createAccount;
-  $("modalBody").querySelectorAll("[data-account]").forEach(b=>b.onclick=()=>{
-   const target=accounts.find(a=>a.id===b.dataset.account);if(!target||target.id===activeId){modalClose();return}
-   syncCurrent();activeId=target.id;persist();applyAccount(target);modalClose();toast("アカウントを切り替えました");
-  });
+  $("modalBody").onclick=e=>{
+   const row=e.target.closest("[data-account-id]");if(!row)return;
+   const target=accounts.find(a=>a.id===row.dataset.accountId);
+   if(!target)return;
+   if(target.id===activeId){modalClose();return}
+   syncCurrent();
+   activeId=target.id;
+   if(!persist())return;
+   if(applyAccount(target)){modalClose();toast("「"+target.name+"」に切り替えました")}
+  };
  }
- const css=document.createElement("style");
- css.textContent='.account-list{display:grid;gap:8px;margin:8px 0 16px}.account-row{display:flex;align-items:center;gap:12px;width:100%;padding:11px;border:1px solid #383838;border-radius:12px;background:#181818;text-align:left}.account-row:hover{background:#292929}.account-row img,.account-letter{width:42px;height:42px;flex:0 0 42px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#555;font-size:18px}.account-info{display:grid;gap:3px;min-width:0;flex:1}.account-info small{color:#aaa}.account-current{font-size:12px;color:#8ab4f8;white-space:nowrap}';
- document.head.appendChild(css);
- ensure();
- window.openAccountSwitcher=show;
- $("avatarBtn").onclick=show;
- const switchBtn=$("accountSwitchBtn");if(switchBtn)switchBtn.onclick=show;
+ function createAccount(){
+  modalOpen("新しいアカウント",'<label class="field"><span>チャンネル名</span><input id="newAccountName" maxlength="60" placeholder="新しいチャンネル名" autocomplete="off"></label><p class="hint">アカウントごとに動画・投稿・履歴などを分けて保存します。</p>','<button type="button" class="secondary" id="newAccountCancel">戻る</button><button type="button" class="primary" id="newAccountCreate">作成</button>');
+  $("newAccountCancel").onclick=openSwitcher;
+  $("newAccountCreate").onclick=()=>{
+   const name=$("newAccountName").value.trim();
+   if(!name){toast("チャンネル名を入力してください");return}
+   syncCurrent();
+   let fresh;
+   try{fresh=snapshot()}catch(e){toast("新しいアカウントを作成できませんでした");return}
+   const handle="@"+(name.normalize("NFKD").replace(/[^a-zA-Z0-9_]/g,"").toLowerCase().slice(0,20)||"channel");
+   fresh.channel={name,handle,description:"チャンネルの説明を追加しましょう。",avatar:"",created:false};
+   ["videos","posts","notifications","history","watchlater","liked","playlists","disliked","aiEvents","queue","subscriptions"].forEach(k=>fresh[k]=[]);
+   fresh.comments={};
+   const a={id:id(),name,handle,avatar:"",data:fresh};
+   accounts.push(a);activeId=a.id;
+   if(!persist()){accounts=accounts.filter(x=>x.id!==a.id);return}
+   if(applyAccount(a)){modalClose();toast("新しいアカウントを作成しました")}
+  };
+ }
+ const style=document.createElement("style");
+ style.textContent='.account-list{display:grid;gap:8px;margin:8px 0 16px}.account-row{display:flex;align-items:center;gap:12px;width:100%;padding:11px;border:1px solid #383838;border-radius:12px;background:#181818;text-align:left;color:#f1f1f1}.account-row:hover{background:#292929}.account-row img,.account-letter{width:42px;height:42px;flex:0 0 42px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#555;font-size:18px}.account-info{display:grid;gap:3px;min-width:0;flex:1}.account-info small{color:#aaa}.account-current{font-size:12px;color:#8ab4f8;white-space:nowrap}.modalbg{z-index:3000!important}';
+ document.head.appendChild(style);
+ initialize();
+ window.openAccountSwitcher=openSwitcher;
+ const switchButton=$("accountSwitchBtn");
+ const avatarButton=$("avatarBtn");
+ if(switchButton){switchButton.type="button";switchButton.disabled=false;switchButton.onclick=e=>{e.preventDefault();e.stopPropagation();openSwitcher()}}
+ if(avatarButton){avatarButton.type="button";avatarButton.onclick=e=>{e.preventDefault();e.stopPropagation();openSwitcher()}}
 })();
-
- // 操作ボタンの表示・クリックを最終段階で確実に設定
- const accountButton=$("accountSwitchBtn");
- const notificationButton=$("notificationsBtn");
- if(accountButton){accountButton.type="button";accountButton.disabled=false;accountButton.style.setProperty("display","inline-flex","important");accountButton.style.setProperty("visibility","visible","important");accountButton.style.setProperty("pointer-events","auto","important");accountButton.onclick=()=>{const avatar=document.getElementById("avatarBtn");if(avatar)avatar.click();};}
- if(notificationButton){notificationButton.type="button";notificationButton.disabled=false;notificationButton.style.setProperty("display","inline-flex","important");notificationButton.style.setProperty("visibility","visible","important");notificationButton.style.setProperty("pointer-events","auto","important");notificationButton.onclick=()=>showNotifications();}
- const actionStyle=document.createElement("style");
- actionStyle.textContent=`
-  .top{position:sticky!important;top:0!important;z-index:150!important}
-  .top .topright{position:relative!important;z-index:151!important;pointer-events:auto!important}
-  #accountSwitchBtn,#notificationsBtn{position:relative!important;z-index:152!important;pointer-events:auto!important;cursor:pointer!important}
-  @media(max-width:650px){
-   .top{overflow:visible!important;gap:6px!important;padding-left:7px!important;padding-right:7px!important}
-   .top .search{flex:1 1 0!important;width:auto!important;min-width:0!important}
-   .top .topright{display:flex!important;flex:0 0 auto!important;width:auto!important;min-width:max-content!important;max-width:none!important;gap:5px!important;overflow:visible!important;position:relative!important;z-index:151!important}
-   .top .topright #accountSwitchBtn{display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;width:auto!important;max-width:none!important;padding:6px 7px!important;font-size:10px!important;min-height:34px!important;flex:0 0 auto!important}
-   .top .topright #notificationsBtn{display:inline-flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;overflow:visible!important;width:34px!important;height:34px!important;min-width:34px!important;max-width:34px!important;flex:0 0 34px!important}
-   .top .topright #avatarBtn,.top .topright #profileBtn,.top .topright #createBtn,#queueBtn{display:none!important}
-  }`;
- document.head.appendChild(actionStyle);
 </script>
 </body>
 </html>
