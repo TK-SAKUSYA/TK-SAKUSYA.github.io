@@ -1128,5 +1128,36 @@ applyDisplayMode(localStorage.getItem("yt_display_mode")||detectDeviceMode());
  tagOwners();
 })();
 </script>
+
+<script id="youtubeVideoDurationFeature">
+(()=>{
+ "use strict";
+ const formatDuration=seconds=>{if(!Number.isFinite(seconds)||seconds<0)return "";const n=Math.floor(seconds),h=Math.floor(n/3600),m=Math.floor((n%3600)/60),sec=n%60;return h?[h,m.toString().padStart(2,"0"),sec.toString().padStart(2,"0")].join(":"):[m,sec.toString().padStart(2,"0")].join(":")};
+ function readDuration(blob){return new Promise(resolve=>{if(!blob){resolve("");return}const url=URL.createObjectURL(blob),el=document.createElement("video");let done=false;const finish=value=>{if(done)return;done=true;el.removeAttribute("src");el.load();URL.revokeObjectURL(url);resolve(value)};el.preload="metadata";el.onloadedmetadata=()=>finish(formatDuration(el.duration));el.onerror=()=>finish("");el.src=url;el.load();setTimeout(()=>finish(""),12000)})}
+ const basePublish=publishVideo;
+ publishVideo=async function(){
+  const file=$("videoFile")&&$("videoFile").files[0];let duration="";
+  if(file&&file.type.startsWith("video/"))duration=await readDuration(file);
+  const before=new Set((state.videos||[]).map(v=>v.id));
+  await basePublish();
+  const added=(state.videos||[]).find(v=>v&&!before.has(v.id));
+  if(!added)return;
+  if(duration)added.duration=duration;
+  try{const saved=await dbGet(added.id);if(saved)await dbPut(Object.assign({},saved,{duration:added.duration||duration||""}))}catch(e){console.warn("Could not persist video duration",e)}
+  saveState();render();
+ };
+ async function migrateExisting(){
+  if(!db){setTimeout(migrateExisting,250);return}
+  let raw;try{raw=JSON.parse(localStorage.getItem("yt_local_accounts_v1")||"{}")}catch(e){raw={}}
+  const accounts=Array.isArray(raw.accounts)?raw.accounts:[];const all=new Map();
+  (state.videos||[]).forEach(v=>{if(v&&v.id)all.set(v.id,v)});
+  accounts.forEach(a=>(a&&a.data&&Array.isArray(a.data.videos)?a.data.videos:[]).forEach(v=>{if(v&&v.id&&!all.has(v.id))all.set(v.id,v)}));
+  for(const [id,meta] of all){if(meta.duration)continue;try{const stored=await dbGet(id);if(!stored||!stored.blob)continue;const duration=await readDuration(stored.blob);if(!duration)continue;meta.duration=duration;await dbPut(Object.assign({},stored,{duration}));accounts.forEach(a=>(a&&a.data&&Array.isArray(a.data.videos)?a.data.videos:[]).forEach(v=>{if(v&&v.id===id)v.duration=duration}));}catch(e){console.warn("Duration migration skipped",id,e)}}
+  try{localStorage.setItem("yt_local_accounts_v1",JSON.stringify({accounts,activeId:raw.activeId||""}))}catch(e){}
+  saveState();render();
+ }
+ setTimeout(migrateExisting,250);
+})();
+</script>
 </body>
 </html>
