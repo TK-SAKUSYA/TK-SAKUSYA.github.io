@@ -74,7 +74,7 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 <div id="worldPanel" class="hidden"><div class="panel-title">ワールド移動</div><div id="worldChoices"></div><div style="margin-top:10px;text-align:right"><button id="closeWorldBtn">閉じる</button></div></div>
 <div id="notice">クリックした場所へ移動 / NPC・門の近くで E キー</div>
 </div>
-<div id="bottom"><div id="hint">草原を探索しよう。敵に触れると戦闘開始！</div><div style="display:flex;gap:7px"><button id="worldMapBtn">🌐 ワールド</button><button id="pauseBtn">☰ メニュー (Esc)</button></div></div>
+<div id="bottom"><div id="hint">ムーラ村を探索しよう。村人に近づいて E キー！</div><div style="display:flex;gap:7px"><button id="worldMapBtn">🌐 ワールド</button><button id="pauseBtn">☰ メニュー (Esc)</button></div></div>
 </section>
 </main>
 </div>
@@ -86,9 +86,10 @@ const canvas=$('field'),ctx=canvas.getContext('2d');
 const W=480,H=300,T=24,COLS=20,ROWS=13;
 let state=null,world=0,keys={},mouseTarget=null,lastTime=0,toastTimer=0,dialogQueue=[],inBattle=false,enemy=null,guarding=false,soundOn=true;
 const worlds=[
-{name:'はじまりの草原',ground:'#6a9c55',dark:'#477943',accent:'#d2c46e',enemy:'スライム',boss:'草原のガーディアン',gate:'古代の門'},
-{name:'灼熱の砂漠',ground:'#c69b59',dark:'#987044',accent:'#ead28b',enemy:'サンドワーム',boss:'砂塵の巨獣',gate:'氷結の門'},
-{name:'静寂の雪原',ground:'#b6d1d8',dark:'#7fa6b7',accent:'#edf6ef',enemy:'アイスウルフ',boss:'雪原の守護者',gate:'終わりの門'}
+{name:'ムーラ村',ground:'#78a85b',dark:'#477943',accent:'#d9c47b',type:'village'},
+{name:'はじまりの草原',ground:'#6a9c55',dark:'#477943',accent:'#d2c46e',enemy:'スライム',boss:'草原のガーディアン'},
+{name:'灼熱の砂漠',ground:'#c69b59',dark:'#987044',accent:'#ead28b',enemy:'サンドワーム',boss:'砂塵の巨獣'},
+{name:'静寂の雪原',ground:'#b6d1d8',dark:'#7fa6b7',accent:'#edf6ef',enemy:'アイスウルフ',boss:'雪原の守護者'}
 ];
 const monsters=[
 {name:'スライム',hp:16,atk:4,exp:5,gold:3,color:'#55c9a2',boss:false},
@@ -117,10 +118,10 @@ pixelRect(c,0,165,480,15,'#365a42');}
 function rand(seed){let x=Math.sin(seed*127.1+world*53.7)*43758.5453;return x-Math.floor(x)}
 function tileAt(x,y){let n=rand(x*17+y*61);if(x===0||y===0||x===COLS-1||y===ROWS-1)return 1;if((x*3+y*7+world)%29===0)return 2;if(n>.94)return 3;return 0}
 function makeState(){
-return {x:240,y:210,level:1,maxHp:30,hp:30,maxMp:10,mp:10,exp:0,gold:0,potions:3,world:0,unlocked:0,cleared:[false,false,false],steps:0,moveSpeed:90,inventory:{herb:3},savedAt:Date.now()};
+return {version:2,x:240,y:250,level:1,maxHp:30,hp:30,maxMp:10,mp:10,exp:0,gold:0,potions:3,world:0,unlocked:1,cleared:[true,false,false,false],steps:0,moveSpeed:90,inventory:{herb:3},savedAt:Date.now()};
 }
 function save(){if(!state)return;state.savedAt=Date.now();localStorage.setItem('genesisUtopiaSave',JSON.stringify(state));toast('セーブしました！')}
-function load(){try{let s=JSON.parse(localStorage.getItem('genesisUtopiaSave'));if(s&&typeof s.level==='number'){state=s;world=state.world||0;return true}}catch(e){}return false}
+function load(){try{let s=JSON.parse(localStorage.getItem('genesisUtopiaSave'));if(s&&typeof s.level==='number'){if(!s.version||s.version<2){s.world=(s.world||0)+1;s.unlocked=Math.min(3,(s.unlocked||0)+1);s.cleared=[true,...(s.cleared||[false,false,false])];s.version=2;s.x=240;s.y=250}state=s;world=state.world||0;return true}}catch(e){}return false}
 function updateHud(){
 $('worldLabel').textContent='WORLD '+(world+1)+' — '+worlds[world].name;
 $('level').textContent=state.level;$('hpText').textContent=state.hp+'/'+state.maxHp;$('mpText').textContent=state.mp+'/'+state.maxMp;$('expText').textContent=state.exp+'/'+(state.level*10);$('goldText').textContent=state.gold;
@@ -135,24 +136,39 @@ $('titleScreen').classList.add('hidden');$('playScreen').classList.remove('hidde
 function saveSilent(){localStorage.setItem('genesisUtopiaSave',JSON.stringify(state))}
 function drawWorld(){
 ctx.imageSmoothingEnabled=false;let base=worlds[world];pixelRect(ctx,0,0,W,H,base.ground);
-for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
-let px=x*T,py=y*T,n=rand(x*17+y*61);
-if(tileAt(x,y)===1){pixelRect(ctx,px,py,T,T,base.dark);pixelRect(ctx,px+3,py+3,18,17,world===2?'#d8e8eb':'#355b43');}
-else if(tileAt(x,y)===2){pixelRect(ctx,px+5,py+5,14,14,base.accent);pixelRect(ctx,px+8,py+2,8,20,base.dark)}
-else if(tileAt(x,y)===3){pixelRect(ctx,px+7,py+7,3,3,base.accent);pixelRect(ctx,px+15,py+15,3,3,base.dark)}
-else if(n>.83){pixelRect(ctx,px+6,py+7,2,3,base.accent);pixelRect(ctx,px+15,py+17,2,2,base.dark)}
+if(world===0){
+  pixelRect(ctx,215,0,50,H,'#c9ad79');pixelRect(ctx,0,128,W,42,'#c9ad79');pixelRect(ctx,225,0,30,H,'#ddc28c');pixelRect(ctx,0,138,W,22,'#ddc28c');
+  for(let i=0;i<18;i++){let x=(i*67)%W,y=(i*43+22)%H;pixelRect(ctx,x,y,3,3,'#d7cf82');pixelRect(ctx,x+8,y+5,2,2,'#477943')}
+  const house=(x,y,w,h,wall,roof)=>{pixelRect(ctx,x,y+12,w,h-12,wall);pixelRect(ctx,x-5,y+5,w+10,13,roof);pixelRect(ctx,x+8,y+20,12,10,'#83b9c8');pixelRect(ctx,x+w-22,y+20,12,10,'#83b9c8');pixelRect(ctx,x+w/2-5,y+h-15,10,15,'#59402e')};
+  house(35,35,75,49,'#e6d3a4','#9b5844');house(365,34,78,50,'#dfd0a5','#80533f');house(35,205,75,49,'#e8d6ad','#a65e48');house(365,205,78,49,'#e4d0a0','#8d5b43');
+  pixelRect(ctx,207,119,66,38,'#786d60');pixelRect(ctx,213,124,54,27,'#8caaa0');pixelRect(ctx,218,128,44,18,'#304e56');pixelRect(ctx,207,115,66,7,'#d4c19b');
+  pixelRect(ctx,112,106,4,20,'#67462e');pixelRect(ctx,116,106,36,17,'#f0d78d');pixelRect(ctx,119,110,30,9,'#8a563c');
+  pixelRect(ctx,360,106,4,20,'#67462e');pixelRect(ctx,364,106,36,17,'#f0d78d');pixelRect(ctx,367,110,30,9,'#567d91');
+  drawHero(ctx,132,145,1);pixelRect(ctx,126,133,12,5,'#d6a66f');
+  drawHero(ctx,382,145,1);pixelRect(ctx,376,133,12,5,'#b77c9b');
+  drawHero(ctx,240,105,1);pixelRect(ctx,234,93,12,5,'#d5d5d5');
+  ctx.fillStyle='#fff0bd';ctx.font='10px monospace';ctx.fillText('ムーラ村',12,15);ctx.fillText('道具屋',112,99);ctx.fillText('宿屋',365,99);ctx.fillText('村長',225,88);
+}else{
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
+    let px=x*T,py=y*T,n=rand(x*17+y*61);
+    if(tileAt(x,y)===1){pixelRect(ctx,px,py,T,T,base.dark);pixelRect(ctx,px+3,py+3,18,17,world===3?'#d8e8eb':'#355b43');}
+    else if(tileAt(x,y)===2){pixelRect(ctx,px+5,py+5,14,14,base.accent);pixelRect(ctx,px+8,py+2,8,20,base.dark)}
+    else if(tileAt(x,y)===3){pixelRect(ctx,px+7,py+7,3,3,base.accent);pixelRect(ctx,px+15,py+15,3,3,base.dark)}
+    else if(n>.83){pixelRect(ctx,px+6,py+7,2,3,base.accent);pixelRect(ctx,px+15,py+17,2,2,base.dark)}
+  }
+  let gateX=240,gateY=43;pixelRect(ctx,gateX-22,gateY-8,44,29,'#493d34');pixelRect(ctx,gateX-16,gateY-6,32,25,'#a78a58');pixelRect(ctx,gateX-10,gateY-4,20,23,'#263d52');pixelRect(ctx,gateX-2,gateY+3,4,4,'#f6d879');
+  if(world>0&&!state.cleared[world]){let bx=350,by=190;drawMonster(ctx,bx,by,monsters[(world-1)*2].color,1.1);pixelRect(ctx,bx-12,by-21,24,3,'#17212a');pixelRect(ctx,bx-11,by-20,22,1,'#f37d76')}
+  else{drawMonster(ctx,350,190,'#7c997a',.85)}
+  ctx.fillStyle='#fff0bd';ctx.font='10px monospace';ctx.fillText('E: はなす / 門',12,14);
 }
-let gateX=240,gateY=43;pixelRect(ctx,gateX-22,gateY-8,44,29,'#493d34');pixelRect(ctx,gateX-16,gateY-6,32,25,'#a78a58');pixelRect(ctx,gateX-10,gateY-4,20,23,'#263d52');pixelRect(ctx,gateX-2,gateY+3,4,4,'#f6d879');
-pixelRect(ctx,70,110,27,21,'#9d7650');pixelRect(ctx,75,102,17,10,'#d6b77c');pixelRect(ctx,80,119,7,12,'#513b2d');
 drawHero(ctx,state.x,state.y+3,1);
-if(!state.cleared[world]){let bx=350,by=190;drawMonster(ctx,bx,by,monsters[world*2].color,1.1);pixelRect(ctx,bx-12,by-21,24,3,'#17212a');pixelRect(ctx,bx-11,by-20,22,1,'#f37d76')}
-else{drawMonster(ctx,350,190,'#7c997a',.85)}
-ctx.fillStyle='#fff0bd';ctx.font='10px monospace';ctx.fillText('E: はなす / 門',12,14);
 }
+
 function startBattle(isBoss){
 if(inBattle||$('dialogPanel').classList.contains('hidden')===false)return;
 inBattle=true;guarding=false;mouseTarget=null;
-let m=monsters[world*2+(isBoss?1:0)];
+if(world===0){toast('ムーラ村では戦闘は起こらないよ');inBattle=false;return}
+let m=monsters[(world-1)*2+(isBoss?1:0)];
 enemy={...m,maxHp:m.hp,hp:m.hp};$('enemyTitle').textContent=(isBoss?'BOSS：':'')+enemy.name+' が現れた！';
 $('battleText').textContent='どうする？';$('battlePanel').classList.remove('hidden');drawBattle();updateBattleStatus();$('hint').textContent='コマンドを選んで行動しよう。';
 }
@@ -169,7 +185,7 @@ else{battleMessage(enemy.name+'の攻撃！ '+dmg+'ダメージを受けた。')
 }
 function winBattle(){
 inBattle=false;$('battlePanel').classList.add('hidden');state.exp+=enemy.exp;state.gold+=enemy.gold;let msg=enemy.name+'を倒した！ EXP '+enemy.exp+' / G '+enemy.gold+' を獲得！';
-if(enemy.boss){state.cleared[world]=true;state.unlocked=Math.max(state.unlocked,Math.min(2,world+1));msg+=' ワールドクリア！北の門から次の世界へ進める。'}
+if(enemy.boss){state.cleared[world]=true;state.unlocked=Math.max(state.unlocked,Math.min(3,world+1));msg+=' ワールドクリア！北の門から次の世界へ進める。'}
 while(state.exp>=state.level*10){state.exp-=state.level*10;state.level++;state.maxHp+=7;state.maxMp+=3;state.hp=state.maxHp;state.mp=state.maxMp;msg+=' レベルアップ！ Lv.'+state.level+'！'}
 updateHud();showDialog('VICTORY!',msg,()=>{saveSilent();$('hint').textContent='探索を続けよう。北の門で E キー！'});}
 function command(cmd){
@@ -188,18 +204,25 @@ if(!state||inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePa
 let nx=clamp(state.x+dx*state.moveSpeed*dt,16,W-16),ny=clamp(state.y+dy*state.moveSpeed*dt,35,H-16);
 if(nx<24||nx>W-24||ny<24||ny>H-24)return;
 state.x=nx;state.y=ny;state.steps+=Math.abs(dx)+Math.abs(dy);
-let ex=350,ey=190;if(!state.cleared[world]&&Math.hypot(state.x-ex,state.y-ey)<23){startBattle(false)}
+if(world>0){let ex=350,ey=190;if(!state.cleared[world]&&Math.hypot(state.x-ex,state.y-ey)<23){startBattle(false)}}
 }
 function interact(){
 if(!state||inBattle)return;
-if(Math.hypot(state.x-240,state.y-43)<52){
-if(!state.cleared[world]){startBattle(true);return}
-if(world<2&&state.unlocked>=world+1){world++;state.world=world;state.x=240;state.y=220;updateHud();toast('WORLD '+(world+1)+' に到着！');saveSilent();return}
-if(world===2){showDialog('THE END','雪原の守護者を倒した。ひとまず、世界に平和が戻った！',()=>{saveSilent()});return}
+if(world===0){
+  if(Math.hypot(state.x-132,state.y-145)<30){showDialog('ムーラ村の道具屋','いらっしゃい！ポーションは冒険の必需品だよ。\nポーションを1個 10Gで買えるよ。',()=>{if(state.gold>=10){state.gold-=10;state.potions++;updateHud();saveSilent();toast('ポーションを購入した！')}else toast('Gが足りないよ！')});return}
+  if(Math.hypot(state.x-382,state.y-145)<30){showDialog('ムーラ村の宿屋','ゆっくり休んでいくかい？\n宿泊するとHPとMPが全回復するよ。',()=>{state.hp=state.maxHp;state.mp=state.maxMp;updateHud();saveSilent();toast('HP・MPが全回復！')});return}
+  if(Math.hypot(state.x-240,state.y-105)<30){showDialog('ムーラ村の村長','ようこそ、ムーラ村へ。\n北の門を抜ければ「はじまりの草原」だ。\nまずは草原の守護者を倒し、世界を切り開いておくれ。');return}
+  if(Math.hypot(state.x-240,state.y-43)<55){world=1;state.world=1;state.x=240;state.y=245;updateHud();toast('WORLD 1：はじまりの草原へ！');saveSilent();return}
+}else{
+  if(Math.hypot(state.x-240,state.y-43)<52){
+    if(!state.cleared[world]){startBattle(true);return}
+    if(world<3&&state.unlocked>=world+1){world++;state.world=world;state.x=240;state.y=245;updateHud();toast('WORLD '+world+'：'+worlds[world].name+' に到着！');saveSilent();return}
+    if(world===3){showDialog('THE END','雪原の守護者を倒した。ひとまず、世界に平和が戻った！',()=>{saveSilent()});return}
+  }
 }
-if(Math.hypot(state.x-83,state.y-121)<35){showDialog('旅人','北の門にいる守護者を倒せば、次のワールドへ進めるらしい。\n敵に触れると戦闘になるぞ。');return}
 toast('近くに調べられるものはない。');
 }
+
 function loop(ts){
 if(!$('playScreen').classList.contains('hidden')===false)return;
 let dt=Math.min(.04,(ts-lastTime)/1000||0);lastTime=ts;
@@ -214,7 +237,7 @@ function pause(){if(inBattle||!$('dialogPanel').classList.contains('hidden'))ret
 function resume(){$('pausePanel').classList.add('hidden');lastTime=performance.now()}
 function openWorlds(){
 if(!state||inBattle)return;$('worldChoices').innerHTML='';
-worlds.forEach((w,i)=>{let b=document.createElement('button');b.textContent='WORLD '+(i+1)+'：'+w.name+(i<=state.unlocked?'':'（未解放）');b.disabled=i>state.unlocked;b.onclick=()=>{world=i;state.world=i;state.x=240;state.y=220;$('worldPanel').classList.add('hidden');updateHud();saveSilent()};$('worldChoices').appendChild(b)});
+worlds.forEach((w,i)=>{let b=document.createElement('button');b.textContent='WORLD '+i+'：'+w.name+(i<=state.unlocked?'':'（未解放）');b.disabled=i>state.unlocked;b.onclick=()=>{world=i;state.world=i;state.x=240;state.y=i===0?250:245;$('worldPanel').classList.add('hidden');updateHud();saveSilent()};$('worldChoices').appendChild(b)});
 $('worldPanel').classList.remove('hidden');
 }
 function setContinue(){ $('continueBtn').disabled=!localStorage.getItem('genesisUtopiaSave')}
