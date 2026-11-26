@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111a2c">
+<title>Genesis Utopia</title>
+<style>
+:root{--bg:#0b1220;--panel:#17243a;--line:#354963;--text:#f4f1df;--muted:#a8b6c9;--gold:#f5cf72;--cyan:#82dce2;--red:#ef7777;--green:#8cda9d}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080e19;color:var(--text);font-family:system-ui,"Yu Gothic",Meiryo,sans-serif}button{font:inherit;color:inherit;border:2px solid #526780;background:#263b54;border-radius:4px;padding:10px 13px;font-weight:800;cursor:pointer;box-shadow:0 3px 0 #101b2b}button:hover{filter:brightness(1.18)}button:active{transform:translateY(2px);box-shadow:0 1px 0 #101b2b}button:disabled{opacity:.4;cursor:not-allowed}
+#app{height:100%;display:flex;flex-direction:column;max-width:1200px;margin:auto;background:#111a2c;border-left:1px solid #273a53;border-right:1px solid #273a53}
+header{height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:#17243a;border-bottom:3px solid #354963}
+.brand{font-weight:1000;letter-spacing:2px;font-size:16px;color:var(--gold);text-shadow:2px 2px #5a4025}.brand small{display:block;font-size:9px;letter-spacing:3px;color:#b4c4d8;text-shadow:none}
+.head-actions{display:flex;gap:7px}.head-actions button{font-size:12px;padding:7px 10px}
+#main{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;padding:12px;background:radial-gradient(ellipse at 50% 30%,#263b50,#101827 70%)}
+.screen{width:min(100%,900px);max-height:100%;overflow:auto}.hidden{display:none!important}
+#titleScreen{text-align:center;padding:24px 12px}.logo{font-size:clamp(32px,7vw,64px);font-weight:1000;letter-spacing:1px;color:#f4d47c;text-shadow:4px 4px #66492b,7px 7px #080e19;line-height:1.1}.logo-sub{letter-spacing:5px;color:#b8c9d7;font-size:11px;margin:10px 0 22px}.title-art{width:min(100%,620px);height:auto;aspect-ratio:16/6;display:block;margin:0 auto 18px;border:4px solid #5a6e7c;image-rendering:pixelated;background:#283c45;box-shadow:0 7px 0 #0a111c}
+.menu-buttons{width:min(100%,330px);margin:18px auto;display:grid;gap:10px}.primary{background:#b78a4a;border-color:#f1d18a;color:#1c1b20}.secondary{background:#263b54}.tiny{font-size:11px;color:var(--muted);line-height:1.6}
+#playScreen{width:100%;height:100%;display:flex;flex-direction:column;gap:8px}
+#hud{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#1a2b40;border:2px solid #354963;padding:7px 10px;font-size:12px;flex:none}
+.hudstat{display:flex;gap:5px;align-items:center}.meter{width:100px;height:9px;background:#080f1b;border:1px solid #718097}.meter i{display:block;height:100%;background:var(--green);width:100%}.meter.mp i{background:#72c8ec}
+#worldLabel{color:var(--gold);font-weight:900;margin-right:auto}
+#fieldWrap{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#070d16;border:3px solid #52657a;box-shadow:0 5px 0 #080e17;overflow:hidden}
+canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-height:100%;aspect-ratio:16/10;image-rendering:pixelated;image-rendering:crisp-edges;cursor:crosshair}
+#toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);padding:7px 12px;background:#111c2beF;border:2px solid #74899a;color:#fff0c8;font-size:12px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s}
+#toast.show{opacity:1}
+#bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
+#hint{font-size:11px;color:#aabbd0}
+#battlePanel,#dialogPanel,#pausePanel,#worldPanel{position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:min(94%,560px);background:#17243a;border:3px solid #a3b4c4;box-shadow:0 8px 0 #080e18,0 15px 40px #000b;padding:14px}
+.panel-title{font-size:18px;font-weight:1000;color:var(--gold);margin-bottom:8px}
+#battleScene{height:105px;background:#293d42;border:2px solid #6e7f7c;margin-bottom:10px;position:relative;overflow:hidden}
+#battleScene canvas{width:100%;height:100%;max-height:none;aspect-ratio:auto}
+#battleText{min-height:44px;font-size:13px;line-height:1.6;padding:7px 8px;background:#0d1725;border:1px solid #43566d;margin-bottom:9px}
+#battleStatus{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin-bottom:8px}
+#commands{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+#commands button{font-size:13px;padding:9px 4px}
+#dialogText{font-size:14px;line-height:1.8;min-height:58px;margin:8px 0 14px}
+#dialogActions{display:flex;justify-content:flex-end;gap:8px}
+#pausePanel{width:min(92%,340px);text-align:center}.pause-actions{display:grid;gap:8px;margin-top:12px}
+#worldChoices{display:grid;gap:8px}
+#notice{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);font-size:10px;color:#859ab2;white-space:nowrap}
+@media(max-width:600px){header{height:48px}.brand{font-size:13px}.head-actions button{font-size:10px;padding:6px}.hud{font-size:10px}.meter{width:65px}#hint{max-width:70%;font-size:10px}#main{padding:6px}#fieldWrap{border-width:2px}#commands{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="app">
+<header><div class="brand">GENESIS UTOPIA<small>2D PIXEL ROLE-PLAYING GAME</small></div><div class="head-actions"><button id="fullscreenBtn">⛶ 全画面</button><button id="soundBtn">♪ 音 ON</button></div></header>
+<main id="main">
+<section id="titleScreen" class="screen">
+<div class="logo">GENESIS<br>UTOPIA</div><div class="logo-sub">THE JOURNEY BEGINS</div>
+<canvas id="titleArt" class="title-art" width="480" height="180"></canvas>
+<div class="menu-buttons"><button class="primary" id="newGameBtn">▶ はじめから</button><button class="secondary" id="continueBtn">つづきから</button><button class="secondary" id="controlsBtn">操作方法</button></div>
+<div class="tiny">PC向け 2Dドット絵RPG<br>移動：WASD / 矢印キー　決定：Enter / Space　メニュー：Esc</div>
+</section>
+<section id="playScreen" class="screen hidden">
+<div id="hud">
+<div id="worldLabel">WORLD 1 — はじまりの草原</div>
+<div class="hudstat">Lv.<b id="level">1</b></div>
+<div class="hudstat">HP <b id="hpText">30/30</b><span class="meter"><i id="hpBar"></i></span></div>
+<div class="hudstat">MP <b id="mpText">10/10</b><span class="meter mp"><i id="mpBar"></i></span></div>
+<div class="hudstat">EXP <b id="expText">0/10</b></div>
+<div class="hudstat">G <b id="goldText">0</b></div>
+</div>
+<div id="fieldWrap"><canvas id="field" width="480" height="300"></canvas><div id="toast"></div>
+<div id="battlePanel" class="hidden">
+<div class="panel-title" id="enemyTitle">モンスターが現れた！</div>
+<div id="battleScene"><canvas id="battleCanvas" width="480" height="105"></canvas></div>
+<div id="battleStatus"><span id="enemyHpText">敵 HP 10/10</span><span id="turnText">あなたのターン</span></div>
+<div id="battleText">どうする？</div>
+<div id="commands"><button data-command="attack">⚔ こうげき</button><button data-command="skill">✨ スキル</button><button data-command="item">🧪 アイテム</button><button data-command="guard">🛡 ぼうぎょ</button><button data-command="run">🏃 にげる</button></div>
+</div>
+<div id="dialogPanel" class="hidden"><div class="panel-title" id="dialogTitle">メッセージ</div><div id="dialogText"></div><div id="dialogActions"><button class="primary" id="dialogNext">つぎへ ▶</button></div></div>
+<div id="pausePanel" class="hidden"><div class="panel-title">PAUSE</div><div class="pause-actions"><button id="resumeBtn">ゲームに戻る</button><button id="saveBtn">セーブする</button><button id="backTitleBtn">タイトルへ</button></div></div>
+<div id="worldPanel" class="hidden"><div class="panel-title">ワールド移動</div><div id="worldChoices"></div><div style="margin-top:10px;text-align:right"><button id="closeWorldBtn">閉じる</button></div></div>
+<div id="notice">クリックした場所へ移動 / NPC・門の近くで E キー</div>
+</div>
+<div id="bottom"><div id="hint">草原を探索しよう。敵に触れると戦闘開始！</div><button id="pauseBtn">☰ メニュー (Esc)</button></div>
+</section>
+</main>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const canvas=$('field'),ctx=canvas.getContext('2d');
+const W=480,H=300,T=24,COLS=20,ROWS=13;
+let state=null,world=0,keys={},mouseTarget=null,lastTime=0,toastTimer=0,dialogQueue=[],inBattle=false,enemy=null,guarding=false,soundOn=true;
+const worlds=[
+{name:'はじまりの草原',ground:'#6a9c55',dark:'#477943',accent:'#d2c46e',enemy:'スライム',boss:'草原のガーディアン',gate:'古代の門'},
+{name:'灼熱の砂漠',ground:'#c69b59',dark:'#987044',accent:'#ead28b',enemy:'サンドワーム',boss:'砂塵の巨獣',gate:'氷結の門'},
+{name:'静寂の雪原',ground:'#b6d1d8',dark:'#7fa6b7',accent:'#edf6ef',enemy:'アイスウルフ',boss:'雪原の守護者',gate:'終わりの門'}
+];
+const monsters=[
+{name:'スライム',hp:16,atk:4,exp:5,gold:3,color:'#55c9a2',boss:false},
+{name:'草原のガーディアン',hp:48,atk:7,exp:22,gold:18,color:'#b68c58',boss:true},
+{name:'サンドワーム',hp:25,atk:7,exp:9,gold:7,color:'#d6a34e',boss:false},
+{name:'砂塵の巨獣',hp:72,atk:11,exp:35,gold:30,color:'#b77d46',boss:true},
+{name:'アイスウルフ',hp:36,atk:10,exp:13,gold:11,color:'#8bc8e5',boss:false},
+{name:'雪原の守護者',hp:105,atk:15,exp:60,gold:55,color:'#9ccfe0',boss:true}
+];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function pixelRect(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function drawHero(c,x,y,scale=1){
+const s=scale;c.save();c.translate(Math.round(x),Math.round(y));
+pixelRect(c,-6*s,-10*s,12*s,10*s,'#315e9b');pixelRect(c,-5*s,-14*s,10*s,6*s,'#d9a36c');pixelRect(c,-6*s,-16*s,12*s,5*s,'#583b2b');pixelRect(c,-4*s,-8*s,3*s,3*s,'#f4e8c6');pixelRect(c,1*s,-8*s,3*s,3*s,'#f4e8c6');pixelRect(c,-5*s,0,4*s,6*s,'#513a31');pixelRect(c,1*s,0,4*s,6*s,'#513a31');pixelRect(c,-9*s,-8*s,3*s,9*s,'#d8b45d');c.restore()
+}
+function drawMonster(c,x,y,color,scale=1){
+const s=scale;c.save();c.translate(Math.round(x),Math.round(y));pixelRect(c,-10*s,-7*s,20*s,14*s,color);pixelRect(c,-7*s,-12*s,14*s,6*s,color);pixelRect(c,-6*s,-7*s,3*s,4*s,'#fff');pixelRect(c,3*s,-7*s,3*s,4*s,'#fff');pixelRect(c,-5*s,-6*s,2*s,3*s,'#18212b');pixelRect(c,4*s,-6*s,2*s,3*s,'#18212b');pixelRect(c,-6*s,6*s,12*s,3*s,'#263c3c');c.restore()
+}
+function drawTitleArt(){
+const c=$('titleArt').getContext('2d');c.imageSmoothingEnabled=false;pixelRect(c,0,0,480,180,'#83b8c0');pixelRect(c,0,0,480,95,'#7db3c0');
+for(let i=0;i<7;i++){pixelRect(c,i*82-15,40+(i%3)*12,70,50,'#8ca8a0');pixelRect(c,i*82-8,48+(i%3)*12,58,43,'#d0d4b2')}
+pixelRect(c,0,105,480,75,'#6c9d5b');for(let i=0;i<18;i++){let x=(i*47)%480,y=112+(i*23)%64;pixelRect(c,x,y,3,3,'#d8d18a')}
+pixelRect(c,330,58,75,48,'#9c845d');pixelRect(c,343,43,48,22,'#785d48');pixelRect(c,360,79,14,27,'#453e37');
+drawHero(c,210,130,2);drawMonster(c,278,142,'#55c9a2',1.6);
+pixelRect(c,0,165,480,15,'#365a42');}
+function rand(seed){let x=Math.sin(seed*127.1+world*53.7)*43758.5453;return x-Math.floor(x)}
+function tileAt(x,y){let n=rand(x*17+y*61);if(x===0||y===0||x===COLS-1||y===ROWS-1)return 1;if((x*3+y*7+world)%29===0)return 2;if(n>.94)return 3;return 0}
+function makeState(){
+return {x:240,y:210,level:1,maxHp:30,hp:30,maxMp:10,mp:10,exp:0,gold:0,potions:3,world:0,unlocked:0,cleared:[false,false,false],steps:0,moveSpeed:90,inventory:{herb:3},savedAt:Date.now()};
+}
+function save(){if(!state)return;state.savedAt=Date.now();localStorage.setItem('genesisUtopiaSave',JSON.stringify(state));toast('セーブしました！')}
+function load(){try{let s=JSON.parse(localStorage.getItem('genesisUtopiaSave'));if(s&&typeof s.level==='number'){state=s;world=state.world||0;return true}}catch(e){}return false}
+function updateHud(){
+$('worldLabel').textContent='WORLD '+(world+1)+' — '+worlds[world].name;
+$('level').textContent=state.level;$('hpText').textContent=state.hp+'/'+state.maxHp;$('mpText').textContent=state.mp+'/'+state.maxMp;$('expText').textContent=state.exp+'/'+(state.level*10);$('goldText').textContent=state.gold;
+$('hpBar').style.width=(state.hp/state.maxHp*100)+'%';$('mpBar').style.width=(state.mp/state.maxMp*100)+'%';
+}
+function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1800)}
+function showDialog(title,text,after){$('dialogTitle').textContent=title;$('dialogText').textContent=text;$('dialogPanel').classList.remove('hidden');$('dialogNext').onclick=()=>{$('dialogPanel').classList.add('hidden');if(after)after()}}
+function startGame(fresh){
+if(fresh){state=makeState();world=0;saveSilent()}else if(!load()){state=makeState();world=0}
+$('titleScreen').classList.add('hidden');$('playScreen').classList.remove('hidden');updateHud();toast('冒険を始めよう！');requestAnimationFrame(loop);
+}
+function saveSilent(){localStorage.setItem('genesisUtopiaSave',JSON.stringify(state))}
+function drawWorld(){
+ctx.imageSmoothingEnabled=false;let base=worlds[world];pixelRect(ctx,0,0,W,H,base.ground);
+for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
+let px=x*T,py=y*T,n=rand(x*17+y*61);
+if(tileAt(x,y)===1){pixelRect(ctx,px,py,T,T,base.dark);pixelRect(ctx,px+3,py+3,18,17,world===2?'#d8e8eb':'#355b43');}
+else if(tileAt(x,y)===2){pixelRect(ctx,px+5,py+5,14,14,base.accent);pixelRect(ctx,px+8,py+2,8,20,base.dark)}
+else if(tileAt(x,y)===3){pixelRect(ctx,px+7,py+7,3,3,base.accent);pixelRect(ctx,px+15,py+15,3,3,base.dark)}
+else if(n>.83){pixelRect(ctx,px+6,py+7,2,3,base.accent);pixelRect(ctx,px+15,py+17,2,2,base.dark)}
+}
+let gateX=240,gateY=43;pixelRect(ctx,gateX-22,gateY-8,44,29,'#493d34');pixelRect(ctx,gateX-16,gateY-6,32,25,'#a78a58');pixelRect(ctx,gateX-10,gateY-4,20,23,'#263d52');pixelRect(ctx,gateX-2,gateY+3,4,4,'#f6d879');
+pixelRect(ctx,70,110,27,21,'#9d7650');pixelRect(ctx,75,102,17,10,'#d6b77c');pixelRect(ctx,80,119,7,12,'#513b2d');
+drawHero(ctx,state.x,state.y+3,1);
+if(!state.cleared[world]){let bx=350,by=190;drawMonster(ctx,bx,by,monsters[world*2].color,1.1);pixelRect(ctx,bx-12,by-21,24,3,'#17212a');pixelRect(ctx,bx-11,by-20,22,1,'#f37d76')}
+else{drawMonster(ctx,350,190,'#7c997a',.85)}
+ctx.fillStyle='#fff0bd';ctx.font='10px monospace';ctx.fillText('E: はなす / 門',12,14);
+}
+function startBattle(isBoss){
+if(inBattle||$('dialogPanel').classList.contains('hidden')===false)return;
+inBattle=true;guarding=false;mouseTarget=null;
+let m=monsters[world*2+(isBoss?1:0)];
+enemy={...m,maxHp:m.hp,hp:m.hp};$('enemyTitle').textContent=(isBoss?'BOSS：':'')+enemy.name+' が現れた！';
+$('battleText').textContent='どうする？';$('battlePanel').classList.remove('hidden');drawBattle();updateBattleStatus();$('hint').textContent='コマンドを選んで行動しよう。';
+}
+function drawBattle(){
+let c=$('battleCanvas').getContext('2d');pixelRect(c,0,0,480,105,'#304a4a');pixelRect(c,0,68,480,37,'#52634b');pixelRect(c,0,65,480,4,'#7d8c68');drawHero(c,105,78,2.2);drawMonster(c,350,77,enemy.color,enemy.boss?2.8:2.1);
+}
+function updateBattleStatus(){$('enemyHpText').textContent='敵 HP '+enemy.hp+'/'+enemy.maxHp;$('turnText').textContent='あなたのターン'}
+function battleMessage(text){$('battleText').textContent=text}
+function enemyTurn(){
+if(!inBattle)return;
+let dmg=Math.max(1,enemy.atk-Math.floor(state.level/2)-(guarding?Math.ceil(enemy.atk*.65):0));state.hp=Math.max(0,state.hp-dmg);guarding=false;updateHud();
+if(state.hp<=0){battleMessage(enemy.name+'の攻撃！ '+dmg+'ダメージ。力尽きた……');setTimeout(()=>{inBattle=false;$('battlePanel').classList.add('hidden');state.hp=Math.max(1,Math.floor(state.maxHp*.5));state.gold=Math.max(0,state.gold-5);state.x=240;state.y=210;updateHud();toast('村で目を覚ました。Gを5失った。');saveSilent()},900)}
+else{battleMessage(enemy.name+'の攻撃！ '+dmg+'ダメージを受けた。');}
+}
+function winBattle(){
+inBattle=false;$('battlePanel').classList.add('hidden');state.exp+=enemy.exp;state.gold+=enemy.gold;let msg=enemy.name+'を倒した！ EXP '+enemy.exp+' / G '+enemy.gold+' を獲得！';
+if(enemy.boss){state.cleared[world]=true;state.unlocked=Math.max(state.unlocked,Math.min(2,world+1));msg+=' ワールドクリア！北の門から次の世界へ進める。'}
+while(state.exp>=state.level*10){state.exp-=state.level*10;state.level++;state.maxHp+=7;state.maxMp+=3;state.hp=state.maxHp;state.mp=state.maxMp;msg+=' レベルアップ！ Lv.'+state.level+'！'}
+updateHud();showDialog('VICTORY!',msg,()=>{saveSilent();$('hint').textContent='探索を続けよう。北の門で E キー！'});}
+function command(cmd){
+if(!inBattle||!enemy)return;
+let msg='';
+if(cmd==='attack'){let dmg=4+state.level*3+Math.floor(Math.random()*4);enemy.hp=Math.max(0,enemy.hp-dmg);msg='攻撃！ '+dmg+' ダメージ！'}
+if(cmd==='skill'){if(state.mp<3){battleMessage('MPが足りない！');return}state.mp-=3;let dmg=10+state.level*5+Math.floor(Math.random()*6);enemy.hp=Math.max(0,enemy.hp-dmg);msg='ファイアボルト！ '+dmg+' ダメージ！'}
+if(cmd==='item'){if(state.potions<=0){battleMessage('ポーションを持っていない！');return}if(state.hp===state.maxHp){battleMessage('HPは満タンだ！');return}state.potions--;let heal=Math.min(18,state.maxHp-state.hp);state.hp+=heal;msg='ポーションを使った。HPが '+heal+' 回復！'}
+if(cmd==='guard'){guarding=true;msg='身を守っている。次の攻撃のダメージを軽減！'}
+if(cmd==='run'){if(enemy.boss){battleMessage('ボス戦からは逃げられない！');return}if(Math.random()<.65){inBattle=false;$('battlePanel').classList.add('hidden');toast('うまく逃げ切った！');return}else{msg='逃げられなかった！'}}
+if(enemy.hp<=0){battleMessage(msg);updateHud();updateBattleStatus();setTimeout(winBattle,500);return}
+battleMessage(msg);updateHud();updateBattleStatus();setTimeout(enemyTurn,550);
+}
+function move(dx,dy,dt){
+if(!state||inBattle||!$('dialogPanel').classList.contains('hidden')===false||!$('pausePanel').classList.contains('hidden')===true)return;
+let nx=clamp(state.x+dx*state.moveSpeed*dt,16,W-16),ny=clamp(state.y+dy*state.moveSpeed*dt,35,H-16);
+if(nx<24||nx>W-24||ny<24||ny>H-24)return;
+state.x=nx;state.y=ny;state.steps+=Math.abs(dx)+Math.abs(dy);
+let ex=350,ey=190;if(!state.cleared[world]&&Math.hypot(state.x-ex,state.y-ey)<23){startBattle(false)}
+}
+function interact(){
+if(!state||inBattle)return;
+if(Math.hypot(state.x-240,state.y-43)<52){
+if(!state.cleared[world]){startBattle(true);return}
+if(world<2&&state.unlocked>=world+1){world++;state.world=world;state.x=240;state.y=220;updateHud();toast('WORLD '+(world+1)+' に到着！');saveSilent();return}
+if(world===2){showDialog('THE END','雪原の守護者を倒した。ひとまず、世界に平和が戻った！',()=>{saveSilent()});return}
+}
+if(Math.hypot(state.x-83,state.y-121)<35){showDialog('旅人','北の門にいる守護者を倒せば、次のワールドへ進めるらしい。\\n敵に触れると戦闘になるぞ。');return}
+toast('近くに調べられるものはない。');
+}
+function loop(ts){
+if(!$('playScreen').classList.contains('hidden')===false)return;
+let dt=Math.min(.04,(ts-lastTime)/1000||0);lastTime=ts;
+if(!inBattle&&$('dialogPanel').classList.contains('hidden')&&$('pausePanel').classList.contains('hidden')){
+let dx=0,dy=0;if(keys.ArrowLeft||keys.a)dx--;if(keys.ArrowRight||keys.d)dx++;if(keys.ArrowUp||keys.w)dy--;if(keys.ArrowDown||keys.s)dy++;
+if(mouseTarget){let vx=mouseTarget.x-state.x,vy=mouseTarget.y-state.y,dist=Math.hypot(vx,vy);if(dist<4)mouseTarget=null;else{dx=vx/dist;dy=vy/dist}}
+if(dx&&dy){dx*=.707;dy*=.707}if(dx||dy)move(dx,dy,dt);
+}
+drawWorld();requestAnimationFrame(loop);
+}
+function pause(){if(inBattle||!$('dialogPanel').classList.contains('hidden'))return;$('pausePanel').classList.remove('hidden')}
+function resume(){$('pausePanel').classList.add('hidden');lastTime=performance.now()}
+function openWorlds(){
+if(!state||inBattle)return;$('worldChoices').innerHTML='';
+worlds.forEach((w,i)=>{let b=document.createElement('button');b.textContent='WORLD '+(i+1)+'：'+w.name+(i<=state.unlocked?'':'（未解放）');b.disabled=i>state.unlocked;b.onclick=()=>{world=i;state.world=i;state.x=240;state.y=220;$('worldPanel').classList.add('hidden');updateHud();saveSilent()};$('worldChoices').appendChild(b)});
+$('worldPanel').classList.remove('hidden');
+}
+function setContinue(){ $('continueBtn').disabled=!localStorage.getItem('genesisUtopiaSave')}
+document.querySelectorAll('[data-command]').forEach(b=>b.addEventListener('click',()=>command(b.dataset.command)));
+$('newGameBtn').onclick=()=>startGame(true);$('continueBtn').onclick=()=>startGame(false);
+$('controlsBtn').onclick=()=>showDialog('操作方法','移動：WASD / 矢印キー\\nクリック：クリックした場所へ移動\\nE / Enter / Space：調べる・会話\\nEsc：メニュー\\n戦闘：画面のコマンドをクリック、または数字キー 1〜5');
+$('fullscreenBtn').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
+$('soundBtn').onclick=()=>{soundOn=!soundOn;$('soundBtn').textContent='♪ 音 '+(soundOn?'ON':'OFF')};
+$('pauseBtn').onclick=pause;$('resumeBtn').onclick=resume;$('saveBtn').onclick=()=>{save();resume()};$('backTitleBtn').onclick=()=>{saveSilent();$('pausePanel').classList.add('hidden');$('playScreen').classList.add('hidden');$('titleScreen').classList.remove('hidden');setContinue()};
+$('quitBtn').onclick=pause;$('homeBtn').onclick=()=>{if(!$('playScreen').classList.contains('hidden'))pause();else{$('titleScreen').classList.remove('hidden')}};
+$('dialogNext').onclick=()=>{$('dialogPanel').classList.add('hidden')};
+$('closeWorldBtn').onclick=()=>$('worldPanel').classList.add('hidden');
+$('fieldWrap').addEventListener('click',e=>{if(inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePanel').classList.contains('hidden'))return;let r=canvas.getBoundingClientRect();mouseTarget={x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}});
+window.addEventListener('keydown',e=>{
+let k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[e.key]=true;keys[k]=true;
+if(k==='escape'){if(!$('pausePanel').classList.contains('hidden'))resume();else pause()}
+if(k==='e'||k==='enter'||k===' '){if(!$('dialogPanel').classList.contains('hidden'))$('dialogNext').click();else interact()}
+if(inBattle&&'12345'.includes(k)){command(['attack','skill','item','guard','run'][Number(k)-1])}
+});
+window.addEventListener('keyup',e=>{keys[e.key]=false;keys[e.key.toLowerCase()]=false});
+window.addEventListener('blur',()=>{keys={};mouseTarget=null});
+window.addEventListener('beforeunload',saveSilent);
+setContinue();drawTitleArt();
+})();
+</script>
+</body>
+</html>
