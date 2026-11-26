@@ -21,7 +21,7 @@ header{height:54px;flex:none;display:flex;align-items:center;justify-content:spa
 .hudstat{display:flex;gap:5px;align-items:center}.meter{width:100px;height:9px;background:#080f1b;border:1px solid #718097}.meter i{display:block;height:100%;background:var(--green);width:100%}.meter.mp i{background:#72c8ec}
 #worldLabel{color:var(--gold);font-weight:900;margin-right:auto}
 #fieldWrap{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#070d16;border:3px solid #52657a;box-shadow:0 5px 0 #080e17;overflow:hidden}
-canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-height:100%;aspect-ratio:16/10;image-rendering:pixelated;image-rendering:crisp-edges;cursor:crosshair}
+canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-height:100%;aspect-ratio:16/10;image-rendering:pixelated;image-rendering:crisp-edges;cursor:default}
 #toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);padding:7px 12px;background:#111c2beF;border:2px solid #74899a;color:#fff0c8;font-size:12px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s}
 #toast.show{opacity:1}
 #bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
@@ -61,7 +61,7 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 <div class="hudstat">EXP <b id="expText">0/10</b></div>
 <div class="hudstat">🧱 ブロックゴールド <b id="goldText">30</b></div>
 </div>
-<div id="fieldWrap"><canvas id="field" width="480" height="300"></canvas><div id="toast"></div>
+<div id="fieldWrap"><canvas id="field" width="960" height="600"></canvas><div id="toast"></div>
 <div id="battlePanel" class="hidden">
 <div class="panel-title" id="enemyTitle">モンスターが現れた！</div>
 <div id="battleScene"><canvas id="battleCanvas" width="480" height="105"></canvas></div>
@@ -85,7 +85,9 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 const $=id=>document.getElementById(id);
 const canvas=$('field'),ctx=canvas.getContext('2d');
 const W=480,H=300,T=24,COLS=20,ROWS=13;
-let state=null,world=0,keys={},mouseTarget=null,lastTime=0,toastTimer=0,dialogQueue=[],inBattle=false,enemy=null,guarding=false,soundOn=true;
+// 画面を2倍の内部解像度で描画し、細かなドット装飾も表現する
+ctx.setTransform(2,0,0,2,0,0);
+let state=null,world=0,keys={},lastTime=0,toastTimer=0,dialogQueue=[],inBattle=false,enemy=null,guarding=false,soundOn=true;
 const worlds=[
 {name:'ムーラ村',ground:'#78a85b',dark:'#477943',accent:'#d9c47b',type:'village'},
 {name:'はじまりの草原',ground:'#6a9c55',dark:'#477943',accent:'#d2c46e',enemy:'スライム',boss:'草原のガーディアン'},
@@ -102,6 +104,7 @@ const monsters=[
 ];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function pixelRect(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function detailRect(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(x,y,w,h)}
 function drawHero(c,x,y,scale=1){
  const s=scale;c.save();c.translate(Math.round(x),Math.round(y));
  // 影・ブーツ・マント・服・髪・顔・装備を小さな色面で重ねたドットキャラ
@@ -152,14 +155,44 @@ $('titleScreen').classList.add('hidden');$('playScreen').classList.remove('hidde
 function saveSilent(){localStorage.setItem('genesisUtopiaSave',JSON.stringify(state))}
 function drawWorld(){
 ctx.imageSmoothingEnabled=false;let base=worlds[world];pixelRect(ctx,0,0,W,H,base.ground);
+ // 地面の細かな粒子・草・石を追加してフィールドの密度をアップ
+ for(let i=0;i<230;i++){
+  const x=(i*73+19)%W,y=(i*47+11)%H;
+  if(world===0){
+   detailRect(ctx,x+.25,y+.25,1.1,1.1,i%3===0?'rgba(255,242,166,.62)':i%3===1?'rgba(40,82,43,.45)':'rgba(255,255,255,.22)');
+  }else if(i%4===0){
+   detailRect(ctx,x+.2,y+.2,1.5,1.5,world===3?'rgba(255,255,255,.6)':world===2?'rgba(113,65,31,.45)':'rgba(220,235,143,.48)');
+   detailRect(ctx,x+1.6,y+.7,.8,.8,'rgba(255,255,255,.25)');
+  }
+ }
+ // 画面端に薄い陰影をつけて奥行きを出す
+ const edge=ctx.createLinearGradient(0,0,0,H);
+ edge.addColorStop(0,'rgba(5,12,20,.13)');edge.addColorStop(.18,'rgba(5,12,20,0)');
+ edge.addColorStop(.82,'rgba(5,12,20,0)');edge.addColorStop(1,'rgba(5,12,20,.2)');
+ ctx.fillStyle=edge;ctx.fillRect(0,0,W,H);
 for(let gy=0;gy<H;gy+=24)for(let gx=0;gx<W;gx+=24){pixelRect(ctx,gx,gy,24,24,((gx/24+gy/24)%2)?'rgba(255,255,255,.025)':'rgba(0,0,0,.035)');pixelRect(ctx,gx+2,gy+2,2,2,'rgba(255,255,255,.12)')}
 if(world===0){
   pixelRect(ctx,215,0,50,H,'#c9ad79');pixelRect(ctx,0,128,W,42,'#c9ad79');pixelRect(ctx,225,0,30,H,'#ddc28c');pixelRect(ctx,0,138,W,22,'#ddc28c');
   for(let i=0;i<18;i++){let x=(i*67)%W,y=(i*43+22)%H;pixelRect(ctx,x,y,3,3,'#d7cf82');pixelRect(ctx,x+8,y+5,2,2,'#477943')}
   const house=(x,y,w,h,wall,roof)=>{pixelRect(ctx,x,y+12,w,h-12,wall);pixelRect(ctx,x-5,y+5,w+10,13,roof);pixelRect(ctx,x+8,y+20,12,10,'#83b9c8');pixelRect(ctx,x+w-22,y+20,12,10,'#83b9c8');pixelRect(ctx,x+w/2-5,y+h-15,10,15,'#59402e')};
   house(35,35,75,49,'#e6d3a4','#9b5844');house(365,34,78,50,'#dfd0a5','#80533f');house(35,205,75,49,'#e8d6ad','#a65e48');house(365,205,78,49,'#e4d0a0','#8d5b43');
+  // 屋根の瓦目地・壁の石組み・窓枠・煙突で建物を描き込み
+  [[35,35,75,49],[365,34,78,50],[35,205,75,49],[365,205,78,49]].forEach(([x,y,w,h],i)=>{
+   detailRect(ctx,x+5,y+7,w-10,1,'rgba(255,238,190,.55)');
+   for(let k=0;k<5;k++)detailRect(ctx,x+8+k*12,y+9,7,1,'rgba(75,43,36,.28)');
+   detailRect(ctx,x+3,y+24,2,h-27,'rgba(255,255,255,.25)');
+   detailRect(ctx,x+w-4,y+24,2,h-27,'rgba(83,55,37,.2)');
+   detailRect(ctx,x+w/2-7,y+h-16,14,2,'#3f3028');
+  });
   const shopSign=(x,y,roof,sign)=>{pixelRect(ctx,x-19,y-18,38,7,'#49372d');pixelRect(ctx,x-17,y-16,34,4,roof);pixelRect(ctx,x-13,y-9,26,17,'#d6b77a');pixelRect(ctx,x-10,y-7,20,12,sign);pixelRect(ctx,x-3,y+8,6,9,'#60442e');pixelRect(ctx,x-16,y-8,3,10,'#f0d99a');pixelRect(ctx,x+13,y-8,3,10,'#f0d99a')};
   shopSign(132,145,'#a94f3e','#d7b36b');shopSign(382,145,'#477d9b','#a9c8d2');shopSign(240,220,'#69934e','#e4d28c');
+  // 店先のランタンと看板のハイライト
+  [[112,127],[152,127],[362,127],[402,127],[220,202],[260,202]].forEach(([x,y])=>{
+   pixelRect(ctx,x,y,3,5,'#584332');pixelRect(ctx,x+1,y+1,1,2,'#ffe6a0');
+  });
+  detailRect(ctx,116,137,30,1,'rgba(255,255,255,.6)');
+  detailRect(ctx,366,137,30,1,'rgba(255,255,255,.6)');
+  detailRect(ctx,224,212,32,1,'rgba(255,255,255,.6)');
   pixelRect(ctx,207,119,66,38,'#786d60');pixelRect(ctx,213,124,54,27,'#8caaa0');pixelRect(ctx,218,128,44,18,'#304e56');pixelRect(ctx,207,115,66,7,'#d4c19b');
   // 北門：WORLD 1 はじまりの草原への出口
   pixelRect(ctx,213,15,54,24,'#684a35');pixelRect(ctx,219,12,42,27,'#b28a55');pixelRect(ctx,225,18,30,21,'#243b4d');pixelRect(ctx,237,24,6,15,'#f1d27c');
@@ -191,7 +224,10 @@ if(world===0){
   else{drawMonster(ctx,350,190,'#7c997a',.85)}
   ctx.fillStyle='#fff0bd';ctx.font='10px monospace';ctx.fillText('E: はなす / 門',12,14);
 }
+// プレイヤーの足元に柔らかな影とハイライトを追加
+ctx.fillStyle='rgba(12,24,20,.28)';ctx.beginPath();ctx.ellipse(state.x,state.y+2,9,3,0,0,Math.PI*2);ctx.fill();
 drawHero(ctx,state.x,state.y+3,1);
+detailRect(ctx,state.x-5,state.y-22,2,1,'rgba(255,255,255,.55)');
 }
 
 function openShop(kind){
@@ -264,7 +300,7 @@ function openShop(kind){
 }
 function startBattle(isBoss){
 if(inBattle||$('dialogPanel').classList.contains('hidden')===false)return;
-inBattle=true;guarding=false;mouseTarget=null;
+inBattle=true;guarding=false;
 if(world===0){toast('ムーラ村では戦闘は起こらないよ');inBattle=false;return}
 let m=monsters[(world-1)*2+(isBoss?1:0)];
 enemy={...m,maxHp:m.hp,hp:m.hp};$('enemyTitle').textContent=(isBoss?'BOSS：':'')+enemy.name+' が現れた！';
@@ -326,7 +362,6 @@ if(!$('playScreen').classList.contains('hidden')===false)return;
 let dt=Math.min(.04,(ts-lastTime)/1000||0);lastTime=ts;
 if(!inBattle&&$('dialogPanel').classList.contains('hidden')&&$('pausePanel').classList.contains('hidden')&&$('shopPanel').classList.contains('hidden')){
 let dx=0,dy=0;if(keys.ArrowLeft||keys.a)dx--;if(keys.ArrowRight||keys.d)dx++;if(keys.ArrowUp||keys.w)dy--;if(keys.ArrowDown||keys.s)dy++;
-if(mouseTarget){let vx=mouseTarget.x-state.x,vy=mouseTarget.y-state.y,dist=Math.hypot(vx,vy);if(dist<4)mouseTarget=null;else{dx=vx/dist;dy=vy/dist}}
 if(dx&&dy){dx*=.707;dy*=.707}if(dx||dy)move(dx,dy,dt);
 }
 drawWorld();requestAnimationFrame(loop);
@@ -348,7 +383,7 @@ $('pauseBtn').onclick=pause;$('resumeBtn').onclick=resume;$('saveBtn').onclick=(
 $('quitBtn')?.addEventListener('click',pause);$('homeBtn')?.addEventListener('click',()=>{if(!$('playScreen').classList.contains('hidden'))pause();else{$('titleScreen').classList.remove('hidden')}});
 $('dialogNext').onclick=()=>{$('dialogPanel').classList.add('hidden')};
 $('closeWorldBtn').onclick=()=>$('worldPanel').classList.add('hidden');$('shopClose').onclick=()=>$('shopPanel').classList.add('hidden');
-$('fieldWrap').addEventListener('click',e=>{if(inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePanel').classList.contains('hidden'))return;let r=canvas.getBoundingClientRect();mouseTarget={x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}});
+
 window.addEventListener('keydown',e=>{
 let k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[e.key]=true;keys[k]=true;
 if(k==='escape'){if(!$('pausePanel').classList.contains('hidden'))resume();else pause()}
@@ -357,7 +392,7 @@ if(k==='e'||k==='enter'||k===' '){if(!$('dialogPanel').classList.contains('hidde
 if(inBattle&&'1234'.includes(k)){command(['attack','guard','item','run'][Number(k)-1])}
 });
 window.addEventListener('keyup',e=>{keys[e.key]=false;keys[e.key.toLowerCase()]=false});
-window.addEventListener('blur',()=>{keys={};mouseTarget=null});
+window.addEventListener('blur',()=>{keys={}});
 window.addEventListener('beforeunload',saveSilent);
 setContinue();drawTitleArt();
 })();
