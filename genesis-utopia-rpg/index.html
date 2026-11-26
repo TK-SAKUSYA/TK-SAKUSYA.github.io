@@ -184,7 +184,7 @@ if(enemy.hp<=0){battleMessage(msg);updateHud();updateBattleStatus();setTimeout(w
 battleMessage(msg);updateHud();updateBattleStatus();setTimeout(enemyTurn,550);
 }
 function move(dx,dy,dt){
-if(!state||inBattle||!$('dialogPanel').classList.contains('hidden')===false||!$('pausePanel').classList.contains('hidden')===true)return;
+if(!state||inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePanel').classList.contains('hidden'))return;
 let nx=clamp(state.x+dx*state.moveSpeed*dt,16,W-16),ny=clamp(state.y+dy*state.moveSpeed*dt,35,H-16);
 if(nx<24||nx>W-24||ny<24||ny>H-24)return;
 state.x=nx;state.y=ny;state.steps+=Math.abs(dx)+Math.abs(dy);
@@ -220,7 +220,7 @@ $('worldPanel').classList.remove('hidden');
 function setContinue(){ $('continueBtn').disabled=!localStorage.getItem('genesisUtopiaSave')}
 document.querySelectorAll('[data-command]').forEach(b=>b.addEventListener('click',()=>command(b.dataset.command)));
 $('newGameBtn').onclick=()=>startGame(true);$('continueBtn').onclick=()=>startGame(false);
-$('controlsBtn').onclick=()=>showDialog('操作方法','移動：WASD / 矢印キー\\nクリック：クリックした場所へ移動\\nE / Enter / Space：調べる・会話\\nEsc：メニュー\\n戦闘：画面のコマンドをクリック、または数字キー 1〜5');
+$('controlsBtn').onclick=()=>window.alert('操作方法\\n移動：WASD / 矢印キー\\nクリック：クリックした場所へ移動\\nE / Enter / Space：調べる・会話\\nEsc：メニュー\\n戦闘：コマンドをクリック、または数字キー 1〜5');
 $('fullscreenBtn').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
 $('soundBtn').onclick=()=>{soundOn=!soundOn;$('soundBtn').textContent='♪ 音 '+(soundOn?'ON':'OFF')};
 $('pauseBtn').onclick=pause;$('resumeBtn').onclick=resume;$('saveBtn').onclick=()=>{save();resume()};$('backTitleBtn').onclick=()=>{saveSilent();$('pausePanel').classList.add('hidden');$('playScreen').classList.add('hidden');$('titleScreen').classList.remove('hidden');setContinue()};
