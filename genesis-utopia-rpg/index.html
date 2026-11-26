@@ -88,7 +88,7 @@ const canvas=$('field'),ctx=canvas.getContext('2d');
 const W=480,H=300,T=24,COLS=20,ROWS=13;
 // 画面を2倍の内部解像度で描画し、細かなドット装飾も表現する
 ctx.setTransform(2,0,0,2,0,0);
-let state=null,world=0,keys={},lastTime=0,toastTimer=0,dialogQueue=[],inBattle=false,enemy=null,guarding=false,soundOn=true;
+let state=null,world=0,keys={},lastTime=0,toastTimer=0,dialogQueue=[],inBattle=false,enemy=null,guarding=false,soundOn=true,fieldEnemies=[],walkPhase=0,battleAnimation=null;
 const worlds=[
 {name:'ムーラ村',ground:'#78a85b',dark:'#477943',accent:'#d9c47b',type:'village'},
 {name:'はじまりの草原',ground:'#6a9c55',dark:'#477943',accent:'#d2c46e',enemy:'スライム',boss:'草原のガーディアン'},
@@ -103,7 +103,10 @@ const monsters=[
 {name:'アイスウルフ',hp:36,atk:10,exp:13,gold:11,color:'#8bc8e5',boss:false},
 {name:'雪原の守護者',hp:105,atk:15,exp:60,gold:55,color:'#9ccfe0',boss:true}
 ];
+const fieldEnemySets={1:[{name:'スライム',hp:16,atk:4,exp:5,gold:3,color:'#55c9a2'},{name:'グリーンスライム',hp:20,atk:5,exp:7,gold:4,color:'#78bd65'},{name:'森のキノコ',hp:22,atk:6,exp:8,gold:5,color:'#c77a9c'},{name:'ツノウサギ',hp:19,atk:6,exp:7,gold:5,color:'#d9d0b5'}],2:[{name:'サンドワーム',hp:25,atk:7,exp:9,gold:7,color:'#d6a34e'},{name:'砂漠のサソリ',hp:29,atk:8,exp:11,gold:8,color:'#c47a45'},{name:'デザートゴーレム',hp:35,atk:9,exp:13,gold:10,color:'#a98b68'},{name:'灼熱バット',hp:23,atk:8,exp:10,gold:8,color:'#a75c42'}],3:[{name:'アイスウルフ',hp:36,atk:10,exp:13,gold:11,color:'#8bc8e5'},{name:'スノースライム',hp:32,atk:9,exp:12,gold:10,color:'#b9e8f0'},{name:'氷のゴーレム',hp:45,atk:12,exp:16,gold:14,color:'#79a9c4'},{name:'フロストバット',hp:34,atk:11,exp:14,gold:12,color:'#9c9de0'}]};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function makeFieldEnemies(){fieldEnemies=[];if(world===0)return;const set=fieldEnemySets[world]||[];for(let i=0;i<4;i++){const m=set[Math.floor(Math.random()*set.length)];fieldEnemies.push({...m,maxHp:m.hp,x:75+i*96+(Math.random()*24-12),y:95+(i%2)*105+(Math.random()*24-12),dir:Math.random()*Math.PI*2,speed:13+Math.random()*10,phase:Math.random()*6,alive:true})}}
+function animateBattle(kind,done){const start=performance.now(),duration=420;function frame(now){if(!inBattle)return;const p=Math.min(1,(now-start)/duration);battleAnimation={kind,progress:p};drawBattle();if(p<1)requestAnimationFrame(frame);else{battleAnimation=null;drawBattle();done?.()}}requestAnimationFrame(frame)}
 function pixelRect(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
 function detailRect(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(x,y,w,h)}
 function drawHero(c,x,y,scale=1){
@@ -166,6 +169,7 @@ function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');
 function showDialog(title,text,after){$('dialogTitle').textContent=title;$('dialogText').textContent=text;$('dialogPanel').classList.remove('hidden');$('dialogNext').onclick=()=>{$('dialogPanel').classList.add('hidden');if(after)after()}}
 function startGame(fresh){
 if(fresh){state=makeState();world=0;saveSilent()}else if(!load()){state=makeState();world=0}
+makeFieldEnemies();
 $('titleScreen').classList.add('hidden');$('playScreen').classList.remove('hidden');updateHud();toast('冒険を始めよう！');requestAnimationFrame(loop);
 }
 function saveSilent(){localStorage.setItem('genesisUtopiaSave',JSON.stringify(state))}
@@ -236,13 +240,12 @@ if(world===0){
     }
   }
   let gateX=240,gateY=43;pixelRect(ctx,gateX-22,gateY-8,44,29,'#493d34');pixelRect(ctx,gateX-16,gateY-6,32,25,'#a78a58');pixelRect(ctx,gateX-10,gateY-4,20,23,'#263d52');pixelRect(ctx,gateX-2,gateY+3,4,4,'#f6d879');
-  if(world>0&&!state.cleared[world]){let bx=350,by=190;drawMonster(ctx,bx,by,monsters[(world-1)*2].color,1.1);pixelRect(ctx,bx-12,by-21,24,3,'#17212a');pixelRect(ctx,bx-11,by-20,22,1,'#f37d76')}
-  else{drawMonster(ctx,350,190,'#7c997a',.85)}
+  fieldEnemies.forEach(e=>{if(!e.alive)return;const bob=Math.sin(e.phase)*1.5;drawMonster(ctx,e.x,e.y+bob,e.color,.9);pixelRect(ctx,e.x-10,e.y-17,20,3,'#17212a');pixelRect(ctx,e.x-9,e.y-16,18,1,'#f37d76')});
   ctx.fillStyle='#fff0bd';ctx.font='10px monospace';ctx.fillText('E: はなす / 門',12,14);
 }
 // プレイヤーの足元に柔らかな影とハイライトを追加
 ctx.fillStyle='rgba(12,24,20,.28)';ctx.beginPath();ctx.ellipse(state.x,state.y+2,9,3,0,0,Math.PI*2);ctx.fill();
-drawHero(ctx,state.x,state.y+3,1);
+drawHero(ctx,state.x,state.y+3+((keys.ArrowLeft||keys.ArrowRight||keys.ArrowUp||keys.ArrowDown||keys.a||keys.d||keys.w||keys.s)?Math.sin(walkPhase*12)*1.2:0),1);
 detailRect(ctx,state.x-5,state.y-22,2,1,'rgba(255,255,255,.55)');
 }
 
@@ -323,12 +326,18 @@ function startBattle(isBoss){
 if(inBattle||$('dialogPanel').classList.contains('hidden')===false)return;
 inBattle=true;guarding=false;
 if(world===0){toast('ムーラ村では戦闘は起こらないよ');inBattle=false;return}
-let m=monsters[(world-1)*2+(isBoss?1:0)];
+let m=isBoss?monsters[(world-1)*2+1]:(fieldEnemies.find(e=>e.alive&&Math.hypot(state.x-e.x,state.y-e.y)<30)||fieldEnemySets[world][Math.floor(Math.random()*fieldEnemySets[world].length)]);
 enemy={...m,maxHp:m.hp,hp:m.hp};$('enemyTitle').textContent=(isBoss?'BOSS：':'')+enemy.name+' が現れた！';
 $('battleText').textContent='どうする？';$('battlePanel').classList.remove('hidden');drawBattle();updateBattleStatus();$('hint').textContent='コマンドを選んで行動しよう。';
 }
 function drawBattle(){
-let c=$('battleCanvas').getContext('2d');pixelRect(c,0,0,480,105,'#304a4a');pixelRect(c,0,68,480,37,'#52634b');pixelRect(c,0,65,480,4,'#7d8c68');drawHero(c,105,78,2.2);drawMonster(c,350,77,enemy.color,enemy.boss?2.8:2.1);
+let c=$('battleCanvas').getContext('2d');c.clearRect(0,0,480,105);pixelRect(c,0,0,480,105,'#304a4a');pixelRect(c,0,68,480,37,'#52634b');pixelRect(c,0,65,480,4,'#7d8c68');
+ let p=battleAnimation?.progress??0,heroX=105,foeX=350;
+ if(battleAnimation?.kind==='player'){heroX+=Math.sin(p*Math.PI)*105;}
+ if(battleAnimation?.kind==='enemy'){foeX-=Math.sin(p*Math.PI)*105;}
+ drawHero(c,heroX,78,2.2);drawMonster(c,foeX,77,enemy.color,enemy.boss?2.8:2.1);
+ if(battleAnimation?.kind==='player'&&p>.35&&p<.82){c.strokeStyle='#fff0a3';c.lineWidth=5;c.beginPath();c.arc(foeX-24,48,25,-.9,.9);c.stroke();pixelRect(c,foeX-42,25,5,5,'#fff7c2')}
+ if(battleAnimation?.kind==='enemy'&&p>.35&&p<.82){c.strokeStyle='#ffb1a0';c.lineWidth=4;c.beginPath();c.moveTo(heroX+18,35);c.lineTo(heroX-8,58);c.stroke()}
 }
 function updateBattleStatus(){$('enemyHpText').textContent='敵 HP '+enemy.hp+'/'+enemy.maxHp;$('turnText').textContent='あなたのターン'}
 function battleMessage(text){$('battleText').textContent=text}
@@ -363,14 +372,13 @@ function performWeaponAttack(name){
  enemy.hp=Math.max(0,enemy.hp-dmg);
  closeWeaponPicker();battleMessage(name+'で攻撃！ '+dmg+' ダメージ！');
  updateHud();updateBattleStatus();saveSilent();
- if(enemy.hp<=0){setTimeout(winBattle,500);return}
- setTimeout(enemyTurn,550);
+ animateBattle('player',()=>{if(enemy.hp<=0){setTimeout(winBattle,250);return}setTimeout(enemyTurn,250)});
 }
 function enemyTurn(){
 if(!inBattle)return;
-let dmg=Math.max(1,enemy.atk-Math.floor(state.level/2)-(state.defense||0)-(guarding?Math.ceil(enemy.atk*.65):0));state.hp=Math.max(0,state.hp-dmg);guarding=false;updateHud();
-if(state.hp<=0){battleMessage(enemy.name+'の攻撃！ '+dmg+'ダメージ。力尽きた……');setTimeout(()=>{inBattle=false;$('battlePanel').classList.add('hidden');state.hp=Math.max(1,Math.floor(state.maxHp*.5));state.blockGold=Math.max(0,(state.blockGold||0)-5);state.x=240;state.y=210;updateHud();toast('村で目を覚ました。Gを5失った。');saveSilent()},900)}
-else{battleMessage(enemy.name+'の攻撃！ '+dmg+'ダメージを受けた。');}
+let dmg=Math.max(1,enemy.atk-Math.floor(state.level/2)-(state.defense||0)-(guarding?Math.ceil(enemy.atk*.65):0));guarding=false;
+battleMessage(enemy.name+'が攻撃してくる！');
+animateBattle('enemy',()=>{state.hp=Math.max(0,state.hp-dmg);updateHud();if(state.hp<=0){battleMessage(enemy.name+'の攻撃！ '+dmg+'ダメージ。力尽きた……');setTimeout(()=>{inBattle=false;$('battlePanel').classList.add('hidden');state.hp=Math.max(1,Math.floor(state.maxHp*.5));state.blockGold=Math.max(0,(state.blockGold||0)-5);state.x=240;state.y=210;world=0;state.world=0;makeFieldEnemies();updateHud();toast('村で目を覚ました。Gを5失った。');saveSilent()},900)}else{battleMessage(enemy.name+'の攻撃！ '+dmg+'ダメージを受けた。')}});
 }
 function winBattle(){
 inBattle=false;$('battlePanel').classList.add('hidden');state.exp+=enemy.exp;state.blockGold=(state.blockGold||0)+enemy.gold;let msg=enemy.name+'を倒した！ EXP '+enemy.exp+' / ブロックゴールド '+enemy.gold+' を獲得！';
@@ -392,7 +400,7 @@ if(!state||inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePa
 let nx=clamp(state.x+dx*state.moveSpeed*dt,16,W-16),ny=clamp(state.y+dy*state.moveSpeed*dt,35,H-16);
 if(nx<24||nx>W-24||ny<24||ny>H-24)return;
 state.x=nx;state.y=ny;state.steps+=Math.abs(dx)+Math.abs(dy);
-if(world>0){let ex=350,ey=190;if(!state.cleared[world]&&Math.hypot(state.x-ex,state.y-ey)<27){startBattle(false)}}
+if(world>0){const hit=fieldEnemies.find(e=>e.alive&&Math.hypot(state.x-e.x,state.y-e.y)<22);if(hit){hit.alive=false;startBattle(false,hit)}}
 }
 function interact(){
 if(!state||inBattle)return;
@@ -401,11 +409,11 @@ if(world===0){
   if(Math.hypot(state.x-382,state.y-145)<36){openShop('armor');return}
   if(Math.hypot(state.x-240,state.y-220)<36){openShop('item');return}
   if([[70,70],[410,70],[70,230],[410,230]].some(([x,y])=>Math.hypot(state.x-x,state.y-y)<30)){toast('ここは村人の家だ。特に用事はなさそうだ。');return}
-  if(Math.hypot(state.x-240,state.y-43)<55){world=1;state.world=1;state.x=240;state.y=245;updateHud();toast('WORLD 1：はじまりの草原へ！');saveSilent();return}
+  if(Math.hypot(state.x-240,state.y-43)<55){world=1;state.world=1;state.x=240;state.y=245;makeFieldEnemies();updateHud();toast('WORLD 1：はじまりの草原へ！');saveSilent();return}
 }else{
   if(Math.hypot(state.x-240,state.y-43)<52){
     if(!state.cleared[world]){startBattle(true);return}
-    if(world<3&&state.unlocked>=world+1){world++;state.world=world;state.x=240;state.y=245;updateHud();toast('WORLD '+world+'：'+worlds[world].name+' に到着！');saveSilent();return}
+    if(world<3&&state.unlocked>=world+1){world++;state.world=world;state.x=240;state.y=245;makeFieldEnemies();updateHud();toast('WORLD '+world+'：'+worlds[world].name+' に到着！');saveSilent();return}
     if(world===3){showDialog('THE END','雪原の守護者を倒した。ひとまず、世界に平和が戻った！',()=>{saveSilent()});return}
   }
 }
@@ -417,7 +425,8 @@ if(!$('playScreen').classList.contains('hidden')===false)return;
 let dt=Math.min(.04,(ts-lastTime)/1000||0);lastTime=ts;
 if(!inBattle&&$('dialogPanel').classList.contains('hidden')&&$('pausePanel').classList.contains('hidden')&&$('shopPanel').classList.contains('hidden')){
 let dx=0,dy=0;if(keys.ArrowLeft||keys.a)dx--;if(keys.ArrowRight||keys.d)dx++;if(keys.ArrowUp||keys.w)dy--;if(keys.ArrowDown||keys.s)dy++;
-if(dx&&dy){dx*=.707;dy*=.707}if(dx||dy)move(dx,dy,dt);
+if(dx&&dy){dx*=.707;dy*=.707}if(dx||dy){move(dx,dy,dt);walkPhase+=dt*9}else{walkPhase=0}
+ if(world>0&&!inBattle){fieldEnemies.forEach(e=>{if(!e.alive)return;e.phase+=dt*3;e.dir+=(Math.random()-.5)*dt*1.4;const nx=e.x+Math.cos(e.dir)*e.speed*dt,ny=e.y+Math.sin(e.dir)*e.speed*dt;if(nx<35||nx>W-35||ny<65||ny>H-35)e.dir+=Math.PI*.75;e.x=clamp(nx,35,W-35);e.y=clamp(ny,65,H-35)})}
 }
 drawWorld();requestAnimationFrame(loop);
 }
@@ -425,7 +434,7 @@ function pause(){if(inBattle||!$('dialogPanel').classList.contains('hidden'))ret
 function resume(){$('pausePanel').classList.add('hidden');lastTime=performance.now()}
 function openWorlds(){
 if(!state||inBattle)return;$('worldChoices').innerHTML='';
-worlds.forEach((w,i)=>{let b=document.createElement('button');b.textContent='WORLD '+i+'：'+w.name+(i<=state.unlocked?'':'（未解放）');b.disabled=i>state.unlocked;b.onclick=()=>{world=i;state.world=i;state.x=240;state.y=i===0?250:245;$('worldPanel').classList.add('hidden');updateHud();saveSilent()};$('worldChoices').appendChild(b)});
+worlds.forEach((w,i)=>{let b=document.createElement('button');b.textContent='WORLD '+i+'：'+w.name+(i<=state.unlocked?'':'（未解放）');b.disabled=i>state.unlocked;b.onclick=()=>{world=i;state.world=i;state.x=240;state.y=i===0?250:245;makeFieldEnemies();$('worldPanel').classList.add('hidden');updateHud();saveSilent()};$('worldChoices').appendChild(b)});
 $('worldPanel').classList.remove('hidden');
 }
 function setContinue(){ $('continueBtn').disabled=!localStorage.getItem('genesisUtopiaSave')}
