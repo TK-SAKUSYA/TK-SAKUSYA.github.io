@@ -67,6 +67,7 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 <div id="battleScene"><canvas id="battleCanvas" width="480" height="105"></canvas></div>
 <div id="battleStatus"><span id="enemyHpText">敵 HP 10/10</span><span id="turnText">あなたのターン</span></div>
 <div id="battleText">どうする？</div>
+<div id="weaponPicker" class="hidden"><div style="font-size:12px;color:#f5cf72;font-weight:900;margin-bottom:7px">⚔ 使用する武器を選択</div><div id="weaponChoices" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px"></div><button id="weaponCancel" style="width:100%;margin-top:8px">もどる</button></div>
 <div id="commands"><button data-command="attack">⚔ ① こうげき</button><button data-command="guard">🛡 ② ぼうぎょ</button><button data-command="item">🧪 ③ アイテム</button><button data-command="run">🏃 ④ にげる</button></div>
 </div>
 <div id="dialogPanel" class="hidden"><div class="panel-title" id="dialogTitle">メッセージ</div><div id="dialogText"></div><div id="dialogActions"><button class="primary" id="dialogNext">つぎへ ▶</button></div></div>
@@ -152,7 +153,7 @@ pixelRect(c,0,165,480,15,'#365a42');}
 function rand(seed){let x=Math.sin(seed*127.1+world*53.7)*43758.5453;return x-Math.floor(x)}
 function tileAt(x,y){let n=rand(x*17+y*61);if(x===0||y===0||x===COLS-1||y===ROWS-1)return 1;if((x*3+y*7+world)%29===0)return 2;if(n>.94)return 3;return 0}
 function makeState(){
-return {version:3,x:240,y:250,level:1,maxHp:30,hp:30,maxMp:10,mp:10,exp:0,blockGold:30,weapon:"木の剣",weaponAttack:0,armor:"旅人の服",defense:0,potions:2,megaPotions:0,world:0,unlocked:1,cleared:[true,false,false,false],steps:0,moveSpeed:90,inventory:{},ownedProducts:[],savedAt:Date.now()};
+return {version:3,x:240,y:250,level:1,maxHp:30,hp:30,maxMp:10,mp:10,exp:0,blockGold:30,weapon:"木の剣",weaponAttack:2,armor:"旅人の服",defense:0,potions:2,megaPotions:0,world:0,unlocked:1,cleared:[true,false,false,false],steps:0,moveSpeed:90,inventory:{},ownedProducts:["木の剣"],savedAt:Date.now()};
 }
 function save(){if(!state)return;state.savedAt=Date.now();localStorage.setItem('genesisUtopiaSave',JSON.stringify(state));toast('セーブしました！')}
 function load(){try{let s=JSON.parse(localStorage.getItem('genesisUtopiaSave'));if(s&&typeof s.level==='number'){if(!s.version||s.version<2){s.world=(s.world||0)+1;s.unlocked=Math.min(3,(s.unlocked||0)+1);s.cleared=[true,...(s.cleared||[false,false,false])];s.version=2;s.x=240;s.y=250}if(typeof s.blockGold!=="number")s.blockGold=Math.max(0,s.gold||0);if(typeof s.weaponAttack!=="number")s.weaponAttack=0;if(typeof s.defense!=="number")s.defense=0;if(typeof s.potions!=="number")s.potions=2;if(typeof s.megaPotions!=="number")s.megaPotions=0;if(!Array.isArray(s.ownedProducts))s.ownedProducts=[];[s.weapon,s.armor].forEach(name=>{if(name&&!s.ownedProducts.includes(name))s.ownedProducts.push(name)});s.version=3;state=s;world=state.world||0;return true}}catch(e){}return false}
@@ -331,6 +332,40 @@ let c=$('battleCanvas').getContext('2d');pixelRect(c,0,0,480,105,'#304a4a');pixe
 }
 function updateBattleStatus(){$('enemyHpText').textContent='敵 HP '+enemy.hp+'/'+enemy.maxHp;$('turnText').textContent='あなたのターン'}
 function battleMessage(text){$('battleText').textContent=text}
+const weaponStats={
+ '木の剣':2,'石の剣':4,'鉄の剣':7,'金の剣':10,'ダイヤモンドの剣':15,
+ 'ハンドガン':5,'アサルトライフル':8,'スナイパー':12,'ロケットランチャー':16,'RPG':18,
+ '手榴弾':14,'モロトフ':11
+};
+function closeWeaponPicker(){
+ $('weaponPicker').classList.add('hidden');$('commands').classList.remove('hidden');
+}
+function openWeaponPicker(){
+ const owned=(state.ownedProducts||[]).filter(name=>Object.prototype.hasOwnProperty.call(weaponStats,name));
+ if(state.weapon&&Object.prototype.hasOwnProperty.call(weaponStats,state.weapon)&&!owned.includes(state.weapon))owned.unshift(state.weapon);
+ if(!owned.length){battleMessage('使える武器がない！');return}
+ $('weaponChoices').innerHTML='';
+ owned.forEach(name=>{
+  const b=document.createElement('button');
+  const equipped=name===state.weapon;
+  b.innerHTML='<b>'+name+(equipped?'　✓ 装備中':'')+'</b><br><small>攻撃力 +'+weaponStats[name]+'</small>';
+  b.onclick=()=>performWeaponAttack(name);
+  $('weaponChoices').appendChild(b);
+ });
+ $('commands').classList.add('hidden');$('weaponPicker').classList.remove('hidden');
+ battleMessage('攻撃に使う武器を選んでね！');
+}
+function performWeaponAttack(name){
+ if(!inBattle||!enemy)return;
+ const power=weaponStats[name];if(typeof power!=='number')return;
+ state.weapon=name;state.weaponAttack=power;
+ const dmg=4+state.level*3+power+Math.floor(Math.random()*4);
+ enemy.hp=Math.max(0,enemy.hp-dmg);
+ closeWeaponPicker();battleMessage(name+'で攻撃！ '+dmg+' ダメージ！');
+ updateHud();updateBattleStatus();saveSilent();
+ if(enemy.hp<=0){setTimeout(winBattle,500);return}
+ setTimeout(enemyTurn,550);
+}
 function enemyTurn(){
 if(!inBattle)return;
 let dmg=Math.max(1,enemy.atk-Math.floor(state.level/2)-(state.defense||0)-(guarding?Math.ceil(enemy.atk*.65):0));state.hp=Math.max(0,state.hp-dmg);guarding=false;updateHud();
@@ -345,7 +380,7 @@ updateHud();showDialog('VICTORY!',msg,()=>{saveSilent();$('hint').textContent='�
 function command(cmd){
 if(!inBattle||!enemy)return;
 let msg='';
-if(cmd==='attack'){let dmg=4+state.level*3+(state.weaponAttack||0)+Math.floor(Math.random()*4);enemy.hp=Math.max(0,enemy.hp-dmg);msg=(state.weapon||'武器')+'で攻撃！ '+dmg+' ダメージ！'}
+if(cmd==='attack'){openWeaponPicker();return}
 if(cmd==='item'){if((state.potions||0)<=0&&(state.megaPotions||0)<=0){battleMessage('使える回復アイテムがない！');return}if(state.hp===state.maxHp){battleMessage('HPは満タンだ！');return}let heal;if(state.megaPotions>0){state.megaPotions--;heal=Math.min(45,state.maxHp-state.hp);msg='ハイポーションを使った！ HP '+heal+' 回復！'}else{state.potions--;heal=Math.min(20,state.maxHp-state.hp);msg='ポーションを使った！ HP '+heal+' 回復！'}state.hp+=heal}
 if(cmd==='guard'){guarding=true;msg=(state.armor||'防具')+'で防御！ 次の攻撃を軽減！'}
 if(cmd==='run'){if(enemy.boss){battleMessage('ボス戦からは逃げられない！');return}if(Math.random()<.65){inBattle=false;$('battlePanel').classList.add('hidden');toast('うまく逃げ切った！');return}else{msg='逃げられなかった！'}}
@@ -395,6 +430,7 @@ $('worldPanel').classList.remove('hidden');
 }
 function setContinue(){ $('continueBtn').disabled=!localStorage.getItem('genesisUtopiaSave')}
 document.querySelectorAll('[data-command]').forEach(b=>b.addEventListener('click',()=>command(b.dataset.command)));
+$('weaponCancel').onclick=closeWeaponPicker;
 $('newGameBtn').onclick=()=>startGame(true);$('continueBtn').onclick=()=>startGame(false);
 $('controlsBtn').onclick=()=>window.alert('操作方法\n移動：WASD / 矢印キー\nE：調べる・会話・門を調べる\n敵に触れる：戦闘スタート\nEsc：メニュー\n戦闘：コマンドをクリック、または数字キー 1〜4');
 $('fullscreenBtn').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
@@ -406,7 +442,7 @@ $('closeWorldBtn').onclick=()=>$('worldPanel').classList.add('hidden');$('shopCl
 
 window.addEventListener('keydown',e=>{
 let k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[e.key]=true;keys[k]=true;
-if(k==='escape'){if(!$('pausePanel').classList.contains('hidden'))resume();else pause()}
+if(k==='escape'){if(!$('weaponPicker').classList.contains('hidden'))closeWeaponPicker();else if(!$('pausePanel').classList.contains('hidden'))resume();else pause()}
 if(k==='m')openWorlds();
 if(k==='e'||k==='enter'||k===' '){if(!$('dialogPanel').classList.contains('hidden'))$('dialogNext').click();else interact()}
 if(inBattle&&'1234'.includes(k)){command(['attack','guard','item','run'][Number(k)-1])}
