@@ -44,7 +44,7 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 </head>
 <body>
 <div id="app">
-<header><div class="brand">GENESIS UTOPIA<small>2D PIXEL ROLE-PLAYING GAME</small></div><div class="head-actions"><button id="fullscreenBtn">⛶ 全画面</button><button id="soundBtn">♪ 音 ON</button></div></header>
+<header><div class="brand">GENESIS UTOPIA<small>2D PIXEL ROLE-PLAYING GAME</small></div><div class="head-actions"><button id="fullscreenBtn">⛶ 全画面</button></div></header>
 <main id="main">
 <section id="titleScreen" class="screen">
 <div class="logo">GENESIS<br>UTOPIA</div><div class="logo-sub">THE JOURNEY BEGINS</div>
@@ -74,7 +74,7 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 <div id="worldPanel" class="hidden"><div class="panel-title">ワールド移動</div><div id="worldChoices"></div><div style="margin-top:10px;text-align:right"><button id="closeWorldBtn">閉じる</button></div></div>
 <div id="notice">クリックした場所へ移動 / NPC・門の近くで E キー</div>
 </div>
-<div id="bottom"><div id="hint">草原を探索しよう。敵に触れると戦闘開始！</div><button id="pauseBtn">☰ メニュー (Esc)</button></div>
+<div id="bottom"><div id="hint">草原を探索しよう。敵に触れると戦闘開始！</div><div style="display:flex;gap:7px"><button id="worldMapBtn">🌐 ワールド</button><button id="pauseBtn">☰ メニュー (Esc)</button></div></div>
 </section>
 </main>
 </div>
@@ -197,7 +197,7 @@ if(!state.cleared[world]){startBattle(true);return}
 if(world<2&&state.unlocked>=world+1){world++;state.world=world;state.x=240;state.y=220;updateHud();toast('WORLD '+(world+1)+' に到着！');saveSilent();return}
 if(world===2){showDialog('THE END','雪原の守護者を倒した。ひとまず、世界に平和が戻った！',()=>{saveSilent()});return}
 }
-if(Math.hypot(state.x-83,state.y-121)<35){showDialog('旅人','北の門にいる守護者を倒せば、次のワールドへ進めるらしい。\\n敵に触れると戦闘になるぞ。');return}
+if(Math.hypot(state.x-83,state.y-121)<35){showDialog('旅人','北の門にいる守護者を倒せば、次のワールドへ進めるらしい。\n敵に触れると戦闘になるぞ。');return}
 toast('近くに調べられるものはない。');
 }
 function loop(ts){
@@ -220,9 +220,9 @@ $('worldPanel').classList.remove('hidden');
 function setContinue(){ $('continueBtn').disabled=!localStorage.getItem('genesisUtopiaSave')}
 document.querySelectorAll('[data-command]').forEach(b=>b.addEventListener('click',()=>command(b.dataset.command)));
 $('newGameBtn').onclick=()=>startGame(true);$('continueBtn').onclick=()=>startGame(false);
-$('controlsBtn').onclick=()=>window.alert('操作方法\\n移動：WASD / 矢印キー\\nクリック：クリックした場所へ移動\\nE / Enter / Space：調べる・会話\\nEsc：メニュー\\n戦闘：コマンドをクリック、または数字キー 1〜5');
+$('controlsBtn').onclick=()=>window.alert('操作方法\n移動：WASD / 矢印キー\nクリック：クリックした場所へ移動\nE / Enter / Space：調べる・会話\nEsc：メニュー\n戦闘：コマンドをクリック、または数字キー 1〜5');
 $('fullscreenBtn').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
-$('soundBtn').onclick=()=>{soundOn=!soundOn;$('soundBtn').textContent='♪ 音 '+(soundOn?'ON':'OFF')};
+$('worldMapBtn').onclick=openWorlds;
 $('pauseBtn').onclick=pause;$('resumeBtn').onclick=resume;$('saveBtn').onclick=()=>{save();resume()};$('backTitleBtn').onclick=()=>{saveSilent();$('pausePanel').classList.add('hidden');$('playScreen').classList.add('hidden');$('titleScreen').classList.remove('hidden');setContinue()};
 $('quitBtn').onclick=pause;$('homeBtn').onclick=()=>{if(!$('playScreen').classList.contains('hidden'))pause();else{$('titleScreen').classList.remove('hidden')}};
 $('dialogNext').onclick=()=>{$('dialogPanel').classList.add('hidden')};
@@ -230,7 +230,7 @@ $('closeWorldBtn').onclick=()=>$('worldPanel').classList.add('hidden');
 $('fieldWrap').addEventListener('click',e=>{if(inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePanel').classList.contains('hidden'))return;let r=canvas.getBoundingClientRect();mouseTarget={x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}});
 window.addEventListener('keydown',e=>{
 let k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[e.key]=true;keys[k]=true;
-if(k==='escape'){if(!$('pausePanel').classList.contains('hidden'))resume();else pause()}
+if(k==='escape'){if(!$('pausePanel').classList.contains('hidden'))resume();else pause()}\nif(k==='m')openWorlds();
 if(k==='e'||k==='enter'||k===' '){if(!$('dialogPanel').classList.contains('hidden'))$('dialogNext').click();else interact()}
 if(inBattle&&'12345'.includes(k)){command(['attack','skill','item','guard','run'][Number(k)-1])}
 });
