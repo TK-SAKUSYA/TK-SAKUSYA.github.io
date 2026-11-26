@@ -230,7 +230,8 @@ $('closeWorldBtn').onclick=()=>$('worldPanel').classList.add('hidden');
 $('fieldWrap').addEventListener('click',e=>{if(inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePanel').classList.contains('hidden'))return;let r=canvas.getBoundingClientRect();mouseTarget={x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}});
 window.addEventListener('keydown',e=>{
 let k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[e.key]=true;keys[k]=true;
-if(k==='escape'){if(!$('pausePanel').classList.contains('hidden'))resume();else pause()}\nif(k==='m')openWorlds();
+if(k==='escape'){if(!$('pausePanel').classList.contains('hidden'))resume();else pause()}
+if(k==='m')openWorlds();
 if(k==='e'||k==='enter'||k===' '){if(!$('dialogPanel').classList.contains('hidden'))$('dialogNext').click();else interact()}
 if(inBattle&&'12345'.includes(k)){command(['attack','skill','item','guard','run'][Number(k)-1])}
 });
