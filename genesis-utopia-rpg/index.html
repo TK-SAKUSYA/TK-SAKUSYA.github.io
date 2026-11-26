@@ -70,7 +70,7 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 <div id="commands"><button data-command="attack">⚔ ① こうげき</button><button data-command="guard">🛡 ② ぼうぎょ</button><button data-command="item">🧪 ③ アイテム</button><button data-command="run">🏃 ④ にげる</button></div>
 </div>
 <div id="dialogPanel" class="hidden"><div class="panel-title" id="dialogTitle">メッセージ</div><div id="dialogText"></div><div id="dialogActions"><button class="primary" id="dialogNext">つぎへ ▶</button></div></div>
-<div id="shopPanel" class="hidden"><div class="panel-title" id="shopTitle">ショップ</div><div id="shopBalance" class="tiny"></div><div id="shopItems" style="display:grid;gap:8px;margin:12px 0"></div><div style="text-align:right"><button id="shopClose">閉じる</button></div></div>
+<div id="shopPanel" class="hidden"><div class="panel-title" id="shopTitle">ショップ</div><div id="shopBalance" class="tiny"></div><div id="shopCategories" style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0"></div><div id="shopItems" style="display:grid;gap:8px;margin:12px 0"></div><div style="text-align:right"><button id="shopClose">閉じる</button></div></div>
 <div id="pausePanel" class="hidden"><div class="panel-title">PAUSE</div><div class="pause-actions"><button id="resumeBtn">ゲームに戻る</button><button id="saveBtn">セーブする</button><button id="backTitleBtn">タイトルへ</button></div></div>
 <div id="worldPanel" class="hidden"><div class="panel-title">ワールド移動</div><div id="worldChoices"></div><div style="margin-top:10px;text-align:right"><button id="closeWorldBtn">閉じる</button></div></div>
 <div id="notice">WASD：移動　/　E：調べる・会話　/　敵に触れると戦闘開始</div>
@@ -196,13 +196,71 @@ drawHero(ctx,state.x,state.y+3,1);
 
 function openShop(kind){
  const catalogs={
- weapon:{title:'ムーラ村 武器屋',items:[{name:'ハンドガン',desc:'攻撃力 +5',price:25,type:'weapon',attack:5},{name:'RPG（武器）',desc:'攻撃力 +12',price:65,type:'weapon',attack:12}]},
- armor:{title:'ムーラ村 防具屋',items:[{name:'木の盾',desc:'防御力 +2',price:20,type:'armor',defense:2},{name:'鉄の盾',desc:'防御力 +5',price:50,type:'armor',defense:5},{name:'ガーディアンアーマー',desc:'防御力 +8',price:90,type:'armor',defense:8}]},
- item:{title:'ムーラ村 アイテム屋',items:[{name:'ポーション',desc:'HPを20回復（戦闘中）',price:10,type:'potion'},{name:'ハイポーション',desc:'HPを45回復（戦闘中）',price:25,type:'hipotion'}]}
+ weapon:{title:'ムーラ村 武器屋',categories:{
+  '剣':[
+   {name:'木の剣',desc:'攻撃力 +2',price:10,attack:2},
+   {name:'石の剣',desc:'攻撃力 +4',price:20,attack:4},
+   {name:'鉄の剣',desc:'攻撃力 +7',price:40,attack:7},
+   {name:'金の剣',desc:'攻撃力 +10',price:65,attack:10},
+   {name:'ダイヤモンドの剣',desc:'攻撃力 +15',price:100,attack:15}
+  ],
+  '銃':[
+   {name:'ハンドガン',desc:'攻撃力 +5',price:25,attack:5},
+   {name:'アサルトライフル',desc:'攻撃力 +8',price:50,attack:8},
+   {name:'スナイパー',desc:'攻撃力 +12',price:75,attack:12},
+   {name:'ロケットランチャー',desc:'攻撃力 +16',price:110,attack:16},
+   {name:'RPG',desc:'攻撃力 +18',price:130,attack:18}
+  ],
+  'その他':[
+   {name:'手榴弾',desc:'攻撃力 +14',price:95,attack:14},
+   {name:'モロトフ',desc:'攻撃力 +11',price:80,attack:11}
+  ]
+ }},
+ armor:{title:'ムーラ村 防具屋',categories:{'防具':[
+  {name:'木の盾',desc:'防御力 +2',price:20,type:'armor',defense:2},
+  {name:'鉄の盾',desc:'防御力 +5',price:50,type:'armor',defense:5},
+  {name:'ガーディアンアーマー',desc:'防御力 +8',price:90,type:'armor',defense:8}
+ ]}},
+ item:{title:'ムーラ村 アイテム屋',categories:{'回復アイテム':[
+  {name:'ポーション',desc:'HPを20回復（戦闘中）',price:10,type:'potion'},
+  {name:'ハイポーション',desc:'HPを45回復（戦闘中）',price:25,type:'hipotion'}
+ ]}}
  };
- const shop=catalogs[kind];$('shopTitle').textContent=shop.title;$('shopBalance').textContent='所持ブロックゴールド：'+(state.blockGold||0)+' 🧱';$('shopItems').innerHTML='';
- shop.items.forEach(item=>{const b=document.createElement('button');b.style.textAlign='left';b.innerHTML='<b>'+item.name+' — '+item.price+' BG</b><br><small>'+item.desc+'</small>';b.onclick=()=>{if((state.blockGold||0)<item.price){toast('ブロックゴールドが足りない！');return}state.blockGold-=item.price;if(item.type==='weapon'){state.weapon=item.name;state.weaponAttack=item.attack;toast(item.name+'を装備した！')}else if(item.type==='armor'){state.armor=item.name;state.defense=item.defense;toast(item.name+'を装備した！')}else if(item.type==='potion'){state.potions=(state.potions||0)+1;toast('ポーションを購入！')}else{state.megaPotions=(state.megaPotions||0)+1;toast('ハイポーションを購入！')}$('shopBalance').textContent='所持ブロックゴールド：'+state.blockGold+' 🧱';updateHud();saveSilent()};$('shopItems').appendChild(b)});
- $('shopPanel').classList.remove('hidden');
+ const shop=catalogs[kind];let activeCategory=Object.keys(shop.categories)[0];
+ $('shopTitle').textContent=shop.title;
+ function renderShop(){
+  $('shopBalance').textContent='所持ブロックゴールド：'+(state.blockGold||0)+' 🧱';
+  $('shopCategories').innerHTML='';
+  Object.keys(shop.categories).forEach(category=>{
+   const tab=document.createElement('button');tab.textContent=category;
+   tab.style.padding='7px 12px';tab.style.fontSize='12px';
+   if(category===activeCategory){tab.style.background='#b78a4a';tab.style.borderColor='#f1d18a';tab.style.color='#1c1b20'}
+   tab.onclick=()=>{activeCategory=category;renderShop()};
+   $('shopCategories').appendChild(tab);
+  });
+  $('shopItems').innerHTML='';
+  shop.categories[activeCategory].forEach(item=>{
+   const b=document.createElement('button');b.style.textAlign='left';
+   b.innerHTML='<b>'+item.name+' — '+item.price+' BG</b><br><small>'+item.desc+'</small>';
+   b.onclick=()=>{
+    if((state.blockGold||0)<item.price){toast('ブロックゴールドが足りない！');return}
+    state.blockGold-=item.price;
+    if(kind==='weapon'){
+     state.weapon=item.name;state.weaponAttack=item.attack;
+     toast(item.name+'を装備した！');
+    }else if(item.type==='armor'){
+     state.armor=item.name;state.defense=item.defense;toast(item.name+'を装備した！');
+    }else if(item.type==='potion'){
+     state.potions=(state.potions||0)+1;toast('ポーションを購入！');
+    }else if(item.type==='hipotion'){
+     state.megaPotions=(state.megaPotions||0)+1;toast('ハイポーションを購入！');
+    }
+    renderShop();updateHud();saveSilent();
+   };
+   $('shopItems').appendChild(b);
+  });
+ }
+ renderShop();$('shopPanel').classList.remove('hidden');
 }
 function startBattle(isBoss){
 if(inBattle||$('dialogPanel').classList.contains('hidden')===false)return;
