@@ -50,7 +50,7 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 <div class="logo">GENESIS<br>UTOPIA</div><div class="logo-sub">THE JOURNEY BEGINS</div>
 <canvas id="titleArt" class="title-art" width="480" height="180"></canvas>
 <div class="menu-buttons"><button class="primary" id="newGameBtn">▶ はじめから</button><button class="secondary" id="continueBtn">つづきから</button><button class="secondary" id="controlsBtn">操作方法</button></div>
-<div class="tiny">PC向け 2Dドット絵RPG<br>移動：WASD / 矢印キー　決定：Enter / Space　メニュー：Esc</div>
+<div class="tiny">PC向け 2Dドット絵RPG<br>移動：WASD / 矢印キー　調べる・会話：E　敵に触れると戦闘開始</div>
 </section>
 <section id="playScreen" class="screen hidden">
 <div id="hud">
@@ -72,7 +72,7 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 <div id="dialogPanel" class="hidden"><div class="panel-title" id="dialogTitle">メッセージ</div><div id="dialogText"></div><div id="dialogActions"><button class="primary" id="dialogNext">つぎへ ▶</button></div></div>
 <div id="pausePanel" class="hidden"><div class="panel-title">PAUSE</div><div class="pause-actions"><button id="resumeBtn">ゲームに戻る</button><button id="saveBtn">セーブする</button><button id="backTitleBtn">タイトルへ</button></div></div>
 <div id="worldPanel" class="hidden"><div class="panel-title">ワールド移動</div><div id="worldChoices"></div><div style="margin-top:10px;text-align:right"><button id="closeWorldBtn">閉じる</button></div></div>
-<div id="notice">クリックした場所へ移動 / NPC・門の近くで E キー</div>
+<div id="notice">WASD：移動　/　E：調べる・会話　/　敵に触れると戦闘開始</div>
 </div>
 <div id="bottom"><div id="hint">ムーラ村を探索しよう。村人に近づいて E キー！</div><div style="display:flex;gap:7px"><button id="worldMapBtn">🌐 ワールド</button><button id="pauseBtn">☰ メニュー (Esc)</button></div></div>
 </section>
@@ -123,7 +123,7 @@ return {version:2,x:240,y:250,level:1,maxHp:30,hp:30,maxMp:10,mp:10,exp:0,gold:0
 function save(){if(!state)return;state.savedAt=Date.now();localStorage.setItem('genesisUtopiaSave',JSON.stringify(state));toast('セーブしました！')}
 function load(){try{let s=JSON.parse(localStorage.getItem('genesisUtopiaSave'));if(s&&typeof s.level==='number'){if(!s.version||s.version<2){s.world=(s.world||0)+1;s.unlocked=Math.min(3,(s.unlocked||0)+1);s.cleared=[true,...(s.cleared||[false,false,false])];s.version=2;s.x=240;s.y=250}state=s;world=state.world||0;return true}}catch(e){}return false}
 function updateHud(){
-$('worldLabel').textContent='WORLD '+(world+1)+' — '+worlds[world].name;
+$('worldLabel').textContent='WORLD '+world+' — '+worlds[world].name;
 $('level').textContent=state.level;$('hpText').textContent=state.hp+'/'+state.maxHp;$('mpText').textContent=state.mp+'/'+state.maxMp;$('expText').textContent=state.exp+'/'+(state.level*10);$('goldText').textContent=state.gold;
 $('hpBar').style.width=(state.hp/state.maxHp*100)+'%';$('mpBar').style.width=(state.mp/state.maxMp*100)+'%';
 }
@@ -202,11 +202,11 @@ if(enemy.hp<=0){battleMessage(msg);updateHud();updateBattleStatus();setTimeout(w
 battleMessage(msg);updateHud();updateBattleStatus();setTimeout(enemyTurn,550);
 }
 function move(dx,dy,dt){
-if(!state||inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePanel').classList.contains('hidden'))return;
+if(!state||inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePanel').classList.contains('hidden')||!$('worldPanel').classList.contains('hidden'))return;
 let nx=clamp(state.x+dx*state.moveSpeed*dt,16,W-16),ny=clamp(state.y+dy*state.moveSpeed*dt,35,H-16);
 if(nx<24||nx>W-24||ny<24||ny>H-24)return;
 state.x=nx;state.y=ny;state.steps+=Math.abs(dx)+Math.abs(dy);
-if(world>0){let ex=350,ey=190;if(!state.cleared[world]&&Math.hypot(state.x-ex,state.y-ey)<23){startBattle(false)}}
+if(world>0){let ex=350,ey=190;if(!state.cleared[world]&&Math.hypot(state.x-ex,state.y-ey)<27){startBattle(false)}}
 }
 function interact(){
 if(!state||inBattle)return;
@@ -245,7 +245,7 @@ $('worldPanel').classList.remove('hidden');
 function setContinue(){ $('continueBtn').disabled=!localStorage.getItem('genesisUtopiaSave')}
 document.querySelectorAll('[data-command]').forEach(b=>b.addEventListener('click',()=>command(b.dataset.command)));
 $('newGameBtn').onclick=()=>startGame(true);$('continueBtn').onclick=()=>startGame(false);
-$('controlsBtn').onclick=()=>window.alert('操作方法\n移動：WASD / 矢印キー\nクリック：クリックした場所へ移動\nE / Enter / Space：調べる・会話\nEsc：メニュー\n戦闘：コマンドをクリック、または数字キー 1〜5');
+$('controlsBtn').onclick=()=>window.alert('操作方法\n移動：WASD / 矢印キー\nE：調べる・会話・門を調べる\n敵に触れる：戦闘スタート\nEsc：メニュー\n戦闘：コマンドをクリック、または数字キー 1〜5');
 $('fullscreenBtn').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
 $('worldMapBtn').onclick=openWorlds;
 $('pauseBtn').onclick=pause;$('resumeBtn').onclick=resume;$('saveBtn').onclick=()=>{save();resume()};$('backTitleBtn').onclick=()=>{saveSilent();$('pausePanel').classList.add('hidden');$('playScreen').classList.add('hidden');$('titleScreen').classList.remove('hidden');setContinue()};
