@@ -26,7 +26,7 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 #toast.show{opacity:1}
 #bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
 #hint{font-size:11px;color:#aabbd0}
-#battlePanel,#dialogPanel,#pausePanel,#worldPanel{position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:min(94%,560px);background:#17243a;border:3px solid #a3b4c4;box-shadow:0 8px 0 #080e18,0 15px 40px #000b;padding:14px}
+#battlePanel,#dialogPanel,#pausePanel,#worldPanel,#shopPanel{position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:min(94%,560px);background:#17243a;border:3px solid #a3b4c4;box-shadow:0 8px 0 #080e18,0 15px 40px #000b;padding:14px}
 .panel-title{font-size:18px;font-weight:1000;color:var(--gold);margin-bottom:8px}
 #battleScene{height:105px;background:#293d42;border:2px solid #6e7f7c;margin-bottom:10px;position:relative;overflow:hidden}
 #battleScene canvas{width:100%;height:100%;max-height:none;aspect-ratio:auto}
@@ -59,7 +59,7 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 <div class="hudstat">HP <b id="hpText">30/30</b><span class="meter"><i id="hpBar"></i></span></div>
 <div class="hudstat">MP <b id="mpText">10/10</b><span class="meter mp"><i id="mpBar"></i></span></div>
 <div class="hudstat">EXP <b id="expText">0/10</b></div>
-<div class="hudstat">G <b id="goldText">0</b></div>
+<div class="hudstat">🧱 ブロックゴールド <b id="goldText">30</b></div>
 </div>
 <div id="fieldWrap"><canvas id="field" width="480" height="300"></canvas><div id="toast"></div>
 <div id="battlePanel" class="hidden">
@@ -67,9 +67,10 @@ canvas{display:block;width:min(100%,calc((100vh - 160px)*1.6));height:auto;max-h
 <div id="battleScene"><canvas id="battleCanvas" width="480" height="105"></canvas></div>
 <div id="battleStatus"><span id="enemyHpText">敵 HP 10/10</span><span id="turnText">あなたのターン</span></div>
 <div id="battleText">どうする？</div>
-<div id="commands"><button data-command="attack">⚔ こうげき</button><button data-command="skill">✨ スキル</button><button data-command="item">🧪 アイテム</button><button data-command="guard">🛡 ぼうぎょ</button><button data-command="run">🏃 にげる</button></div>
+<div id="commands"><button data-command="attack">⚔ ① こうげき</button><button data-command="guard">🛡 ② ぼうぎょ</button><button data-command="item">🧪 ③ アイテム</button><button data-command="run">🏃 ④ にげる</button></div>
 </div>
 <div id="dialogPanel" class="hidden"><div class="panel-title" id="dialogTitle">メッセージ</div><div id="dialogText"></div><div id="dialogActions"><button class="primary" id="dialogNext">つぎへ ▶</button></div></div>
+<div id="shopPanel" class="hidden"><div class="panel-title" id="shopTitle">ショップ</div><div id="shopBalance" class="tiny"></div><div id="shopItems" style="display:grid;gap:8px;margin:12px 0"></div><div style="text-align:right"><button id="shopClose">閉じる</button></div></div>
 <div id="pausePanel" class="hidden"><div class="panel-title">PAUSE</div><div class="pause-actions"><button id="resumeBtn">ゲームに戻る</button><button id="saveBtn">セーブする</button><button id="backTitleBtn">タイトルへ</button></div></div>
 <div id="worldPanel" class="hidden"><div class="panel-title">ワールド移動</div><div id="worldChoices"></div><div style="margin-top:10px;text-align:right"><button id="closeWorldBtn">閉じる</button></div></div>
 <div id="notice">WASD：移動　/　E：調べる・会話　/　敵に触れると戦闘開始</div>
@@ -118,13 +119,13 @@ pixelRect(c,0,165,480,15,'#365a42');}
 function rand(seed){let x=Math.sin(seed*127.1+world*53.7)*43758.5453;return x-Math.floor(x)}
 function tileAt(x,y){let n=rand(x*17+y*61);if(x===0||y===0||x===COLS-1||y===ROWS-1)return 1;if((x*3+y*7+world)%29===0)return 2;if(n>.94)return 3;return 0}
 function makeState(){
-return {version:2,x:240,y:250,level:1,maxHp:30,hp:30,maxMp:10,mp:10,exp:0,gold:0,potions:3,world:0,unlocked:1,cleared:[true,false,false,false],steps:0,moveSpeed:90,inventory:{herb:3},savedAt:Date.now()};
+return {version:3,x:240,y:250,level:1,maxHp:30,hp:30,maxMp:10,mp:10,exp:0,blockGold:30,weapon:"木の剣",weaponAttack:0,armor:"旅人の服",defense:0,potions:2,megaPotions:0,world:0,unlocked:1,cleared:[true,false,false,false],steps:0,moveSpeed:90,inventory:{},savedAt:Date.now()};
 }
 function save(){if(!state)return;state.savedAt=Date.now();localStorage.setItem('genesisUtopiaSave',JSON.stringify(state));toast('セーブしました！')}
-function load(){try{let s=JSON.parse(localStorage.getItem('genesisUtopiaSave'));if(s&&typeof s.level==='number'){if(!s.version||s.version<2){s.world=(s.world||0)+1;s.unlocked=Math.min(3,(s.unlocked||0)+1);s.cleared=[true,...(s.cleared||[false,false,false])];s.version=2;s.x=240;s.y=250}state=s;world=state.world||0;return true}}catch(e){}return false}
+function load(){try{let s=JSON.parse(localStorage.getItem('genesisUtopiaSave'));if(s&&typeof s.level==='number'){if(!s.version||s.version<2){s.world=(s.world||0)+1;s.unlocked=Math.min(3,(s.unlocked||0)+1);s.cleared=[true,...(s.cleared||[false,false,false])];s.version=2;s.x=240;s.y=250}if(typeof s.blockGold!=="number")s.blockGold=Math.max(0,s.gold||0);if(typeof s.weaponAttack!=="number")s.weaponAttack=0;if(typeof s.defense!=="number")s.defense=0;if(typeof s.potions!=="number")s.potions=2;if(typeof s.megaPotions!=="number")s.megaPotions=0;s.version=3;state=s;world=state.world||0;return true}}catch(e){}return false}
 function updateHud(){
 $('worldLabel').textContent='WORLD '+world+' — '+worlds[world].name;
-$('level').textContent=state.level;$('hpText').textContent=state.hp+'/'+state.maxHp;$('mpText').textContent=state.mp+'/'+state.maxMp;$('expText').textContent=state.exp+'/'+(state.level*10);$('goldText').textContent=state.gold;
+$('level').textContent=state.level;$('hpText').textContent=state.hp+'/'+state.maxHp;$('mpText').textContent=state.mp+'/'+state.maxMp;$('expText').textContent=state.exp+'/'+(state.level*10);$('goldText').textContent=state.blockGold||0;
 $('hpBar').style.width=(state.hp/state.maxHp*100)+'%';$('mpBar').style.width=(state.mp/state.maxMp*100)+'%';
 }
 function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1800)}
@@ -136,20 +137,23 @@ $('titleScreen').classList.add('hidden');$('playScreen').classList.remove('hidde
 function saveSilent(){localStorage.setItem('genesisUtopiaSave',JSON.stringify(state))}
 function drawWorld(){
 ctx.imageSmoothingEnabled=false;let base=worlds[world];pixelRect(ctx,0,0,W,H,base.ground);
+for(let gy=0;gy<H;gy+=24)for(let gx=0;gx<W;gx+=24){pixelRect(ctx,gx,gy,24,24,((gx/24+gy/24)%2)?'rgba(255,255,255,.025)':'rgba(0,0,0,.035)');pixelRect(ctx,gx+2,gy+2,2,2,'rgba(255,255,255,.12)')}
 if(world===0){
   pixelRect(ctx,215,0,50,H,'#c9ad79');pixelRect(ctx,0,128,W,42,'#c9ad79');pixelRect(ctx,225,0,30,H,'#ddc28c');pixelRect(ctx,0,138,W,22,'#ddc28c');
   for(let i=0;i<18;i++){let x=(i*67)%W,y=(i*43+22)%H;pixelRect(ctx,x,y,3,3,'#d7cf82');pixelRect(ctx,x+8,y+5,2,2,'#477943')}
   const house=(x,y,w,h,wall,roof)=>{pixelRect(ctx,x,y+12,w,h-12,wall);pixelRect(ctx,x-5,y+5,w+10,13,roof);pixelRect(ctx,x+8,y+20,12,10,'#83b9c8');pixelRect(ctx,x+w-22,y+20,12,10,'#83b9c8');pixelRect(ctx,x+w/2-5,y+h-15,10,15,'#59402e')};
   house(35,35,75,49,'#e6d3a4','#9b5844');house(365,34,78,50,'#dfd0a5','#80533f');house(35,205,75,49,'#e8d6ad','#a65e48');house(365,205,78,49,'#e4d0a0','#8d5b43');
+  const shopSign=(x,y,roof,sign)=>{pixelRect(ctx,x-19,y-18,38,7,'#49372d');pixelRect(ctx,x-17,y-16,34,4,roof);pixelRect(ctx,x-13,y-9,26,17,'#d6b77a');pixelRect(ctx,x-10,y-7,20,12,sign);pixelRect(ctx,x-3,y+8,6,9,'#60442e');pixelRect(ctx,x-16,y-8,3,10,'#f0d99a');pixelRect(ctx,x+13,y-8,3,10,'#f0d99a')};
+  shopSign(132,145,'#a94f3e','#d7b36b');shopSign(382,145,'#477d9b','#a9c8d2');shopSign(240,220,'#69934e','#e4d28c');
   pixelRect(ctx,207,119,66,38,'#786d60');pixelRect(ctx,213,124,54,27,'#8caaa0');pixelRect(ctx,218,128,44,18,'#304e56');pixelRect(ctx,207,115,66,7,'#d4c19b');
   // 北門：WORLD 1 はじまりの草原への出口
   pixelRect(ctx,213,15,54,24,'#684a35');pixelRect(ctx,219,12,42,27,'#b28a55');pixelRect(ctx,225,18,30,21,'#243b4d');pixelRect(ctx,237,24,6,15,'#f1d27c');
   pixelRect(ctx,112,106,4,20,'#67462e');pixelRect(ctx,116,106,36,17,'#f0d78d');pixelRect(ctx,119,110,30,9,'#8a563c');
   pixelRect(ctx,360,106,4,20,'#67462e');pixelRect(ctx,364,106,36,17,'#f0d78d');pixelRect(ctx,367,110,30,9,'#567d91');
-  drawHero(ctx,132,145,1);pixelRect(ctx,126,133,12,5,'#d6a66f');
-  drawHero(ctx,382,145,1);pixelRect(ctx,376,133,12,5,'#b77c9b');
-  drawHero(ctx,240,105,1);pixelRect(ctx,234,93,12,5,'#d5d5d5');
-  ctx.fillStyle='#fff0bd';ctx.font='10px monospace';ctx.fillText('ムーラ村',12,15);ctx.fillText('道具屋',112,99);ctx.fillText('宿屋',365,99);ctx.fillText('村長',225,88);
+  drawHero(ctx,132,151,1);pixelRect(ctx,126,139,12,5,'#d6a66f');
+  drawHero(ctx,382,151,1);pixelRect(ctx,376,139,12,5,'#b77c9b');
+  drawHero(ctx,240,226,1);pixelRect(ctx,234,214,12,5,'#d5d5d5');
+  ctx.fillStyle='#fff0bd';ctx.font='10px monospace';ctx.fillText('ムーラ村',12,15);ctx.fillText('武器屋',112,99);ctx.fillText('防具屋',365,99);ctx.fillText('アイテム屋',216,202);
 }else{
   for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
     let px=x*T,py=y*T,n=rand(x*17+y*61);
@@ -166,6 +170,16 @@ if(world===0){
 drawHero(ctx,state.x,state.y+3,1);
 }
 
+function openShop(kind){
+ const catalogs={
+ weapon:{title:'ムーラ村 武器屋',items:[{name:'ハンドガン',desc:'攻撃力 +5',price:25,type:'weapon',attack:5},{name:'RPG（武器）',desc:'攻撃力 +12',price:65,type:'weapon',attack:12}]},
+ armor:{title:'ムーラ村 防具屋',items:[{name:'木の盾',desc:'防御力 +2',price:20,type:'armor',defense:2},{name:'鉄の盾',desc:'防御力 +5',price:50,type:'armor',defense:5},{name:'ガーディアンアーマー',desc:'防御力 +8',price:90,type:'armor',defense:8}]},
+ item:{title:'ムーラ村 アイテム屋',items:[{name:'ポーション',desc:'HPを20回復（戦闘中）',price:10,type:'potion'},{name:'ハイポーション',desc:'HPを45回復（戦闘中）',price:25,type:'hipotion'}]}
+ };
+ const shop=catalogs[kind];$('shopTitle').textContent=shop.title;$('shopBalance').textContent='所持ブロックゴールド：'+(state.blockGold||0)+' 🧱';$('shopItems').innerHTML='';
+ shop.items.forEach(item=>{const b=document.createElement('button');b.style.textAlign='left';b.innerHTML='<b>'+item.name+' — '+item.price+' BG</b><br><small>'+item.desc+'</small>';b.onclick=()=>{if((state.blockGold||0)<item.price){toast('ブロックゴールドが足りない！');return}state.blockGold-=item.price;if(item.type==='weapon'){state.weapon=item.name;state.weaponAttack=item.attack;toast(item.name+'を装備した！')}else if(item.type==='armor'){state.armor=item.name;state.defense=item.defense;toast(item.name+'を装備した！')}else if(item.type==='potion'){state.potions=(state.potions||0)+1;toast('ポーションを購入！')}else{state.megaPotions=(state.megaPotions||0)+1;toast('ハイポーションを購入！')}$('shopBalance').textContent='所持ブロックゴールド：'+state.blockGold+' 🧱';updateHud();saveSilent()};$('shopItems').appendChild(b)});
+ $('shopPanel').classList.remove('hidden');
+}
 function startBattle(isBoss){
 if(inBattle||$('dialogPanel').classList.contains('hidden')===false)return;
 inBattle=true;guarding=false;mouseTarget=null;
@@ -181,28 +195,27 @@ function updateBattleStatus(){$('enemyHpText').textContent='敵 HP '+enemy.hp+'/
 function battleMessage(text){$('battleText').textContent=text}
 function enemyTurn(){
 if(!inBattle)return;
-let dmg=Math.max(1,enemy.atk-Math.floor(state.level/2)-(guarding?Math.ceil(enemy.atk*.65):0));state.hp=Math.max(0,state.hp-dmg);guarding=false;updateHud();
-if(state.hp<=0){battleMessage(enemy.name+'の攻撃！ '+dmg+'ダメージ。力尽きた……');setTimeout(()=>{inBattle=false;$('battlePanel').classList.add('hidden');state.hp=Math.max(1,Math.floor(state.maxHp*.5));state.gold=Math.max(0,state.gold-5);state.x=240;state.y=210;updateHud();toast('村で目を覚ました。Gを5失った。');saveSilent()},900)}
+let dmg=Math.max(1,enemy.atk-Math.floor(state.level/2)-(state.defense||0)-(guarding?Math.ceil(enemy.atk*.65):0));state.hp=Math.max(0,state.hp-dmg);guarding=false;updateHud();
+if(state.hp<=0){battleMessage(enemy.name+'の攻撃！ '+dmg+'ダメージ。力尽きた……');setTimeout(()=>{inBattle=false;$('battlePanel').classList.add('hidden');state.hp=Math.max(1,Math.floor(state.maxHp*.5));state.blockGold=Math.max(0,(state.blockGold||0)-5);state.x=240;state.y=210;updateHud();toast('村で目を覚ました。Gを5失った。');saveSilent()},900)}
 else{battleMessage(enemy.name+'の攻撃！ '+dmg+'ダメージを受けた。');}
 }
 function winBattle(){
-inBattle=false;$('battlePanel').classList.add('hidden');state.exp+=enemy.exp;state.gold+=enemy.gold;let msg=enemy.name+'を倒した！ EXP '+enemy.exp+' / G '+enemy.gold+' を獲得！';
+inBattle=false;$('battlePanel').classList.add('hidden');state.exp+=enemy.exp;state.blockGold=(state.blockGold||0)+enemy.gold;let msg=enemy.name+'を倒した！ EXP '+enemy.exp+' / ブロックゴールド '+enemy.gold+' を獲得！';
 if(enemy.boss){state.cleared[world]=true;state.unlocked=Math.max(state.unlocked,Math.min(3,world+1));msg+=' ワールドクリア！北の門から次の世界へ進める。'}
 while(state.exp>=state.level*10){state.exp-=state.level*10;state.level++;state.maxHp+=7;state.maxMp+=3;state.hp=state.maxHp;state.mp=state.maxMp;msg+=' レベルアップ！ Lv.'+state.level+'！'}
 updateHud();showDialog('VICTORY!',msg,()=>{saveSilent();$('hint').textContent='探索を続けよう。北の門で E キー！'});}
 function command(cmd){
 if(!inBattle||!enemy)return;
 let msg='';
-if(cmd==='attack'){let dmg=4+state.level*3+Math.floor(Math.random()*4);enemy.hp=Math.max(0,enemy.hp-dmg);msg='攻撃！ '+dmg+' ダメージ！'}
-if(cmd==='skill'){if(state.mp<3){battleMessage('MPが足りない！');return}state.mp-=3;let dmg=10+state.level*5+Math.floor(Math.random()*6);enemy.hp=Math.max(0,enemy.hp-dmg);msg='ファイアボルト！ '+dmg+' ダメージ！'}
-if(cmd==='item'){if(state.potions<=0){battleMessage('ポーションを持っていない！');return}if(state.hp===state.maxHp){battleMessage('HPは満タンだ！');return}state.potions--;let heal=Math.min(18,state.maxHp-state.hp);state.hp+=heal;msg='ポーションを使った。HPが '+heal+' 回復！'}
-if(cmd==='guard'){guarding=true;msg='身を守っている。次の攻撃のダメージを軽減！'}
+if(cmd==='attack'){let dmg=4+state.level*3+(state.weaponAttack||0)+Math.floor(Math.random()*4);enemy.hp=Math.max(0,enemy.hp-dmg);msg=(state.weapon||'武器')+'で攻撃！ '+dmg+' ダメージ！'}
+if(cmd==='item'){if((state.potions||0)<=0&&(state.megaPotions||0)<=0){battleMessage('使える回復アイテムがない！');return}if(state.hp===state.maxHp){battleMessage('HPは満タンだ！');return}let heal;if(state.megaPotions>0){state.megaPotions--;heal=Math.min(45,state.maxHp-state.hp);msg='ハイポーションを使った！ HP '+heal+' 回復！'}else{state.potions--;heal=Math.min(20,state.maxHp-state.hp);msg='ポーションを使った！ HP '+heal+' 回復！'}state.hp+=heal}
+if(cmd==='guard'){guarding=true;msg=(state.armor||'防具')+'で防御！ 次の攻撃を軽減！'}
 if(cmd==='run'){if(enemy.boss){battleMessage('ボス戦からは逃げられない！');return}if(Math.random()<.65){inBattle=false;$('battlePanel').classList.add('hidden');toast('うまく逃げ切った！');return}else{msg='逃げられなかった！'}}
 if(enemy.hp<=0){battleMessage(msg);updateHud();updateBattleStatus();setTimeout(winBattle,500);return}
 battleMessage(msg);updateHud();updateBattleStatus();setTimeout(enemyTurn,550);
 }
 function move(dx,dy,dt){
-if(!state||inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePanel').classList.contains('hidden')||!$('worldPanel').classList.contains('hidden'))return;
+if(!state||inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePanel').classList.contains('hidden')||!$('worldPanel').classList.contains('hidden')||!$('shopPanel').classList.contains('hidden'))return;
 let nx=clamp(state.x+dx*state.moveSpeed*dt,16,W-16),ny=clamp(state.y+dy*state.moveSpeed*dt,35,H-16);
 if(nx<24||nx>W-24||ny<24||ny>H-24)return;
 state.x=nx;state.y=ny;state.steps+=Math.abs(dx)+Math.abs(dy);
@@ -211,9 +224,10 @@ if(world>0){let ex=350,ey=190;if(!state.cleared[world]&&Math.hypot(state.x-ex,st
 function interact(){
 if(!state||inBattle)return;
 if(world===0){
-  if(Math.hypot(state.x-132,state.y-145)<30){showDialog('ムーラ村の道具屋','いらっしゃい！ポーションは冒険の必需品だよ。\nポーションを1個 10Gで買えるよ。',()=>{if(state.gold>=10){state.gold-=10;state.potions++;updateHud();saveSilent();toast('ポーションを購入した！')}else toast('Gが足りないよ！')});return}
-  if(Math.hypot(state.x-382,state.y-145)<30){showDialog('ムーラ村の宿屋','ゆっくり休んでいくかい？\n宿泊するとHPとMPが全回復するよ。',()=>{state.hp=state.maxHp;state.mp=state.maxMp;updateHud();saveSilent();toast('HP・MPが全回復！')});return}
-  if(Math.hypot(state.x-240,state.y-105)<30){showDialog('ムーラ村の村長','ようこそ、ムーラ村へ。\n北の門を抜ければ「はじまりの草原」だ。\nまずは草原の守護者を倒し、世界を切り開いておくれ。');return}
+  if(Math.hypot(state.x-132,state.y-145)<36){openShop('weapon');return}
+  if(Math.hypot(state.x-382,state.y-145)<36){openShop('armor');return}
+  if(Math.hypot(state.x-240,state.y-220)<36){openShop('item');return}
+  if([[70,70],[410,70],[70,230],[410,230]].some(([x,y])=>Math.hypot(state.x-x,state.y-y)<30)){toast('ここは村人の家だ。特に用事はなさそうだ。');return}
   if(Math.hypot(state.x-240,state.y-43)<55){world=1;state.world=1;state.x=240;state.y=245;updateHud();toast('WORLD 1：はじまりの草原へ！');saveSilent();return}
 }else{
   if(Math.hypot(state.x-240,state.y-43)<52){
@@ -228,7 +242,7 @@ toast('近くに調べられるものはない。');
 function loop(ts){
 if(!$('playScreen').classList.contains('hidden')===false)return;
 let dt=Math.min(.04,(ts-lastTime)/1000||0);lastTime=ts;
-if(!inBattle&&$('dialogPanel').classList.contains('hidden')&&$('pausePanel').classList.contains('hidden')){
+if(!inBattle&&$('dialogPanel').classList.contains('hidden')&&$('pausePanel').classList.contains('hidden')&&$('shopPanel').classList.contains('hidden')){
 let dx=0,dy=0;if(keys.ArrowLeft||keys.a)dx--;if(keys.ArrowRight||keys.d)dx++;if(keys.ArrowUp||keys.w)dy--;if(keys.ArrowDown||keys.s)dy++;
 if(mouseTarget){let vx=mouseTarget.x-state.x,vy=mouseTarget.y-state.y,dist=Math.hypot(vx,vy);if(dist<4)mouseTarget=null;else{dx=vx/dist;dy=vy/dist}}
 if(dx&&dy){dx*=.707;dy*=.707}if(dx||dy)move(dx,dy,dt);
@@ -245,20 +259,20 @@ $('worldPanel').classList.remove('hidden');
 function setContinue(){ $('continueBtn').disabled=!localStorage.getItem('genesisUtopiaSave')}
 document.querySelectorAll('[data-command]').forEach(b=>b.addEventListener('click',()=>command(b.dataset.command)));
 $('newGameBtn').onclick=()=>startGame(true);$('continueBtn').onclick=()=>startGame(false);
-$('controlsBtn').onclick=()=>window.alert('操作方法\n移動：WASD / 矢印キー\nE：調べる・会話・門を調べる\n敵に触れる：戦闘スタート\nEsc：メニュー\n戦闘：コマンドをクリック、または数字キー 1〜5');
+$('controlsBtn').onclick=()=>window.alert('操作方法\n移動：WASD / 矢印キー\nE：調べる・会話・門を調べる\n敵に触れる：戦闘スタート\nEsc：メニュー\n戦闘：コマンドをクリック、または数字キー 1〜4');
 $('fullscreenBtn').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
 $('worldMapBtn').onclick=openWorlds;
 $('pauseBtn').onclick=pause;$('resumeBtn').onclick=resume;$('saveBtn').onclick=()=>{save();resume()};$('backTitleBtn').onclick=()=>{saveSilent();$('pausePanel').classList.add('hidden');$('playScreen').classList.add('hidden');$('titleScreen').classList.remove('hidden');setContinue()};
 $('quitBtn')?.addEventListener('click',pause);$('homeBtn')?.addEventListener('click',()=>{if(!$('playScreen').classList.contains('hidden'))pause();else{$('titleScreen').classList.remove('hidden')}});
 $('dialogNext').onclick=()=>{$('dialogPanel').classList.add('hidden')};
-$('closeWorldBtn').onclick=()=>$('worldPanel').classList.add('hidden');
+$('closeWorldBtn').onclick=()=>$('worldPanel').classList.add('hidden');$('shopClose').onclick=()=>$('shopPanel').classList.add('hidden');
 $('fieldWrap').addEventListener('click',e=>{if(inBattle||!$('dialogPanel').classList.contains('hidden')||!$('pausePanel').classList.contains('hidden'))return;let r=canvas.getBoundingClientRect();mouseTarget={x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}});
 window.addEventListener('keydown',e=>{
 let k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[e.key]=true;keys[k]=true;
 if(k==='escape'){if(!$('pausePanel').classList.contains('hidden'))resume();else pause()}
 if(k==='m')openWorlds();
 if(k==='e'||k==='enter'||k===' '){if(!$('dialogPanel').classList.contains('hidden'))$('dialogNext').click();else interact()}
-if(inBattle&&'12345'.includes(k)){command(['attack','skill','item','guard','run'][Number(k)-1])}
+if(inBattle&&'1234'.includes(k)){command(['attack','guard','item','run'][Number(k)-1])}
 });
 window.addEventListener('keyup',e=>{keys[e.key]=false;keys[e.key.toLowerCase()]=false});
 window.addEventListener('blur',()=>{keys={};mouseTarget=null});
