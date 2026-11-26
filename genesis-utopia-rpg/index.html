@@ -171,11 +171,20 @@ if(world===0){
   ctx.fillStyle='#fff0bd';ctx.font='10px monospace';ctx.fillText('ムーラ村',12,15);ctx.fillText('武器屋',112,99);ctx.fillText('防具屋',365,99);ctx.fillText('アイテム屋',216,202);
 }else{
   for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
-    let px=x*T,py=y*T,n=rand(x*17+y*61);
-    if(tileAt(x,y)===1){pixelRect(ctx,px,py,T,T,base.dark);pixelRect(ctx,px+3,py+3,18,17,world===3?'#d8e8eb':'#355b43');}
-    else if(tileAt(x,y)===2){pixelRect(ctx,px+5,py+5,14,14,base.accent);pixelRect(ctx,px+8,py+2,8,20,base.dark)}
-    else if(tileAt(x,y)===3){pixelRect(ctx,px+7,py+7,3,3,base.accent);pixelRect(ctx,px+15,py+15,3,3,base.dark)}
-    else if(n>.83){pixelRect(ctx,px+6,py+7,2,3,base.accent);pixelRect(ctx,px+15,py+17,2,2,base.dark)}
+    let px=x*T,py=y*T,n=rand(x*17+y*61),kind=tileAt(x,y);
+    if(kind===1){
+      pixelRect(ctx,px,py,T,T,base.dark);pixelRect(ctx,px+2,py+2,20,20,world===3?'#d8e8eb':'#355b43');
+      pixelRect(ctx,px+4,py+4,7,3,world===3?'#f3fbff':'#62845a');pixelRect(ctx,px+14,py+9,5,3,world===3?'#eefaff':'#739767');pixelRect(ctx,px+6,py+16,10,2,world===3?'#9fc4d1':'#2f5539');
+      pixelRect(ctx,px+1,py+1,22,1,'rgba(255,255,255,.25)');
+    }else if(kind===2){
+      pixelRect(ctx,px+4,py+6,16,15,base.dark);pixelRect(ctx,px+6,py+4,12,15,base.accent);pixelRect(ctx,px+8,py+2,8,18,base.dark);
+      pixelRect(ctx,px+9,py+5,3,3,'rgba(255,255,255,.4)');pixelRect(ctx,px+5,py+18,14,2,'#4b4435');
+    }else if(kind===3){
+      pixelRect(ctx,px+6,py+6,12,12,'#6d5135');pixelRect(ctx,px+8,py+4,8,14,base.accent);pixelRect(ctx,px+10,py+2,4,6,'#fff0bd');pixelRect(ctx,px+7,py+16,10,2,'#46392d');
+    }else{
+      pixelRect(ctx,px+3,py+4,2,3,base.accent);pixelRect(ctx,px+15,py+16,3,3,base.dark);
+      if(n>.72){pixelRect(ctx,px+8,py+9,2,2,'rgba(255,255,255,.35)');pixelRect(ctx,px+19,py+5,2,2,base.accent)}
+    }
   }
   let gateX=240,gateY=43;pixelRect(ctx,gateX-22,gateY-8,44,29,'#493d34');pixelRect(ctx,gateX-16,gateY-6,32,25,'#a78a58');pixelRect(ctx,gateX-10,gateY-4,20,23,'#263d52');pixelRect(ctx,gateX-2,gateY+3,4,4,'#f6d879');
   if(world>0&&!state.cleared[world]){let bx=350,by=190;drawMonster(ctx,bx,by,monsters[(world-1)*2].color,1.1);pixelRect(ctx,bx-12,by-21,24,3,'#17212a');pixelRect(ctx,bx-11,by-20,22,1,'#f37d76')}
