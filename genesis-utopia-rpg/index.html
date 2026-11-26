@@ -107,15 +107,30 @@ function pixelRect(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(Math.round(x),M
 function detailRect(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(x,y,w,h)}
 function drawHero(c,x,y,scale=1){
  const s=scale;c.save();c.translate(Math.round(x),Math.round(y));
- // 影・ブーツ・マント・服・髪・顔・装備を小さな色面で重ねたドットキャラ
- pixelRect(c,-8*s,-1*s,16*s,4*s,'#26352c');
- pixelRect(c,-5*s,-16*s,4*s,7*s,'#46352f');pixelRect(c,1*s,-16*s,4*s,7*s,'#46352f');
- pixelRect(c,-6*s,-18*s,12*s,11*s,'#315b91');pixelRect(c,-8*s,-15*s,3*s,9*s,'#244875');pixelRect(c,5*s,-15*s,3*s,9*s,'#244875');
- pixelRect(c,-5*s,-20*s,10*s,8*s,'#d8a36d');pixelRect(c,-6*s,-23*s,12*s,5*s,'#49342b');pixelRect(c,-5*s,-25*s,10*s,3*s,'#654331');pixelRect(c,-7*s,-21*s,3*s,4*s,'#654331');
- pixelRect(c,-3*s,-18*s,2*s,2*s,'#fff0c9');pixelRect(c,2*s,-18*s,2*s,2*s,'#fff0c9');pixelRect(c,-2*s,-18*s,1*s,2*s,'#28303b');pixelRect(c,3*s,-18*s,1*s,2*s,'#28303b');
- pixelRect(c,-5*s,-12*s,10*s,2*s,'#d2b45d');pixelRect(c,-2*s,-17*s,4*s,5*s,'#bd8052');
- pixelRect(c,-6*s,-7*s,5*s,7*s,'#554035');pixelRect(c,1*s,-7*s,5*s,7*s,'#554035');pixelRect(c,-6*s,-1*s,5*s,2*s,'#292a30');pixelRect(c,1*s,-1*s,5*s,2*s,'#292a30');
- pixelRect(c,7*s,-15*s,2*s,13*s,'#b7c6cf');pixelRect(c,6*s,-17*s,4*s,3*s,'#e4d9b2');pixelRect(c,7*s,-2*s,2*s,2*s,'#7e8b96');
+ // 新デザイン：深緑のフード、赤茶のマント、金の留め具を持つ冒険者
+ // 足元の影とブーツ
+ pixelRect(c,-9*s,-1*s,18*s,4*s,'#26352c');
+ pixelRect(c,-6*s,-8*s,5*s,8*s,'#49352d');pixelRect(c,2*s,-8*s,5*s,8*s,'#49352d');
+ pixelRect(c,-7*s,-2*s,6*s,2*s,'#242b32');pixelRect(c,2*s,-2*s,6*s,2*s,'#242b32');
+ // マントの裾と肩
+ pixelRect(c,-9*s,-19*s,18*s,12*s,'#8c493c');pixelRect(c,-11*s,-17*s,4*s,9*s,'#713b35');pixelRect(c,7*s,-17*s,4*s,9*s,'#713b35');
+ pixelRect(c,-8*s,-9*s,16*s,2*s,'#c17b50');pixelRect(c,-6*s,-16*s,12*s,7*s,'#315f59');
+ // 胴体・ベルト・金具
+ pixelRect(c,-6*s,-19*s,12*s,11*s,'#315f59');pixelRect(c,-5*s,-17*s,10*s,7*s,'#477d70');
+ pixelRect(c,-7*s,-10*s,14*s,3*s,'#49352d');pixelRect(c,-2*s,-10*s,4*s,3*s,'#e4bd62');
+ pixelRect(c,-4*s,-18*s,2*s,5*s,'#8fc2a0');pixelRect(c,3*s,-17*s,2*s,4*s,'#244b49');
+ // フードと顔
+ pixelRect(c,-8*s,-27*s,16*s,10*s,'#244b43');pixelRect(c,-6*s,-30*s,12*s,5*s,'#315f52');
+ pixelRect(c,-6*s,-25*s,12*s,8*s,'#d9a477');pixelRect(c,-8*s,-25*s,3*s,7*s,'#244b43');pixelRect(c,5*s,-25*s,3*s,7*s,'#244b43');
+ pixelRect(c,-5*s,-22*s,10*s,2*s,'#bd8059');
+ pixelRect(c,-4*s,-24*s,3*s,2*s,'#fff0c9');pixelRect(c,2*s,-24*s,3*s,2*s,'#fff0c9');
+ pixelRect(c,-3*s,-24*s,2*s,2*s,'#27313a');pixelRect(c,3*s,-24*s,2*s,'#27313a');
+ pixelRect(c,-2*s,-19*s,4*s,1*s,'#754a3e');
+ // フードの縁と胸のエンブレム
+ pixelRect(c,-7*s,-27*s,14*s,1*s,'#d9b45f');pixelRect(c,-1*s,-16*s,3*s,3*s,'#f1d27c');
+ // 背負った剣
+ pixelRect(c,8*s,-22*s,2*s,16*s,'#aebdca');pixelRect(c,7*s,-24*s,4*s,3*s,'#e4d4a3');
+ pixelRect(c,6*s,-8*s,6*s,2*s,'#79543a');pixelRect(c,8*s,-10*s,2*s,4*s,'#d9b45f');
  c.restore();
 }
 function drawMonster(c,x,y,color,scale=1){
@@ -137,10 +152,10 @@ pixelRect(c,0,165,480,15,'#365a42');}
 function rand(seed){let x=Math.sin(seed*127.1+world*53.7)*43758.5453;return x-Math.floor(x)}
 function tileAt(x,y){let n=rand(x*17+y*61);if(x===0||y===0||x===COLS-1||y===ROWS-1)return 1;if((x*3+y*7+world)%29===0)return 2;if(n>.94)return 3;return 0}
 function makeState(){
-return {version:3,x:240,y:250,level:1,maxHp:30,hp:30,maxMp:10,mp:10,exp:0,blockGold:30,weapon:"木の剣",weaponAttack:0,armor:"旅人の服",defense:0,potions:2,megaPotions:0,world:0,unlocked:1,cleared:[true,false,false,false],steps:0,moveSpeed:90,inventory:{},savedAt:Date.now()};
+return {version:3,x:240,y:250,level:1,maxHp:30,hp:30,maxMp:10,mp:10,exp:0,blockGold:30,weapon:"木の剣",weaponAttack:0,armor:"旅人の服",defense:0,potions:2,megaPotions:0,world:0,unlocked:1,cleared:[true,false,false,false],steps:0,moveSpeed:90,inventory:{},ownedProducts:[],savedAt:Date.now()};
 }
 function save(){if(!state)return;state.savedAt=Date.now();localStorage.setItem('genesisUtopiaSave',JSON.stringify(state));toast('セーブしました！')}
-function load(){try{let s=JSON.parse(localStorage.getItem('genesisUtopiaSave'));if(s&&typeof s.level==='number'){if(!s.version||s.version<2){s.world=(s.world||0)+1;s.unlocked=Math.min(3,(s.unlocked||0)+1);s.cleared=[true,...(s.cleared||[false,false,false])];s.version=2;s.x=240;s.y=250}if(typeof s.blockGold!=="number")s.blockGold=Math.max(0,s.gold||0);if(typeof s.weaponAttack!=="number")s.weaponAttack=0;if(typeof s.defense!=="number")s.defense=0;if(typeof s.potions!=="number")s.potions=2;if(typeof s.megaPotions!=="number")s.megaPotions=0;s.version=3;state=s;world=state.world||0;return true}}catch(e){}return false}
+function load(){try{let s=JSON.parse(localStorage.getItem('genesisUtopiaSave'));if(s&&typeof s.level==='number'){if(!s.version||s.version<2){s.world=(s.world||0)+1;s.unlocked=Math.min(3,(s.unlocked||0)+1);s.cleared=[true,...(s.cleared||[false,false,false])];s.version=2;s.x=240;s.y=250}if(typeof s.blockGold!=="number")s.blockGold=Math.max(0,s.gold||0);if(typeof s.weaponAttack!=="number")s.weaponAttack=0;if(typeof s.defense!=="number")s.defense=0;if(typeof s.potions!=="number")s.potions=2;if(typeof s.megaPotions!=="number")s.megaPotions=0;if(!Array.isArray(s.ownedProducts))s.ownedProducts=[];[s.weapon,s.armor].forEach(name=>{if(name&&!s.ownedProducts.includes(name))s.ownedProducts.push(name)});s.version=3;state=s;world=state.world||0;return true}}catch(e){}return false}
 function updateHud(){
 $('worldLabel').textContent='WORLD '+world+' — '+worlds[world].name;
 $('level').textContent=state.level;$('hpText').textContent=state.hp+'/'+state.maxHp;$('mpText').textContent=state.mp+'/'+state.maxMp;$('expText').textContent=state.exp+'/'+(state.level*10);$('goldText').textContent=state.blockGold||0;
@@ -277,10 +292,15 @@ function openShop(kind){
   $('shopItems').innerHTML='';
   shop.categories[activeCategory].forEach(item=>{
    const b=document.createElement('button');b.style.textAlign='left';
-   b.innerHTML='<b>'+item.name+' — '+item.price+' BG</b><br><small>'+item.desc+'</small>';
+   const equipment=item.type==='armor'||kind==='weapon';
+   const owned=equipment&&(state.ownedProducts||[]).includes(item.name);
+   b.disabled=owned;
+   b.innerHTML='<b>'+item.name+' — '+item.price+' BG</b><br><small>'+item.desc+(owned?'　｜　✓ 所持済み':'')+'</small>';
    b.onclick=()=>{
+    if(owned){toast('この商品はすでに持っているよ！');return}
     if((state.blockGold||0)<item.price){toast('ブロックゴールドが足りない！');return}
     state.blockGold-=item.price;
+    if(equipment){state.ownedProducts=state.ownedProducts||[];if(!state.ownedProducts.includes(item.name))state.ownedProducts.push(item.name)}
     if(kind==='weapon'){
      state.weapon=item.name;state.weaponAttack=item.attack;
      toast(item.name+'を装備した！');
