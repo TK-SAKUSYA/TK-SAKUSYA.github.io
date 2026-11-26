@@ -103,11 +103,26 @@ const monsters=[
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function pixelRect(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
 function drawHero(c,x,y,scale=1){
-const s=scale;c.save();c.translate(Math.round(x),Math.round(y));
-pixelRect(c,-6*s,-10*s,12*s,10*s,'#315e9b');pixelRect(c,-5*s,-14*s,10*s,6*s,'#d9a36c');pixelRect(c,-6*s,-16*s,12*s,5*s,'#583b2b');pixelRect(c,-4*s,-8*s,3*s,3*s,'#f4e8c6');pixelRect(c,1*s,-8*s,3*s,3*s,'#f4e8c6');pixelRect(c,-5*s,0,4*s,6*s,'#513a31');pixelRect(c,1*s,0,4*s,6*s,'#513a31');pixelRect(c,-9*s,-8*s,3*s,9*s,'#d8b45d');c.restore()
+ const s=scale;c.save();c.translate(Math.round(x),Math.round(y));
+ // 影・ブーツ・マント・服・髪・顔・装備を小さな色面で重ねたドットキャラ
+ pixelRect(c,-8*s,-1*s,16*s,4*s,'#26352c');
+ pixelRect(c,-5*s,-16*s,4*s,7*s,'#46352f');pixelRect(c,1*s,-16*s,4*s,7*s,'#46352f');
+ pixelRect(c,-6*s,-18*s,12*s,11*s,'#315b91');pixelRect(c,-8*s,-15*s,3*s,9*s,'#244875');pixelRect(c,5*s,-15*s,3*s,9*s,'#244875');
+ pixelRect(c,-5*s,-20*s,10*s,8*s,'#d8a36d');pixelRect(c,-6*s,-23*s,12*s,5*s,'#49342b');pixelRect(c,-5*s,-25*s,10*s,3*s,'#654331');pixelRect(c,-7*s,-21*s,3*s,4*s,'#654331');
+ pixelRect(c,-3*s,-18*s,2*s,2*s,'#fff0c9');pixelRect(c,2*s,-18*s,2*s,2*s,'#fff0c9');pixelRect(c,-2*s,-18*s,1*s,2*s,'#28303b');pixelRect(c,3*s,-18*s,1*s,2*s,'#28303b');
+ pixelRect(c,-5*s,-12*s,10*s,2*s,'#d2b45d');pixelRect(c,-2*s,-17*s,4*s,5*s,'#bd8052');
+ pixelRect(c,-6*s,-7*s,5*s,7*s,'#554035');pixelRect(c,1*s,-7*s,5*s,7*s,'#554035');pixelRect(c,-6*s,-1*s,5*s,2*s,'#292a30');pixelRect(c,1*s,-1*s,5*s,2*s,'#292a30');
+ pixelRect(c,7*s,-15*s,2*s,13*s,'#b7c6cf');pixelRect(c,6*s,-17*s,4*s,3*s,'#e4d9b2');pixelRect(c,7*s,-2*s,2*s,2*s,'#7e8b96');
+ c.restore();
 }
 function drawMonster(c,x,y,color,scale=1){
-const s=scale;c.save();c.translate(Math.round(x),Math.round(y));pixelRect(c,-10*s,-7*s,20*s,14*s,color);pixelRect(c,-7*s,-12*s,14*s,6*s,color);pixelRect(c,-6*s,-7*s,3*s,4*s,'#fff');pixelRect(c,3*s,-7*s,3*s,4*s,'#fff');pixelRect(c,-5*s,-6*s,2*s,3*s,'#18212b');pixelRect(c,4*s,-6*s,2*s,3*s,'#18212b');pixelRect(c,-6*s,6*s,12*s,3*s,'#263c3c');c.restore()
+ const s=scale;c.save();c.translate(Math.round(x),Math.round(y));
+ pixelRect(c,-12*s,6*s,24*s,4*s,'#26352c');pixelRect(c,-11*s,-6*s,22*s,13*s,color);pixelRect(c,-8*s,-11*s,16*s,7*s,color);
+ pixelRect(c,-9*s,-7*s,5*s,4*s,'rgba(255,255,255,.25)');pixelRect(c,4*s,-7*s,5*s,4*s,'rgba(0,0,0,.16)');
+ pixelRect(c,-7*s,-5*s,4*s,5*s,'#fff4d6');pixelRect(c,3*s,-5*s,4*s,5*s,'#fff4d6');pixelRect(c,-6*s,-4*s,2*s,3*s,'#202a35');pixelRect(c,4*s,-4*s,2*s,3*s,'#202a35');
+ pixelRect(c,-4*s,2*s,8*s,2*s,'#49343b');pixelRect(c,-10*s,5*s,5*s,3*s,'#3c5960');pixelRect(c,5*s,5*s,5*s,3*s,'#3c5960');
+ pixelRect(c,-13*s,-4*s,3*s,7*s,color);pixelRect(c,10*s,-4*s,3*s,7*s,color);
+ c.restore();
 }
 function drawTitleArt(){
 const c=$('titleArt').getContext('2d');c.imageSmoothingEnabled=false;pixelRect(c,0,0,480,180,'#83b8c0');pixelRect(c,0,0,480,95,'#7db3c0');
