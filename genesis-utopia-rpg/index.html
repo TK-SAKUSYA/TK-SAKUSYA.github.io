@@ -322,11 +322,11 @@ function openShop(kind){
  }
  renderShop();$('shopPanel').classList.remove('hidden');
 }
-function startBattle(isBoss){
+function startBattle(isBoss,targetEnemy){
 if(inBattle||$('dialogPanel').classList.contains('hidden')===false)return;
 inBattle=true;guarding=false;
 if(world===0){toast('ムーラ村では戦闘は起こらないよ');inBattle=false;return}
-let m=isBoss?monsters[(world-1)*2+1]:(fieldEnemies.find(e=>e.alive&&Math.hypot(state.x-e.x,state.y-e.y)<30)||fieldEnemySets[world][Math.floor(Math.random()*fieldEnemySets[world].length)]);
+let m=isBoss?monsters[(world-1)*2+1]:(targetEnemy||fieldEnemySets[world][Math.floor(Math.random()*fieldEnemySets[world].length)]);
 enemy={...m,maxHp:m.hp,hp:m.hp};$('enemyTitle').textContent=(isBoss?'BOSS：':'')+enemy.name+' が現れた！';
 $('battleText').textContent='どうする？';$('battlePanel').classList.remove('hidden');drawBattle();updateBattleStatus();$('hint').textContent='コマンドを選んで行動しよう。';
 }
