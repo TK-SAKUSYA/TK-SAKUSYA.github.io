@@ -19,7 +19,7 @@
 <script>
 (()=>{
  const ruler=document.getElementById('ruler'),sound=document.getElementById('sound'),flash=document.getElementById('flash'),status=document.getElementById('status'),motionBtn=document.getElementById('motionBtn');
- let audio=null,muted=false,last=0,motionOn=false,prev=null,angleTotal=0,lastAngles=null;
+ let audio=null,muted=false,last=0,motionOn=false,baseAngles=null,hitLocked=false;
  function unlockAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;audio=audio||new AC();if(audio.state==='suspended')audio.resume();return true;}catch(e){return false;}}
  function play(){
   const now=Date.now();if(now-last<420)return;last=now;
@@ -33,31 +33,27 @@
  document.getElementById('hitBtn').addEventListener('click',async()=>{unlockAudio();if(audio&&audio.state==='suspended'){try{await audio.resume();}catch(e){}}play();});
  document.getElementById('soundBtn').addEventListener('click',e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 音量：OFF':'🔊 音量：ON';if(!muted)unlockAudio();});
  motionBtn.addEventListener('click',async()=>{
-  if(motionOn){motionOn=false;window.removeEventListener('devicemotion',onMotion);window.removeEventListener('deviceorientation',onOrientation);prev=null;lastAngles=null;angleTotal=0;status.textContent='振り検知OFF';motionBtn.textContent='📳 振り検知をON';return;}
+  if(motionOn){motionOn=false;window.removeEventListener('deviceorientation',onOrientation);baseAngles=null;hitLocked=false;status.textContent='振り検知OFF';motionBtn.textContent='📳 振り検知をON';return;}
   unlockAudio();
   try{
-   if(typeof DeviceMotionEvent==='undefined'&&typeof DeviceOrientationEvent==='undefined')throw new Error('このブラウザは動作センサー非対応');
-   if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){const p=await DeviceMotionEvent.requestPermission();if(p!=='granted')throw new Error('センサー許可が拒否されました');}
-   if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')throw new Error('傾きセンサーの許可が拒否されました');}
-   window.addEventListener('devicemotion',onMotion,{passive:true});window.addEventListener('deviceorientation',onOrientation,{passive:true});
-   motionOn=true;prev=null;lastAngles=null;angleTotal=0;motionBtn.textContent='📳 振り検知をOFF';status.textContent='準備OK！スマホを90°振るごとに1ペチ！';
+   if(typeof DeviceOrientationEvent==='undefined')throw new Error('このブラウザは傾きセンサー非対応');
+   if(typeof DeviceOrientationEvent.requestPermission==='function'){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')throw new Error('傾きセンサーの許可が拒否されました');}
+   window.addEventListener('deviceorientation',onOrientation,{passive:true});
+   motionOn=true;baseAngles=null;hitLocked=false;motionBtn.textContent='📳 振り検知をOFF';status.textContent='準備OK！最初にスマホの位置を覚えます…';
   }catch(e){status.textContent='開始できません：'+e.message;}
  });
- function onMotion(e){
-  // Motion events are used only as a sensor diagnostic; hits are triggered by 90-degree orientation movement.
-  const a=e.acceleration,g=e.accelerationIncludingGravity;
-  let value='加速度センサー待機中';
-  if(a&&[a.x,a.y,a.z].some(v=>v!==null&&v!==undefined))value='加速度センサー受信OK';
-  else if(g&&[g.x,g.y,g.z].some(v=>v!==null&&v!==undefined))value='動作センサー受信OK';
-  if(!lastAngles)status.textContent=value+'／傾き90°で1ペチ';
- }
  function angleDiff(a,b){let d=a-b;while(d>180)d-=360;while(d< -180)d+=360;return d;}
  function onOrientation(e){
   if(e.beta===null||e.gamma===null)return;
   const current={beta:e.beta,gamma:e.gamma};
-  if(lastAngles){const db=angleDiff(current.beta,lastAngles.beta),dg=angleDiff(current.gamma,lastAngles.gamma);angleTotal+=Math.hypot(db,dg);}
-  lastAngles=current;
-  status.textContent='傾き検知OK ✓　あと'+Math.max(0,90-angleTotal).toFixed(0)+'°でペチッ！';
-  if(angleTotal>=90){angleTotal-=90;play();status.textContent='90°検知！ ペチッ！ あと'+Math.max(0,90-angleTotal).toFixed(0)+'°';}
+  if(!baseAngles){baseAngles=current;status.textContent='基準位置を設定！下げると90°で1ペチ';return;}
+  const moved=Math.hypot(angleDiff(current.beta,baseAngles.beta),angleDiff(current.gamma,baseAngles.gamma));
+  if(hitLocked){
+   if(moved<=15){hitLocked=false;baseAngles=current;status.textContent='元の位置に戻った！次の下げ動作を待機中';}
+   else status.textContent='戻している間は鳴らないよ！';
+   return;
+  }
+  status.textContent='下げ動作を検知中… あと'+Math.max(0,90-moved).toFixed(0)+'°';
+  if(moved>=90){hitLocked=true;play();status.textContent='下げ動作で1ペチ！戻すときは鳴らないよ';}
  }
 })();</script></body></html>
