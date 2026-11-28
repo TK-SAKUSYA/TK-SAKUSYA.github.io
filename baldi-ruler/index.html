@@ -11,7 +11,7 @@
 </head>
 <body><main>
 <h1>📏 バルディのものさし</h1><p class="sub">ペチッ！を鳴らして遊ぼう</p>
-<div class="stage"><div class="ruler" id="ruler" aria-label="ものさし"><div class="scale" aria-hidden="true"><span>0 <b>1</b></span><span>2 <b>3</b></span><span>4 <b>5</b></span><span>6 <b>7</b></span><span>8 <b>9</b></span><span>10 <b>11</b></span><span>12 <b>13</b></span><span>14 <b>15</b></span><span>16 <b>17</b></span><span>18 <b>19</b></span><span>20</span></div><div class="brand">BALDI'S RULER</div></div><div class="flash" id="flash"></div></div>
+<div class="stage"><div class="ruler" id="ruler" role="button" tabindex="0" aria-label="ものさし。タップするとペチッ！"><div class="scale" aria-hidden="true"><span>0 <b>1</b></span><span>2 <b>3</b></span><span>4 <b>5</b></span><span>6 <b>7</b></span><span>8 <b>9</b></span><span>10 <b>11</b></span><span>12 <b>13</b></span><span>14 <b>15</b></span><span>16 <b>17</b></span><span>18 <b>19</b></span><span>20</span></div><div class="brand">BALDI'S RULER</div></div><div class="flash" id="flash"></div></div>
 <div class="sound" id="sound">ペチッ！！</div>
 <div class="controls"><button id="hitBtn">📏 ペチッ！</button><div class="row"><button class="secondary" id="motionBtn">📳 振り検知をON</button><button class="secondary" id="soundBtn">🔊 音量：ON</button></div><div class="status" id="status">まず「振り検知をON」を押してね！</div></div>
 <p class="note">スマホを手や物に打ちつけないでね。落とさないよう安全に持ち、空中で軽く振るだけで試してね。</p>
@@ -37,6 +37,8 @@
   }catch(e){status.textContent='音声エラー：'+e.message;}}
  }
  document.getElementById('hitBtn').addEventListener('click',async()=>{unlockAudio();if(audio&&audio.state==='suspended'){try{await audio.resume();}catch(e){}}play();});
+ ruler.addEventListener('click',async()=>{unlockAudio();if(audio&&audio.state==='suspended'){try{await audio.resume();}catch(e){}}play();});
+ ruler.addEventListener('keydown',async e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();unlockAudio();if(audio&&audio.state==='suspended'){try{await audio.resume();}catch(err){}}play();}});
  document.getElementById('soundBtn').addEventListener('click',e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 音量：OFF':'🔊 音量：ON';if(!muted)unlockAudio();});
  motionBtn.addEventListener('click',async()=>{
   if(motionOn){motionOn=false;window.removeEventListener('deviceorientation',onOrientation);baseAngles=null;hitLocked=false;status.textContent='振り検知OFF';motionBtn.textContent='📳 振り検知をON';return;}
