@@ -17,44 +17,56 @@
 <p class="note">スマホを手や物に打ちつけないでね。落とさないよう安全に持ち、空中で軽く振るだけで試してね。</p>
 </main>
 <script>
-(()=> {
+(()=>{
  const ruler=document.getElementById('ruler'),sound=document.getElementById('sound'),flash=document.getElementById('flash'),status=document.getElementById('status'),motionBtn=document.getElementById('motionBtn');
- let audio=null,muted=false,last=0,motionOn=false,prev=null;
- function unlockAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;audio=audio||new AC();if(audio.state==='suspended')audio.resume();return true;}catch(e){return false;}}
+ let audio=null,muted=false,last=0,motionOn=false,prev=null,samples=0;
+ function unlockAudio(){
+  try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;audio=audio||new AC();if(audio.state==='suspended')audio.resume();return true;}catch(e){return false;}
+ }
  function play(){
-  const now=Date.now();if(now-last<280)return;last=now;
+  const now=Date.now();if(now-last<420)return;last=now;
   ruler.classList.remove('hit');void ruler.offsetWidth;ruler.classList.add('hit');flash.classList.remove('on');void flash.offsetWidth;flash.classList.add('on');sound.classList.remove('show');void sound.offsetWidth;sound.classList.add('show');clearTimeout(play.t);play.t=setTimeout(()=>sound.classList.remove('show'),480);
   if(!muted){
-   try{if(!audio)unlockAudio();if(!audio)throw new Error('no audio');if(audio.state==='suspended')audio.resume();
-    const duration=.13,sr=audio.sampleRate,n=Math.floor(sr*duration),buffer=audio.createBuffer(1,n,sr),data=buffer.getChannelData(0);
-    for(let i=0;i<n;i++){const t=i/n;data[i]=(Math.random()*2-1)*Math.pow(1-t,3)*(.72*Math.sin(2*Math.PI*(210-110*t)*i/sr)+.28);}
-    const src=audio.createBufferSource(),gain=audio.createGain(),filter=audio.createBiquadFilter();src.buffer=buffer;filter.type='lowpass';filter.frequency.value=1900;gain.gain.setValueAtTime(.9,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);src.connect(filter);filter.connect(gain);gain.connect(audio.destination);src.start();
-   }catch(e){status.textContent='音声を開始できません。画面のペチッ！ボタンを一度押してね。';}
+   try{
+    if(!audio)unlockAudio();
+    if(!audio)throw new Error('AudioContext unavailable');
+    if(audio.state!=='running'){audio.resume();status.textContent='音声準備中… 画面の「ペチッ！」を一度タップしてね';return;}
+    const duration=.16,sr=audio.sampleRate,n=Math.floor(sr*duration),buffer=audio.createBuffer(1,n,sr),data=buffer.getChannelData(0);
+    for(let i=0;i<n;i++){const t=i/n;data[i]=(Math.random()*2-1)*Math.pow(1-t,3)*(.8*Math.sin(2*Math.PI*(260-150*t)*i/sr)+.2);}
+    const src=audio.createBufferSource(),gain=audio.createGain(),filter=audio.createBiquadFilter();src.buffer=buffer;filter.type='lowpass';filter.frequency.value=2200;gain.gain.setValueAtTime(.8,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);src.connect(filter);filter.connect(gain);gain.connect(audio.destination);src.start();
+   }catch(e){status.textContent='音声エラー：'+e.message;}
   }
  }
- document.getElementById('hitBtn').addEventListener('click',()=>{unlockAudio();play();});
+ document.getElementById('hitBtn').addEventListener('click',async()=>{unlockAudio();if(audio&&audio.state==='suspended'){try{await audio.resume();}catch(e){}}play();});
  document.getElementById('soundBtn').addEventListener('click',e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 音量：OFF':'🔊 音量：ON';if(!muted)unlockAudio();});
  motionBtn.addEventListener('click',async()=>{
-  if(motionOn){motionOn=false;window.removeEventListener('devicemotion',onMotion);prev=null;status.textContent='振り検知をOFFにしました';motionBtn.textContent='📳 振り検知をON';return;}
+  if(motionOn){motionOn=false;window.removeEventListener('devicemotion',onMotion);window.removeEventListener('deviceorientation',onOrientation);prev=null;status.textContent='振り検知OFF';motionBtn.textContent='📳 振り検知をON';return;}
   unlockAudio();
   try{
-   if(typeof DeviceMotionEvent==='undefined')throw new Error('unsupported');
-   if(typeof DeviceMotionEvent.requestPermission==='function'){const p=await DeviceMotionEvent.requestPermission();if(p!=='granted')throw new Error('permission');}
-   window.addEventListener('devicemotion',onMotion,{passive:true});motionOn=true;motionBtn.textContent='📳 振り検知をOFF';status.textContent='振り検知ON！空中で軽く振ってみて！';
-  }catch(e){status.textContent='センサーを使えません。ブラウザの許可設定を確認してね。';}
+   if(typeof DeviceMotionEvent==='undefined')throw new Error('このブラウザは動作センサー非対応');
+   if(typeof DeviceMotionEvent.requestPermission==='function'){const p=await DeviceMotionEvent.requestPermission();if(p!=='granted')throw new Error('センサー許可が拒否されました');}
+   window.addEventListener('devicemotion',onMotion,{passive:true});
+   window.addEventListener('deviceorientation',onOrientation,{passive:true});
+   motionOn=true;samples=0;motionBtn.textContent='📳 振り検知をOFF';status.textContent='センサー待機中…スマホを安全に持って空中で軽く振ってね';
+  }catch(e){status.textContent='開始できません：'+e.message;}
  });
  function onMotion(e){
-  let x,y,z,threshold;
-  if(e.acceleration&&e.acceleration.x!==null){x=e.acceleration.x||0;y=e.acceleration.y||0;z=e.acceleration.z||0;threshold=7;}
-  else if(e.accelerationIncludingGravity){x=e.accelerationIncludingGravity.x||0;y=e.accelerationIncludingGravity.y||0;z=e.accelerationIncludingGravity.z||0;threshold=9;}
-  else return;
-  const mag=Math.sqrt(x*x+y*y+z*z);
-  // Gravity-inclusive fallback: detect a sudden change from the previous sensor sample.
-  let strength=mag;
-  if(e.acceleration&&e.acceleration.x!==null){strength=mag;}
-  else if(prev){strength=Math.sqrt((x-prev.x)**2+(y-prev.y)**2+(z-prev.z)**2);}
-  prev={x,y,z};
-  if(strength>threshold){play();status.textContent='動きを検知！ ペチッ！';}
+  samples++;
+  const a=e.acceleration, g=e.accelerationIncludingGravity, r=e.rotationRate;
+  let strength=0,kind=''; 
+  if(a && [a.x,a.y,a.z].some(v=>v!==null&&v!==undefined)){
+   const x=a.x||0,y=a.y||0,z=a.z||0;strength=Math.hypot(x,y,z);kind='加速度';
+  }else if(g && [g.x,g.y,g.z].some(v=>v!==null&&v!==undefined)){
+   const x=g.x||0,y=g.y||0,z=g.z||0;
+   if(prev){strength=Math.hypot(x-prev.x,y-prev.y,z-prev.z);kind='変化量';}
+   prev={x,y,z};
+  }
+  let rot=0;
+  if(r){rot=Math.max(Math.abs(r.alpha||0),Math.abs(r.beta||0),Math.abs(r.gamma||0));}
+  status.textContent='センサー受信OK ✓  '+kind+' '+strength.toFixed(1)+' / 回転 '+rot.toFixed(0)+'°/秒';
+  if(strength>2.4 || rot>95){play();}
  }
-})();
-</script></body></html>
+ function onOrientation(e){
+  // Orientation is shown as an additional sensor-presence check; motion detection uses acceleration/rotation.
+ }
+})();</script></body></html>
