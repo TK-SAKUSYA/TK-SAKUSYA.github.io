@@ -24,10 +24,16 @@
  function play(){
   const now=Date.now();if(now-last<420)return;last=now;
   ruler.classList.remove('hit');void ruler.offsetWidth;ruler.classList.add('hit');flash.classList.remove('on');void flash.offsetWidth;flash.classList.add('on');sound.classList.remove('show');void sound.offsetWidth;sound.classList.add('show');clearTimeout(play.t);play.t=setTimeout(()=>sound.classList.remove('show'),480);
-  if(!muted){try{if(!audio)unlockAudio();if(!audio)throw new Error('AudioContext unavailable');if(audio.state!=='running'){audio.resume();status.textContent='音声準備中…画面のペチッ！を一度タップしてね';return;}
-   const duration=.16,sr=audio.sampleRate,n=Math.floor(sr*duration),buffer=audio.createBuffer(1,n,sr),data=buffer.getChannelData(0);
-   for(let i=0;i<n;i++){const t=i/n;data[i]=(Math.random()*2-1)*Math.pow(1-t,3)*(.8*Math.sin(2*Math.PI*(260-150*t)*i/sr)+.2);}
-   const src=audio.createBufferSource(),gain=audio.createGain(),filter=audio.createBiquadFilter();src.buffer=buffer;filter.type='lowpass';filter.frequency.value=2200;gain.gain.setValueAtTime(.8,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);src.connect(filter);filter.connect(gain);gain.connect(audio.destination);src.start();
+  if(!muted){try{
+   if(!audio)unlockAudio();
+   if(!audio)throw new Error('AudioContext unavailable');
+   const startSound=()=>{
+    const duration=.16,sr=audio.sampleRate,n=Math.floor(sr*duration),buffer=audio.createBuffer(1,n,sr),data=buffer.getChannelData(0);
+    for(let i=0;i<n;i++){const t=i/n;data[i]=(Math.random()*2-1)*Math.pow(1-t,3)*(.8*Math.sin(2*Math.PI*(260-150*t)*i/sr)+.2);}
+    const src=audio.createBufferSource(),gain=audio.createGain(),filter=audio.createBiquadFilter();src.buffer=buffer;filter.type='lowpass';filter.frequency.value=2200;gain.gain.setValueAtTime(.8,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);src.connect(filter);filter.connect(gain);gain.connect(audio.destination);src.start();
+   };
+   if(audio.state==='running')startSound();
+   else audio.resume().then(()=>{if(audio.state==='running')startSound();}).catch(e=>{status.textContent='音声エラー：'+e.message;});
   }catch(e){status.textContent='音声エラー：'+e.message;}}
  }
  document.getElementById('hitBtn').addEventListener('click',async()=>{unlockAudio();if(audio&&audio.state==='suspended'){try{await audio.resume();}catch(e){}}play();});
@@ -46,14 +52,14 @@
  function onOrientation(e){
   if(e.beta===null||e.gamma===null)return;
   const current={beta:e.beta,gamma:e.gamma};
-  if(!baseAngles){baseAngles=current;status.textContent='基準位置を設定！下げると90°で1ペチ';return;}
+  if(!baseAngles){baseAngles=current;status.textContent='基準位置を設定！下げると45°以上で1ペチ';return;}
   const moved=Math.hypot(angleDiff(current.beta,baseAngles.beta),angleDiff(current.gamma,baseAngles.gamma));
   if(hitLocked){
    if(moved<=15){hitLocked=false;baseAngles=current;status.textContent='元の位置に戻った！次の下げ動作を待機中';}
    else status.textContent='戻している間は鳴らないよ！';
    return;
   }
-  status.textContent='下げ動作を検知中… あと'+Math.max(0,90-moved).toFixed(0)+'°';
-  if(moved>=90){hitLocked=true;play();status.textContent='下げ動作で1ペチ！戻すときは鳴らないよ';}
+  status.textContent='下げ動作を検知中… あと'+Math.max(0,45-moved).toFixed(0)+'°';
+  if(moved>=45){hitLocked=true;play();status.textContent='下げ動作で1ペチ！戻すときは鳴らないよ';}
  }
 })();</script></body></html>
