@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>バルディのものさし</title>
+<style>
+:root{color-scheme:dark;--bg:#111827;--panel:#1f2937;--yellow:#facc15;--red:#dc2626}
+*{box-sizing:border-box}body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% 15%,#374151 0,#111827 58%);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;color:#f9fafb;display:flex;justify-content:center;overflow:hidden}
+main{width:min(100%,560px);min-height:100svh;padding:22px 18px 26px;display:flex;flex-direction:column;align-items:center;gap:18px}
+h1{font-size:clamp(25px,7vw,36px);margin:8px 0 0;letter-spacing:.04em;text-shadow:0 3px 0 #0008}
+.sub{color:#cbd5e1;font-size:13px;text-align:center;margin-top:-12px}
+.stage{width:100%;flex:1;min-height:300px;display:grid;place-items:center;perspective:900px;position:relative}
+.ruler{width:min(82vw,350px);height:min(66vh,540px);min-height:300px;border:5px solid #8b5a24;border-radius:13px;background:linear-gradient(90deg,#b77932,#f5cf75 16%,#e9b957 50%,#f7d98c 85%,#a76529);box-shadow:inset 0 0 0 3px #ffe5a4,0 18px 35px #0008;position:relative;transform-origin:50% 85%;overflow:hidden;transition:transform .09s ease-out}
+.ruler:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0 19px,#39240f 20px 22px,transparent 23px 39px,#39240f 40px 43px,transparent 44px 59px);opacity:.85}
+.ruler:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0002,transparent 25%,#fff2 50%,transparent 75%,#0002);pointer-events:none}
+.scale{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-around;padding:10px 18px;z-index:1;color:#4a2b0b;font-weight:900;font-size:clamp(12px,3vw,16px)}
+.scale span{display:flex;justify-content:space-between;align-items:center}
+.brand{position:absolute;z-index:2;top:43%;left:0;right:0;text-align:center;color:#713b13;font-weight:1000;font-size:clamp(20px,6vw,30px);text-shadow:0 1px #ffe7a8;transform:rotate(-90deg)}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}.flash.on{animation:flash .18s ease-out}
+@keyframes flash{0%{opacity:.42}100%{opacity:0}}
+.hit{animation:swing .22s ease-out}
+@keyframes swing{0%{transform:rotate(0) translateY(0)}28%{transform:rotate(13deg) translateY(8px)}58%{transform:rotate(-7deg) translateY(-3px)}100%{transform:rotate(0) translateY(0)}}
+.sound{font-size:clamp(25px,8vw,42px);font-weight:1000;color:#fde047;text-shadow:0 4px 0 #92400e,0 7px 15px #0008;min-height:48px;opacity:0;transform:scale(.7);transition:.12s}
+.sound.show{opacity:1;transform:scale(1)}
+.controls{width:100%;display:grid;gap:12px}
+button{border:0;border-radius:16px;padding:17px 18px;font:900 18px system-ui;cursor:pointer;touch-action:manipulation}
+#hitBtn{background:linear-gradient(#facc15,#e69b08);color:#422006;box-shadow:0 5px 0 #92400e}
+#hitBtn:active{transform:translateY(3px);box-shadow:0 2px 0 #92400e}
+.secondary{background:#374151;color:#f9fafb;font-size:15px;padding:13px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:12px;line-height:1.6;color:#cbd5e1;text-align:center;margin:0}
+.status{font-size:12px;color:#a7f3d0;text-align:center;min-height:18px}
+</style>
+</head>
+<body>
+<main>
+<h1>📏 バルディのものさし</h1>
+<p class="sub">ペチッ！を鳴らして遊ぼう</p>
+<div class="stage">
+ <div class="ruler" id="ruler" aria-label="ものさし">
+  <div class="scale" aria-hidden="true"><span>0 <b>1</b></span><span>2 <b>3</b></span><span>4 <b>5</b></span><span>6 <b>7</b></span><span>8 <b>9</b></span><span>10 <b>11</b></span><span>12 <b>13</b></span><span>14 <b>15</b></span><span>16 <b>17</b></span><span>18 <b>19</b></span><span>20</span></div>
+  <div class="brand">BALDI'S RULER</div>
+ </div>
+ <div class="flash" id="flash"></div>
+</div>
+<div class="sound" id="sound">ペチッ！！</div>
+<div class="controls">
+ <button id="hitBtn">📏 ペチッ！</button>
+ <div class="row"><button class="secondary" id="motionBtn">📳 振動検知をON</button><button class="secondary" id="soundBtn">🔊 音量：ON</button></div>
+ <div class="status" id="status">ボタンを押すと音が鳴るよ！</div>
+</div>
+<p class="note">スマホを人や物に打ちつけないでね。振動検知を使う場合も、落とさないよう安全に持って空中で軽く動かしてね。</p>
+</main>
+<script>
+(()=> {
+ const ruler=document.getElementById('ruler'),sound=document.getElementById('sound'),flash=document.getElementById('flash'),status=document.getElementById('status');
+ let audio=null,muted=false,last=0,motionOn=false;
+ function play(){
+  const now=Date.now();if(now-last<260)return;last=now;
+  ruler.classList.remove('hit');void ruler.offsetWidth;ruler.classList.add('hit');
+  flash.classList.remove('on');void flash.offsetWidth;flash.classList.add('on');
+  sound.classList.remove('show');void sound.offsetWidth;sound.classList.add('show');
+  clearTimeout(play.t);play.t=setTimeout(()=>sound.classList.remove('show'),480);
+  if(!muted){
+   try{
+    audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+    if(audio.state==='suspended')audio.resume();
+    const duration=.12,sr=audio.sampleRate,n=Math.floor(sr*duration),buffer=audio.createBuffer(1,n,sr),data=buffer.getChannelData(0);
+    for(let i=0;i<n;i++){const t=i/n;data[i]=(Math.random()*2-1)*Math.pow(1-t,3)*(.65*Math.sin(2*Math.PI*(170-90*t)*i/sr)+.35);}
+    const src=audio.createBufferSource(),gain=audio.createGain(),filter=audio.createBiquadFilter();
+    src.buffer=buffer;filter.type='lowpass';filter.frequency.value=1700;gain.gain.setValueAtTime(.8,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);
+    src.connect(filter);filter.connect(gain);gain.connect(audio.destination);src.start();
+   }catch(e){status.textContent='音声を再生できません。もう一度タップしてね。';}
+  }
+ }
+ document.getElementById('hitBtn').addEventListener('click',play);
+ document.getElementById('soundBtn').addEventListener('click',e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 音量：OFF':'🔊 音量：ON';});
+ document.getElementById('motionBtn').addEventListener('click',async()=>{
+  if(motionOn){motionOn=false;window.removeEventListener('devicemotion',onMotion);status.textContent='振動検知をOFFにしました';document.getElementById('motionBtn').textContent='📳 振動検知をON';return;}
+  try{
+   if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){
+    const p=await DeviceMotionEvent.requestPermission();if(p!=='granted')throw new Error('permission');
+   }
+   if(!('DeviceMotionEvent'in window))throw new Error('unsupported');
+   motionOn=true;window.addEventListener('devicemotion',onMotion);document.getElementById('motionBtn').textContent='📳 振動検知をOFF';status.textContent='振動検知ON！安全に軽く動かしてね';
+  }catch(e){status.textContent='この端末では使えないか、センサー許可が必要です';}
+ });
+ function onMotion(e){
+  const a=e.accelerationIncludingGravity;if(!a)return;
+  const mag=Math.sqrt((a.x||0)**2+(a.y||0)**2+(a.z||0)**2);
+  if(mag>23)play();
+ }
+})();
+</script>
+</body>
+</html>
